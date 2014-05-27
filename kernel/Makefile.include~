@@ -1,0 +1,14 @@
+# 
+KERNEL_SRC = $(KERNEL_PATH)/src
+KERNEL_INC = $(KERNEL_PATH)/inc
+
+# Append to the include path
+SRC_PATH += -I $(KERNEL_SRC)
+INC_PATH += -I $(KERNEL_INC)
+
+# Extend the virtual path
+VPATH += $(KERNEL_SRC) $(KERNEL_INC)
+
+# Include the Makefiles in the various subdirectories in the current folder
+include $(LIBRARY_SRC)/Makefile.include
+

@@ -1,0 +1,2 @@
+# Append to the files to compile
+SRC_FILES += Gpio.cpp Led.cpp Button.cpp Spi.cpp I2c.cpp Serial.cpp

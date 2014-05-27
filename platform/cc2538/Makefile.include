@@ -1,0 +1,47 @@
+# 
+PLATFORM_SRC = $(PLATFORM_PATH)/src
+PLATFORM_INC = $(PLATFORM_PATH)/inc
+
+# Append to the files to compile
+SRC_FILES += startup_cc2538.c
+
+# Append to the include path
+SRC_PATH += -I $(PLATFORM_SRC)
+INC_PATH += -I $(PLATFORM_INC)
+INC_PATH += -I $(PLATFORM_SRC)
+
+# Linker script
+LINKER_SCRIPT = $(PLATFORM_PATH)/cc2538.lds
+
+# Extend the virtual path
+#   VPATH += $(PLATFORM_PATH)/cc2538
+VPATH += $(PLATFORM_SRC) $(PLATFORM_INC)
+
+# Include the Makefiles in the various subdirectories in the current folder
+include $(PLATFORM_SRC)/Makefile.include
+
+################################################################################
+
+# Configure the Segger J-Link
+JLINK_NAME = JLinkGDBServer
+JLINK_PATH = /opt/Segger/JLink
+JLINK_OPT = -device
+JLINK_DEV = CC2538SF53
+
+# Configure the GDB client
+GDB_BATCH = --batch 
+GDB_CMD = --command
+GDB_EXT = gdb
+
+################################################################################
+
+.PHONY: jlink
+.jlink:
+	@echo "Initializing Segger J-Link..."
+	@$(JLINK_PATH)/$(JLINK_NAME) $(JLINK_OPT) $(JLINK_DEV)
+	
+.PHONY: load
+.load:
+	@echo "Loading $(PROJECT_NAME) into target..."
+	@$(GDB) $(GDB_BATCH) $(GDB_CMD)=$(PROJECT_NAME).$(GDB_EXT)
+

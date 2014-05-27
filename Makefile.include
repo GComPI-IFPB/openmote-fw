@@ -1,0 +1,118 @@
+################################################################################
+
+CC = arm-none-eabi-gcc
+CPP = arm-none-eabi-g++
+AS = arm-none-eabi-as
+LD = arm-none-eabi-ld
+GDB = arm-none-eabi-gdb
+OBJCOPY = arm-none-eabi-objcopy
+OBJSIZE = arm-none-eabi-size
+
+################################################################################
+
+CFLAGS += -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd
+CFLAGS += -ffunction-sections -fdata-sections
+CFLAGS += -fshort-enums -fomit-frame-pointer
+CFLAGS += -Wl,--gc-sections
+CFLAGS += -fno-common
+CFLAGS += -Wall
+#CFLAGS += -Os
+
+CPPFLAGS += $(CFLAGS)
+CPPFLAGS += -fno-unwind-tables
+CPPFLAGS += -fno-exceptions
+CPPFLAGS += -fno-builtin
+CPPFLAGS += -fno-rtti 
+
+LDFLAGS += $(CPPFLAGS)
+
+################################################################################
+
+# Define the platform subdirectory
+PLATFORM_NAME = platform
+PLATFORM_PATH = $(PROJECT_HOME)/$(PLATFORM_NAME)
+
+# Define the library subdirectory
+LIBRARY_NAME = library
+LIBRARY_PATH = $(PROJECT_HOME)/$(LIBRARY_NAME)
+
+# Define the kernel subdirectory
+KERNEL_NAME = kernel
+KERNEL_PATH = $(PROJECT_HOME)/$(KERNEL_NAME)
+
+################################################################################
+
+# Include the names of the source files to compile
+SRC_FILES += $(PROJECT_FILES)
+
+# Define the name and path where the temporary object files are stored
+BIN_PATH = bin
+
+# Coverts the source files (c and cpp) to object files (o) to be used as targets
+TMP_FILES += $(patsubst %.c, %.o, ${SRC_FILES})
+TMP_FILES += $(patsubst %.cpp, %.o, ${SRC_FILES})
+
+# Filters out the source files (c and cpp) from the object files (o) to be compiled
+BIN_FILES = $(filter-out %.c %.cpp, $(TMP_FILES))
+
+# Adds the path to where the object files need to be stored
+BIN_TARGET = $(addprefix $(BIN_PATH)/, $(BIN_FILES))
+
+################################################################################
+
+# Include the platform and library makefiles
+include $(PLATFORM_PATH)/Makefile.include
+include $(LIBRARY_PATH)/Makefile.include
+
+# Decide if we need to include the kernel makefile
+ifeq ($(USE_KERNEL), TRUE)
+	include $(KERNEL_PATH)/Makefile.include
+endif
+
+# Add the various directories in the project home to the virtual path
+VPATH += $(PLATFORM_PATH) $(LIBRARY_PATH)
+
+################################################################################
+
+.PHONY: all
+all: pre build post stats
+
+pre:
+	@echo "Building '$(PROJECT_NAME)' project..."
+	@mkdir -p $(BIN_PATH)
+
+build: $(BIN_TARGET)
+	
+
+post: $(PROJECT_NAME).hex $(PROJECT_NAME).bin
+	@echo "Building '$(PROJECT_NAME)' done."
+    
+stats: $(PROJECT_NAME).elf
+	$(OBJSIZE) $(PROJECT_NAME).elf
+
+$(PROJECT_NAME).bin: $(PROJECT_NAME).elf
+	$(OBJCOPY) -O binary -j .text -j .data $(PROJECT_NAME).elf $(PROJECT_NAME).bin
+
+$(PROJECT_NAME).hex: $(PROJECT_NAME).elf
+	$(OBJCOPY) -R .stack -O ihex $(PROJECT_NAME).elf $(PROJECT_NAME).hex
+
+$(PROJECT_NAME).elf: $(BIN_TARGET)
+	$(CPP) $(LDFLAGS) -T$(LINKER_SCRIPT) -o $@ $^
+
+.PHONY: clean
+clean:
+	@echo "Cleaning '$(PROJECT_NAME)' project..."
+	@rm -f $(BIN_PATH)/*.*
+	@rm -f $(PROJECT_NAME)
+	@rm -f *.bin *.elf *.hex .map
+
+################################################################################
+
+# Target to compile C files into object files
+$(BIN_PATH)/%.o: %.c
+	$(CC) $(CFLAGS) $(INC_PATH) -c $< -o $@
+
+# Target to compile C++ files into object files
+$(BIN_PATH)/%.o: %.cpp
+	$(CPP) $(CPPFLAGS) $(INC_PATH) -c $< -o $@
+
