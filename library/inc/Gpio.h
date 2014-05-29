@@ -1,3 +1,6 @@
+#ifndef GPIO_H_
+#define GPIO_H_
+
 #include "gpio.h"
 
 typedef void (*callback_t)(void);
@@ -19,3 +22,5 @@ protected:
     uint32_t mode;
     callback_t callback;
 };
+
+#endif /* GPIO_H_ */

@@ -1,3 +1,6 @@
+#ifndef LED_H_
+#define LED_H_
+
 #include "Gpio.h"
 
 class Led : public Gpio
@@ -12,3 +15,5 @@ public:
 private:
 
 };
+
+#endif /* LED_H_ */
