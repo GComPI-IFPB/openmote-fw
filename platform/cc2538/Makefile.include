@@ -35,13 +35,13 @@ GDB_EXT = gdb
 
 ################################################################################
 
-.PHONY: jlink
-.jlink:
+.PHONY: jlink load
+
+jlink:
 	@echo "Initializing Segger J-Link..."
 	@$(JLINK_PATH)/$(JLINK_NAME) $(JLINK_OPT) $(JLINK_DEV)
-	
-.PHONY: load
-.load:
+
+load:
 	@echo "Loading $(PROJECT_NAME) into target..."
 	@$(GDB) $(GDB_BATCH) $(GDB_CMD)=$(PROJECT_NAME).$(GDB_EXT)
 

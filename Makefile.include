@@ -14,7 +14,6 @@ CFLAGS += -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -fshort-enums -fomit-frame-pointer
 CFLAGS += -Wl,--gc-sections
-CFLAGS += -fno-common
 CFLAGS += -Wall
 #CFLAGS += -Os
 
@@ -22,7 +21,9 @@ CPPFLAGS += $(CFLAGS)
 CPPFLAGS += -fno-unwind-tables
 CPPFLAGS += -fno-exceptions
 CPPFLAGS += -fno-builtin
-CPPFLAGS += -fno-rtti 
+CPPFLAGS += -fno-common
+CPPFLAGS += -fno-rtti
+CPPFLAGS += -std=c++11
 
 LDFLAGS += $(CPPFLAGS)
 
@@ -40,6 +41,10 @@ LIBRARY_PATH = $(PROJECT_HOME)/$(LIBRARY_NAME)
 KERNEL_NAME = kernel
 KERNEL_PATH = $(PROJECT_HOME)/$(KERNEL_NAME)
 
+# Define the sensors subdirectory
+SENSORS_NAME = sensors
+SENSORS_PATH = $(PROJECT_HOME)/$(SENSORS_NAME)
+
 ################################################################################
 
 # Include the names of the source files to compile
@@ -53,26 +58,29 @@ TMP_FILES += $(patsubst %.c, %.o, ${SRC_FILES})
 TMP_FILES += $(patsubst %.cpp, %.o, ${SRC_FILES})
 
 # Filters out the source files (c and cpp) from the object files (o) to be compiled
-BIN_FILES = $(filter-out %.c %.cpp, $(TMP_FILES))
+BIN_FILES = $(filter-out %.c %.cpp %.h, $(TMP_FILES))
 
 # Adds the path to where the object files need to be stored
 BIN_TARGET = $(addprefix $(BIN_PATH)/, $(BIN_FILES))
 
 ################################################################################
 
+# Add the various directories in the project home to the virtual path
+VPATH += $(PLATFORM_PATH) $(LIBRARY_PATH)
+
 # Include the platform and library makefiles
 include $(PLATFORM_PATH)/Makefile.include
 include $(LIBRARY_PATH)/Makefile.include
+include $(SENSORS_PATH)/Makefile.include
 
 # Decide if we need to include the kernel makefile
 ifeq ($(USE_KERNEL), TRUE)
 	include $(KERNEL_PATH)/Makefile.include
 endif
 
-# Add the various directories in the project home to the virtual path
-VPATH += $(PLATFORM_PATH) $(LIBRARY_PATH)
-
 ################################################################################
+
+.DEFAULT_GOAL = all
 
 .PHONY: all
 all: pre build post stats
