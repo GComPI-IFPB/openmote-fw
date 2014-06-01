@@ -14,6 +14,7 @@
  */
 
 #include "Gpio.h"
+#include "InterruptHandler.h"
 
 Gpio::Gpio(uint32_t port_, uint8_t pin_):
     port(port_), pin(pin_)
@@ -25,10 +26,22 @@ Gpio::Gpio(uint32_t port_, uint8_t pin_, uint32_t edge_):
 {
 }
 
-void Gpio::registerCallback(callback_t callback_)
+uint32_t Gpio::getPort(void)
 {
+    return port;
+}
+
+uint8_t Gpio::getPin(void)
+{
+    return pin;
+}
+
+void Gpio::setCallback(callback_t callback_)
+{
+    callback = callback_;
+    
     InterruptHandler & interruptHandler = InterruptHandler::getInstance();
-    interruptHandler.registerInterruptHandler(port, pin, callback_);
+    interruptHandler.registerGpioInterruptHandler(this);
 }
 
 void Gpio::enableInterrupt(void)
@@ -40,4 +53,11 @@ void Gpio::enableInterrupt(void)
 void Gpio::disableInterrupt(void)
 {
     GPIOPinIntDisable(port, pin);
+}
+
+void Gpio::interrupt(void)
+{
+    if (callback != nullptr) {
+        callback();
+    }
 }

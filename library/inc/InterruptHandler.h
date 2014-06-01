@@ -16,29 +16,32 @@
 #ifndef INTERRUPT_HANDLER_H_
 #define INTERRUPT_HANDLER_H_
 
-#include "gpio.h"
-
 #include "hw_types.h"
-#include "hw_memmap.h"
 
-typedef void (*callback_t)(void);
+class Gpio;
+class Uart;
 
 class InterruptHandler {
 
 public:
     static InterruptHandler& getInstance(void);
-    static void registerInterruptHandler(uint32_t interrupt_, uint8_t pin_, callback_t callback_);
+    static void registerGpioInterruptHandler(Gpio* gpio_);
+    static void registerUartInterruptHandler(Gpio* tx_, Gpio* rx_);
     static void GPIOA_InterruptHandler(void);
     static void GPIOB_InterruptHandler(void);
     static void GPIOC_InterruptHandler(void);
     static void GPIOD_InterruptHandler(void);
+    static void UART0_InterruptHandler(void);
+    static void UART1_InterruptHandler(void);
 private:
     InterruptHandler();
     static InterruptHandler instance;
-    static callback_t GPIOA_interruptVector[8];
-    static callback_t GPIOB_interruptVector[8];
-    static callback_t GPIOC_interruptVector[8];
-    static callback_t GPIOD_interruptVector[8];
+    static Gpio* GPIOA_interruptVector[8];
+    static Gpio* GPIOB_interruptVector[8];
+    static Gpio* GPIOC_interruptVector[8];
+    static Gpio* GPIOD_interruptVector[8];
+    static Uart* UART0_interruptVector[2];
+    static Uart* UART1_interruptVector[2];
 };
 
 #endif /* INTERRUPT_HANDLER_H */
