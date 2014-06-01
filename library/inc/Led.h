@@ -11,6 +11,7 @@ public:
     void on(void);
     void off(void);
     void toggle(void);
+    uint32_t status(void);
 private:
 
 };

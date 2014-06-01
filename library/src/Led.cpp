@@ -26,3 +26,9 @@ void Led::toggle(void)
     GPIOPinWrite(port, pin, status);
 }
 
+uint32_t Led::status(void)
+{
+    uint32_t status = GPIOPinRead(port, pin);
+        
+    return (status & pin);
+}
