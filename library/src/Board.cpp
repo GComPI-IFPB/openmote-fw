@@ -16,7 +16,7 @@ void Board::init()
     IOCPadConfigSet(GPIO_D_BASE, 0x80, IOC_OVERRIDE_ANA);
 
     /**
-     * Set the real-time clock to use the 32khz internal crystal
+     * Set the real-time clock to use the 32 kHz internal crystal
      * Set the system clock to use the external 32 MHz crystal
      * Set the system clock to 32 MHz
      */
@@ -37,4 +37,20 @@ void Board::init()
 void Board::reset(void)
 {
     SysCtrlReset();
+}
+
+void Board::sleep(void)
+{
+    SysCtrlPowerModeSet(SYS_CTRL_PM_NOACTION);
+    SysCtrlSleep();
+}
+
+void Board::enableInterrupts(void)
+{
+    IntMasterEnable();
+}
+
+void Board::disableInterrupts(void)
+{
+    IntMasterDisable();
 }
