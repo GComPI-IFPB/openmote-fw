@@ -16,21 +16,9 @@
 #ifndef BOARD_H_
 #define BOARD_H_
 
-#include "gpio.h"
-#include "ioc.h"
-#include "sys_ctrl.h"
-#include "interrupt.h"
-
-#include "hw_gpio.h"
-#include "hw_ioc.h"
-#include "hw_memmap.h"
-#include "hw_sys_ctrl.h"
-#include "hw_types.h"
-
 class Board {
 public:
     Board();
-    void init(void);
     void reset(void);
     void sleep(void);
     void enableInterrupts(void);

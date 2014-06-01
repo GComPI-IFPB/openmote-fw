@@ -1,10 +1,19 @@
 #include "Board.h"
 
-Board::Board()
-{
-}
+#include "gpio.h"
+#include "interrupt.h"
+#include "ioc.h"
+#include "sys_ctrl.h"
 
-void Board::init()
+#include "hw_gpio.h"
+#include "hw_ints.h"
+#include "hw_ioc.h"
+#include "hw_sys_ctrl.h"
+
+#include "hw_memmap.h"
+#include "hw_types.h"
+
+Board::Board()
 {
     /**
      * Configure the 32 kHz pins, PD6 and PD7, for crystal operation
