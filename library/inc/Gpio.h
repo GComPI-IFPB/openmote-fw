@@ -17,6 +17,7 @@
 #define GPIO_H_
 
 #include "gpio.h"
+
 #include "hw_memmap.h"
 #include "hw_types.h"
 
@@ -33,7 +34,7 @@ public:
     void setCallback(callback_t callback_);
     void enableInterrupt(void);
     void disableInterrupt(void);
-    void interrupt(void);
+    void interruptHandler(void);
 protected:
     uint32_t port;
     uint8_t pin;

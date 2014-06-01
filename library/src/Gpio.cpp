@@ -41,7 +41,7 @@ void Gpio::setCallback(callback_t callback_)
     callback = callback_;
     
     InterruptHandler & interruptHandler = InterruptHandler::getInstance();
-    interruptHandler.registerGpioInterruptHandler(this);
+    interruptHandler.registerInterruptHandler(this);
 }
 
 void Gpio::enableInterrupt(void)
@@ -55,7 +55,7 @@ void Gpio::disableInterrupt(void)
     GPIOPinIntDisable(port, pin);
 }
 
-void Gpio::interrupt(void)
+void Gpio::interruptHandler(void)
 {
     if (callback != nullptr) {
         callback();
