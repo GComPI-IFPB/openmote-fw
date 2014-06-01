@@ -42,6 +42,22 @@
 #define BUTTON_USER_PIN         ( GPIO_PIN_3 )
 #define BUTTON_USER_EDGE        ( GPIO_FALLING_EDGE )
 
+#define UART_PERIPHERAL         ( SYS_CTRL_PERIPH_UART0 )
+#define UART_PORT               ( UART0_BASE )
+#define UART_CLOCK              ( UART_CLOCK_PIOSC )
+#define UART_INTERRUPT          ( INT_UART0 )
+#define UART_BAUDRATE           ( 115200 )
+#define UART_CONFIG             ( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE )
+#define UART_RX_PORT            ( GPIO_A_BASE )
+#define UART_RX_PIN             ( GPIO_PIN_0 )
+#define UART_RX_IOC             ( IOC_UARTRXD_UART0 )
+#define UART_RX_INT             ( UART_INT_RX )
+#define UART_TX_PORT            ( GPIO_A_BASE )
+#define UART_TX_PIN             ( GPIO_PIN_1 )
+#define UART_TX_IOC             ( IOC_MUX_OUT_SEL_UART0_TXD )
+#define UART_TX_INT             ( UART_INT_TX )
+#define UART_TX_INT_MODE        ( UART_TXINT_MODE_EOT ) 
+
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
