@@ -16,6 +16,10 @@
 #ifndef INTERRUPT_HANDLER_H_
 #define INTERRUPT_HANDLER_H_
 
+#include "gpio.h"
+#include "uart.h"
+
+#include "hw_memmap.h"
 #include "hw_types.h"
 
 class Gpio;
@@ -25,14 +29,14 @@ class InterruptHandler {
 
 public:
     static InterruptHandler& getInstance(void);
-    static void registerGpioInterruptHandler(Gpio* gpio_);
-    static void registerUartInterruptHandler(Gpio* tx_, Gpio* rx_);
-    static void GPIOA_InterruptHandler(void);
-    static void GPIOB_InterruptHandler(void);
-    static void GPIOC_InterruptHandler(void);
-    static void GPIOD_InterruptHandler(void);
-    static void UART0_InterruptHandler(void);
-    static void UART1_InterruptHandler(void);
+    static void registerInterruptHandler(Gpio* gpio_);
+    static void registerInterruptHandler(Uart* uart_);
+    static inline void GPIOA_InterruptHandler(void);
+    static inline void GPIOB_InterruptHandler(void);
+    static inline void GPIOC_InterruptHandler(void);
+    static inline void GPIOD_InterruptHandler(void);
+    static inline void UART0_InterruptHandler(void);
+    static inline void UART1_InterruptHandler(void);
 private:
     InterruptHandler();
     static InterruptHandler instance;
@@ -40,8 +44,8 @@ private:
     static Gpio* GPIOB_interruptVector[8];
     static Gpio* GPIOC_interruptVector[8];
     static Gpio* GPIOD_interruptVector[8];
-    static Uart* UART0_interruptVector[2];
-    static Uart* UART1_interruptVector[2];
+    static Uart* UART0_interruptVector;
+    static Uart* UART1_interruptVector;
 };
 
 #endif /* INTERRUPT_HANDLER_H */
