@@ -10,17 +10,17 @@ OBJSIZE = arm-none-eabi-size
 
 ################################################################################
 
-# Flags for C compiling
+# C compiling flags
 CFLAGS += -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -fshort-enums -fomit-frame-pointer
 CFLAGS += -Wl,--gc-sections
 CFLAGS += -std=c99
 CFLAGS += -Wall
-#CFLAGS += -O3
+CFLAGS += -Os
 CFLAGS += -g
 
-# Flags for C++ compiling
+# C++ compiling flags
 CPPFLAGS += -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd
 CPPFLAGS += -ffunction-sections -fdata-sections
 CPPFLAGS += -fshort-enums -fomit-frame-pointer
@@ -31,7 +31,8 @@ CPPFLAGS += -fno-builtin
 CPPFLAGS += -fno-common
 CPPFLAGS += -fno-rtti
 CPPFLAGS += -std=c++11
-#CPPFLAGS += -O3
+CPPFLAGS += -Wall
+CPPFLAGS += -Os
 CPPFLAGS += -g
 
 LDFLAGS += $(CPPFLAGS)
