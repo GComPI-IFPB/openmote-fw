@@ -3,19 +3,24 @@ SENSORS_ADXL346  = $(SENSORS_PATH)/adxl346
 SENSORS_MAX44009 = $(SENSORS_PATH)/max44009
 SENSORS_SHT21    = $(SENSORS_PATH)/sht21
 
-#SENSORS_DIRS     = $(SENSORS_ADXL346) \
-#                   $(SENSORS_MAX44009) \
-#                   $(SENSORS_SHT21)
+SENSORS_DIRS     = $(SENSORS_ADXL346) \
+                   $(SENSORS_MAX44009) \
+                   $(SENSORS_SHT21)
 
 # Append to the include path
-#SRC_PATH += -I $(SENSORS_DIRS)
-#INC_PATH += -I $(SENSORS_DIRS)
+SRC_PATH += -I $(SENSORS_ADXL346)
+INC_PATH += -I $(SENSORS_ADXL346)
+SRC_PATH += -I $(SENSORS_MAX44009)
+INC_PATH += -I $(SENSORS_MAX44009)
+SRC_PATH += -I $(SENSORS_SHT21)
+INC_PATH += -I $(SENSORS_SHT21)
+
 
 # Extend the virtual path
-#VPATH += $(SENSORS_DIRS)
+VPATH += $(SENSORS_DIRS)
 
 # Include the Makefiles in the various subdirectories in the current folder
-#include $(SENSORS_ADXL346)/Makefile.include
-#include $(SENSORS_MAX44009)/Makefile.include
-#include $(SENSORS_SHT21)/Makefile.include
+include $(SENSORS_ADXL346)/Makefile.include
+include $(SENSORS_MAX44009)/Makefile.include
+include $(SENSORS_SHT21)/Makefile.include
 

@@ -1,4 +1,20 @@
+/*
+ * Copyright 2013 OpenMote Technologies, S.L.
+ */
+
+/**
+ *
+ * @file       sht21.cpp
+ * @author     Pere Tuset-Peiro (peretuset@openmote.com)
+ * @version    v0.1
+ * @date       May, 2014
+ * @brief
+ * @ingroup
+ *
+ */
+
 #include "Sht21.h"
+#include "I2c.h"
 
 #define SHT21_I2C_ADDRESS               ( 0x40 ) /* SHT21 I2C address, last bit is read/write */
 
@@ -13,7 +29,8 @@
 #define SHT21_HUMIDITY_NHM_CMD          ( 0xF5 )
 #define SHT21_RESET_CMD                 ( 0xFE )
 
-Sht21::Sht21()
+Sht21::Sht21(I2c* i2c_):
+    i2c(i2c_)
 {
     // board_delay_us(SHT21_WAKEUP_TIME_US);
 
@@ -43,7 +60,7 @@ void Sht21::readTemperature(void)
     // sht21_data->humidity_raw = (sht21_humidity[1] << 8) | sht21_humidity[0];
 }
 
-void Sht21::readHumitidy(void)
+void Sht21::readHumidity(void)
 {
     // uint8_t sht21_temperature[2];
 

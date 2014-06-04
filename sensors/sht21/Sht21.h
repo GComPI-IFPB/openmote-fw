@@ -16,15 +16,18 @@
 #ifndef SHT21_H_
 #define SHT21_H_
 
+#include "I2c.h"
+
 class Sht21 {
 public:
-    Sht21();
+    Sht21(I2c* i2c_);
     void reset(void);
     void readTemperature(void);
-    void readHumidity(void)
+    void readHumidity(void);
     float getTemperature(void);
     float getHumidity(void);
 private:
+    I2c* i2c;
     uint16_t temperature;
     uint16_t humidity;
 };
