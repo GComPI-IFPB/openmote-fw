@@ -16,7 +16,46 @@
 #include "Max44009.h"
 #include "I2c.h"
 
-#define MAX44009_ADDRESS            ( 0x4A )
+#define MAX44009_ADDRESS                    ( 0x4A )
+
+#define MAX44009_INT_STATUS_ADDR            ( 0x00 )    // R
+#define MAX44009_IN_ENABLE_ADDR             ( 0x01 )    // R/W
+#define MAX44009_CONFIG_ADDR                ( 0x02 )    // R/W
+#define MAX44009_LUX_HIGH_ADDR              ( 0x03 )    // R
+#define MAX44009_LUX_LOW_ADDR               ( 0x04 )    // R
+#define MAX44009_THR_HIGH_ADDR              ( 0x05 )    // R/W
+#define MAX44009_THR_LOW_ADDR               ( 0x06 )    // R/W
+#define MAX44009_THR_TIMER_ADDR             ( 0x07 )    // R/W
+
+#define MAX44009_INT_STATUS_OFF             ( 0x00 )
+#define MAX44009_INT_STATUS_ON              ( 0x01 )
+#define MAX44009_INT_DISABLED               ( 0x00 )
+#define MAX44009_INT_ENABLED                ( 0x01 )
+
+#define MAX44009_CONFIG_DEFAULT             ( 0 << 7 )
+#define MAX44009_CONFIG_CONTINUOUS          ( 1 << 7 )
+#define MAX44009_CONFIG_AUTO                ( 0 << 6 )
+#define MAX44009_CONFIG_MANUAL              ( 1 << 6 )
+#define MAX44009_CONFIG_CDR_NORMAL          ( 0 << 5 )
+#define MAX44009_CONFIG_CDR_DIVIDED         ( 1 << 5 )
+#define MAX44009_CONFIG_INTEGRATION_800ms   ( 0 << 0 )
+#define MAX44009_CONFIG_INTEGRATION_400ms   ( 1 << 0 )
+#define MAX44009_CONFIG_INTEGRATION_200ms   ( 2 << 0 )
+#define MAX44009_CONFIG_INTEGRATION_100ms   ( 3 << 0 )
+#define MAX44009_CONFIG_INTEGRATION_50ms    ( 4 << 0 )
+#define MAX44009_CONFIG_INTEGRATION_25ms    ( 5 << 0 )
+#define MAX44009_CONFIG_INTEGRATION_12ms    ( 6 << 0 )
+#define MAX44009_CONFIG_INTEGRATION_6ms     ( 7 << 0 )
+
+#define MAX44009_DEFAULT_CONFIGURATION      ( MAX44009_CONFIG_DEFAULT | \
+                                              MAX44009_CONFIG_AUTO | \
+                                              MAX44009_CONFIG_CDR_NORMAL | \
+                                              MAX44009_CONFIG_INTEGRATION_100ms )
+                                              
+#define MAX44009_CURRENT_CONFIGURATION      ( MAX44009_CONFIG_DEFAULT | \
+                                              MAX44009_CONFIG_AUTO | \
+                                              MAX44009_CONFIG_CDR_NORMAL | \
+                                              MAX44009_CONFIG_INTEGRATION_800ms )
 
 Max44009::Max44009(I2c* i2c_):
     i2c(i2c_)
@@ -26,6 +65,7 @@ Max44009::Max44009(I2c* i2c_):
 bool Max44009::isPresent(void)
 {
     uint8_t status;
-    status = i2c->readByte(MAX44009_ADDRESS, MAX44009_REGISTER);
-    return (status == MAX44009_VALUE);
+    status = i2c->readByte(MAX44009_ADDRESS, MAX44009_CONFIG_ADDR);
+    return (status == MAX44009_DEFAULT_CONFIGURATION);
 }
+
