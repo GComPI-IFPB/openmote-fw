@@ -8,6 +8,7 @@ SENSORS_DIRS     = $(SENSORS_ADXL346) \
                    $(SENSORS_SHT21)
 
 # Append to the include path
+INC_PATH += -I $(SENSORS_PATH)
 SRC_PATH += -I $(SENSORS_ADXL346)
 INC_PATH += -I $(SENSORS_ADXL346)
 SRC_PATH += -I $(SENSORS_MAX44009)
@@ -15,9 +16,8 @@ INC_PATH += -I $(SENSORS_MAX44009)
 SRC_PATH += -I $(SENSORS_SHT21)
 INC_PATH += -I $(SENSORS_SHT21)
 
-
 # Extend the virtual path
-VPATH += $(SENSORS_DIRS)
+VPATH += $(SENSORS_PATH) $(SENSORS_DIRS)
 
 # Include the Makefiles in the various subdirectories in the current folder
 include $(SENSORS_ADXL346)/Makefile.include

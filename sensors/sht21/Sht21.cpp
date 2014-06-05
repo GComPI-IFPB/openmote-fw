@@ -16,12 +16,14 @@
 #include "Sht21.h"
 #include "I2c.h"
 
-#define SHT21_I2C_ADDRESS               ( 0x40 ) /* SHT21 I2C address, last bit is read/write */
+#define SHT21_ADDRESS                   ( 0x40 )
 
 #define SHT21_WAKEUP_TIME_US            ( 15000 )
 
+#define SHT21_CONFIG_DEFAULT            ( 0x3A )
+
 #define SHT21_READ_USER_REG             ( 0xE7 )
-#define SHT21_WRITE_USER_REG            ( 0xE7 )
+#define SHT21_WRITE_USER_REG            ( 0xE6 )
 
 #define SHT21_TEMPERATURE_HM_CMD        ( 0xE3 )
 #define SHT21_HUMIDITY_HM_CMD           ( 0xE5 )
@@ -32,14 +34,13 @@
 Sht21::Sht21(I2c* i2c_):
     i2c(i2c_)
 {
-    // board_delay_us(SHT21_WAKEUP_TIME_US);
+}
 
-    // i2c_enable();
-
-    // sht21_status = i2c_read_single(SHT21_I2C_ADDRESS, SHT21_READ_USER_REG);
-    // sht21_status = sht21_status & 0x3A;
-
-    // i2c_write_single(SHT21_I2C_ADDRESS, SHT21_WRITE_USER_REG, sht21_status);
+bool Sht21::isPresent(void)
+{
+    uint8_t status;
+    status = i2c->readByte(SHT21_ADDRESS, SHT21_READ_USER_REG);
+    return (status == SHT21_CONFIG_DEFAULT);
 }
 
 void Sht21::reset(void)

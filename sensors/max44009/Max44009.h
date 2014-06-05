@@ -16,9 +16,11 @@
 #ifndef MAX44009_H_
 #define MAX44009_H_
 
+#include "Sensor.h"
+
 class I2c;
 
-class Max44009
+class Max44009: public Sensor
 {
 
 public:

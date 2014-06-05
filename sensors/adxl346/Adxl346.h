@@ -16,9 +16,11 @@
 #ifndef ADXL346_H_
 #define ADXL346_H_
 
+#include "Sensor.h"
+
 class I2c;
 
-class Adxl346
+class Adxl346: public Sensor
 {
 
 public:

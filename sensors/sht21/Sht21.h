@@ -16,11 +16,17 @@
 #ifndef SHT21_H_
 #define SHT21_H_
 
-#include "I2c.h"
+#include "hw_types.h"
 
-class Sht21 {
+#include "Sensor.h"
+
+class I2c;
+
+class Sht21: public Sensor
+{
 public:
     Sht21(I2c* i2c_);
+    bool isPresent(void);
     void reset(void);
     void readTemperature(void);
     void readHumidity(void);
