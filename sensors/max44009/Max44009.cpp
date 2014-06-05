@@ -32,6 +32,10 @@
 #define MAX44009_INT_DISABLED               ( 0x00 )
 #define MAX44009_INT_ENABLED                ( 0x01 )
 
+#define MAX44009_THR_HIGH_DEFAULT           ( 0xFF )
+#define MAX44009_THR_LOW_DEFAULT            ( 0x00 )
+#define MAX44009_THR_TIMER_DEFAULT          ( 0xFF )
+
 #define MAX44009_CONFIG_DEFAULT             ( 0 << 7 )
 #define MAX44009_CONFIG_CONTINUOUS          ( 1 << 7 )
 #define MAX44009_CONFIG_AUTO                ( 0 << 6 )
@@ -65,7 +69,7 @@ Max44009::Max44009(I2c* i2c_):
 bool Max44009::isPresent(void)
 {
     uint8_t status;
-    status = i2c->readByte(MAX44009_ADDRESS, MAX44009_CONFIG_ADDR);
-    return (status == MAX44009_DEFAULT_CONFIGURATION);
+    status = i2c->readByte(MAX44009_ADDRESS, MAX44009_THR_TIMER_ADDR);
+    return (status == MAX44009_THR_TIMER_DEFAULT);
 }
 
