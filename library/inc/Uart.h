@@ -16,8 +16,6 @@
 #ifndef UART_H_
 #define UART_H_
 
-class Gpio;
-
 #include "interrupt.h"
 #include "ioc.h"
 #include "uart.h"
@@ -27,6 +25,8 @@ class Gpio;
 #include "hw_ints.h"
 #include "hw_types.h"
 #include "hw_uart.h"
+
+class Gpio;
 
 class Uart
 {
@@ -38,6 +38,7 @@ public:
     void setTxGpio(Gpio & tx_, uint32_t ioc_);
     uint8_t readByte(void);
     void writeByte(uint8_t byte);
+    void writeByte(uint8_t * buffer, uint8_t len);
     void interruptEnable(void);
     void interruptDisable(void);
     void interruptHandler(void);

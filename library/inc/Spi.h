@@ -20,6 +20,8 @@
 
 class Spi
 {
+public:
+    Spi();
 private:
 
 };

@@ -21,6 +21,7 @@ Uart::Uart(uint32_t peripheral_, uint32_t uart_, uint32_t clock_, uint32_t inter
 {
     // Enable the UART peripheral
     SysCtrlPeripheralEnable(peripheral);
+    SysCtrlPeripheralReset(peripheral);
 
     // Set IO clock as UART clock source
     UARTClockSourceSet(uart, clock);
@@ -75,6 +76,13 @@ uint8_t Uart::readByte(void)
 void Uart::writeByte(uint8_t byte)
 {
     UARTCharPut(uart, byte);
+}
+
+void Uart::writeByte(uint8_t * buffer, uint8_t len)
+{
+    while(len--) {
+        writeByte(*buffer++);
+    }
 }
 
 void Uart::interruptEnable(void)
