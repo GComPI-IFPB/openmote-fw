@@ -16,6 +16,7 @@
 #include "Gpio.h"
 #include "InterruptHandler.h"
 #include "Uart.h"
+#include "I2c.h"
 
 InterruptHandler InterruptHandler::instance;
 
@@ -27,6 +28,8 @@ Gpio* InterruptHandler::GPIOD_interruptVector[8];
 Uart* InterruptHandler::UART0_interruptVector;
 Uart* InterruptHandler::UART1_interruptVector;
 
+I2c* InterruptHandler::I2c_interruptVector;
+
 InterruptHandler::InterruptHandler()
 {
     GPIOPortIntRegister(GPIO_A_BASE, GPIOA_InterruptHandler);
@@ -36,6 +39,8 @@ InterruptHandler::InterruptHandler()
     
     UARTIntRegister(UART0_BASE, UART0_InterruptHandler);
     UARTIntRegister(UART1_BASE, UART1_InterruptHandler);
+    
+    I2CIntRegister(I2C_InterruptHandler);
 }
 
 InterruptHandler &InterruptHandler::getInstance(void)
@@ -87,6 +92,11 @@ void InterruptHandler::registerInterruptHandler(Uart * uart_)
     } else if (port_ == UART1_BASE) {
         UART1_interruptVector = uart_;
     }
+}
+
+void InterruptHandler::registerInterruptHandler(I2c * i2c_)
+{
+    I2c_interruptVector = i2c_;
 }
 
 inline void InterruptHandler::GPIOA_InterruptHandler(void)
@@ -197,4 +207,9 @@ inline void InterruptHandler::UART0_InterruptHandler(void)
 inline void InterruptHandler::UART1_InterruptHandler(void)
 {
     UART1_interruptVector->interruptHandler();
+}
+
+inline void InterruptHandler::I2C_InterruptHandler(void)
+{
+    I2c_interruptVector->interruptHandler();
 }

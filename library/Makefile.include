@@ -1,5 +1,5 @@
 # 
-LIBRARY_SRC = $(LIBRARY_PATH)/src
+LIBRARY_SRC = $(LIBRARY_PATH)/$(TARGET)
 LIBRARY_INC = $(LIBRARY_PATH)/inc
 
 # Append to the include path
