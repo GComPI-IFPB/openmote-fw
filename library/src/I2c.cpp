@@ -32,7 +32,7 @@ uint8_t I2c::readByte(uint8_t address_, uint8_t register_)
 {
     uint8_t data;
 
-    I2CMasterSlaveAddrSet(address_, false);
+    I2CMasterSlaveAddrSet(address_, false); // write
 
     I2CMasterDataPut(register_);
 
@@ -41,13 +41,9 @@ uint8_t I2c::readByte(uint8_t address_, uint8_t register_)
     while(I2CMasterBusy())
         ;
 
-    data = I2CMasterDataGet();
+    I2CMasterSlaveAddrSet(address_, true); // read
 
-    I2CMasterSlaveAddrSet(address_, true);
-
-    I2CMasterDataPut(register_);
-
-    I2CMasterControl(I2C_MASTER_CMD_SINGLE_SEND);
+    I2CMasterControl(I2C_MASTER_CMD_SINGLE_RECEIVE);
 
     while(I2CMasterBusy())
         ;
@@ -58,12 +54,80 @@ uint8_t I2c::readByte(uint8_t address_, uint8_t register_)
 }
 
 uint8_t I2c::readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uint8_t size)
+{    
+    while(size) {
+
+        I2CMasterSlaveAddrSet(address_, false); // write
+
+        I2CMasterDataPut(register_++);
+
+        I2CMasterControl(I2C_MASTER_CMD_SINGLE_SEND);
+
+        while(I2CMasterBusy())
+            ;
+
+        I2CMasterSlaveAddrSet(address_, true); // read
+
+        I2CMasterControl(I2C_MASTER_CMD_SINGLE_RECEIVE);
+
+        while(I2CMasterBusy())
+            ;
+
+        *buffer++ = I2CMasterDataGet();
+        size--;
+    
+    }
+    
+    return size;
+}
+
+void I2c::writeByte(uint8_t address_, uint8_t register_)
 {
-    return 0;
+    I2CMasterSlaveAddrSet(address_, false); // write
+
+    I2CMasterDataPut(register_);
+
+    I2CMasterControl(I2C_MASTER_CMD_SINGLE_SEND);
+
+    while(I2CMasterBusy())
+        ;
 }
 
 void I2c::writeByte(uint8_t address_, uint8_t register_, uint8_t data_)
 {
+    uint8_t buffer_[2] {register_, data_};
+    writeByte(address_, buffer_, sizeof(buffer_));
+}
+
+void I2c::writeByte(uint8_t address_, uint8_t * data_, uint8_t size_)
+{
+    I2CMasterSlaveAddrSet(address_, false); // write
+
+    I2CMasterDataPut(*data_++);
+    size_--;
+
+    I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_START);
+
+    while(I2CMasterBusy())
+        ;
+        
+    while(size_ > 1) {
+        I2CMasterDataPut(*data_++);
+        size_--;
+
+        I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_CONT);
+
+        while(I2CMasterBusy())
+            ;
+    }
+    
+    I2CMasterDataPut(*data_);
+    size_--;
+
+    I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_FINISH);
+
+    while(I2CMasterBusy())
+        ;    
 }
 
 void I2c::interruptEnable(void)

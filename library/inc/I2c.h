@@ -36,7 +36,9 @@ public:
     void init(uint32_t clock_);
     uint8_t readByte(uint8_t address_, uint8_t register_);
     uint8_t readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uint8_t size);
+    void writeByte(uint8_t address_, uint8_t register_);
     void writeByte(uint8_t address_, uint8_t register_, uint8_t data_);
+    void writeByte(uint8_t address_, uint8_t * data_, uint8_t size);
     void interruptEnable(void);
     void interruptDisable(void);
     void interruptHandler(void);
