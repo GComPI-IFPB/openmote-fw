@@ -25,6 +25,8 @@ class Adxl346: public Sensor
 
 public:
     Adxl346(I2c* i2c_);
+    void enable(void);
+    void reset(void);
     bool isPresent(void);
 private:
     I2c * i2c;

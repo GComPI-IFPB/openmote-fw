@@ -18,6 +18,8 @@
 
 class Sensor {
 public:
+    virtual void enable(void) = 0;
+    virtual void reset(void) = 0; 
     virtual bool isPresent(void) = 0;
 private:
 };

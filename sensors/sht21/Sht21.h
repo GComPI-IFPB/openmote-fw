@@ -26,8 +26,9 @@ class Sht21: public Sensor
 {
 public:
     Sht21(I2c* i2c_);
-    bool isPresent(void);
+    void enable(void);
     void reset(void);
+    bool isPresent(void);
     void readTemperature(void);
     void readHumidity(void);
     float getTemperature(void);

@@ -55,14 +55,17 @@
                                               MAX44009_CONFIG_AUTO | \
                                               MAX44009_CONFIG_CDR_NORMAL | \
                                               MAX44009_CONFIG_INTEGRATION_100ms )
-                                              
-#define MAX44009_CURRENT_CONFIGURATION      ( MAX44009_CONFIG_DEFAULT | \
-                                              MAX44009_CONFIG_AUTO | \
-                                              MAX44009_CONFIG_CDR_NORMAL | \
-                                              MAX44009_CONFIG_INTEGRATION_800ms )
 
 Max44009::Max44009(I2c* i2c_):
     i2c(i2c_)
+{
+}
+
+void Max44009::enable(void)
+{
+}
+
+void Max44009::reset(void)
 {
 }
 
@@ -73,3 +76,24 @@ bool Max44009::isPresent(void)
     return (status == MAX44009_THR_TIMER_DEFAULT);
 }
 
+void Max44009::readLux(void)
+{
+    uint8_t max44009_data[2];
+    i2c->readByte(MAX44009_ADDRESS, MAX44009_LUX_HIGH_ADDR, max44009_data, sizeof(max44009_data));
+    exponent = (( max44009_data[0] >> 4 )  & 0x0E);
+    mantissa = (( max44009_data[0] & 0x0F) << 4) | (max44009_data[1] & 0x0F);
+}
+
+float Max44009::getLux(void)
+{
+    float lux = 0.045;
+    lux *= 2^exponent * mantissa;
+    return lux;
+}
+
+uint16_t Max44009::getLuxRaw(void)
+{
+    uint16_t lux;
+    lux = ( (uint16_t)exponent << 8 ) | ( (uint16_t) mantissa );
+    return lux;
+}

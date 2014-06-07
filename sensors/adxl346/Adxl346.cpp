@@ -25,6 +25,14 @@ Adxl346::Adxl346(I2c* i2c_):
 {
 }
 
+void Adxl346::enable(void)
+{
+}
+
+void Adxl346::reset(void)
+{
+}
+
 bool Adxl346::isPresent(void)
 {
     uint8_t status;
