@@ -1,0 +1,6 @@
+# Append to the include path
+INC_PATH += -I $(BOARD_PATH)
+
+# Extend the virtual path
+VPATH += $(BOARD_PATH)
+

@@ -39,6 +39,10 @@ LDFLAGS += $(CPPFLAGS)
 
 ################################################################################
 
+#define the board subdirectory
+BOARD_NAME    = board
+BOARD_PATH    = $(PROJECT_HOME)/$(BOARD_NAME)
+
 # Define the platform subdirectory
 PLATFORM_NAME = platform
 PLATFORM_PATH = $(PROJECT_HOME)/$(PLATFORM_NAME)
@@ -83,6 +87,7 @@ BIN_TARGET = $(addprefix $(BIN_PATH)/, $(BIN_FILES))
 VPATH += $(PLATFORM_PATH) $(LIBRARY_PATH)
 
 # Include the platform and library makefiles
+include $(BOARD_PATH)/Makefile.include
 include $(PLATFORM_PATH)/Makefile.include
 include $(LIBRARY_PATH)/Makefile.include
 include $(SENSORS_PATH)/Makefile.include

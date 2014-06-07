@@ -58,6 +58,12 @@
 #define UART_TX_INT             ( UART_INT_TX )
 #define UART_TX_INT_MODE        ( UART_TXINT_MODE_EOT ) 
 
+#define I2C_PERIPHERAL          ( SYS_CTRL_PERIPH_I2C )
+#define I2C_PORT                ( GPIO_B_BASE )
+#define I2C_SCL                 ( GPIO_PIN_3 )
+#define I2C_SDA                 ( GPIO_PIN_4 )
+
+
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
