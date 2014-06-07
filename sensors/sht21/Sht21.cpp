@@ -78,6 +78,16 @@ float Sht21::getTemperature(void)
     return result;
 }
 
+uint16_t Sht21::getTemperatureRaw(void)
+{
+    return temperature;
+}
+
+uint16_t Sht21::getHumidityRaw(void)
+{
+    return humidity;
+}
+
 float Sht21::getHumidity(void)
 {
     float result;

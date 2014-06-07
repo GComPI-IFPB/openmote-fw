@@ -32,7 +32,9 @@ public:
     void readTemperature(void);
     void readHumidity(void);
     float getTemperature(void);
+    uint16_t getTemperatureRaw(void);
     float getHumidity(void);
+    uint16_t getHumidityRaw(void);
 private:
     I2c* i2c;
     uint16_t temperature;
