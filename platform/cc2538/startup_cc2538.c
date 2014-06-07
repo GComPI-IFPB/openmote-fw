@@ -41,7 +41,8 @@
 #include "hw_nvic.h"
 
 #define FLASH_START_ADDR                0x00200000
-#define BOOTLOADER_BACKDOOR_DISABLE     0xEFFFFFFF
+#define BOOTLOADER_BACKDOOR_ENABLED     0xFEFFFFFF // 1111|1110 -> ENABLED: LEVEL HIGH, PORT A, PIN 6  
+#define BOOTLOADER_BACKDOOR_DISABLED    0xEFFFFFFF // 1110|1110 -> DISABLED
 #define SYS_CTRL_EMUOVR                 0x400D20B4
 #define SYS_CTRL_I_MAP                  0x400D2098
 
@@ -93,7 +94,7 @@ lockPageCCA_t;
 __attribute__ ((section(".flashcca"), used))
 const lockPageCCA_t __cca =
 {
-  BOOTLOADER_BACKDOOR_DISABLE,  // Bootloader backdoor disabled
+  BOOTLOADER_BACKDOOR_ENABLED,  // Bootloader backdoor enabled
   0,               				// Image valid bytes
   FLASH_START_ADDR 				// Vector table located at flash start address
 };
