@@ -16,6 +16,8 @@
 #ifndef ADXL346_H_
 #define ADXL346_H_
 
+#include "hw_types.h"
+
 #include "Sensor.h"
 
 class I2c;
@@ -28,8 +30,15 @@ public:
     void enable(void);
     void reset(void);
     bool isPresent(void);
+    void readAcceleration(void);
+    uint16_t getX(void);
+    uint16_t getY(void);
+    uint16_t getZ(void);
 private:
     I2c * i2c;
+    uint16_t x;
+    uint16_t y;
+    uint16_t z;
 };
 
 #endif /* ADXL346_H_ */
