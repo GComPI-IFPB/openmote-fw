@@ -33,6 +33,13 @@ GDB_BATCH = --batch
 GDB_CMD = --command
 GDB_EXT = gdb
 
+# Configure the BSL client
+BSL_PYTHON = python
+BSL_NAME = cc2538-bsl.py
+BSL_PATH = $(PROJECT_HOME)/tools/cc2538-bsl
+BSL_OPT  = -e -w
+BSL_EXT  = hex
+
 ################################################################################
 
 .PHONY: jlink load
@@ -45,3 +52,6 @@ load:
 	@echo "Loading $(PROJECT_NAME) into target..."
 	@$(GDB) $(GDB_BATCH) $(GDB_CMD)=$(PROJECT_NAME).$(GDB_EXT)
 
+bsl:
+	@echo "Loading $(PROJECT_NAME) into target..."
+	@$(BSL_PYTHON) $(BSL_PATH)/$(BSL_NAME) $(BSL_OPT) $(PROJECT_NAME).$(BSL_EXT)
