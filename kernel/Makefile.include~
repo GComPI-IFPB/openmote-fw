@@ -1,6 +1,9 @@
 # 
-KERNEL_SRC = $(KERNEL_PATH)/src
-KERNEL_INC = $(KERNEL_PATH)/inc
+FREERTOS_NAME = FreeRTOS
+
+# 
+KERNEL_SRC = $(KERNEL_PATH)/$(FREERTOS_NAME)
+KERNEL_INC = $(KERNEL_PATH)/$(FREERTOS_NAME)
 
 # Append to the include path
 SRC_PATH += -I $(KERNEL_SRC)
@@ -10,5 +13,5 @@ INC_PATH += -I $(KERNEL_INC)
 VPATH += $(KERNEL_SRC) $(KERNEL_INC)
 
 # Include the Makefiles in the various subdirectories in the current folder
-include $(LIBRARY_SRC)/Makefile.include
+include $(KERNEL_SRC)/Makefile.include
 
