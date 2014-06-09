@@ -35,7 +35,12 @@ CPPFLAGS += -Wall
 CPPFLAGS += -Os
 CPPFLAGS += -g
 
+# Linker flags
 LDFLAGS += $(CPPFLAGS)
+
+# Binary flags
+OBJCOPY_FLAGS += -O binary --gap-fill 0xFF
+OBJDUMP_FLAGS += --disassemble --source --disassembler-options=force-thumb
 
 ################################################################################
 
@@ -119,10 +124,10 @@ stats: $(PROJECT_NAME).elf
 	$(OBJSIZE) $(PROJECT_NAME).elf
 
 $(PROJECT_NAME).bin: $(PROJECT_NAME).elf
-	$(OBJCOPY) -O binary -j .text -j .data $(PROJECT_NAME).elf $(PROJECT_NAME).bin
+	$(OBJCOPY) -O ihex $< $@
 
 $(PROJECT_NAME).hex: $(PROJECT_NAME).elf
-	$(OBJCOPY) -R .stack -O ihex $(PROJECT_NAME).elf $(PROJECT_NAME).hex
+	$(OBJCOPY) $(OBJCOPY_FLAGS) $< $@
 
 $(PROJECT_NAME).elf: $(BIN_TARGET)
 	$(CPP) $(LDFLAGS) -T$(LINKER_SCRIPT) -o $@ $^
