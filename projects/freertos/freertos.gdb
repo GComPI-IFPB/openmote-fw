@@ -7,4 +7,4 @@ monitor halt
 monitor halt
 monitor halt
 monitor halt
-load hello-world.elf
+load freertos.elf
