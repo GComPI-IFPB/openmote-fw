@@ -69,6 +69,10 @@ void NmiISR(void);
 void FaultISR(void);
 void IntDefaultHandler(void);
 
+extern void vPortSVCHandler(void);
+extern void xPortPendSVHandler(void);
+extern void xPortSysTickHandler(void);
+
 //*****************************************************************************
 //
 // Reserve space for the system stack.
@@ -113,11 +117,11 @@ void (* const gVectors[])(void) =
    0,                                      // 8 Reserved
    0,                                      // 9 Reserved
    0,                                      // 10 Reserved
-   IntDefaultHandler,                      // 11 SVCall handler
+   vPortSVCHandler,                        // 11 SVCall handler
    IntDefaultHandler,                      // 12 Debug monitor handler
    0,                                      // 13 Reserved
-   IntDefaultHandler,                      // 14 The PendSV handler
-   IntDefaultHandler,                      // 15 The SysTick handler
+   xPortPendSVHandler,                     // 14 The PendSV handler
+   xPortSysTickHandler,                    // 15 The SysTick handler
    IntDefaultHandler,                      // 16 GPIO Port A
    IntDefaultHandler,                      // 17 GPIO Port B
    IntDefaultHandler,                      // 18 GPIO Port C
@@ -337,11 +341,17 @@ ResetISR (void)
     //
 	// Zero fill the bss segment.
     //
-    pui32Src = &_ebss;
-    for(pui32Dest = &_bss; pui32Src < pui32Dest; )
-    {
-        *pui32Src++ = 0;
-    }
+	/* Zero fill the bss segment */
+    __asm(  "    ldr     r0, =_bss\n"
+            "    ldr     r1, =_ebss\n"
+            "    mov     r2, #0\n"
+            "    .thumb_func\n"
+            "    zero_loop:\n"
+            "    cmp     r0, r1\n"
+            "    it      lt\n"
+            "    strlt   r2, [r0], #4\n"
+            "    blt     zero_loop"
+    );
 
     //
     // Initialize standard C library
