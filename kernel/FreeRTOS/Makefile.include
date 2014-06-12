@@ -1,4 +1,4 @@
-SRC_FILES += croutine.c heap_2.c list.c port.c queue.c tasks.c timers.c
+SRC_FILES += croutine.c event_groups.c heap_2.c list.c port.c queue.c tasks.c timers.c
 
 # Extend the virtual path
 VPATH += $(KERNEL_PATH)
