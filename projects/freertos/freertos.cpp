@@ -67,8 +67,7 @@ static void prvRedLedTask(void *pvParameters);
 static void prvRedLedTask( void *pvParameters ) {
 	while(true) {
 		led_red.toggle();
-		led_yellow.toggle();
-		vTaskDelay(1000 / portTICK_RATE_MS);
+		vTaskDelay(500 / portTICK_RATE_MS);
 	}
 }
 
@@ -82,7 +81,7 @@ int main (void) {
     
     i2c.init(100000);
 
-	xTaskCreate(prvRedLedTask, ( signed char * ) "Red", 128, NULL, mainCHECK_TASK_PRIORITY, NULL );
+	xTaskCreate(prvRedLedTask, ( const char * ) "Red", 128, NULL, mainCHECK_TASK_PRIORITY, NULL );
 
 	vTaskStartScheduler();
 }
