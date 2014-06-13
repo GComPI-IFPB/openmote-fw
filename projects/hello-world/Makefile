@@ -10,6 +10,7 @@ INC_PATH += -I $(PROJECT_DIR)
 
 # Configure compiling
 USE_KERNEL = FALSE
+USE_LIBRARY = TRUE
 
 # Include the Makefile in the root directory
 include $(PROJECT_HOME)/Makefile.include
