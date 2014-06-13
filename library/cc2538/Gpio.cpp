@@ -36,6 +36,32 @@ uint8_t Gpio::getPin(void)
     return pin;
 }
 
+void Gpio::on(void)
+{
+    GPIOPinWrite(port, pin, pin);
+}
+
+void Gpio::off(void)
+{
+    GPIOPinWrite(port, pin, 0);
+}
+
+void Gpio::toggle(void)
+{
+    uint32_t status = GPIOPinRead(port, pin);
+    
+    status = (~status) & pin;
+    
+    GPIOPinWrite(port, pin, status);
+}
+
+uint32_t Gpio::status(void)
+{
+    uint32_t status = GPIOPinRead(port, pin);
+        
+    return (status & pin);
+}
+
 void Gpio::setCallback(callback_t callback_)
 {
     callback = callback_;
