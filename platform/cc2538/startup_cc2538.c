@@ -41,7 +41,7 @@
 #include "hw_nvic.h"
 
 #define FLASH_START_ADDR                0x00200000
-#define BOOTLOADER_BACKDOOR_ENABLED     0xF6FFFFFF // 1111|1110 -> ENABLED: LEVEL LOW, PORT A, PIN 6  
+#define BOOTLOADER_BACKDOOR_ENABLED     0xF6FFFFFF // 1111|1110 -> ENABLED: LEVEL LOW, PORT A, PIN 6
 #define BOOTLOADER_BACKDOOR_DISABLED    0xEFFFFFFF // 1110|1110 -> DISABLED
 #define SYS_CTRL_EMUOVR                 0x400D20B4
 #define SYS_CTRL_I_MAP                  0x400D2098
@@ -58,7 +58,7 @@
 
 //*****************************************************************************
 //
-// Extern and local function prototypes. 
+// Extern and local function prototypes.
 //
 //*****************************************************************************
 extern int main (void);
@@ -68,6 +68,8 @@ void ResetISR(void);
 void NmiISR(void);
 void FaultISR(void);
 void IntDefaultHandler(void);
+
+extern void SleepTimerHandler(void);
 
 extern void vPortSVCHandler(void);
 extern void xPortPendSVHandler(void);
@@ -89,11 +91,10 @@ static uint32_t pui32Stack[128];
 //*****************************************************************************
 typedef struct
 {
-	uint32_t ui32BootldrCfg;
+    uint32_t ui32BootldrCfg;
     uint32_t ui32ImageValid;
     uint32_t ui32ImageVectorAddr;
-} 
-lockPageCCA_t;
+} lockPageCCA_t;
 
 __attribute__ ((section(".flashcca"), used))
 const lockPageCCA_t __cca =
@@ -268,7 +269,7 @@ void (* const gVectors[])(void) =
    IntDefaultHandler,                      // 158 RFCORE Error
    IntDefaultHandler,                      // 159 AES
    IntDefaultHandler,                      // 160 PKA
-   IntDefaultHandler,                      // 161 SMTimer
+   SleepTimerHandler,                      // 161 SMTimer
    IntDefaultHandler,                      // 162 MACTimer
 #endif
 };
@@ -289,32 +290,32 @@ extern uint32_t _ebss;
 //
 // And here are the weak interrupt handlers.
 //
-void 
-NmiISR (void) 
-{ 
-    ResetISR(); 
-    while(1)
-    {
-    } 
-}
-
-void 
-FaultISR (void) 
-{ 
-    while(1)
-    {
-    } 
-}
-
-void 
-IntDefaultHandler (void) 
-{ 
+void
+NmiISR (void)
+{
+    ResetISR();
     while(1)
     {
     }
 }
 
-void 
+void
+FaultISR (void)
+{
+    while(1)
+    {
+    }
+}
+
+void
+IntDefaultHandler (void)
+{
+    while(1)
+    {
+    }
+}
+
+void
 ResetISR (void)
 {
 	uint32_t *pui32Src, *pui32Dest;
@@ -378,5 +379,3 @@ ResetISR (void)
    {
    }
 }
-
-
