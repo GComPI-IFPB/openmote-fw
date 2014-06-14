@@ -342,7 +342,6 @@ ResetISR (void)
     //
 	// Zero fill the bss segment.
     //
-	/* Zero fill the bss segment */
     __asm(  "    ldr     r0, =_bss\n"
             "    ldr     r1, =_ebss\n"
             "    mov     r2, #0\n"
