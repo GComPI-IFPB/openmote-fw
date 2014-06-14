@@ -137,9 +137,11 @@ void Adxl346::readAcceleration(void)
     uint8_t status;
     uint8_t acceleration[6];
     status = i2c->readByte(ADXL346_ADDRESS, ADXL346_DATAX0_ADDR, acceleration, sizeof(acceleration));
-    x = (acceleration[0] << 8) | acceleration[1];
-    y = (acceleration[2] << 8) | acceleration[3];
-    z = (acceleration[4] << 8) | acceleration[5];
+    if (status) {
+        x = (acceleration[0] << 8) | acceleration[1];
+        y = (acceleration[2] << 8) | acceleration[3];
+        z = (acceleration[4] << 8) | acceleration[5];
+    }
 }
 
 uint16_t Adxl346::getX(void)
