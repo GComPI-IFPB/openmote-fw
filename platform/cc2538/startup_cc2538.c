@@ -359,7 +359,6 @@ ResetISR (void)
     //
     __libc_init_array();
 
-
 #ifdef CC2538_USE_ALTERNATE_INTERRUPT_MAP
     //
     // Enable alternate interrupt mapping
