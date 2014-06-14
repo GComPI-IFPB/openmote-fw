@@ -28,7 +28,7 @@
 
 /*================================ define ===================================*/
 
-#define DELAY_TICKS                 ( 320000 )
+#define DELAY_TICKS                 ( 160000 )
 
 /*================================ typedef ==================================*/
 
@@ -132,7 +132,6 @@ int main(void)
     i2c.init(100000);
         
     while(true){
-        
         led_green.toggle();
         uart.writeByte('a');
         for(i = DELAY_TICKS; i > 0; i--);
@@ -143,3 +142,20 @@ int main(void)
 
 /*================================ private ==================================*/
 
+extern "C" {
+    void vPortSVCHandler(void)
+    {
+    }
+
+    void xPortPendSVHandler(void)
+    {
+    }
+
+    void xPortSysTickHandler(void)
+    {
+    }
+
+    void SleepTimerHandler(void)
+    {
+    }
+}
