@@ -126,16 +126,17 @@ post: $(PROJECT_NAME).hex $(PROJECT_NAME).bin
 	@echo "Building '$(PROJECT_NAME)' done."
     
 stats: $(PROJECT_NAME).elf
-	$(OBJSIZE) $(PROJECT_NAME).elf
+	@-$(OBJSIZE) $(PROJECT_NAME).elf
 
 $(PROJECT_NAME).bin: $(PROJECT_NAME).elf
-	$(OBJCOPY) -O ihex $< $@
+	@-$(OBJCOPY) -O ihex $< $@
 
 $(PROJECT_NAME).hex: $(PROJECT_NAME).elf
-	$(OBJCOPY) $(OBJCOPY_FLAGS) $< $@
+	@-$(OBJCOPY) $(OBJCOPY_FLAGS) $< $@
 
 $(PROJECT_NAME).elf: $(BIN_TARGET)
-	$(CPP) $(LDFLAGS) -T$(LINKER_SCRIPT) -o $@ $^
+	@echo "Linking '$(PROJECT_NAME)'..."
+	@-$(CPP) $(LDFLAGS) -T$(LINKER_SCRIPT) -o $@ $^
 
 .PHONY: clean
 clean:
@@ -148,9 +149,11 @@ clean:
 
 # Target to compile C files into object files
 $(BIN_PATH)/%.o: %.c
-	$(CC) $(CFLAGS) $(INC_PATH) -c $< -o $@
+	@echo "Compiling $<..."
+	@-$(CC) $(CFLAGS) $(INC_PATH) -c $< -o $@
 
 # Target to compile C++ files into object files
 $(BIN_PATH)/%.o: %.cpp
-	$(CPP) $(CPPFLAGS) $(INC_PATH) -c $< -o $@
+	@echo "Compiling $<..."
+	@-$(CPP) $(CPPFLAGS) $(INC_PATH) -c $< -o $@
 
