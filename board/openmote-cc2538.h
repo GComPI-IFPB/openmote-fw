@@ -26,6 +26,12 @@
 
 /*================================ define ===================================*/
 
+#define GPIO_DEBUG_PORT         ( GPIO_D_BASE )
+#define GPIO_DEBUG_AD0          ( GPIO_PIN_3 )
+#define GPIO_DEBUG_AD1          ( GPIO_PIN_2 )
+#define GPIO_DEBUG_AD2          ( GPIO_PIN_1 )
+#define GPIO_DEBUG_AD3          ( GPIO_PIN_0 )
+
 #define LED_RED_PORT            ( GPIO_C_BASE )
 #define LED_RED_PIN             ( GPIO_PIN_4 )
 
@@ -41,6 +47,10 @@
 #define BUTTON_USER_PORT        ( GPIO_C_BASE )
 #define BUTTON_USER_PIN         ( GPIO_PIN_3 )
 #define BUTTON_USER_EDGE        ( GPIO_FALLING_EDGE )
+
+#define TPS62730_PORT           ( GPIO_B_BASE )
+#define TPS62730_STAT_PIN       ( GPIO_PIN_0 )
+#define TPS62730_ONBYP_PIN      ( GPIO_PIN_1 )
 
 #define UART_PERIPHERAL         ( SYS_CTRL_PERIPH_UART0 )
 #define UART_PORT               ( UART0_BASE )
@@ -62,7 +72,6 @@
 #define I2C_PORT                ( GPIO_B_BASE )
 #define I2C_SCL                 ( GPIO_PIN_3 )
 #define I2C_SDA                 ( GPIO_PIN_4 )
-
 
 /*================================ typedef ==================================*/
 
