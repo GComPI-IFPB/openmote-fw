@@ -43,6 +43,10 @@ Led led_orange(LED_ORANGE_PORT, LED_ORANGE_PIN);
 Led led_red(LED_RED_PORT, LED_RED_PIN);
 Led led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
 
+Led debug_tick(GPIO_DEBUG_PORT, GPIO_DEBUG_AD0);
+Led debug_idle(GPIO_DEBUG_PORT, GPIO_DEBUG_AD1);
+Led debug_task(GPIO_DEBUG_PORT, GPIO_DEBUG_AD2);
+
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/
@@ -68,6 +72,7 @@ int main(void)
             
     while(true){
         led_red.toggle();
+        debug_task.toggle();
         SysCtrlDeepSleep();
     }
 
@@ -75,6 +80,14 @@ int main(void)
 }
 
 extern "C" {
+    void vApplicationTickHook(void) {
+        debug_tick.toggle();
+    }
+
+    void vApplicationIdleHook(void) {
+        debug_idle.toggle();
+    }
+
     void vPortSVCHandler(void)
     {
     }
@@ -96,11 +109,12 @@ extern "C" {
 
         IntPendClear(INT_SMTIM);
 
+        debug_tick.toggle();
+
         ulAlarmCurrentValue = SleepModeTimerCountGet();
 
         SleepModeTimerCompareSet(ulAlarmCurrentValue + 32768);
     }
-
 }
 
 /*================================ private ==================================*/
