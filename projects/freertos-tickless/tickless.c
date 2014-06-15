@@ -265,9 +265,11 @@ void SleepTimerHandler(void)
 
 static void prvEnableRTC( void )
 {
+    IntEnable(INT_SMTIM);
 }
 
 static void prvDisableRTC( void )
 {
+    IntDisable(INT_SMTIM);
 }
 
