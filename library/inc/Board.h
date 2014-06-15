@@ -16,11 +16,15 @@
 #ifndef BOARD_H_
 #define BOARD_H_
 
+#include "hw_types.h"
+
 class Board {
 public:
     Board();
     void reset(void);
     void sleep(void);
+    void setDeepSleepMode(uint32_t deepSleepMode_);
+    void deepSleep(void);
     void enableInterrupts(void);
     void disableInterrupts(void);
 private:

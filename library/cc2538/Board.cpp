@@ -25,22 +25,16 @@ Board::Board()
     IOCPadConfigSet(GPIO_D_BASE, 0x80, IOC_OVERRIDE_ANA);
 
     /**
-     * Set the real-time clock to use the 32 kHz internal crystal
-     * Set the system clock to use the external 32 MHz crystal
-     * Set the system clock to 32 MHz
+     * Set the real-time clock to use the 32.768 kHz external crystal
+     * Set the system clock to use the internal 16 MHz internal crystal
      */
-    SysCtrlClockSet(true, false, SYS_CTRL_SYSDIV_32MHZ);
+    SysCtrlClockSet(true, true, SYS_CTRL_SYSDIV_16MHZ);
 
     /**
      * Set the IO clock to operate at 16 MHz
      * This way peripherals can run while the system clock is gated
      */
     SysCtrlIOClockSet(SYS_CTRL_SYSDIV_16MHZ);
-
-    /**
-     * Wait until the selected clock configuration is stable
-     */
-    while (!((HWREG(SYS_CTRL_CLOCK_STA)) & (SYS_CTRL_CLOCK_STA_XOSC_STB)));
 }
 
 void Board::reset(void)
@@ -50,8 +44,17 @@ void Board::reset(void)
 
 void Board::sleep(void)
 {
-    SysCtrlPowerModeSet(SYS_CTRL_PM_NOACTION);
     SysCtrlSleep();
+}
+
+void Board::setDeepSleepMode(uint32_t deepSleepMode_)
+{
+     SysCtrlPowerModeSet(deepSleepMode_);
+}
+
+void Board::deepSleep(void)
+{
+    SysCtrlDeepSleep();
 }
 
 void Board::enableInterrupts(void)
