@@ -26,12 +26,6 @@
 
 /*================================ define ===================================*/
 
-#define GPIO_DEBUG_PORT         ( GPIO_D_BASE )
-#define GPIO_DEBUG_AD0          ( GPIO_PIN_3 )
-#define GPIO_DEBUG_AD1          ( GPIO_PIN_2 )
-#define GPIO_DEBUG_AD2          ( GPIO_PIN_1 )
-#define GPIO_DEBUG_AD3          ( GPIO_PIN_0 )
-
 #define LED_RED_PORT            ( GPIO_C_BASE )
 #define LED_RED_PIN             ( GPIO_PIN_4 )
 
@@ -43,6 +37,15 @@
 
 #define LED_GREEN_PORT          ( GPIO_C_BASE )
 #define LED_GREEN_PIN           ( GPIO_PIN_7 )
+
+#define GPIO_DEBUG_AD0_PORT     ( GPIO_D_BASE )
+#define GPIO_DEBUG_AD0_PIN      ( GPIO_PIN_3 )
+
+#define GPIO_DEBUG_AD1_PORT     ( GPIO_D_BASE )
+#define GPIO_DEBUG_AD1_PIN      ( GPIO_PIN_2 )
+
+#define GPIO_DEBUG_AD2_PORT     ( GPIO_D_BASE )
+#define GPIO_DEBUG_AD2_PIN      ( GPIO_PIN_1 )
 
 #define BUTTON_USER_PORT        ( GPIO_C_BASE )
 #define BUTTON_USER_PIN         ( GPIO_PIN_3 )
