@@ -41,7 +41,7 @@ within the Cortex-M core itself. */
 /*=============================== variables =================================*/
 
 /* Calculate how many clock increments make up a single tick period. */
-static uint32_t ulAlarmValueForOneTick = ( configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ );
+static uint32_t ulAlarmValueForOneTick = ( configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ ) - 1;
 
 /* Holds the maximum number of ticks that can be suppressed - which is
 basically how far into the future an interrupt can be generated. Set
@@ -56,7 +56,13 @@ static volatile uint32_t ulTickFlag = pdFALSE;
 following variable offsets the RTC counter alarm value by the number of RTC
 counts that would typically be missed while the counter was stopped to compensate
 for the lost time.  _RB_ Value needs calculating correctly. */
+
 static uint32_t ulStoppedTimerCompensation = 2 / ( configCPU_CLOCK_HZ / configSYSTICK_CLOCK_HZ );
+
+/* Holds the value of the RTC counter in the previous interrupt to be able to
+calculate the increment. The CC2538 uses an absolute RTC counter whereas FreeRTOS
+requires to know the time elapsed since the last interrupt to operate. */
+static uint32_t ulPreviousCounterValue = 0;
 
 /*=============================== prototypes ================================*/
 
@@ -74,26 +80,29 @@ void vPortSetupTimerInterrupt( void )
 {
     uint32_t ulAlarmCurrentValue;
 	
-    /* Ensure the RTC can bring the CPU out of sleep mode. */
     /* Ensure the 32.768 kHz oscillator is enabled. */
-    /* Enable the RTC itself. */
-    IntPrioritySet(INT_SMTIM, configLIBRARY_LOWEST_INTERRUPT_PRIORITY); 
+    /* The 32.768 kHz oscillator is enabled by default */
+    
+    /* Ensure the RTC can bring the CPU out of sleep mode. */
+    GPIOIntWakeupEnable(GPIO_IWE_SM_TIMER);
 
     /* Select the mode in Deep Sleep */ 
-    SysCtrlPowerModeSet(SYS_CTRL_PM_NOACTION);
-    GPIOIntWakeupEnable(GPIO_IWE_SM_TIMER);
-	
+    SysCtrlPowerModeSet(SYS_CTRL_PM_2);
+    
     /* The RTC alarm interrupt is used as the tick interrupt. Ensure the alarm status starts clear. */
     IntPendClear(INT_SMTIM);
 		
     /* Tick interrupt MUST execute at the lowest interrupt priority. */
-    /* Automatically clear the counter on interrupt. */
-    /* Start with the tick active and generating a tick with regular period. */
+    IntPrioritySet(INT_SMTIM, configLIBRARY_LOWEST_INTERRUPT_PRIORITY); 
 
     /* See the comments where xMaximumPossibleSuppressedTicks is declared. */
     xMaximumPossibleSuppressedTicks = ULONG_MAX / ulAlarmValueForOneTick;
 	
-    ulAlarmCurrentValue = SleepModeTimerCountGet();
+    /* Save the current RTC value to enable future calculations */
+	ulPreviousCounterValue = SleepModeTimerCountGet();
+
+	/* Configure the first RTC interrupt */
+    ulAlarmCurrentValue = ulPreviousCounterValue;
     SleepModeTimerCompareSet(ulAlarmCurrentValue + ulAlarmValueForOneTick);
     
     /* Enable wakeup from alarm 0 in the RTC and power manager.  */
@@ -121,6 +130,7 @@ void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTime )
 
     /* Calculate the reload value required to wait xExpectedIdleTime tick periods. */
     ulAlarmValue = ulAlarmValueForOneTick * xExpectedIdleTime;
+    
     if ( ulAlarmValue > ulStoppedTimerCompensation ) {
         /* Compensate for the fact that the RTC is going to be stopped momentarily. */
         ulAlarmValue -= ulStoppedTimerCompensation;
@@ -146,14 +156,25 @@ void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTime )
     requires processing. */
     eSleepAction = eTaskConfirmSleepModeStatus();
     if( eSleepAction == eAbortSleep ) {
+        /* Restart the RTC. */
+        prvEnableRTC();
+    
         /* Re-enable interrupts - see comments above the cpsid instruction() above. */
         if ( !ulInterruptStatus ) {
             IntMasterEnable();
         }
     } else {
+        /* Get the increase in number of ticks since the last time */
+        ulPreviousCounterValue = SleepModeTimerCountGet() - ulPreviousCounterValue;
+    
         /* Adjust the alarm value to take into account that the current time slice is already partially complete. */
-        ulAlarmValue -= SleepModeTimerCountGet();
-        SleepModeTimerCompareSet( ulAlarmValue );
+        ulAlarmValue -= ulPreviousCounterValue;
+        
+        /* Update the current RTC value to enable future calculations */
+        ulPreviousCounterValue = SleepModeTimerCountGet();
+        
+        /* Set the RTC interrupt in the future */
+        SleepModeTimerCompareSet( ulPreviousCounterValue + ulAlarmValue );
 
         /* Restart the RTC. */
         prvEnableRTC();
@@ -187,12 +208,20 @@ void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTime )
         }
 
         if ( ulTickFlag != pdFALSE ) {
+            /* Get the increase in number of ticks since the last time */
+            ulPreviousCounterValue = SleepModeTimerCountGet() - ulPreviousCounterValue;
+        
             /* The tick interrupt has already executed, although because this
             function is called with the scheduler suspended the actual tick
             processing will not occur until after this function has exited.
             Reset the alarm value with whatever remains of this tick period. */
-            ulAlarmValue = ulAlarmValueForOneTick - SleepModeTimerCountGet();
-            SleepModeTimerCompareSet( ulAlarmValue );
+            ulAlarmValue = ulAlarmValueForOneTick - ulPreviousCounterValue;
+            
+            /* Update the current RTC value to enable future calculations */
+            ulPreviousCounterValue = SleepModeTimerCountGet();
+            
+            /* Set the  RTC interrupt in the future */
+            SleepModeTimerCompareSet( ulPreviousCounterValue + ulAlarmValue );
 
             /* The tick interrupt handler will already have pended the tick
             processing in the kernel.  As the pending tick will be processed as
@@ -201,20 +230,29 @@ void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTime )
             actual stepping of the tick appears later in this function. */
             ulCompleteTickPeriods = xExpectedIdleTime - 1UL;
         } else {
+            // Get the increase in number of ticks since the last time
+            ulPreviousCounterValue = SleepModeTimerCountGet() - ulPreviousCounterValue;
+        
             /* Something other than the tick interrupt ended the sleep.  How
             many complete tick periods passed while the processor was
             sleeping? */
-            ulCompleteTickPeriods = SleepModeTimerCountGet() / ulAlarmValueForOneTick;
+            ulCompleteTickPeriods = ulPreviousCounterValue / ulAlarmValueForOneTick;
 
             /* The alarm value is set to whatever fraction of a single tick
             period remains. */
-            ulAlarmValue = SleepModeTimerCountGet() - ( ulCompleteTickPeriods * ulAlarmValueForOneTick );
+            ulAlarmValue = ulPreviousCounterValue - ( ulCompleteTickPeriods * ulAlarmValueForOneTick );
+            
             if ( ulAlarmValue == 0 ) {
                 /* There is no fraction remaining. */
                 ulAlarmValue = ulAlarmValueForOneTick;
                 ulCompleteTickPeriods++;
             }
-            SleepModeTimerCompareSet( ulAlarmValue );
+            
+            /* Update the current RTC value to enable future calculations */
+            ulPreviousCounterValue = SleepModeTimerCountGet();
+            
+            /* Set the  RTC interrupt in the future */
+            SleepModeTimerCompareSet( ulPreviousCounterValue + ulAlarmValue );
         }
 
         /* Restart the RTC so it runs up to the alarm value.  The alarm value
@@ -232,12 +270,14 @@ void SleepTimerHandler(void)
 {
     uint32_t ulAlarmCurrentValue;
     
+    /* Wait until the RTC is stable */
     while(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_SYNC_32K);
     while((!HWREG(SYS_CTRL_CLOCK_STA)) & SYS_CTRL_CLOCK_STA_SYNC_32K);
 
     /* Ensure the interrupt is clear before exiting. */
     IntPendClear(INT_SMTIM);
 
+    /* Get the current value of the RTC */
     ulAlarmCurrentValue = SleepModeTimerCountGet();
 
     /* Protect incrementing the tick with an interrupt safe critical section. */
@@ -253,12 +293,12 @@ void SleepTimerHandler(void)
     }
     portCLEAR_INTERRUPT_MASK_FROM_ISR( 0 );
 
-    /* The CPU woke because of a tick. */
-    ulTickFlag = pdTRUE;
-
     /* If this is the first tick since exiting tickless mode then the RTC needs
     to be reconfigured to generate interrupts at the defined tick frequency. */
     SleepModeTimerCompareSet(ulAlarmCurrentValue + ulAlarmValueForOneTick);
+
+    /* The CPU woke because of a tick. */
+    ulTickFlag = pdTRUE;
 }
 
 /*================================ private ==================================*/

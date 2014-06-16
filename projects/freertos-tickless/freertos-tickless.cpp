@@ -27,7 +27,8 @@
 
 /*================================ define ===================================*/
 
-#define mainCHECK_TASK_PRIORITY				( tskIDLE_PRIORITY + 1 )
+#define greenLedTask_PRIORITY				( tskIDLE_PRIORITY + 1 )
+#define redLedTask_PRIORITY				    ( tskIDLE_PRIORITY + 2 )
 
 /*================================ typedef ==================================*/
 
@@ -40,10 +41,9 @@ Led led_orange(LED_ORANGE_PORT, LED_ORANGE_PIN);
 Led led_red(LED_RED_PORT, LED_RED_PIN);
 Led led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
 
-Led debug_tick(GPIO_DEBUG_PORT, GPIO_DEBUG_AD0);
-Led debug_idle(GPIO_DEBUG_PORT, GPIO_DEBUG_AD1);
-Led debug_task(GPIO_DEBUG_PORT, GPIO_DEBUG_AD2);
-Led debug_green(GPIO_DEBUG_PORT, GPIO_DEBUG_AD3);
+Led debug_tick(GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN);
+Led debug_red(GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN);
+Led debug_green(GPIO_DEBUG_AD2_PORT, GPIO_DEBUG_AD2_PIN);
 
 Button button_user(BUTTON_USER_PORT, BUTTON_USER_PIN, BUTTON_USER_EDGE);
 
@@ -67,17 +67,19 @@ static void button_user_callback(void) {
 static void prvRedLedTask( void *pvParameters ) {
     while(true) {
         if (xSemaphoreTake( xSemaphore, portMAX_DELAY ) == pdTRUE) {
-            debug_task.toggle();
+            debug_red.on();
             led_red.toggle();
+            debug_red.off();
         }
 	}
 }
 
 static void prvGreenLedTask( void *pvParameters ) {
     while(true) {
+        debug_green.on();
         led_green.toggle();
-        debug_green.toggle();
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        debug_green.off();
+        vTaskDelay(100 / portTICK_PERIOD_MS);
 	}
 }
 
@@ -87,8 +89,8 @@ int main (void) {
     
     xSemaphore = xSemaphoreCreateMutex();
 
-    xTaskCreate(prvGreenLedTask, ( const char * ) "Green", 128, NULL, mainCHECK_TASK_PRIORITY, NULL );      
-	xTaskCreate(prvRedLedTask, ( const char * ) "Red", 128, NULL, mainCHECK_TASK_PRIORITY, NULL );
+    xTaskCreate(prvGreenLedTask, ( const char * ) "Green", 128, NULL, greenLedTask_PRIORITY, NULL );      
+	xTaskCreate(prvRedLedTask, ( const char * ) "Red", 128, NULL, redLedTask_PRIORITY, NULL );
 
 	vTaskStartScheduler();
 }
@@ -97,15 +99,11 @@ int main (void) {
 
 extern "C" {
 
-    void SleepTimerHandler(void) {
-    }
-
     void vApplicationTickHook(void) {
         debug_tick.toggle();
     }
 
     void vApplicationIdleHook(void) {
-        debug_idle.toggle();
     }
 
 }
