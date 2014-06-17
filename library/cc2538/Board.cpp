@@ -35,6 +35,11 @@ Board::Board()
      * This way peripherals can run while the system clock is gated
      */
     SysCtrlIOClockSet(SYS_CTRL_SYSDIV_16MHZ);
+    
+    /**
+     * Wait until the 32 kHz oscillator becomes stable
+     */
+    while(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_OSC32K);
 }
 
 void Board::reset(void)
