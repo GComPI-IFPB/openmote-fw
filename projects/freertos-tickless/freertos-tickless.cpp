@@ -79,7 +79,7 @@ static void prvGreenLedTask( void *pvParameters ) {
         debug_green.on();
         led_green.toggle();
         debug_green.off();
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(250 / portTICK_PERIOD_MS);
 	}
 }
 
