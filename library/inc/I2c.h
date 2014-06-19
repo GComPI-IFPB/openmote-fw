@@ -27,6 +27,9 @@
 #include "hw_i2cm.h"
 #include "hw_i2cs.h"
 
+#include "FreeRTOS.h"
+#include "semphr.h"
+
 class Gpio;
 
 class I2c
@@ -43,6 +46,7 @@ public:
     void interruptDisable(void);
     void interruptHandler(void);
 private:
+    SemaphoreHandle_t xMutex;
     uint32_t peripheral;
     Gpio* scl;
     Gpio* sda;

@@ -26,11 +26,15 @@ void I2c::init(uint32_t clock_)
     I2CMasterEnable();
 
     I2CMasterInitExpClk(SysCtrlClockGet(), status);
+    
+    xMutex = xSemaphoreCreateMutex();
 }
 
 uint8_t I2c::readByte(uint8_t address_, uint8_t register_)
 {
     uint8_t data;
+    
+    xSemaphoreTake(xMutex, portMAX_DELAY);
 
     I2CMasterSlaveAddrSet(address_, false); // write
 
@@ -50,11 +54,15 @@ uint8_t I2c::readByte(uint8_t address_, uint8_t register_)
 
     data = I2CMasterDataGet();
     
+    xSemaphoreGive(xMutex);
+    
     return data;
 }
 
 uint8_t I2c::readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uint8_t size)
 {    
+    xSemaphoreTake(xMutex, portMAX_DELAY);
+    
     while(size) {
 
         I2CMasterSlaveAddrSet(address_, false); // write
@@ -78,11 +86,15 @@ uint8_t I2c::readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uin
     
     }
     
+    xSemaphoreGive(xMutex);
+    
     return size;
 }
 
 void I2c::writeByte(uint8_t address_, uint8_t register_)
 {
+    xSemaphoreTake(xMutex, portMAX_DELAY);
+    
     I2CMasterSlaveAddrSet(address_, false); // write
 
     I2CMasterDataPut(register_);
@@ -91,6 +103,8 @@ void I2c::writeByte(uint8_t address_, uint8_t register_)
 
     while(I2CMasterBusy())
         ;
+    
+    xSemaphoreGive(xMutex);
 }
 
 void I2c::writeByte(uint8_t address_, uint8_t register_, uint8_t data_)
@@ -101,6 +115,8 @@ void I2c::writeByte(uint8_t address_, uint8_t register_, uint8_t data_)
 
 void I2c::writeByte(uint8_t address_, uint8_t * data_, uint8_t size_)
 {
+    xSemaphoreTake(xMutex, portMAX_DELAY);
+    
     I2CMasterSlaveAddrSet(address_, false); // write
 
     I2CMasterDataPut(*data_++);
@@ -127,7 +143,9 @@ void I2c::writeByte(uint8_t address_, uint8_t * data_, uint8_t size_)
     I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_FINISH);
 
     while(I2CMasterBusy())
-        ;    
+        ;
+    
+    xSemaphoreGive(xMutex);
 }
 
 void I2c::interruptEnable(void)
