@@ -15,11 +15,12 @@
 
 /*================================ include ==================================*/
 
-#include "Led.h"
 #include "Board.h"
 #include "Button.h"
-#include "Uart.h"
+#include "Led.h"
 #include "I2c.h"
+#include "Uart.h"
+
 #include "Adxl346.h"
 #include "Max44009.h"
 #include "Sht21.h"

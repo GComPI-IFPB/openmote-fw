@@ -78,8 +78,8 @@
  * See http://www.freertos.org/a00110.html.
  *----------------------------------------------------------*/
 
-#define configCPU_CLOCK_HZ				16000000
 #define configUSE_TICKLESS_IDLE			0
+#define configCPU_CLOCK_HZ				16000000
 #define configTICK_RATE_HZ				( ( TickType_t ) 1000 )
 
 #define configUSE_PREEMPTION			1
