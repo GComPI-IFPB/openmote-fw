@@ -28,6 +28,7 @@
 #include "hw_i2cs.h"
 
 #include "FreeRTOS.h"
+#include "task.h"
 #include "semphr.h"
 
 class Gpio;
@@ -42,14 +43,16 @@ public:
     void writeByte(uint8_t address_, uint8_t register_);
     void writeByte(uint8_t address_, uint8_t register_, uint8_t data_);
     void writeByte(uint8_t address_, uint8_t * data_, uint8_t size);
+    void lock(void);
+    void unlock(void);
     void interruptEnable(void);
     void interruptDisable(void);
     void interruptHandler(void);
 private:
-    SemaphoreHandle_t xMutex;
     uint32_t peripheral;
     Gpio* scl;
     Gpio* sda;
+    SemaphoreHandle_t xMutex;
 };
 
 #endif /* I2C_H_ */
