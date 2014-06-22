@@ -95,7 +95,7 @@ static void prvSetupHardware( void )
 	RCC_MSIRangeConfig( RCC_MSIRange_6 );
 
 	/* Enable the GPIOs clocks. */
-	RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB | RCC_AHBPeriph_GPIOC| RCC_AHBPeriph_GPIOD| RCC_AHBPeriph_GPIOE| RCC_AHBPeriph_GPIOH, ENABLE );
+	RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB | RCC_AHBPeriph_GPIOC |                          RCC_AHBPeriph_GPIOD | RCC_AHBPeriph_GPIOE | RCC_AHBPeriph_GPIOH, ENABLE );
 
 	/* Enable comparator clocks. */
 	RCC_APB1PeriphClockCmd( RCC_APB1Periph_COMP, ENABLE );
