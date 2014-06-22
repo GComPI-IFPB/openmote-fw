@@ -17,6 +17,7 @@
 #include "I2c.h"
 
 #define MAX44009_ADDRESS                    ( 0x4A )
+#define MAX44009_NOT_FOUND                  ( 0x00 )
 
 #define MAX44009_INT_STATUS_ADDR            ( 0x00 )    // R
 #define MAX44009_IN_ENABLE_ADDR             ( 0x01 )    // R/W
@@ -31,10 +32,6 @@
 #define MAX44009_INT_STATUS_ON              ( 0x01 )
 #define MAX44009_INT_DISABLED               ( 0x00 )
 #define MAX44009_INT_ENABLED                ( 0x01 )
-
-#define MAX44009_THR_HIGH_DEFAULT           ( 0xFF )
-#define MAX44009_THR_LOW_DEFAULT            ( 0x00 )
-#define MAX44009_THR_TIMER_DEFAULT          ( 0xFF )
 
 #define MAX44009_CONFIG_DEFAULT             ( 0 << 7 )
 #define MAX44009_CONFIG_CONTINUOUS          ( 1 << 7 )
@@ -74,10 +71,10 @@ bool Max44009::isPresent(void)
     uint8_t status;
     
     i2c->lock();
-    status = i2c->readByte(MAX44009_ADDRESS, MAX44009_THR_TIMER_ADDR);
+    status = i2c->readByte(MAX44009_ADDRESS, MAX44009_CONFIG_ADDR);
     i2c->unlock();
         
-    return (status == MAX44009_THR_TIMER_DEFAULT);
+    return (status != MAX44009_NOT_FOUND);
 }
 
 void Max44009::readLux(void)
