@@ -1,19 +1,38 @@
-/* Kernel includes. */
+/*
+ * Copyright 2013 OpenMote Technologies, S.L.
+ */
+
+/**
+ *
+ * @file       freertos-tickless.c
+ * @author     Pere Tuset-Peiro (peretuset@openmote.com)
+ * @version    v0.1
+ * @date       May, 2014
+ * @brief
+ * @ingroup
+ *
+ */
+ 
+/*================================ include ==================================*/
+
+/* FreeRTOS includes */
 #include "FreeRTOS.h"
 #include "task.h"
 
-/* ST library functions. */
+/* ST library functions */
 #include "stm32l1xx.h"
 
+/*================================ define ===================================*/
+
+/*================================ typedef ==================================*/
+
+/*=============================== variables =================================*/
+
+/*=============================== prototypes ================================*/
 
 static void prvSetupHardware( void );
 
-void vAssertCalled( unsigned long ulLine, const char * const pcFileName ); 
-
-void vApplicationMallocFailedHook( void );
-void vApplicationIdleHook( void );
-void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
-void vApplicationTickHook( void );
+/*================================= public ==================================*/
 
 int main( void )
 {
@@ -32,6 +51,37 @@ int main( void )
 	/* This line will never be reached. */
 	return 0;
 }
+
+void vAssertCalled( unsigned long ulLine, const char * const pcFileName )
+{
+volatile unsigned long ulSetToNonZeroInDebuggerToContinue = 0;
+
+	/* Parameters are not used. */
+	( void ) ulLine;
+	( void ) pcFileName;
+
+	taskENTER_CRITICAL();
+	{
+		while( ulSetToNonZeroInDebuggerToContinue == 0 )
+
+		{
+			__asm volatile( "NOP" );
+			__asm volatile( "NOP" );
+		}
+	}
+	taskEXIT_CRITICAL();
+}
+
+void vMainPostStopProcessing( void )
+{
+    extern void SetSysClock( void );
+
+	/* The STOP low power mode has been exited.  Reconfigure the system clocks
+	ready for normally running again. */
+	SetSysClock();
+}
+
+/*================================ private ==================================*/
 
 static void prvSetupHardware( void )
 {
@@ -58,89 +108,5 @@ static void prvSetupHardware( void )
 
 	/* Wait Until the Voltage Regulator is ready. */
 	while( PWR_GetFlagStatus( PWR_FLAG_VOS ) != RESET );
-}
-
-void vApplicationMallocFailedHook( void )
-{
-	/* vApplicationMallocFailedHook() will only be called if
-	configUSE_MALLOC_FAILED_HOOK is set to 1 in FreeRTOSConfig.h.  It is a hook
-	function that will get called if a call to pvPortMalloc() fails.
-	pvPortMalloc() is called internally by the kernel whenever a task, queue,
-	timer or semaphore is created.  It is also called by various parts of the
-	demo application.  If heap_1.c or heap_2.c are used, then the size of the
-	heap available to pvPortMalloc() is defined by configTOTAL_HEAP_SIZE in
-	FreeRTOSConfig.h, and the xPortGetFreeHeapSize() API function can be used
-	to query the size of free heap space that remains (although it does not
-	provide information on how the remaining heap might be fragmented). */
-	taskDISABLE_INTERRUPTS();
-	for( ;; );
-}
-
-void vApplicationIdleHook( void )
-{
-	/* vApplicationIdleHook() will only be called if configUSE_IDLE_HOOK is set
-	to 1 in FreeRTOSConfig.h.  It will be called on each iteration of the idle
-	task.  It is essential that code added to this hook function never attempts
-	to block in any way (for example, call xQueueReceive() with a block time
-	specified, or call vTaskDelay()).  If the application makes use of the
-	vTaskDelete() API function (as this demo application does) then it is also
-	important that vApplicationIdleHook() is permitted to return to its calling
-	function, because it is the responsibility of the idle task to clean up
-	memory allocated by the kernel to any task that has since been deleted. */
-}
-
-void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
-{
-	( void ) pcTaskName;
-	( void ) pxTask;
-
-	/* Run time stack overflow checking is performed if
-	configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook
-	function is called if a stack overflow is detected. */
-	taskDISABLE_INTERRUPTS();
-	for( ;; );
-}
-
-void vApplicationTickHook( void )
-{
-	/* This function will be called by each tick interrupt if
-	configUSE_TICK_HOOK is set to 1 in FreeRTOSConfig.h.  User code can be
-	added here, but the tick hook is called from an interrupt context, so
-	code must not attempt to block, and only the interrupt safe FreeRTOS API
-	functions can be used (those that end in FromISR()). */
-}
-
-void vAssertCalled( unsigned long ulLine, const char * const pcFileName )
-{
-volatile unsigned long ulSetToNonZeroInDebuggerToContinue = 0;
-
-	/* Parameters are not used. */
-	( void ) ulLine;
-	( void ) pcFileName;
-
-	taskENTER_CRITICAL();
-	{
-		while( ulSetToNonZeroInDebuggerToContinue == 0 )
-		{
-			/* Use the debugger to set ulSetToNonZeroInDebuggerToContinue to a
-			non zero value to step out of this function to the point that raised
-			this assert(). */
-			__asm volatile( "NOP" );
-			__asm volatile( "NOP" );
-		}
-	}
-	taskEXIT_CRITICAL();
-}
-
-/* The configPOST_STOP_PROCESSING() macro is called when the MCU leaves its
-STOP low power mode.  The macro is set in FreeRTOSConfig.h to call
-vMainPostStopProcessing(). */
-void vMainPostStopProcessing( void )
-{
-extern void SetSysClock( void );
-
-	/* The STOP low power mode has been exited.  Reconfigure the system clocks
-	ready for normally running again. */
-	SetSysClock();
 }
 

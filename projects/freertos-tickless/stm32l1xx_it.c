@@ -111,7 +111,7 @@ void DebugMon_Handler(void)
 
   * @retval None
   */
-void RTC_WKUP_IRQHandler (void)
+void RTC_WKUP_IRQHandler(void)
 {
   RTC_ClearITPendingBit(RTC_IT_WUT);
   EXTI_ClearITPendingBit(EXTI_Line20);
