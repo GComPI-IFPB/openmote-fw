@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       freertos.c
+ * @file       freertos.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
