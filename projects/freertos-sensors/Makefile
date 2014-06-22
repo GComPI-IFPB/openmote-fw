@@ -6,7 +6,11 @@ PROJECT_DIR   = .
 # Location of the root directory
 PROJECT_HOME = ../..
 
+# Include the current path
 INC_PATH += -I $(PROJECT_DIR)
+
+# Define options passed to the C compiler
+DOPTIONS +=
 
 # Configure compiling
 USE_KERNEL = TRUE
