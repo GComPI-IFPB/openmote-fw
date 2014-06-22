@@ -1,4 +1,5 @@
 # 
+PLATFORM_CC2538 = $(PLATFORM_PATH)
 PLATFORM_SRC = $(PLATFORM_PATH)/src
 PLATFORM_INC = $(PLATFORM_PATH)/inc
 
@@ -6,7 +7,9 @@ PLATFORM_INC = $(PLATFORM_PATH)/inc
 SRC_FILES += startup_cc2538.c
 
 # Append to the include path
+SRC_PATH += -I $(PLATFORM_CC2538)
 SRC_PATH += -I $(PLATFORM_SRC)
+INC_PATH += -I $(PLATFORM_CC2538)
 INC_PATH += -I $(PLATFORM_INC)
 INC_PATH += -I $(PLATFORM_SRC)
 
@@ -14,8 +17,7 @@ INC_PATH += -I $(PLATFORM_SRC)
 LINKER_SCRIPT = $(PLATFORM_PATH)/cc2538.lds
 
 # Extend the virtual path
-#   VPATH += $(PLATFORM_PATH)/cc2538
-VPATH += $(PLATFORM_SRC) $(PLATFORM_INC)
+VPATH += $(PLATFORM_CC2538) $(PLATFORM_SRC) $(PLATFORM_INC)
 
 # Include the Makefiles in the various subdirectories in the current folder
 include $(PLATFORM_SRC)/Makefile.include

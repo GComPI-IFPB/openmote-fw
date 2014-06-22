@@ -17,8 +17,9 @@ CFLAGS += -fshort-enums -fomit-frame-pointer
 CFLAGS += -Wl,--gc-sections
 CFLAGS += -std=c99
 CFLAGS += -Wall
-CFLAGS += -Os
+CFLAGS += -O0
 CFLAGS += -g
+CFLAGS += $(DOPTIONS)
 
 # C++ compiling flags
 CPPFLAGS += -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd
@@ -32,8 +33,9 @@ CPPFLAGS += -fno-common
 CPPFLAGS += -fno-rtti
 CPPFLAGS += -std=c++11
 CPPFLAGS += -Wall
-CPPFLAGS += -Os
+CPPFLAGS += -O0
 CPPFLAGS += -g
+CPPFLAGS += $(DOPTIONS)
 
 # Linker flags
 LDFLAGS += $(CPPFLAGS)
