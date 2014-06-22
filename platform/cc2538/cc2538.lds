@@ -1,7 +1,5 @@
-/**
- * Texas Instruments CC2538 linker configuration file. This is not the actual 
- * file used at link stage. Rather, it is used as input for the auto-generation 
- * of the actual script, which is called cc2538.ld and will be in the project directory
+/*
+ * Copyright 2013 OpenMote Technologies, S.L.
  */
 
 /**
@@ -13,19 +11,20 @@ OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 /**
  * Indicate to the linker the entry point.
  */
-ENTRY(ResetISR)
+ENTRY(Reset_Handler)
 
 /**
- *   RAM is 16 kbytes retention and 16 kbytes no retention.
- *   Currently we are only using 16 kb as retention.
- *   NON-RETENTION RAM starts at 0x20000000 with length 0x00004000 
- *   RETENTION RAM starts at  0x20004000 with length 0x00004000
+ *   Linker script for Texas Instruments CC2538SF53 (32K RAM, 512K Flash)
+ *   RAM is 16K RETENTION and 16K NON-RETENTION
+ *   NON-RETENTION RAM starts at 0x20000000 with length 16K
+ *   RETENTION RAM starts at 0x20004000 with length 16K
+ *   Currently we are only using 16K with RETENTION
  */
 MEMORY
 {
-    FLASH (RX) : ORIGIN = 0x00200000, LENGTH = 524244
+    FLASH (RX) : ORIGIN = 0x00200000, LENGTH = 512K
     FLASH_CCA (RX) : ORIGIN = 0x0027FFD4, LENGTH = 12
-    SRAM (RWX) : ORIGIN = 0x20004000, LENGTH = 16384
+    SRAM (RWX) : ORIGIN = 0x20004000, LENGTH = 16K
 }
 
 SECTIONS
@@ -33,14 +32,16 @@ SECTIONS
     .text :
     {
         _text = .;
+        . = ALIGN(4);
         KEEP(*(.vectors))
+        
+        . = ALIGN(4);
         *(.text*)
         *(.rodata*)
         
-        /* Support C constructors, and C destructors in both user code
-           and the C library. This also provides support for C++ code. */
         . = ALIGN(4);
         KEEP(*(.init))
+
         . = ALIGN(4);
         __preinit_array_start = .;
         KEEP (*(.preinit_array))
@@ -67,6 +68,7 @@ SECTIONS
         KEEP (*(SORT(.fini_array.*)))
         __fini_array_end = .;
 
+        . = ALIGN(4);
         KEEP (*crtbegin.o(.dtors))
         KEEP (*(EXCLUDE_FILE (*crtend.o) .dtors))
         KEEP (*(SORT(.dtors.*)))
@@ -77,6 +79,7 @@ SECTIONS
 
     .data :
     {
+        . = ALIGN(4);
         _data = .;
         *(vtable)
         *(.data*)
@@ -85,11 +88,13 @@ SECTIONS
 
     .ARM.exidx :
     {
+        . = ALIGN(4);
         *(.ARM.exidx*)
     } > FLASH
 
     .bss :
     {
+        . = ALIGN(4);
         _bss = .;
         *(.bss*)
         *(COMMON)
@@ -98,6 +103,14 @@ SECTIONS
 
     .flashcca :
     {
+        . = ALIGN(4);
         KEEP(*(.flashcca))
     } > FLASH_CCA
+    
+    /DISCARD/ :
+    {
+        libc.a ( * )
+        libm.a ( * )
+        libgcc.a ( * )
+    }
 }
