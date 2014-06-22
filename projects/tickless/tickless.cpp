@@ -43,9 +43,9 @@ Led led_orange(LED_ORANGE_PORT, LED_ORANGE_PIN);
 Led led_red(LED_RED_PORT, LED_RED_PIN);
 Led led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
 
-Led debug_tick(GPIO_DEBUG_PORT, GPIO_DEBUG_AD0);
-Led debug_idle(GPIO_DEBUG_PORT, GPIO_DEBUG_AD1);
-Led debug_task(GPIO_DEBUG_PORT, GPIO_DEBUG_AD2);
+Led debug_tick(GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN);
+Led debug_idle(GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN);
+Led debug_task(GPIO_DEBUG_AD2_PORT, GPIO_DEBUG_AD2_PIN);
 
 /*=============================== prototypes ================================*/
 
@@ -77,44 +77,6 @@ int main(void)
     }
 
     return 0;
-}
-
-extern "C" {
-    void vApplicationTickHook(void) {
-        debug_tick.toggle();
-    }
-
-    void vApplicationIdleHook(void) {
-        debug_idle.toggle();
-    }
-
-    void vPortSVCHandler(void)
-    {
-    }
-
-    void xPortPendSVHandler(void)
-    {
-    }
-
-    void xPortSysTickHandler(void)
-    {
-    }
-
-    void SleepTimerHandler(void)
-    {
-        uint32_t ulAlarmCurrentValue;
-        
-        while(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_SYNC_32K);
-        while(!HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_SYNC_32K);
-
-        IntPendClear(INT_SMTIM);
-
-        debug_tick.toggle();
-
-        ulAlarmCurrentValue = SleepModeTimerCountGet();
-
-        SleepModeTimerCompareSet(ulAlarmCurrentValue + 32768);
-    }
 }
 
 /*================================ private ==================================*/

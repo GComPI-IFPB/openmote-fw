@@ -1,6 +1,6 @@
 # Project name and files to compile
 PROJECT_NAME  = freertos-sensors
-PROJECT_FILES = freertos-sensors.cpp
+PROJECT_FILES = freertos-sensors.cpp cc2538_it.c
 PROJECT_DIR   = .
 
 # Location of the root directory
