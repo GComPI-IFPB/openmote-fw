@@ -4,7 +4,4 @@ monitor endian little
 monitor flash breakpoints = 1
 monitor flash download = 1
 monitor halt
-monitor halt
-monitor halt
-monitor halt
 load freertos-tickless.elf
