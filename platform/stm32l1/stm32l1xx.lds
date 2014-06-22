@@ -1,0 +1,103 @@
+/**
+ * Texas Instruments CC2538 linker configuration file. This is not the actual 
+ * file used at link stage. Rather, it is used as input for the auto-generation 
+ * of the actual script, which is called cc2538.ld and will be in the project directory
+ */
+
+/**
+ * Indicate the architecture and format
+ */
+OUTPUT_ARCH(arm)
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+
+/**
+ * Indicate to the linker the entry point.
+ */
+ENTRY(ResetISR)
+
+/**
+ *   RAM is 16 kbytes retention and 16 kbytes no retention.
+ *   Currently we are only using 16 kb as retention.
+ *   NON-RETENTION RAM starts at 0x20000000 with length 0x00004000 
+ *   RETENTION RAM starts at  0x20004000 with length 0x00004000
+ */
+MEMORY
+{
+    FLASH (RX) : ORIGIN = 0x00200000, LENGTH = 524244
+    FLASH_CCA (RX) : ORIGIN = 0x0027FFD4, LENGTH = 12
+    SRAM (RWX) : ORIGIN = 0x20004000, LENGTH = 16384
+}
+
+SECTIONS
+{
+    .text :
+    {
+        _text = .;
+        KEEP(*(.vectors))
+        *(.text*)
+        *(.rodata*)
+        
+        /* Support C constructors, and C destructors in both user code
+           and the C library. This also provides support for C++ code. */
+        . = ALIGN(4);
+        KEEP(*(.init))
+        . = ALIGN(4);
+        __preinit_array_start = .;
+        KEEP (*(.preinit_array))
+        __preinit_array_end = .;
+
+        . = ALIGN(4);
+        __init_array_start = .;
+        KEEP (*(SORT(.init_array.*)))
+        KEEP (*(.init_array))
+        __init_array_end = .;
+
+        . = ALIGN(4);
+        KEEP (*crtbegin.o(.ctors))
+        KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
+        KEEP (*(SORT(.ctors.*)))
+        KEEP (*crtend.o(.ctors))
+
+        . = ALIGN(4);
+        KEEP(*(.fini))
+
+        . = ALIGN(4);
+        __fini_array_start = .;
+        KEEP (*(.fini_array))
+        KEEP (*(SORT(.fini_array.*)))
+        __fini_array_end = .;
+
+        KEEP (*crtbegin.o(.dtors))
+        KEEP (*(EXCLUDE_FILE (*crtend.o) .dtors))
+        KEEP (*(SORT(.dtors.*)))
+        KEEP (*crtend.o(.dtors))
+        
+        _etext = .;
+    } > FLASH= 0
+
+    .data :
+    {
+        _data = .;
+        *(vtable)
+        *(.data*)
+        _edata = .;
+    } > SRAM AT > FLASH
+
+    .ARM.exidx :
+    {
+        *(.ARM.exidx*)
+    } > FLASH
+
+    .bss :
+    {
+        _bss = .;
+        *(.bss*)
+        *(COMMON)
+        _ebss = .;
+    } > SRAM
+
+    .flashcca :
+    {
+        KEEP(*(.flashcca))
+    } > FLASH_CCA
+}

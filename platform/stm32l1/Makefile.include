@@ -1,0 +1,62 @@
+# 
+PLATFORM_STM32L1 = $(PLATFORM_PATH)
+PLATFORM_SRC = $(PLATFORM_PATH)/src
+PLATFORM_INC = $(PLATFORM_PATH)/inc
+PLATFORM_CMSIS = $(PLATFORM_PATH)/cmsis
+
+# Append to the files to compile
+SRC_FILES += startup_stm32l1xx.c
+
+# Append to the include path
+SRC_PATH += -I $(PLATFORM_STM32L1)
+SRC_PATH += -I $(PLATFORM_SRC)
+INC_PATH += -I $(PLATFORM_STM32L1)
+INC_PATH += -I $(PLATFORM_INC)
+INC_PATH += -I $(PLATFORM_SRC)
+INC_PATH += -I $(PLATFORM_CMSIS)
+
+# Linker script
+LINKER_SCRIPT = $(PLATFORM_PATH)/stm32l1xx.lds
+
+# Extend the virtual path
+VPATH += $(PLATFORM_STM32L1) $(PLATFORM_SRC) $(PLATFORM_INC) $(PLATFORM_CMSIS)
+
+# Include the Makefiles in the various subdirectories in the current folder
+include $(PLATFORM_SRC)/Makefile.include
+
+################################################################################
+
+# Configure the Segger J-Link
+JLINK_NAME = JLinkGDBServer
+JLINK_PATH = /opt/Segger/JLink
+JLINK_OPT = -device
+JLINK_DEV = STM32
+
+# Configure the GDB client
+GDB_BATCH = --batch 
+GDB_CMD = --command
+GDB_EXT = gdb
+
+# Configure the GDB
+NEMIVER_NAME = nemiver
+NEMIVER_IP = localhost:2331
+NEMIVER_GDB = `which arm-none-eabi-gdb`
+NEMIVER_EXT = elf
+
+################################################################################
+
+.PHONY: jlink load debug
+
+jlink:
+	@echo "Initializing Segger J-Link..."
+	@$(JLINK_PATH)/$(JLINK_NAME) $(JLINK_OPT) $(JLINK_DEV)
+
+load:
+	@echo "Loading $(PROJECT_NAME) into target..."
+	@$(GDB) $(GDB_BATCH) $(GDB_CMD)=$(PROJECT_NAME).$(GDB_EXT)
+
+debug: load
+	@echo "Launching debugger..."
+	@sleep 1
+	@$(NEMIVER_NAME) --remote=$(NEMIVER_IP) --gdb-binary=$(NEMIVER_GDB) $(PROJECT_NAME).$(NEMIVER_EXT)
+
