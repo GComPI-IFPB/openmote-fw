@@ -162,8 +162,3 @@ int main (void) {
 
 /*================================ private ==================================*/
 
-extern "C" {
-    void SleepTimerHandler(void) {
-    }
-}
-
