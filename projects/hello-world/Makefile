@@ -1,15 +1,19 @@
 # Project name and files to compile
 PROJECT_NAME  = hello-world
-PROJECT_FILES = hello-world.cpp
+PROJECT_FILES = hello-world.cpp cc2538_it.cpp
 PROJECT_DIR   = .
 
 # Location of the root directory
 PROJECT_HOME = ../..
 
+# Include the current path
 INC_PATH += -I $(PROJECT_DIR)
 
+# Define options passed to the C compiler
+DOPTIONS +=
+
 # Configure compiling
-USE_KERNEL = FALSE
+USE_KERNEL = TRUE
 USE_LIBRARY = TRUE
 
 # Include the Makefile in the root directory

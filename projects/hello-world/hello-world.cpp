@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       hello-world.c
+ * @file       hello-world.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -143,20 +143,3 @@ int main(void)
 
 /*================================ private ==================================*/
 
-extern "C" {
-    void vPortSVCHandler(void)
-    {
-    }
-
-    void xPortPendSVHandler(void)
-    {
-    }
-
-    void xPortSysTickHandler(void)
-    {
-    }
-
-    void SleepTimerHandler(void)
-    {
-    }
-}

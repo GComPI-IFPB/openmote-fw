@@ -1,10 +1,11 @@
 target remote localhost:2331
+file hellow-world.elf
 monitor speed 5000
 monitor endian little
 monitor flash breakpoints = 1
 monitor flash download = 1
 monitor halt
-monitor halt
-monitor halt
-monitor halt
-load hello-world.elf
+load
+monitor reset
+set breakpoint pending on
+break main
