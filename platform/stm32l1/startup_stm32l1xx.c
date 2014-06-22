@@ -1,117 +1,132 @@
+/*
+ * Copyright 2013 OpenMote Technologies, S.L.
+ */
+
+/**
+ *
+ * @file       startup_stm32l1xx.c
+ * @author     Pere Tuset-Peiro (peretuset@openmote.com)
+ * @version    v0.1
+ * @date       May, 2014
+ * @brief
+ * @ingroup
+ *
+ */
+
+/*================================ include ==================================*/
+
 #include <stdint.h>
 
+/*================================ define ===================================*/
 
-//*****************************************************************************
-//
-// Extern and local function prototypes.
-//
-//*****************************************************************************
+/*================================ typedef ==================================*/
+
+/*=============================== prototypes ================================*/
+
 extern int main (void);
 extern void __libc_init_array(void);
 
-void ResetISR(void);
-void NmiISR(void);
-void FaultISR(void);
-void IntDefaultHandler(void);
+void Reset_Handler(void);
+void NMI_Handler(void);
+void HardFault_Handler(void);
+void Default_Handler(void);
+
+/*=============================== variables =================================*/
 
 static uint32_t pui32Stack[128];
 
-__attribute__ ((section(".vectors"), used))
-void (* const gVectors[])(void) =
-{
-   (void (*)(void))((uint32_t)pui32Stack + sizeof(pui32Stack)), // Stack pointer
-   ResetISR,							   // Reset handler
-   NmiISR,                                 // The NMI handler
-   FaultISR,                               // The hard fault handler
-   IntDefaultHandler,                      // 4 The MPU fault handler
-   IntDefaultHandler,                      // 5 The bus fault handler
-   IntDefaultHandler,                      // 6 The usage fault handler
-   0,                                      // 7 Reserved
-   0,                                      // 8 Reserved
-   0,                                      // 9 Reserved
-   0,                                      // 10 Reserved
-   IntDefaultHandler,                        // 11 SVCall handler
-   IntDefaultHandler,                      // 12 Debug monitor handler
-   0,                                      // 13 Reserved
-   IntDefaultHandler,                     // 14 The PendSV handler
-   IntDefaultHandler,                    // 15 The SysTick handler
-   IntDefaultHandler,                      // 16 GPIO Port A
-   IntDefaultHandler,                      // 17 GPIO Port B
-   IntDefaultHandler,                      // 18 GPIO Port C
-   IntDefaultHandler,                      // 19 GPIO Port D
-   0,                                      // 20 none
-   IntDefaultHandler,                      // 21 UART0 Rx and Tx
-   IntDefaultHandler,                      // 22 UART1 Rx and Tx
-   IntDefaultHandler,                      // 23 SSI0 Rx and Tx
-   IntDefaultHandler,                      // 24 I2C Master and Slave
-   0,                                      // 25 Reserved
-   0,                                      // 26 Reserved
-   0,                                      // 27 Reserved
-   0,                                      // 28 Reserved
-   0,                                      // 29 Reserved
-   IntDefaultHandler,                      // 30 ADC Sequence 0
-   0,                                      // 31 Reserved
-   0,                                      // 32 Reserved
-   0,                                      // 33 Reserved
-   IntDefaultHandler,                      // 34 Watchdog timer, timer 0
-   IntDefaultHandler,                      // 35 Timer 0 subtimer A
-   IntDefaultHandler,                      // 36 Timer 0 subtimer B
-   IntDefaultHandler,                      // 37 Timer 1 subtimer A
-   IntDefaultHandler,                      // 38 Timer 1 subtimer B
-   IntDefaultHandler,                      // 39 Timer 2 subtimer A
-   IntDefaultHandler,                      // 40 Timer 2 subtimer B
-   IntDefaultHandler,                      // 41 Analog Comparator 0
-   IntDefaultHandler,                      // 42 RFCore Rx/Tx
-   IntDefaultHandler,                      // 43 RFCore Error
-   IntDefaultHandler,                      // 44 IcePick
-   IntDefaultHandler,                      // 45 FLASH Control
-   IntDefaultHandler,                      // 46 AES
-   IntDefaultHandler,                      // 47 PKA
-   IntDefaultHandler,                      // 48 Sleep Timer
-   IntDefaultHandler,                      // 49 MacTimer
-   IntDefaultHandler,                      // 50 SSI1 Rx and Tx
-   IntDefaultHandler,                      // 51 Timer 3 subtimer A
-   IntDefaultHandler,                      // 52 Timer 3 subtimer B
-   0,                                      // 53 Reserved
-   0,                                      // 54 Reserved
-   0,                                      // 55 Reserved
-   0,                                      // 56 Reserved
-   0,                                      // 57 Reserved
-   0,                                      // 58 Reserved
-   0,                                      // 59 Reserved
-   IntDefaultHandler,                      // 60 USB 2538
-   0,                                      // 61 Reserved
-   IntDefaultHandler,                      // 62 uDMA
-   IntDefaultHandler,                      // 63 uDMA Error
-};
-
-//*****************************************************************************
-//
-// The following are constructs created by the linker, indicating where the
-// the "data" and "bss" segments reside in memory.  The initializers for the
-// for the "data" segment resides immediately following the "text" segment.
-//
-//*****************************************************************************
 extern uint32_t _etext;
 extern uint32_t _data;
 extern uint32_t _edata;
 extern uint32_t _bss;
 extern uint32_t _ebss;
 
-//
-// And here are the weak interrupt handlers.
-//
-void
-NmiISR (void)
+
+__attribute__ ((section(".vectors"), used))
+void (* const gVectors[])(void) =
 {
-    ResetISR();
+   (void (*)(void))((uint32_t)pui32Stack + sizeof(pui32Stack)), // Stack pointer
+   Reset_Handler,                       // Reset_Handler
+   NMI_Handler,                         // NMI_Handler
+   HardFault_Handler,                   // HardFault_Handler
+   Default_Handler,                     // 4 MemManage_Handler
+   Default_Handler,                     // 5 BusFault_Handler
+   Default_Handler,                     // 6 UsageFault_Handler
+   0,                                   // 7
+   0,                                   // 8
+   0,                                   // 9
+   0,                                   // 10
+   Default_Handler,                     // 11 SVC_Handler
+   Default_Handler,                     // 12 DebugMon_Handler
+   0,                                   // 13
+   Default_Handler,                     // 14 PendSV_Handler
+   Default_Handler,                     // 15 SysTick_Handler
+   Default_Handler,                     // 16 WWDG_IRQHandler
+   Default_Handler,                     // 17 PVD_IRQHandler
+   Default_Handler,                     // 18 TAMPER_STAMP_IRQHandler
+   Default_Handler,                     // 19 RTC_WKUP_IRQHandler
+   Default_Handler,                     // 20 FLASH_IRQHandler
+   Default_Handler,                     // 21 RCC_IRQHandler
+   Default_Handler,                     // 22 EXTI0_IRQHandler
+   Default_Handler,                     // 23 EXTI1_IRQHandler
+   Default_Handler,                     // 24 EXTI2_IRQHandler
+   Default_Handler,                     // 25 EXTI3_IRQHandler
+   Default_Handler,                     // 26 EXTI4_IRQHandler
+   Default_Handler,                     // 27 DMA1_Channel1_IRQHandler
+   Default_Handler,                     // 28 DMA1_Channel2_IRQHandler
+   Default_Handler,                     // 29 DMA1_Channel3_IRQHandler
+   Default_Handler,                     // 30 DMA1_Channel4_IRQHandler
+   Default_Handler,                     // 31 DMA1_Channel5_IRQHandler
+   Default_Handler,                     // 32 DMA1_Channel6_IRQHandler
+   Default_Handler,                     // 33 DMA1_Channel7_IRQHandler
+   Default_Handler,                     // 34 ADC1_IRQHandler
+   Default_Handler,                     // 35 USB_HP_IRQHandler
+   Default_Handler,                     // 36 USB_LP_IRQHandler
+   Default_Handler,                     // 37 DAC_IRQHandler
+   Default_Handler,                     // 38 COMP_IRQHandler
+   Default_Handler,                     // 39 EXTI9_5_IRQHandler
+   Default_Handler,                     // 40 LCD_IRQHandler
+   Default_Handler,                     // 41 TIM9_IRQHandler
+   Default_Handler,                     // 42 TIM10_IRQHandler
+   Default_Handler,                     // 43 TIM11_IRQHandler
+   Default_Handler,                     // 44 TIM2_IRQHandler
+   Default_Handler,                     // 45 TIM3_IRQHandler
+   Default_Handler,                     // 46 TIM4_IRQHandler
+   Default_Handler,                     // 47 I2C1_EV_IRQHandler
+   Default_Handler,                     // 48 I2C1_ER_IRQHandler
+   Default_Handler,                     // 49 I2C2_EV_IRQHandler
+   Default_Handler,                     // 50 I2C2_ER_IRQHandler
+   Default_Handler,                     // 51 SPI1_IRQHandler
+   Default_Handler,                     // 52 SPI2_IRQHandler
+   Default_Handler,                     // 53 USART1_IRQHandler
+   Default_Handler,                     // 54 USART2_IRQHandler
+   Default_Handler,                     // 55 USART3_IRQHandler
+   Default_Handler,                     // 56 EXTI15_10_IRQHandler
+   Default_Handler,                     // 57 RTC_Alarm_IRQHandler
+   Default_Handler,                     // 58 USB_FS_WKUP_IRQHandler
+   Default_Handler,                     // 59 TIM6_IRQHandler
+   Default_Handler,                     // 60 TIM7_IRQHandler
+   0,                                   // 61
+   0,                                   // 62
+   0,                                   // 63
+   0,                                   // 64
+   0,                                   // 65
+   0,                                   // 66 BootRAM
+};
+
+/*================================= public ==================================*/
+
+void
+NMI_Handler (void)
+{
+    Reset_Handler();
     while(1)
     {
     }
 }
 
 void
-FaultISR (void)
+HardFault_Handler (void)
 {
     while(1)
     {
@@ -119,7 +134,7 @@ FaultISR (void)
 }
 
 void
-IntDefaultHandler (void)
+Default_Handler (void)
 {
     while(1)
     {
@@ -127,7 +142,7 @@ IntDefaultHandler (void)
 }
 
 void
-ResetISR (void)
+Reset_Handler (void)
 {
 	uint32_t *pui32Src, *pui32Dest;
 
@@ -143,19 +158,27 @@ ResetISR (void)
     //
     // Zero fill the bss segment.
     //
-    for(pui32Dest = &_bss; pui32Dest < &_ebss; )
-    {
-        *pui32Dest++ = 0;
-    }
+    __asm(  "    ldr     r0, =_bss\n"
+            "    ldr     r1, =_ebss\n"
+            "    mov     r2, #0\n"
+            "    .thumb_func\n"
+            "    zero_loop:\n"
+            "    cmp     r0, r1\n"
+            "    it      lt\n"
+            "    strlt   r2, [r0], #4\n"
+            "    blt     zero_loop"
+    );
 
     //
     // Initialize standard C library
     //
     __libc_init_array();
 
-
    //
    // Call the application's entry point.
    //
    main();
 }
+
+/*================================ private ==================================*/
+
