@@ -67,6 +67,7 @@ xSemaphoreHandle xSemaphore;
 static void prvGreenLedTask(void *pvParameters);
 static void prvLightTask(void *pvParameters);
 static void prvTemperatureTask(void *pvParameters);
+static void prvUartTask( void *pvParameters );
 static void prvButtonTask(void *pvParameters);
 static void button_user_callback(void);
 
@@ -90,7 +91,7 @@ static void prvButtonTask( void *pvParameters ) {
 static void prvTemperatureTask( void *pvParameters ) {
     uint16_t temperature;
     uint16_t humidity;
-    if (sht21.isPresent()) {
+    if (sht21.isPresent() == true) {
     	while(true) {
     	    led_orange.on();
     	    sht21.readTemperature();
@@ -108,7 +109,7 @@ static void prvTemperatureTask( void *pvParameters ) {
 
 static void prvLightTask( void *pvParameters ) {
     uint16_t light;
-    if (max44009.isPresent()) {
+    if (max44009.isPresent() == true) {
     	while(true) {
         	led_yellow.on();
         	max44009.readLux();
@@ -122,11 +123,17 @@ static void prvLightTask( void *pvParameters ) {
 	}
 }
 
+static void prvUartTask( void *pvParameters ) {
+	while(true) {
+		vTaskDelay(1000 / portTICK_RATE_MS);
+	}
+}
+
 static void prvGreenLedTask( void *pvParameters ) {
 	while(true) {
-		led_red.on();
+		led_green.on();
 		vTaskDelay(10 / portTICK_RATE_MS);
-        led_red.off();
+        led_green.off();
 		vTaskDelay(990 / portTICK_RATE_MS);
 	}
 }
@@ -143,12 +150,13 @@ int main (void) {
     
     xSemaphore = xSemaphoreCreateMutex();
     
-	xTaskCreate(prvGreenLedTask, ( const char * ) "GreenLed", 128, NULL, mainCHECK_TASK_PRIORITY, NULL );
-	xTaskCreate(prvTemperatureTask, ( const char * ) "Temperature", 128, NULL, mainCHECK_TASK_PRIORITY, NULL );
-	xTaskCreate(prvLightTask, ( const char * ) "Light", 128, NULL, mainCHECK_TASK_PRIORITY, NULL );
-	xTaskCreate(prvButtonTask, ( const char * ) "Button", 128, NULL, mainCHECK_TASK_PRIORITY, NULL );
+    xTaskCreate(prvGreenLedTask, ( const char * ) "GreenLed", 128, NULL, mainCHECK_TASK_PRIORITY, NULL );
+    xTaskCreate(prvTemperatureTask, ( const char * ) "Temperature", 128, NULL, mainCHECK_TASK_PRIORITY, NULL );
+    xTaskCreate(prvLightTask, ( const char * ) "Light", 128, NULL, mainCHECK_TASK_PRIORITY, NULL );
+    xTaskCreate(prvButtonTask, ( const char * ) "Button", 128, NULL, mainCHECK_TASK_PRIORITY, NULL );
+    xTaskCreate(prvUartTask, ( const char * ) "Uart", 128, NULL, mainCHECK_TASK_PRIORITY, NULL );
 
-	vTaskStartScheduler();
+    vTaskStartScheduler();
 }
 
 /*================================ private ==================================*/
