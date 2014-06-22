@@ -27,7 +27,8 @@
 
 /*================================ define ===================================*/
 
-#define mainCHECK_TASK_PRIORITY				( tskIDLE_PRIORITY + 1 )
+#define RED_LED_TASK_PRIORITY               ( tskIDLE_PRIORITY + 1 )
+#define BUTTON_TASK_PRIORITY                ( tskIDLE_PRIORITY + 0 )
 
 /*================================ typedef ==================================*/
 
@@ -82,16 +83,11 @@ int main (void) {
     
     xSemaphore = xSemaphoreCreateMutex();
     
-	xTaskCreate(prvRedLedTask, ( const char * ) "Red", 128, NULL, mainCHECK_TASK_PRIORITY, NULL );
-	xTaskCreate(prvButtonTask, ( const char * ) "Button", 128, NULL, mainCHECK_TASK_PRIORITY, NULL);
+	xTaskCreate(prvRedLedTask, ( const char * ) "Red", 128, NULL, RED_LED_TASK_PRIORITY, NULL );
+	xTaskCreate(prvButtonTask, ( const char * ) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
 
 	vTaskStartScheduler();
 }
 
 /*================================ private ==================================*/
-
-extern "C" {
-    void SleepTimerHandler(void) {
-    }
-}
 
