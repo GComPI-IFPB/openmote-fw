@@ -1,6 +1,6 @@
 # Project name and files to compile
-PROJECT_NAME  = freertos-tickless
-PROJECT_FILES = freertos-tickless.c stm32l1_low_power.c stm32l1xx_it.c
+PROJECT_NAME  = tickless-stm32l1
+PROJECT_FILES = tickless-stm32l1.c stm32l1_low_power.c stm32l1xx_it.c
 PROJECT_DIR   = .
 
 # Location of the root directory

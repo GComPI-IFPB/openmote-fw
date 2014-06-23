@@ -22,31 +22,44 @@
 /* ST library functions */
 #include "stm32l1xx.h"
 
+/* OpenMote definitions */
+#include "openmote-stm32l1.h"
+
 /*================================ define ===================================*/
+
+#define RED_LED_TASK_PRIORITY           ( tskIDLE_PRIORITY + 1 )
 
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
 
+GPIO_InitTypeDef GPIO_InitStructure;
+
 /*=============================== prototypes ================================*/
 
 static void prvSetupHardware( void );
+static void prvRedLedTask(void *pvParameters);
 
 /*================================= public ==================================*/
+
+static void prvRedLedTask( void *pvParameters ) {
+	while(1) {
+		GPIO_WriteBit(LED_RED_PORT, LED_RED_PIN, 1);
+		vTaskDelay(1000 / portTICK_RATE_MS);
+        GPIO_WriteBit(LED_RED_PORT, LED_RED_PIN, 0);
+        vTaskDelay(1000 / portTICK_RATE_MS);
+	}
+}
 
 int main( void )
 {
 	/* Prepare the hardware to run this demo. */
 	prvSetupHardware();
     
+    xTaskCreate(prvRedLedTask, ( const char * ) "Red", 128, NULL, RED_LED_TASK_PRIORITY, NULL );
+    
 	/* Start the scheduler running running. */
 	vTaskStartScheduler();
-
-	/* If all is well the next line of code will not be reached as the
-	scheduler will be running.  If the next line is reached then it is likely
-	there was insufficient FreeRTOS heap available for the idle task and/or
-	timer task to be created.  See http://www.freertos.org/a00111.html. */
-	for( ;; );
 	
 	/* This line will never be reached. */
 	return 0;
@@ -108,5 +121,21 @@ static void prvSetupHardware( void )
 
 	/* Wait Until the Voltage Regulator is ready. */
 	while( PWR_GetFlagStatus( PWR_FLAG_VOS ) != RESET );
+	
+    GPIO_InitStructure.GPIO_Pin = LED_GREEN_PIN;
+    GPIO_InitStructure.GPIO_Mode = LED_GREEN_MODE;
+    GPIO_InitStructure.GPIO_OType = LED_GREEN_TYPE;
+    GPIO_InitStructure.GPIO_Speed = LED_GREEN_SPEED;
+    GPIO_InitStructure.GPIO_PuPd = LED_GREEN_PUSH;
+    GPIO_Init(LED_GREEN_PORT, &GPIO_InitStructure);
+    
+    GPIO_InitStructure.GPIO_Pin = LED_RED_PIN;
+    GPIO_InitStructure.GPIO_Mode = LED_RED_MODE;
+    GPIO_InitStructure.GPIO_OType = LED_RED_TYPE;
+    GPIO_InitStructure.GPIO_Speed = LED_RED_SPEED;
+    GPIO_InitStructure.GPIO_PuPd = LED_RED_PUSH;
+    GPIO_Init(LED_RED_PORT, &GPIO_InitStructure);
+    
+    GPIO_WriteBit(LED_GREEN_PORT, LED_GREEN_PIN, 0);
 }
 

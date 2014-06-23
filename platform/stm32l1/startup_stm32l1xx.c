@@ -37,6 +37,8 @@ extern void vPortSVCHandler(void);
 extern void xPortPendSVHandler(void);
 extern void xPortSysTickHandler(void);
 
+extern void TIM2_IRQHandler(void);
+
 /*=============================== variables =================================*/
 
 static uint32_t pui32Stack[128];
@@ -94,7 +96,7 @@ void (* const gVectors[])(void) =
    Default_Handler,                     // 41 TIM9_IRQHandler
    Default_Handler,                     // 42 TIM10_IRQHandler
    Default_Handler,                     // 43 TIM11_IRQHandler
-   Default_Handler,                     // 44 TIM2_IRQHandler
+   TIM2_IRQHandler,                     // 44 TIM2_IRQHandler
    Default_Handler,                     // 45 TIM3_IRQHandler
    Default_Handler,                     // 46 TIM4_IRQHandler
    Default_Handler,                     // 47 I2C1_EV_IRQHandler
