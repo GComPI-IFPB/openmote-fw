@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       hello-world.cpp
+ * @file       test-cc2538.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
