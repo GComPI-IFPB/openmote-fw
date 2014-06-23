@@ -17,6 +17,8 @@
 
 #include <stdint.h>
 
+#include "system_stm32l1xx.h"
+
 /*================================ define ===================================*/
 
 /*================================ typedef ==================================*/
@@ -31,6 +33,10 @@ void NMI_Handler(void);
 void HardFault_Handler(void);
 void Default_Handler(void);
 
+extern void vPortSVCHandler(void);
+extern void xPortPendSVHandler(void);
+extern void xPortSysTickHandler(void);
+
 /*=============================== variables =================================*/
 
 static uint32_t pui32Stack[128];
@@ -40,7 +46,6 @@ extern uint32_t _data;
 extern uint32_t _edata;
 extern uint32_t _bss;
 extern uint32_t _ebss;
-
 
 __attribute__ ((section(".vectors"), used))
 void (* const gVectors[])(void) =
@@ -56,11 +61,11 @@ void (* const gVectors[])(void) =
    0,                                   // 8
    0,                                   // 9
    0,                                   // 10
-   Default_Handler,                     // 11 SVC_Handler
+   vPortSVCHandler,                         // 11 SVC_Handler
    Default_Handler,                     // 12 DebugMon_Handler
    0,                                   // 13
-   Default_Handler,                     // 14 PendSV_Handler
-   Default_Handler,                     // 15 SysTick_Handler
+   xPortPendSVHandler,                  // 14 PendSV_Handler
+   xPortSysTickHandler,                 // 15 SysTick_Handler
    Default_Handler,                     // 16 WWDG_IRQHandler
    Default_Handler,                     // 17 PVD_IRQHandler
    Default_Handler,                     // 18 TAMPER_STAMP_IRQHandler
@@ -168,6 +173,11 @@ Reset_Handler (void)
             "    strlt   r2, [r0], #4\n"
             "    blt     zero_loop"
     );
+    
+    //
+    // Zero fill the bss segment.
+    //
+    SystemInit();
 
     //
     // Initialize standard C library

@@ -30,7 +30,7 @@ include $(PLATFORM_SRC)/Makefile.include
 JLINK_NAME = JLinkGDBServer
 JLINK_PATH = /opt/Segger/JLink
 JLINK_OPT = -device
-JLINK_DEV = STM32L151RBT6
+JLINK_DEV = STM32L152VB
 
 # Configure the GDB client
 GDB_BATCH = --batch 
