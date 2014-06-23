@@ -1,5 +1,5 @@
 target remote localhost:2331
-file tickless.elf
+file tickless-cc2538.elf
 monitor speed 5000
 monitor endian little
 monitor flash breakpoints = 1

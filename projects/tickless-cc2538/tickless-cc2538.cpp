@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       hello-world.c
+ * @file       tickless-cc2538.c
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014

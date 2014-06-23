@@ -1,6 +1,6 @@
 # Project name and files to compile
-PROJECT_NAME  = tickless
-PROJECT_FILES = tickless.cpp cc2538_it.cpp
+PROJECT_NAME  = tickless-cc2538
+PROJECT_FILES = tickless-cc2538.cpp cc2538_it.cpp
 PROJECT_DIR   = .
 
 # Location of the root directory
