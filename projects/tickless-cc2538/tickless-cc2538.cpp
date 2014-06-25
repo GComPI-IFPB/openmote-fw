@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       tickless-cc2538.c
+ * @file       freertos.c
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -16,21 +16,18 @@
 /*================================ include ==================================*/
 
 #include "Board.h"
+#include "Button.h"
 #include "Led.h"
 
-#include "interrupt.h"
-#include "sleepmode.h"
-#include "sys_ctrl.h"
-
-#include "hw_ints.h"
-#include "hw_sys_ctrl.h"
-#include "hw_types.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
 
 #include "openmote-cc2538.h"
 
 /*================================ define ===================================*/
 
-#define DELAY_TICKS                 ( 320000 )
+#define redLedTask_PRIORITY				( tskIDLE_PRIORITY + 1 )
 
 /*================================ typedef ==================================*/
 
@@ -45,39 +42,46 @@ Led led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
 
 Led debug_tick(GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN);
 Led debug_idle(GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN);
-Led debug_task(GPIO_DEBUG_AD2_PORT, GPIO_DEBUG_AD2_PIN);
+Led debug_red(GPIO_DEBUG_AD2_PORT, GPIO_DEBUG_AD2_PIN);
+
+Led tps62730(TPS62730_PORT, TPS62730_ONBYP_PIN);
 
 /*=============================== prototypes ================================*/
 
+static void prvRedLedTask(void *pvParameters);
+
 /*================================= public ==================================*/
 
-int main(void)
-{
-    uint32_t ulAlarmCurrentValue;
-    
-    led_green.on();
+static void prvRedLedTask( void *pvParameters ) {
+    while(true) {
+        led_red.off();
+        debug_red.off();
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        debug_red.on();
+        led_red.on();
+        vTaskDelay(250 / portTICK_PERIOD_MS);
+	}
+}
 
-    SysCtrlPowerModeSet(SYS_CTRL_PM_2);
-    GPIOIntWakeupEnable(GPIO_IWE_SM_TIMER); 
+int main (void) {
+    // led_green.on();
     
-    IntPendClear(INT_SMTIM);
+    tps62730.off();
     
-    ulAlarmCurrentValue = SleepModeTimerCountGet();
-    SleepModeTimerCompareSet(ulAlarmCurrentValue + 32768);
-    
-    /* Enable wakeup from alarm 0 in the RTC and power manager.  */
-    IntEnable(INT_SMTIM);
-    
-    IntMasterEnable();
-            
-    while(true){
-        led_red.toggle();
-        debug_task.toggle();
-        SysCtrlDeepSleep();
-    }
+    xTaskCreate(prvRedLedTask, ( const char * ) "Red", 128, NULL, redLedTask_PRIORITY, NULL );      
 
-    return 0;
+	vTaskStartScheduler();
 }
 
 /*================================ private ==================================*/
 
+extern "C" {
+
+    void vApplicationTickHook(void) {
+        debug_tick.toggle();
+    }
+
+    void vApplicationIdleHook(void) {
+        debug_idle.toggle();
+    }
+}

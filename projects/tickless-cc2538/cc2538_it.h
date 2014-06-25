@@ -30,12 +30,6 @@
 
 /*=============================== prototypes ================================*/
 
-void vPortSVCHandler(void);
-void xPortPendSVHandler(void);
-void xPortSysTickHandler(void);
-
-void SleepTimerHandler(void);
-
 /*================================= public ==================================*/
 
 /*================================ private ==================================*/
