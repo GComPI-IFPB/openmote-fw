@@ -17,7 +17,7 @@
 #define __CC2538_IT_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif 
 
 /*================================ include ==================================*/

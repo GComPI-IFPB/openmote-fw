@@ -39,7 +39,8 @@
 #define lpCLOCK_INPUT_FREQUENCY 	( 32768UL )
 #define lpCLOCK_INPUT_DRIFT         ( 82 )
 
-/* The minimum time in each sleep mode and the time to wake up */
+/* The minimum number of ticks in each sleep mode and the number of ticks
+   to wake up from each sleep mode. */
 #define LPM1_MINIMUM_IDLE_TICKS     ( 10 )
 #define LPM1_WAKEUP_TICKS           ( 0 )
 #define LPM2_MINIMUM_IDLE_TICKS     ( 100 )
