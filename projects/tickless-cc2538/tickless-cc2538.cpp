@@ -27,7 +27,7 @@
 
 /*================================ define ===================================*/
 
-#define redLedTask_PRIORITY				( tskIDLE_PRIORITY + 1 )
+#define greenLedTask_PRIORITY               ( tskIDLE_PRIORITY + 1 )
 
 /*================================ typedef ==================================*/
 
@@ -48,27 +48,23 @@ Led tps62730(TPS62730_PORT, TPS62730_ONBYP_PIN);
 
 /*=============================== prototypes ================================*/
 
-static void prvRedLedTask(void *pvParameters);
+static void prvGreenLedTask(void *pvParameters);
 
 /*================================= public ==================================*/
 
-static void prvRedLedTask( void *pvParameters ) {
+static void prvGreenLedTask( void *pvParameters ) {
     while(true) {
-        led_red.off();
-        debug_red.off();
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
-        debug_red.on();
-        led_red.on();
-        vTaskDelay(250 / portTICK_PERIOD_MS);
+        led_green.off();
+        vTaskDelay(4950 / portTICK_PERIOD_MS);
+        led_green.on();
+        vTaskDelay(50 / portTICK_PERIOD_MS);
 	}
 }
 
-int main (void) {
-    // led_green.on();
-    
+int main (void) {    
     tps62730.off();
     
-    xTaskCreate(prvRedLedTask, ( const char * ) "Red", 128, NULL, redLedTask_PRIORITY, NULL );      
+    xTaskCreate(prvGreenLedTask, ( const char * ) "Red", 128, NULL, greenLedTask_PRIORITY, NULL );      
 
 	vTaskStartScheduler();
 }
