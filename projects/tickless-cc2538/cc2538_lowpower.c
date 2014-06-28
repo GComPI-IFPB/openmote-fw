@@ -102,7 +102,8 @@ void vPortSetupTimerInterrupt( void )
    not the SysTick as would normally be the case on a Cortex-M. */
 void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTicks )
 {
-    uint32_t ulCounterValue, ulCompleteTickPeriods, ulPreviousTickValue;
+    static uint32_t ulPreviousTickValue;
+    uint32_t ulCounterValue, ulCompleteTickPeriods;
     uint32_t ulCurrentCounterValue, ulElapsedCounterValue;
     eSleepModeStatus eSleepAction;
     TickType_t xModifiableIdleTicks;
@@ -162,7 +163,7 @@ void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTicks )
 		/* Take into account the drift due to accuracy and the time to
 		   wake up from LPM2 */
 	    ulCounterValue += ( lpCLOCK_INPUT_DRIFT * ( ulCounterValue / lpCLOCK_INPUT_FREQUENCY ));
-	    if (ulCounterValue > LPM2_MINIMUM_IDLE_TICKS)
+	    if(ulCounterValue > LPM2_MINIMUM_IDLE_TICKS)
 	    {
 	        ulCounterValue -= LPM2_WAKEUP_TICKS;
 	    }
