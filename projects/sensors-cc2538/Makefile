@@ -1,6 +1,6 @@
 # Project name and files to compile
-PROJECT_NAME  = freertos-sensors
-PROJECT_FILES = freertos-sensors.cpp cc2538_it.c
+PROJECT_NAME  = sensors-cc2538
+PROJECT_FILES = sensors-cc2538.cpp cc2538_it.cpp cc2538_lowpower.c
 PROJECT_DIR   = .
 
 # Location of the root directory
@@ -10,7 +10,7 @@ PROJECT_HOME = ../..
 INC_PATH += -I $(PROJECT_DIR)
 
 # Define options passed to the C compiler
-DOPTIONS +=
+DOPTIONS += -DNO_CLOCK_DIVIDER_RESTORE
 
 # Configure compiling
 USE_KERNEL = TRUE

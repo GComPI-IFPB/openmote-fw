@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       freertos.c
+ * @file       sensors-cc2538.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -14,16 +14,6 @@
  */
 
 /*================================ include ==================================*/
-
-#include "Board.h"
-#include "Button.h"
-#include "Led.h"
-#include "I2c.h"
-#include "Uart.h"
-
-#include "Adxl346.h"
-#include "Max44009.h"
-#include "Sht21.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -42,30 +32,12 @@
 
 /*=============================== variables =================================*/
 
-Board board;
-
-Led led_green(LED_GREEN_PORT, LED_GREEN_PIN);
-Led led_orange(LED_ORANGE_PORT, LED_ORANGE_PIN);
-Led led_red(LED_RED_PORT, LED_RED_PIN);
-Led led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
-
-Button button_user(BUTTON_USER_PORT, BUTTON_USER_PIN, BUTTON_USER_EDGE);
-
-Gpio uart_rx(UART_RX_PORT, UART_RX_PIN);
-Gpio uart_tx(UART_TX_PORT, UART_TX_PIN);
-Uart uart(UART_PERIPHERAL, UART_PORT, UART_CLOCK, UART_INTERRUPT);
-
-Gpio i2c_scl(I2C_PORT, I2C_SCL);
-Gpio i2c_sda(I2C_PORT, I2C_SDA);
-I2c i2c(I2C_PERIPHERAL, &i2c_scl, &i2c_sda);
-
-Adxl346 adxl346(&i2c);
-Max44009 max44009(&i2c);
-Sht21 sht21(&i2c);
-
-xSemaphoreHandle xSemaphore;
+static xSemaphoreHandle xSemaphore;
 
 /*=============================== prototypes ================================*/
+
+extern "C" void board_sleep(void);
+extern "C" void board_wakeup(void);
 
 static void prvGreenLedTask(void *pvParameters);
 static void prvLightTask(void *pvParameters);
@@ -104,10 +76,11 @@ static void prvTemperatureTask( void *pvParameters ) {
             temperature = sht21.getTemperatureRaw();
             humidity = sht21.getHumidityRaw();
             led_orange.off();
-            vTaskDelay(1000 / portTICK_RATE_MS);
+            vTaskDelay(2000 / portTICK_RATE_MS);
 	    }
 	} else {
-	    led_orange.on();
+	    led_red.off();
+	    i2c.sleep();
 	    vTaskDelete( NULL );
 	}
 }
@@ -119,14 +92,15 @@ static void prvLightTask( void *pvParameters ) {
     
     if (max44009.isPresent() == true) {
     	while(true) {
-        	led_yellow.on();
+        	led_orange.on();
         	max44009.readLux();
         	light = max44009.getLuxRaw();
-           	led_yellow.off();
-            vTaskDelay(1000 / portTICK_RATE_MS);
+           	led_orange.off();
+            vTaskDelay(2000 / portTICK_RATE_MS);
 	    }
 	} else {
-	    led_yellow.on();
+	    led_red.off();
+	    i2c.sleep();
 	    vTaskDelete( NULL );
 	}
 }
@@ -134,21 +108,23 @@ static void prvLightTask( void *pvParameters ) {
 static void prvGreenLedTask( void *pvParameters ) {
 	while(true) {
 		led_green.on();
-		vTaskDelay(10 / portTICK_RATE_MS);
+		vTaskDelay(50/ portTICK_RATE_MS);
         led_green.off();
-		vTaskDelay(990 / portTICK_RATE_MS);
+		vTaskDelay(1950 / portTICK_RATE_MS);
 	}
 }
 
 int main (void) {
+    tps62730.off();
+
     button_user.setCallback(button_user_callback);
     button_user.enableInterrupt();
     
-    uart.setRxGpio(uart_rx, UART_RX_IOC);
-    uart.setTxGpio(uart_tx, UART_TX_IOC);
-    uart.init(UART_BAUDRATE, UART_CONFIG, UART_TX_INT_MODE);
+    // uart.setRxGpio(uart_rx, UART_RX_IOC);
+    // uart.setTxGpio(uart_tx, UART_TX_IOC);
+    // uart.init(UART_BAUDRATE, UART_CONFIG, UART_TX_INT_MODE);
     
-    i2c.init(100000);
+    i2c.enable(100000);
     
     xSemaphore = xSemaphoreCreateMutex();
     
@@ -158,6 +134,16 @@ int main (void) {
     xTaskCreate(prvButtonTask, ( const char * ) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL );
 
     vTaskStartScheduler();
+}
+
+void board_sleep(void)
+{
+    i2c.sleep();
+}
+
+void board_wakeup(void)
+{
+    i2c.wakeup();
 }
 
 /*================================ private ==================================*/
