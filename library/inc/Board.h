@@ -28,10 +28,7 @@ public:
     void enableInterrupts(void);
     void disableInterrupts(void);
 private:
-    void runSetting(void);
-    void sleepSetting(void);
-    void deepSleepSetting(void);
-
+    void defaultPeripheralSettings(void);
 };
 
 #endif /* BOARD_H_ */

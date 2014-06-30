@@ -101,100 +101,176 @@ void InterruptHandler::registerInterruptHandler(I2c * i2c_)
 
 inline void InterruptHandler::GPIOA_InterruptHandler(void)
 {
-    uint32_t status = GPIOPinIntStatus(GPIO_A_BASE, true);
+    uint32_t status;
+    uint32_t pin_status = GPIOPinIntStatus(GPIO_A_BASE, true);
+    uint32_t pow_status = GPIOPowIntStatus(GPIO_A_BASE, true);
     
-    GPIOPinIntClear(GPIO_A_BASE, status);
+    if(pin_status)
+    {
+        GPIOPinIntClear(GPIO_A_BASE, pin_status);
+    }
+    
+    if(pow_status)
+    {
+        GPIOPowIntClear(GPIO_A_BASE, pow_status);
+    }
+    
+    status = pin_status | pow_status;
     
     if (status & GPIO_PIN_0) {
         GPIOA_interruptVector[0]->interruptHandler();
-    } else if (status & GPIO_PIN_1) {
+    }
+    if (status & GPIO_PIN_1) {
         GPIOA_interruptVector[1]->interruptHandler();
-    } else if (status & GPIO_PIN_2) {
+    }
+    if (status & GPIO_PIN_2) {
         GPIOA_interruptVector[2]->interruptHandler();    
-    } else if (status & GPIO_PIN_3) {
+    }
+    if (status & GPIO_PIN_3) {
         GPIOA_interruptVector[3]->interruptHandler();    
-    } else if (status & GPIO_PIN_4) {
+    }
+    if (status & GPIO_PIN_4) {
         GPIOA_interruptVector[4]->interruptHandler();    
-    } else if (status & GPIO_PIN_5) {
+    }
+    if (status & GPIO_PIN_5) {
         GPIOA_interruptVector[5]->interruptHandler();    
-    } else if (status & GPIO_PIN_6) {
+    }
+    if (status & GPIO_PIN_6) {
         GPIOA_interruptVector[6]->interruptHandler();    
-    } else if (status & GPIO_PIN_7) {
+    }
+    if (status & GPIO_PIN_7) {
         GPIOA_interruptVector[7]->interruptHandler();
     }
 }
 
 inline void InterruptHandler::GPIOB_InterruptHandler(void)
 {
-    uint32_t status = GPIOPinIntStatus(GPIO_B_BASE, true);
+    uint32_t status;
+    uint32_t pin_status = GPIOPinIntStatus(GPIO_B_BASE, true);
+    uint32_t pow_status = GPIOPowIntStatus(GPIO_B_BASE, true);
     
-    GPIOPinIntClear(GPIO_B_BASE, status);
+    if(pin_status)
+    {
+        GPIOPinIntClear(GPIO_B_BASE, pin_status);
+    }
+    
+    if(pow_status)
+    {
+        GPIOPowIntClear(GPIO_B_BASE, pow_status);
+    }
+    
+    status = pin_status | pow_status;
     
     if (status & GPIO_PIN_0) {
         GPIOB_interruptVector[0]->interruptHandler();
-    } else if (status & GPIO_PIN_1) {
+    }
+    if (status & GPIO_PIN_1) {
         GPIOB_interruptVector[1]->interruptHandler();
-    } else if (status & GPIO_PIN_2) {
+    }
+    if (status & GPIO_PIN_2) {
         GPIOB_interruptVector[2]->interruptHandler();
-    } else if (status & GPIO_PIN_3) {
+    }
+    if (status & GPIO_PIN_3) {
         GPIOB_interruptVector[3]->interruptHandler();
-    } else if (status & GPIO_PIN_4) {
+    }
+    if (status & GPIO_PIN_4) {
         GPIOB_interruptVector[4]->interruptHandler();
-    } else if (status & GPIO_PIN_5) {
+    }
+    if (status & GPIO_PIN_5) {
         GPIOB_interruptVector[5]->interruptHandler();
-    } else if (status & GPIO_PIN_6) {
+    }
+    if (status & GPIO_PIN_6) {
         GPIOB_interruptVector[6]->interruptHandler();
-    } else if (status & GPIO_PIN_7) {
+    }
+    if (status & GPIO_PIN_7) {
         GPIOB_interruptVector[7]->interruptHandler();
     }
 }
 
 inline void InterruptHandler::GPIOC_InterruptHandler(void)
 {
-    uint32_t status = GPIOPinIntStatus(GPIO_C_BASE, true);
+    uint32_t status;
+    uint32_t pin_status = GPIOPinIntStatus(GPIO_C_BASE, true);
+    uint32_t pow_status = GPIOPowIntStatus(GPIO_C_BASE, true);
     
-    GPIOPinIntClear(GPIO_C_BASE, status);
+    if(pin_status)
+    {
+        GPIOPinIntClear(GPIO_C_BASE, pin_status);
+    }
+    
+    if(pow_status)
+    {
+        GPIOPowIntClear(GPIO_C_BASE, pow_status);
+    }
+    
+    status = pin_status | pow_status;
     
     if (status & GPIO_PIN_0) {
         GPIOC_interruptVector[0]->interruptHandler();
-    } else if (status & GPIO_PIN_1) {
+    }
+    if (status & GPIO_PIN_1) {
         GPIOC_interruptVector[1]->interruptHandler();
-    } else if (status & GPIO_PIN_2) {
+    }
+    if (status & GPIO_PIN_2) {
         GPIOC_interruptVector[2]->interruptHandler();
-    } else if (status & GPIO_PIN_3) {
+    }
+    if (status & GPIO_PIN_3) {
         GPIOC_interruptVector[3]->interruptHandler();
-    } else if (status & GPIO_PIN_4) {
+    }
+    if (status & GPIO_PIN_4) {
         GPIOC_interruptVector[4]->interruptHandler();
-    } else if (status & GPIO_PIN_5) {
+    }
+    if (status & GPIO_PIN_5) {
         GPIOC_interruptVector[5]->interruptHandler();
-    } else if (status & GPIO_PIN_6) {
+    }
+    if (status & GPIO_PIN_6) {
         GPIOC_interruptVector[6]->interruptHandler();
-    } else if (status & GPIO_PIN_7) {
+    }
+    if (status & GPIO_PIN_7) {
         GPIOC_interruptVector[7]->interruptHandler();
     }
 }
 
 inline void InterruptHandler::GPIOD_InterruptHandler(void)
 {
-    uint32_t status = GPIOPinIntStatus(GPIO_D_BASE, true);
+    uint32_t status;
+    uint32_t pin_status = GPIOPinIntStatus(GPIO_D_BASE, true);
+    uint32_t pow_status = GPIOPowIntStatus(GPIO_D_BASE, true);
     
-    GPIOPinIntClear(GPIO_D_BASE, status);
+    if(pin_status)
+    {
+        GPIOPinIntClear(GPIO_D_BASE, pin_status);
+    }
+    
+    if(pow_status)
+    {
+        GPIOPowIntClear(GPIO_D_BASE, pow_status);
+    }
+    
+    status = pin_status | pow_status;
     
     if (status & GPIO_PIN_0) {
         GPIOD_interruptVector[0]->interruptHandler();
-    } else if (status & GPIO_PIN_1) {
+    }
+    if (status & GPIO_PIN_1) {
         GPIOD_interruptVector[1]->interruptHandler();
-    } else if (status & GPIO_PIN_2) {
+    }
+    if (status & GPIO_PIN_2) {
         GPIOD_interruptVector[2]->interruptHandler();
-    } else if (status & GPIO_PIN_3) {
+    }
+    if (status & GPIO_PIN_3) {
         GPIOD_interruptVector[3]->interruptHandler();
-    } else if (status & GPIO_PIN_4) {
+    }
+    if (status & GPIO_PIN_4) {
         GPIOD_interruptVector[4]->interruptHandler();
-    } else if (status & GPIO_PIN_5) {
+    }
+    if (status & GPIO_PIN_5) {
         GPIOD_interruptVector[5]->interruptHandler();
-    } else if (status & GPIO_PIN_6) {
+    }
+    if (status & GPIO_PIN_6) {
         GPIOD_interruptVector[6]->interruptHandler();
-    } else if (status & GPIO_PIN_7) {
+    }
+    if (status & GPIO_PIN_7) {
         GPIOD_interruptVector[7]->interruptHandler();
     }
 }

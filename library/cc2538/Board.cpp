@@ -41,9 +41,10 @@ Board::Board()
      */
     while(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_OSC32K);
     
-    runSetting();
-    sleepSetting();
-    deepSleepSetting();
+    /**
+     * 
+     */
+    defaultPeripheralSettings();
 }
 
 void Board::reset(void)
@@ -76,7 +77,7 @@ void Board::disableInterrupts(void)
     IntMasterDisable();
 }
 
-void Board::runSetting(void)
+void Board::defaultPeripheralSettings(void)
 {
     /* Disable General Purpose Timers 0, 1, 2, 3 when running */
     SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_GPT0);
@@ -97,10 +98,7 @@ void Board::runSetting(void)
     SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_PKA);
     SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_AES);
     SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_RFC);
-}
-
-void Board::sleepSetting(void)
-{
+    
     /* Disable General Purpose Timers 0, 1, 2, 3 during sleep */
     SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_GPT0);
     SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_GPT1);
@@ -120,10 +118,7 @@ void Board::sleepSetting(void)
     SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_PKA);
     SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_AES);
     SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_RFC);
-}
-
-void Board::deepSleepSetting(void)
-{
+    
     /* Disable General Purpose Timers 0, 1, 2, 3 during deep sleep */
     SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_GPT0);
     SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_GPT1);
@@ -144,4 +139,3 @@ void Board::deepSleepSetting(void)
     SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_AES);
     SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_RFC);
 }
-
