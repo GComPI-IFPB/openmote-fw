@@ -37,7 +37,9 @@ class I2c
 {
 public:
     I2c(uint32_t peripheral_, Gpio* scl_, Gpio* sda_);
-    void init(uint32_t clock_);
+    void enable(uint32_t clock_);
+    void sleep(void);
+    void wakeup(void);
     uint8_t readByte(uint8_t address_, uint8_t register_);
     uint8_t readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uint8_t size);
     void writeByte(uint8_t address_, uint8_t register_);
@@ -50,6 +52,7 @@ public:
     void interruptHandler(void);
 private:
     uint32_t peripheral;
+    uint32_t clock;
     Gpio* scl;
     Gpio* sda;
     SemaphoreHandle_t xMutex;
