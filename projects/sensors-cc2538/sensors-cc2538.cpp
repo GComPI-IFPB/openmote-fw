@@ -48,7 +48,7 @@ static void button_user_callback(void);
 /*================================= public ==================================*/
 
 static void button_user_callback(void) {
-    static BaseType_t xHigherPriorityTaskWoken; 
+    static BaseType_t xHigherPriorityTaskWoken;
     xHigherPriorityTaskWoken = pdFALSE;
     xSemaphoreGiveFromISR( xSemaphore, &xHigherPriorityTaskWoken );
     portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
@@ -56,7 +56,9 @@ static void button_user_callback(void) {
 
 static void prvButtonTask( void *pvParameters ) {
     while(true) {
-        if (xSemaphoreTake( xSemaphore, ( TickType_t ) 10 ) == pdTRUE) {
+        /* The second parameter indicates the interval at which the xSempahore
+           is polled and, thus, it determines latency and energy consumption. */
+        if (xSemaphoreTake( xSemaphore, ( TickType_t ) portMAX_DELAY ) == pdTRUE) {
             led_red.toggle();
         }
     } 
