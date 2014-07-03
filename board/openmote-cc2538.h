@@ -24,6 +24,16 @@
 #include "hw_types.h"
 #include "hw_memmap.h"
 
+#include "Board.h"
+#include "Button.h"
+#include "Led.h"
+#include "I2c.h"
+#include "Uart.h"
+
+#include "Adxl346.h"
+#include "Max44009.h"
+#include "Sht21.h"
+
 /*================================ define ===================================*/
 
 #define LED_RED_PORT            ( GPIO_C_BASE )
@@ -79,6 +89,29 @@
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
+
+Board board;
+
+Led tps62730(TPS62730_PORT, TPS62730_ONBYP_PIN);
+
+Led led_green(LED_GREEN_PORT, LED_GREEN_PIN);
+Led led_orange(LED_ORANGE_PORT, LED_ORANGE_PIN);
+Led led_red(LED_RED_PORT, LED_RED_PIN);
+Led led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
+
+Button button_user(BUTTON_USER_PORT, BUTTON_USER_PIN, BUTTON_USER_EDGE);
+
+// Gpio uart_rx(UART_RX_PORT, UART_RX_PIN);
+// Gpio uart_tx(UART_TX_PORT, UART_TX_PIN);
+// Uart uart(UART_PERIPHERAL, UART_PORT, UART_CLOCK, UART_INTERRUPT);
+
+Gpio i2c_scl(I2C_PORT, I2C_SCL);
+Gpio i2c_sda(I2C_PORT, I2C_SDA);
+I2c i2c(I2C_PERIPHERAL, &i2c_scl, &i2c_sda);
+
+Adxl346 adxl346(&i2c);
+Max44009 max44009(&i2c);
+Sht21 sht21(&i2c);
 
 /*=============================== prototypes ================================*/
 
