@@ -9,16 +9,18 @@ OUTPUT_ARCH(arm)
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 
 /**
- * Indicate to the linker the entry point.
+ * Indicate the entry point to the linker.
  */
 ENTRY(Reset_Handler)
 
 /**
- *   Linker script for Texas Instruments CC2538SF53 (32K RAM, 512K Flash)
- *   RAM is 16K RETENTION and 16K NON-RETENTION
- *   NON-RETENTION RAM starts at 0x20000000 with length 16K
- *   RETENTION RAM starts at 0x20004000 with length 16K
- *   Currently we are only using 16K with RETENTION
+ * Linker script for Texas Instruments CC2538SF53 (32K RAM, 512K Flash)
+ * FLASH stores the program code
+ * FLASH_CCA stores the backdoor bootloader configuration
+ * SRAM is 16K RETENTION and 16K NON-RETENTION
+ * NON-RETENTION RAM starts at 0x20000000 with length 16K
+ * RETENTION RAM starts at 0x20004000 with length 16K
+ * Currently we are only using 16K with RETENTION
  */
 MEMORY
 {

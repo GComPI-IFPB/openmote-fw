@@ -22,8 +22,8 @@
 /*================================ define ===================================*/
 
 #define FLASH_START_ADDR                0x00200000
-#define BOOTLOADER_BACKDOOR_ENABLED     0xF6FFFFFF // 1111|1110 -> ENABLED: LEVEL LOW, PORT A, PIN 6
-#define BOOTLOADER_BACKDOOR_DISABLED    0xEFFFFFFF // 1110|1110 -> DISABLED
+#define BOOTLOADER_BACKDOOR_ENABLED     0xF6FFFFFF // ENABLED: PORT A, PIN 6, LOW
+#define BOOTLOADER_BACKDOOR_DISABLED    0xEFFFFFFF // DISABLED
 #define SYS_CTRL_EMUOVR                 0x400D20B4
 #define SYS_CTRL_I_MAP                  0x400D2098
 
@@ -31,7 +31,6 @@
 #define HWREG(x)                                                              \
         (*((volatile unsigned long *)(x)))
 #endif
-
 
 /*================================ typedef ==================================*/
 
@@ -41,7 +40,6 @@ typedef struct
     uint32_t ui32ImageValid;
     uint32_t ui32ImageVectorAddr;
 } lockPageCCA_t;
-
 
 /*=============================== prototypes ================================*/
 
@@ -53,11 +51,11 @@ void NMI_Handler(void);
 void HardFault_Handler(void);
 void Default_Handler(void);
 
-extern void SleepTimerHandler(void);
-
 extern void vPortSVCHandler(void);
 extern void xPortPendSVHandler(void);
 extern void xPortSysTickHandler(void);
+
+extern void SleepTimerHandler(void);
 
 /*=============================== variables =================================*/
 
