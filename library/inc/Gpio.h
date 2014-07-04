@@ -28,7 +28,6 @@ class Gpio
 
 public:
     Gpio(uint32_t port_, uint8_t pin_);
-    Gpio(uint32_t port_, uint8_t pin_, uint32_t edge_);
     uint32_t getPort(void);
     uint8_t getPin(void);
     void on(void);
@@ -36,6 +35,7 @@ public:
     void toggle(void);
     uint32_t status(void);
     void setCallback(callback_t callback_);
+    void clearCallback(void);
     void enableInterrupt(void);
     void disableInterrupt(void);
     void interruptHandler(void);
@@ -43,8 +43,7 @@ protected:
     uint32_t port;
     uint8_t pin;
     uint32_t dir;
-    uint32_t edge;
-    callback_t callback;
+    callback_t callback = nullptr;
 };
 
 #endif /* GPIO_H_ */

@@ -23,8 +23,10 @@ class Button : public Gpio
 public:
     Button(uint32_t port_, uint8_t pin_, uint32_t edge_);
     void enableInterrupt(void);
+    void disableInterrupt(void);
+    void interruptHandler(void);
 private:
-
+    uint32_t edge;
 };
 
 #endif /* BUTTON_H_ */

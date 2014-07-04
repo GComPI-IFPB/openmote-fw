@@ -16,11 +16,15 @@
 #include "Button.h"
 
 Button::Button(uint32_t port_, uint8_t pin_, uint32_t edge_):
-    Gpio(port_, pin_, edge_)
+    Gpio(port_, pin_), edge(edge_)
 {
+    // Set the pin as input
     GPIOPinTypeGPIOInput(port, pin);
+    
+    // Set the edge of the interrupt
     GPIOPowIntTypeSet(port, pin, edge);
     
+    // Enable the interrupt wakeup capability of the port
     if(port_ == GPIO_A_BASE)
     {
         GPIOIntWakeupEnable(GPIO_IWE_PORT_A);
@@ -41,6 +45,15 @@ Button::Button(uint32_t port_, uint8_t pin_, uint32_t edge_):
 
 void Button::enableInterrupt(void)
 {
+    // Clear the power interrupt
     GPIOPowIntClear(port, pin);
+    
+    // Enable the power intrrupt
     GPIOPowIntEnable(port, pin);
+}
+
+void Button::disableInterrupt(void)
+{
+    // Enable the power intrrupt
+    GPIOPowIntDisable(port, pin);
 }
