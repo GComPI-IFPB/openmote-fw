@@ -36,6 +36,10 @@
 
 /*================================ define ===================================*/
 
+#define BOARD_HAS_32MHz_XTAL    ( )
+#define BOARD_HAS_32kHz_XTAL    ( )
+#define BOARD_CLOCK             ( SYS_CTRL_SYSDIV_16MHZ )
+
 #define LED_RED_PORT            ( GPIO_C_BASE )
 #define LED_RED_PIN             ( GPIO_PIN_4 )
 
@@ -66,25 +70,24 @@
 #define TPS62730_ONBYP_PIN      ( GPIO_PIN_1 )
 
 #define UART_PERIPHERAL         ( SYS_CTRL_PERIPH_UART0 )
-#define UART_PORT               ( UART0_BASE )
+#define UART_BASE               ( UART0_BASE )
 #define UART_CLOCK              ( UART_CLOCK_PIOSC )
 #define UART_INTERRUPT          ( INT_UART0 )
-#define UART_BAUDRATE           ( 115200 )
-#define UART_CONFIG             ( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE )
 #define UART_RX_PORT            ( GPIO_A_BASE )
 #define UART_RX_PIN             ( GPIO_PIN_0 )
 #define UART_RX_IOC             ( IOC_UARTRXD_UART0 )
-#define UART_RX_INT             ( UART_INT_RX )
 #define UART_TX_PORT            ( GPIO_A_BASE )
 #define UART_TX_PIN             ( GPIO_PIN_1 )
 #define UART_TX_IOC             ( IOC_MUX_OUT_SEL_UART0_TXD )
-#define UART_TX_INT             ( UART_INT_TX )
-#define UART_TX_INT_MODE        ( UART_TXINT_MODE_EOT ) 
+#define UART_BAUDRATE           ( 115200 )
+#define UART_CONFIG             ( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE )
+#define UART_INT_MODE           ( UART_TXINT_MODE_EOT ) 
 
 #define I2C_PERIPHERAL          ( SYS_CTRL_PERIPH_I2C )
-#define I2C_PORT                ( GPIO_B_BASE )
+#define I2C_BASE                ( GPIO_B_BASE )
 #define I2C_SCL                 ( GPIO_PIN_3 )
 #define I2C_SDA                 ( GPIO_PIN_4 )
+#define I2C_BAUDRATE            ( 100000 )
 
 /*================================ typedef ==================================*/
 
@@ -101,12 +104,12 @@ Led led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
 
 Button button_user(BUTTON_USER_PORT, BUTTON_USER_PIN, BUTTON_USER_EDGE);
 
-// Gpio uart_rx(UART_RX_PORT, UART_RX_PIN);
-// Gpio uart_tx(UART_TX_PORT, UART_TX_PIN);
-// Uart uart(UART_PERIPHERAL, UART_PORT, UART_CLOCK, UART_INTERRUPT);
+Gpio uart_rx(UART_RX_PORT, UART_RX_PIN);
+Gpio uart_tx(UART_TX_PORT, UART_TX_PIN);
+Uart uart(UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INTERRUPT, &uart_rx, UART_RX_IOC, &uart_tx, UART_TX_IOC );
 
-Gpio i2c_scl(I2C_PORT, I2C_SCL);
-Gpio i2c_sda(I2C_PORT, I2C_SDA);
+Gpio i2c_scl(I2C_BASE, I2C_SCL);
+Gpio i2c_sda(I2C_BASE, I2C_SDA);
 I2c i2c(I2C_PERIPHERAL, &i2c_scl, &i2c_sda);
 
 Adxl346 adxl346(&i2c);
