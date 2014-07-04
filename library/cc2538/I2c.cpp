@@ -1,6 +1,25 @@
+/*
+ * Copyright 2013 OpenMote Technologies, S.L.
+ */
+
+/**
+ *
+ * @file       I2c.cpp
+ * @author     Pere Tuset-Peiro (peretuset@openmote.com)
+ * @version    v0.1
+ * @date       May, 2014
+ * @brief
+ * @ingroup
+ *
+ */
+
+/**********************************include************************************/
+
 #include "I2c.h"
 #include "Gpio.h"
 #include "InterruptHandler.h"
+
+/**********************************public*************************************/
 
 I2c::I2c(uint32_t peripheral_, Gpio* scl_, Gpio* sda_):
     peripheral(peripheral_), scl(scl_), sda(sda_)
@@ -69,6 +88,16 @@ void I2c::wakeup(void)
     I2CMasterEnable();
 
     I2CMasterInitExpClk(SysCtrlClockGet(), status);
+}
+
+void I2c::lock(void)
+{
+    xSemaphoreTake(xMutex, portMAX_DELAY);
+}
+
+void I2c::unlock(void)
+{
+    xSemaphoreGive(xMutex);
 }
 
 uint8_t I2c::readByte(uint8_t address_, uint8_t register_)
@@ -228,24 +257,11 @@ void I2c::writeByte(uint8_t address_, uint8_t * data_, uint8_t size_)
     }   
 }
 
-void I2c::lock(void)
-{
-    xSemaphoreTake(xMutex, portMAX_DELAY);
-}
-
-void I2c::unlock(void)
-{
-    xSemaphoreGive(xMutex);
-}
-
-void I2c::interruptEnable(void)
-{
-}
-
-void I2c::interruptDisable(void)
-{
-}
+/*********************************protected***********************************/
 
 void I2c::interruptHandler(void)
 {
 }
+
+/**********************************private************************************/
+

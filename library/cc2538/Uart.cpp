@@ -13,40 +13,38 @@
  *
  */
 
+/**********************************include************************************/
+
 #include "Uart.h"
 #include "Gpio.h"
 
-Uart::Uart(uint32_t peripheral_, uint32_t uart_, uint32_t clock_, uint32_t interrupt_):
-    peripheral(peripheral_), uart(uart_), clock(clock_), interrupt(interrupt_)
+/**********************************public*************************************/
+
+Uart::Uart(uint32_t peripheral_, uint32_t base_, uint32_t clock_, uint32_t interrupt_, Gpio * rx_, uint32_t rx_ioc_, Gpio * tx_, uint32_t tx_ioc_):
+    peripheral(peripheral_), base(base_), clock(clock_), interrupt(interrupt_), rx(rx_), tx(tx_)
 {
-    // Enable the UART peripheral
+    // Configure the UART RX pin
+    IOCPinConfigPeriphInput(rx->getPort(), rx->getPin(), rx_ioc_);
+    GPIOPinTypeUARTInput(rx->getPort(), rx->getPin());
+
+    // Configure the UART TX pin    
+    IOCPinConfigPeriphOutput(tx->getPort(), tx->getPin(), tx_ioc_);
+    GPIOPinTypeUARTOutput(tx->getPort(), tx->getPin());
+
+    // Enable and reset the UART peripheral
     SysCtrlPeripheralEnable(peripheral);
     SysCtrlPeripheralReset(peripheral);
 
     // Set IO clock as UART clock source
-    UARTClockSourceSet(uart, clock);
+    UARTClockSourceSet(base, clock);
 }
 
-void Uart::setRxGpio(Gpio & rx_, uint32_t ioc_)
+uint32_t Uart::getBase(void)
 {
-    rx = &rx_;
-    IOCPinConfigPeriphInput(rx->getPort(), rx->getPin(), ioc_);
-    GPIOPinTypeUARTInput(rx->getPort(), rx->getPin());
+    return base;
 }
 
-void Uart::setTxGpio(Gpio & tx_, uint32_t ioc_)
-{
-    tx = &tx_;
-    IOCPinConfigPeriphOutput(tx->getPort(), tx->getPin(), ioc_);
-    GPIOPinTypeUARTOutput(tx->getPort(), tx->getPin());
-}
-
-uint32_t Uart::getPort(void)
-{
-    return uart;
-}
-
-void Uart::init(uint32_t baudrate_, uint32_t config_, uint32_t mode_)
+void Uart::enable(uint32_t baudrate_, uint32_t config_, uint32_t mode_)
 {
     // Store the UART baudrate, configuration and mode
     baudrate = baudrate_;
@@ -54,28 +52,43 @@ void Uart::init(uint32_t baudrate_, uint32_t config_, uint32_t mode_)
     mode     = mode_;
     
     // Configure the UART
-    UARTConfigSetExpClk(uart, SysCtrlIOClockGet(), baudrate, config);
+    UARTConfigSetExpClk(base, SysCtrlIOClockGet(), baudrate, config);
 
     // Enable UART hardware
-    UARTEnable(uart);
+    UARTEnable(base);
 
     // Disable FIFO as we only use a one-byte buffer
-    UARTFIFODisable(uart);
+    UARTFIFODisable(base);
 
     // Raise an interrupt at the end of transmission
-    UARTTxIntModeSet(uart, mode);
+    UARTTxIntModeSet(base, mode);
+}
+
+void Uart::setRxCallback(callback_t callback_)
+{
+    rx_callback = callback_;
+}
+
+void Uart::setTxCallback(callback_t callback_)
+{
+    tx_callback = callback_;
 }
 
 uint8_t Uart::readByte(void)
 {
     int32_t byte;
-    byte = UARTCharGet(uart);
+    byte = UARTCharGet(base);
 	return (uint8_t)(byte & 0xFF);
+}
+
+uint8_t Uart::readByte(uint8_t * buffer, uint8_t len)
+{
+    return 0;
 }
 
 void Uart::writeByte(uint8_t byte)
 {
-    UARTCharPut(uart, byte);
+    UARTCharPut(base, byte);
 }
 
 void Uart::writeByte(uint8_t * buffer, uint8_t len)
@@ -88,7 +101,7 @@ void Uart::writeByte(uint8_t * buffer, uint8_t len)
 void Uart::interruptEnable(void)
 {
     // Enable UART RX and TX interrupts
-    UARTIntEnable(uart, UART_INT_RX | UART_INT_TX);
+    UARTIntEnable(base, UART_INT_RX | UART_INT_TX);
 
     // Enable the UART interrupt
     IntEnable(interrupt);
@@ -97,18 +110,20 @@ void Uart::interruptEnable(void)
 void Uart::interruptDisable(void)
 {
     // Disable the UART RX and TX interrupts
-    UARTIntDisable(uart, UART_INT_RX | UART_INT_TX);
+    UARTIntDisable(base, UART_INT_RX | UART_INT_TX);
     
     // Disable the UART interrupt
     IntDisable(interrupt);
 }
+
+/*********************************protected***********************************/
 
 void Uart::interruptHandler(void)
 {
     uint32_t status;
 
     // Read interrupt source
-    status = UARTIntStatus(uart, true);
+    status = UARTIntStatus(base, true);
 
     // Clear UART interrupt in the NVIC
     IntPendClear(interrupt);
@@ -124,10 +139,20 @@ void Uart::interruptHandler(void)
     }
 }
 
+/**********************************private************************************/
+
 void Uart::interruptHandlerRx()
 {
+    if(rx_callback != nullptr)
+    {
+        rx_callback();
+    }
 }
 
 void Uart::interruptHandlerTx()
 {
+    if(tx_callback != nullptr)
+    {
+        tx_callback();
+    }
 }

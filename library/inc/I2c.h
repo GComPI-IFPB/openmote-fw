@@ -35,20 +35,22 @@ class Gpio;
 
 class I2c
 {
+
+friend class InterruptHandler;
+
 public:
     I2c(uint32_t peripheral_, Gpio* scl_, Gpio* sda_);
     void enable(uint32_t clock_);
     void sleep(void);
     void wakeup(void);
+    void lock(void);
+    void unlock(void);
     uint8_t readByte(uint8_t address_, uint8_t register_);
     uint8_t readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uint8_t size);
     void writeByte(uint8_t address_, uint8_t register_);
     void writeByte(uint8_t address_, uint8_t register_, uint8_t data_);
-    void writeByte(uint8_t address_, uint8_t * data_, uint8_t size);
-    void lock(void);
-    void unlock(void);
-    void interruptEnable(void);
-    void interruptDisable(void);
+    void writeByte(uint8_t address_, uint8_t * data_, uint8_t size);;
+protected:
     void interruptHandler(void);
 private:
     uint32_t peripheral;

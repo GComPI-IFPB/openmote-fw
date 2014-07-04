@@ -91,13 +91,13 @@ void InterruptHandler::registerInterruptHandler(Gpio * gpio_)
 
 void InterruptHandler::registerInterruptHandler(Uart * uart_)
 {
-    // Get the UART port
-    uint32_t port_ = uart_->getPort();
+    // Get the UART base
+    uint32_t base = uart_->getBase();
 
     // Store a pointer to the UART object in the interrupt vector
-    if (port_ == UART0_BASE) {
+    if (base == UART0_BASE) {
         UART0_interruptVector = uart_;
-    } else if (port_ == UART1_BASE) {
+    } else if (base == UART1_BASE) {
         UART1_interruptVector = uart_;
     }
 }
