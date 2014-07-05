@@ -32,12 +32,12 @@
 
 /*=============================== variables =================================*/
 
-static xSemaphoreHandle xSemaphore;
+static xSemaphoreHandle xSemaphoreButton;
 
 /*=============================== prototypes ================================*/
 
-extern "C" void board_sleep(void);
-extern "C" void board_wakeup(void);
+extern "C" void board_sleep(TickType_t xModifiableIdleTicks);
+extern "C" void board_wakeup(TickType_t xModifiableIdleTicks);
 
 static void prvGreenLedTask(void *pvParameters);
 static void prvLightTask(void *pvParameters);
@@ -47,10 +47,51 @@ static void button_user_callback(void);
 
 /*================================= public ==================================*/
 
+/**
+ *
+ */
+int main (void) {
+    tps62730.off();
+
+    button_user.setCallback(button_user_callback);
+    button_user.enableInterrupt();
+    
+    // Enable the UART interface
+    uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
+    
+    // Enable the I2C interface
+    i2c.enable(I2C_BAUDRATE);
+    
+    xSemaphoreButton = xSemaphoreCreateMutex();
+    
+    xTaskCreate(prvGreenLedTask, ( const char * ) "GreenLed", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL );
+    xTaskCreate(prvTemperatureTask, ( const char * ) "Temperature", 128, NULL, TEMPERATURE_TASK_PRIORITY, NULL );
+    xTaskCreate(prvLightTask, ( const char * ) "Light", 128, NULL, LIGHT_TASK_PRIORITY, NULL );
+    xTaskCreate(prvButtonTask, ( const char * ) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL );
+
+    vTaskStartScheduler();
+}
+
+/**
+ *
+ */
+void board_sleep(TickType_t xModifiableIdleTicks)
+{
+}
+
+/**
+ *
+ */
+void board_wakeup(TickType_t xModifiableIdleTicks)
+{
+}
+
+/*================================ private ==================================*/
+
 static void button_user_callback(void) {
     static BaseType_t xHigherPriorityTaskWoken;
     xHigherPriorityTaskWoken = pdFALSE;
-    xSemaphoreGiveFromISR( xSemaphore, &xHigherPriorityTaskWoken );
+    xSemaphoreGiveFromISR( xSemaphoreButton, &xHigherPriorityTaskWoken );
     portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
@@ -58,7 +99,7 @@ static void prvButtonTask( void *pvParameters ) {
     while(true) {
         /* The second parameter indicates the interval at which the xSempahore
            is polled and, thus, it determines latency and energy consumption. */
-        if (xSemaphoreTake( xSemaphore, ( TickType_t ) portMAX_DELAY ) == pdTRUE) {
+        if (xSemaphoreTake( xSemaphoreButton, ( TickType_t ) portMAX_DELAY ) == pdTRUE) {
             led_red.toggle();
         }
     } 
@@ -115,38 +156,3 @@ static void prvGreenLedTask( void *pvParameters ) {
 		vTaskDelay(1950 / portTICK_RATE_MS);
 	}
 }
-
-int main (void) {
-    tps62730.off();
-
-    button_user.setCallback(button_user_callback);
-    button_user.enableInterrupt();
-    
-    // uart.setRxGpio(uart_rx, UART_RX_IOC);
-    // uart.setTxGpio(uart_tx, UART_TX_IOC);
-    // uart.init(UART_BAUDRATE, UART_CONFIG, UART_TX_INT_MODE);
-    
-    i2c.enable(100000);
-    
-    xSemaphore = xSemaphoreCreateMutex();
-    
-    xTaskCreate(prvGreenLedTask, ( const char * ) "GreenLed", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL );
-    xTaskCreate(prvTemperatureTask, ( const char * ) "Temperature", 128, NULL, TEMPERATURE_TASK_PRIORITY, NULL );
-    xTaskCreate(prvLightTask, ( const char * ) "Light", 128, NULL, LIGHT_TASK_PRIORITY, NULL );
-    xTaskCreate(prvButtonTask, ( const char * ) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL );
-
-    vTaskStartScheduler();
-}
-
-void board_sleep(void)
-{
-    i2c.sleep();
-}
-
-void board_wakeup(void)
-{
-    i2c.wakeup();
-}
-
-/*================================ private ==================================*/
-
