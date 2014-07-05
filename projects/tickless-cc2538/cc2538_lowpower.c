@@ -79,6 +79,9 @@ void vPortSetupTimerInterrupt( void )
     /* Ensure the 32.768 kHz oscillator is enabled and stable. */
     while(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_OSC32K);
     
+    /* Register the SleepTimer interrupt handler */
+    IntRegister(INT_SMTIM, SleepTimer_Handler);
+    
     /* The RTC interrupt is used as the tick interrupt. Ensure it starts clear. */
     IntPendClear(INT_SMTIM);
 
@@ -292,7 +295,7 @@ void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTicks )
 	}
 }
 
-void SleepTimerHandler(void)
+void SleepTimer_Handler(void)
 {
     uint32_t ulCurrentCounterValue;
     

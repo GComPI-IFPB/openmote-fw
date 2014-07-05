@@ -64,8 +64,7 @@ static volatile uint32_t ulTickFlag = pdFALSE;
 
 /*=============================== prototypes ================================*/
 
-extern void board_sleep(void);
-extern void board_wakeup(void);
+void SleepTimerHandler(void);
 
 static void prvEnableRTC(void);
 static void prvDisableRTC(void);
@@ -79,6 +78,9 @@ void vPortSetupTimerInterrupt( void )
 {	
     /* Ensure the 32.768 kHz oscillator is enabled and stable. */
     while(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_OSC32K);
+    
+    /* Register the SleepTimer interrupt handler */
+    IntRegister(INT_SMTIM, SleepTimer_Handler);
     
     /* The RTC interrupt is used as the tick interrupt. Ensure it starts clear. */
     IntPendClear(INT_SMTIM);
@@ -179,7 +181,7 @@ void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTicks )
 		   the standard configPRE_SLEEP_PROCESSING() macro as described on the
 		   FreeRTOS.org website. */
 		xModifiableIdleTicks = xExpectedIdleTicks;
-		configPRE_STOP_PROCESSING();
+		configPRE_SLEEP_PROCESSING( xModifiableIdleTicks );
 
 		/* xExpectedIdleTicks being set to 0 by configPRE_SLEEP_PROCESSING()
 		   means the application defined code has already executed the wait/sleep
@@ -215,7 +217,7 @@ void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTicks )
 		/* Allow the application to define some post sleep processing. This is
 		   the standard configPOST_SLEEP_PROCESSING() macro, as described on the
 		   FreeRTOS.org website. */
-		configPOST_STOP_PROCESSING();
+		configPOST_SLEEP_PROCESSING( xModifiableIdleTicks );
 
 		/* Stop RTC.  Again, the time the clock is stopped for in not accounted
 		   for here (as it would normally be) because the clock is so slow it is
@@ -293,7 +295,7 @@ void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTicks )
 	}
 }
 
-void SleepTimerHandler(void)
+void SleepTimer_Handler(void)
 {
     uint32_t ulCurrentCounterValue;
     
