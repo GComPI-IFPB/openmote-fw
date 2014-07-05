@@ -241,7 +241,7 @@ void (* const gVectors[])(void) =
    Default_Handler,                     // 158 RFCORE Error
    Default_Handler,                     // 159 AES
    Default_Handler,                     // 160 PKA
-   SleepTimerHandler,                   // 161 SMTimer
+   Default_Handler,                     // 161 SMTimer
    Default_Handler,                     // 162 MACTimer
 #endif
 };
