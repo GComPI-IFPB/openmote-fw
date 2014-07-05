@@ -35,27 +35,6 @@
 
 /*=============================== variables =================================*/
 
-Board board;
-
-Led led_green(LED_GREEN_PORT, LED_GREEN_PIN);
-Led led_orange(LED_ORANGE_PORT, LED_ORANGE_PIN);
-Led led_red(LED_RED_PORT, LED_RED_PIN);
-Led led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
-
-Button button_user(BUTTON_USER_PORT, BUTTON_USER_PIN, BUTTON_USER_EDGE);
-
-Gpio uart_rx(UART_RX_PORT, UART_RX_PIN);
-Gpio uart_tx(UART_TX_PORT, UART_TX_PIN);
-Uart uart(UART_PERIPHERAL, UART_PORT, UART_CLOCK, UART_INTERRUPT);
-
-Gpio i2c_scl(I2C_PORT, I2C_SCL);
-Gpio i2c_sda(I2C_PORT, I2C_SDA);
-I2c i2c(I2C_PERIPHERAL, &i2c_scl, &i2c_sda);
-
-Adxl346 adxl346(&i2c);
-Max44009 max44009(&i2c);
-Sht21 sht21(&i2c);
-
 static uint8_t adxl346_string[] = "ADXL346 is present.";
 static uint8_t max44009_string[] = "MAX44009 is present.";
 static uint8_t sht21_string[] = "SHT21 is present.";
@@ -125,12 +104,10 @@ int main(void)
 
     button_user.setCallback(button_user_callback);
     button_user.enableInterrupt();
+
+    uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
     
-    uart.setRxGpio(uart_rx, UART_RX_IOC);
-    uart.setTxGpio(uart_tx, UART_TX_IOC);
-    uart.init(UART_BAUDRATE, UART_CONFIG, UART_TX_INT_MODE);
-    
-    i2c.init(100000);
+    i2c.enable(I2C_BAUDRATE);
         
     while(true){
         led_green.toggle();
