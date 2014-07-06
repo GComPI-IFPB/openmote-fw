@@ -64,7 +64,7 @@ static volatile uint32_t ulTickFlag = pdFALSE;
 
 /*=============================== prototypes ================================*/
 
-void SleepTimerHandler(void);
+void SleepTimer_Handler(void);
 
 static void prvEnableRTC(void);
 static void prvDisableRTC(void);
