@@ -19,6 +19,10 @@
 #include "Gpio.h"
 #include "InterruptHandler.h"
 
+/*********************************variables***********************************/
+
+
+
 /**********************************public*************************************/
 
 I2c::I2c(uint32_t peripheral_, Gpio* scl_, Gpio* sda_):
@@ -54,7 +58,6 @@ void I2c::enable(uint32_t clock_)
     
     xMutex = xSemaphoreCreateMutex();
     if (xMutex == NULL) {
-        
     }
 }
 

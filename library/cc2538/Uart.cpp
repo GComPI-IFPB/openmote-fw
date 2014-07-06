@@ -18,6 +18,10 @@
 #include "Uart.h"
 #include "Gpio.h"
 
+/*********************************variables***********************************/
+
+
+
 /**********************************public*************************************/
 
 Uart::Uart(uint32_t peripheral_, uint32_t base_, uint32_t clock_, uint32_t interrupt_, Gpio * rx_, uint32_t rx_ioc_, Gpio * tx_, uint32_t tx_ioc_):

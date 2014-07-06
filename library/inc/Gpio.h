@@ -26,6 +26,8 @@ typedef void (*callback_t)(void);
 class Gpio
 {
 
+friend class InterruptHandler;
+
 public:
     Gpio(uint32_t port_, uint8_t pin_);
     uint32_t getPort(void);
@@ -38,6 +40,7 @@ public:
     void clearCallback(void);
     void enableInterrupt(void);
     void disableInterrupt(void);
+protected:
     void interruptHandler(void);
 protected:
     uint32_t port;

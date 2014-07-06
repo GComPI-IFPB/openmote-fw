@@ -20,10 +20,14 @@
 
 class Button : public Gpio
 {
+
+friend class InterruptHandler;
+
 public:
     Button(uint32_t port_, uint8_t pin_, uint32_t edge_);
     void enableInterrupt(void);
     void disableInterrupt(void);
+protected:
     void interruptHandler(void);
 private:
     uint32_t edge;

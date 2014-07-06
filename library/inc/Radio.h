@@ -16,12 +16,40 @@
 #ifndef RADIO_H_
 #define RADIO_H_
 
+#include "hw_memmap.h"
+#include "hw_types.h"
+
+typedef void (*callback_t)(void);
+
 class Radio
 {
+
+friend class InterruptHandler;
+
 public:
+    Radio & getInstance(void);
+    void enable(void);
+    void sleep(void);
+    void wakeup(void);
+    void transmit(void);
+    void receive(void);
+    void loadPacket(void);
+    void getPacket(void);
+    void registerRxInterrupts(callback_t rx_init_, callback_t rx_done_);
+    void registerTxInterrupts(callback_t tx_init_, callback_t tx_done_);
+    void enableInterrupts(void);
+    void disableInterrupts(void);
+    void setChannel(uint8_t channel);
+    void setPower(uint8_t power);
+protected:
+    void interruptHandler(void);
+    void errorHandler(void);
+private:
     Radio();
 private:
-
+    static Radio instance;
+    static callback_t rx_init, rx_done;
+    static callback_t tx_init, tx_done;
 };
 
 #endif /* RADIO_H_ */

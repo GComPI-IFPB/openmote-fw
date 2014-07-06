@@ -12,11 +12,16 @@
  * @ingroup
  *
  */
- 
+
+/**********************************include************************************/
+
 #include "Gpio.h"
 #include "InterruptHandler.h"
 #include "Uart.h"
 #include "I2c.h"
+#include "Radio.h"
+
+/*********************************variables***********************************/
 
 InterruptHandler InterruptHandler::instance;
 
@@ -30,21 +35,9 @@ Uart* InterruptHandler::UART1_interruptVector;
 
 I2c* InterruptHandler::I2c_interruptVector;
 
-InterruptHandler::InterruptHandler()
-{
-    // Register the GPIO interrupt handlers
-    GPIOPortIntRegister(GPIO_A_BASE, GPIOA_InterruptHandler);
-    GPIOPortIntRegister(GPIO_B_BASE, GPIOB_InterruptHandler);
-    GPIOPortIntRegister(GPIO_C_BASE, GPIOC_InterruptHandler);
-    GPIOPortIntRegister(GPIO_D_BASE, GPIOD_InterruptHandler);
-    
-    // Register the UART interrupt handlers
-    UARTIntRegister(UART0_BASE, UART0_InterruptHandler);
-    UARTIntRegister(UART1_BASE, UART1_InterruptHandler);
-    
-    // Register the I2C interrupt handlers
-    I2CIntRegister(I2C_InterruptHandler);
-}
+Radio* InterruptHandler::Radio_interruptVector;
+
+/**********************************public*************************************/
 
 InterruptHandler &InterruptHandler::getInstance(void)
 {
@@ -107,6 +100,15 @@ void InterruptHandler::registerInterruptHandler(I2c * i2c_)
     // Store a pointer to the I2C object in the interrupt vector
     I2c_interruptVector = i2c_;
 }
+
+void InterruptHandler::registerInterruptHandler(Radio * radio_)
+{
+    // Store a pointer to the RADIO object in the interrupt vector
+    Radio_interruptVector = radio_;
+}
+
+/*********************************protected***********************************/
+
 
 inline void InterruptHandler::GPIOA_InterruptHandler(void)
 {
@@ -308,6 +310,7 @@ inline void InterruptHandler::GPIOD_InterruptHandler(void)
     }
 }
 
+
 inline void InterruptHandler::UART0_InterruptHandler(void)
 {
     // Call the UART interrupt handler
@@ -325,3 +328,38 @@ inline void InterruptHandler::I2C_InterruptHandler(void)
     // Call the I2C interrupt handler
     I2c_interruptVector->interruptHandler();
 }
+
+inline void InterruptHandler::RFCore_InterruptHandler(void)
+{
+    // Call the RF CORE interrupt handler
+    Radio_interruptVector->interruptHandler();   
+}
+
+inline void InterruptHandler::RFError_InterruptHandler(void)
+{
+    // Call the RF ERROR interrupt handler
+    Radio_interruptVector->errorHandler();
+}
+
+/**********************************private************************************/
+
+InterruptHandler::InterruptHandler()
+{
+    // Register the GPIO interrupt handlers
+    GPIOPortIntRegister(GPIO_A_BASE, GPIOA_InterruptHandler);
+    GPIOPortIntRegister(GPIO_B_BASE, GPIOB_InterruptHandler);
+    GPIOPortIntRegister(GPIO_C_BASE, GPIOC_InterruptHandler);
+    GPIOPortIntRegister(GPIO_D_BASE, GPIOD_InterruptHandler);
+    
+    // Register the UART interrupt handlers
+    UARTIntRegister(UART0_BASE, UART0_InterruptHandler);
+    UARTIntRegister(UART1_BASE, UART1_InterruptHandler);
+    
+    // Register the I2C interrupt handler
+    I2CIntRegister(I2C_InterruptHandler);
+
+    // Register the RF CORE and ERROR interrupt handlers    
+    IntRegister(INT_RFCORERTX, RFCore_InterruptHandler);
+    IntRegister(INT_RFCOREERR, RFError_InterruptHandler);
+}
+

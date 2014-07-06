@@ -1,3 +1,20 @@
+/*
+ * Copyright 2013 OpenMote Technologies, S.L.
+ */
+
+/**
+ *
+ * @file       Board.cpp
+ * @author     Pere Tuset-Peiro (peretuset@openmote.com)
+ * @version    v0.1
+ * @date       May, 2014
+ * @brief
+ * @ingroup
+ *
+ */
+
+/**********************************include************************************/
+
 #include "Board.h"
 
 #include "gpio.h"
@@ -12,6 +29,11 @@
 
 #include "hw_memmap.h"
 #include "hw_types.h"
+
+/*********************************variables***********************************/
+
+
+/**********************************public*************************************/
 
 Board::Board()
 {
@@ -139,3 +161,8 @@ void Board::defaultPeripheralSettings(void)
     SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_AES);
     SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_RFC);
 }
+
+/*********************************protected***********************************/
+
+/**********************************private************************************/
+
