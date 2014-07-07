@@ -51,7 +51,7 @@ static void button_user_callback(void);
  *
  */
 int main (void) {
-    tps62730.off();
+    tps62730_bypass.off();
 
     button_user.setCallback(button_user_callback);
     button_user.enableInterrupt();
