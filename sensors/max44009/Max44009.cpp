@@ -53,8 +53,8 @@
                                               MAX44009_CONFIG_CDR_NORMAL | \
                                               MAX44009_CONFIG_INTEGRATION_100ms )
 
-Max44009::Max44009(I2c* i2c_):
-    i2c(i2c_)
+Max44009::Max44009(I2c* i2c_, GpioIn* gpio_):
+    i2c(i2c_), gpio(gpio_)
 {
 }
 

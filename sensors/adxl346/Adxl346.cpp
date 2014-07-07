@@ -112,8 +112,8 @@
 #define ADXL346_DATA_FORMAT_RANGE_PM_8g     ( 2 )
 #define ADXL346_DATA_FORMAT_RANGE_PM_16g    ( 3 )
 
-Adxl346::Adxl346(I2c* i2c_):
-    i2c(i2c_)
+Adxl346::Adxl346(I2c* i2c_, GpioIn* gpio_):
+    i2c(i2c_), gpio(gpio_)
 {
 }
 

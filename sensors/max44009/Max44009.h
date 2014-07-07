@@ -16,17 +16,18 @@
 #ifndef MAX44009_H_
 #define MAX44009_H_
 
-#include "hw_types.h"
+#include <stdint.h>
 
 #include "Sensor.h"
 
 class I2c;
+class GpioIn;
 
 class Max44009: public Sensor
 {
 
 public:
-    Max44009(I2c* i2c_);
+    Max44009(I2c* i2c_, GpioIn* gpio_);
     void enable(void);
     void reset(void);
     bool isPresent(void);
@@ -35,6 +36,7 @@ public:
     uint16_t getLuxRaw(void);
 private:
     I2c * i2c;
+    GpioIn * gpio;
     uint8_t exponent;
     uint8_t mantissa;
 };

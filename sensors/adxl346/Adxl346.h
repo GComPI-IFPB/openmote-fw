@@ -16,17 +16,18 @@
 #ifndef ADXL346_H_
 #define ADXL346_H_
 
-#include "hw_types.h"
+#include <stdint.h>
 
 #include "Sensor.h"
 
 class I2c;
+class GpioIn;
 
 class Adxl346: public Sensor
 {
 
 public:
-    Adxl346(I2c* i2c_);
+    Adxl346(I2c* i2c_, GpioIn* gpio_);
     void enable(void);
     void reset(void);
     bool isPresent(void);
@@ -36,6 +37,7 @@ public:
     uint16_t getZ(void);
 private:
     I2c * i2c;
+    GpioIn * gpio;
     uint16_t x;
     uint16_t y;
     uint16_t z;
