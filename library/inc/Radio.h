@@ -16,6 +16,13 @@
 #ifndef RADIO_H_
 #define RADIO_H_
 
+#include "interrupt.h"
+#include "ioc.h"
+#include "sys_ctrl.h"
+
+#include "hw_ints.h"
+#include "hw_rfcore_sfr.h"
+#include "hw_rfcore_xreg.h"
 #include "hw_memmap.h"
 #include "hw_types.h"
 
@@ -46,6 +53,8 @@ protected:
     void errorHandler(void);
 private:
     Radio();
+    void flushRxBuffer(void);
+    void flushTxBuffer(void);
 private:
     static Radio instance;
     static callback_t rx_init, rx_done;
