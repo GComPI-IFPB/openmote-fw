@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       Button.cpp
+ * @file       GpioIn.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -15,14 +15,19 @@
 
 /**********************************include************************************/
 
-#include "Button.h"
+#include "GpioInPow.h"
+
+#include "gpio.h"
+
+#include "hw_memmap.h"
+#include "hw_types.h"
 
 /*********************************variables***********************************/
 
 /**********************************public*************************************/
 
-Button::Button(uint32_t port_, uint8_t pin_, uint32_t edge_):
-    Gpio(port_, pin_), edge(edge_)
+GpioInPow::GpioInPow(uint32_t port_, uint8_t pin_, uint32_t edge_):
+    GpioIn(port_, pin_, edge_)
 {
     // Set the pin as input
     GPIOPinTypeGPIOInput(port, pin);
@@ -49,7 +54,7 @@ Button::Button(uint32_t port_, uint8_t pin_, uint32_t edge_):
     }
 }
 
-void Button::enableInterrupt(void)
+void GpioInPow::enableInterrupt(void)
 {
     // Clear the power interrupt
     GPIOPowIntClear(port, pin);
@@ -58,7 +63,7 @@ void Button::enableInterrupt(void)
     GPIOPowIntEnable(port, pin);
 }
 
-void Button::disableInterrupt(void)
+void GpioInPow::disableInterrupt(void)
 {
     // Enable the power intrrupt
     GPIOPowIntDisable(port, pin);

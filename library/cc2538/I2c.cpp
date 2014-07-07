@@ -16,8 +16,18 @@
 /**********************************include************************************/
 
 #include "I2c.h"
-#include "Gpio.h"
-#include "InterruptHandler.h"
+
+#include "gpio.h"
+#include "interrupt.h"
+#include "ioc.h"
+#include "i2c.h"
+#include "sys_ctrl.h"
+
+#include "hw_ioc.h"
+#include "hw_ints.h"
+#include "hw_types.h"
+#include "hw_i2cm.h"
+#include "hw_i2cs.h"
 
 /*********************************variables***********************************/
 

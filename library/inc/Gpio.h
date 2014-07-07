@@ -16,37 +16,20 @@
 #ifndef GPIO_H_
 #define GPIO_H_
 
-#include "gpio.h"
-
-#include "hw_memmap.h"
-#include "hw_types.h"
-
-typedef void (*callback_t)(void);
+#include <stdint.h>
 
 class Gpio
 {
-
-friend class InterruptHandler;
 
 public:
     Gpio(uint32_t port_, uint8_t pin_);
     uint32_t getPort(void);
     uint8_t getPin(void);
-    void on(void);
-    void off(void);
-    void toggle(void);
-    uint32_t status(void);
-    void setCallback(callback_t callback_);
-    void clearCallback(void);
-    void enableInterrupt(void);
-    void disableInterrupt(void);
-protected:
-    void interruptHandler(void);
 protected:
     uint32_t port;
     uint8_t pin;
-    uint32_t dir;
-    callback_t callback = nullptr;
+private:
+
 };
 
 #endif /* GPIO_H_ */

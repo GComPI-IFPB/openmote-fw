@@ -16,8 +16,6 @@
 #ifndef SPI_H_
 #define SPI_H_
 
-#include "InterruptHandler.h"
-
 class Spi
 {
 public:

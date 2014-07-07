@@ -15,20 +15,33 @@
 
 /**********************************include************************************/
 
-#include "Gpio.h"
+#include "GpioIn.h"
+#include "GpioInPow.h"
 #include "InterruptHandler.h"
 #include "Uart.h"
 #include "I2c.h"
 #include "Radio.h"
 
+#include "interrupt.h"
+#include "gpio.h"
+#include "uart.h"
+#include "i2c.h"
+#include "ioc.h"
+
+#include "hw_ints.h"
+#include "hw_memmap.h"
+#include "hw_types.h"
+#include "hw_rfcore_sfr.h"
+#include "hw_rfcore_xreg.h"
+
 /*********************************variables***********************************/
 
 InterruptHandler InterruptHandler::instance;
 
-Gpio* InterruptHandler::GPIOA_interruptVector[8];
-Gpio* InterruptHandler::GPIOB_interruptVector[8];
-Gpio* InterruptHandler::GPIOC_interruptVector[8];
-Gpio* InterruptHandler::GPIOD_interruptVector[8];
+GpioIn* InterruptHandler::GPIOA_interruptVector[8];
+GpioIn* InterruptHandler::GPIOB_interruptVector[8];
+GpioIn* InterruptHandler::GPIOC_interruptVector[8];
+GpioIn* InterruptHandler::GPIOD_interruptVector[8];
 
 Uart* InterruptHandler::UART0_interruptVector;
 Uart* InterruptHandler::UART1_interruptVector;
@@ -45,7 +58,7 @@ InterruptHandler &InterruptHandler::getInstance(void)
     return instance;
 }
 
-void InterruptHandler::registerInterruptHandler(Gpio * gpio_)
+void InterruptHandler::registerInterruptHandler(GpioIn * gpio_)
 {
     // Get the GPIO port and pin
     uint32_t port_ = gpio_->getPort();

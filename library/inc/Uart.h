@@ -16,15 +16,9 @@
 #ifndef UART_H_
 #define UART_H_
 
-#include "interrupt.h"
-#include "ioc.h"
-#include "uart.h"
-#include "sys_ctrl.h"
+#include <stdint.h>
 
-#include "hw_ioc.h"
-#include "hw_ints.h"
-#include "hw_types.h"
-#include "hw_uart.h"
+#include "Gpio.h"
 
 class Gpio;
 
@@ -43,12 +37,12 @@ public:
     uint32_t getBase(void);
     void setRxCallback(callback_t callback_);
     void setTxCallback(callback_t callback_);
+    void interruptEnable(void);
+    void interruptDisable(void);
     uint8_t readByte(void);
     uint8_t readByte(uint8_t * buffer, uint8_t len);
     void writeByte(uint8_t byte);
     void writeByte(uint8_t * buffer, uint8_t len);
-    void interruptEnable(void);
-    void interruptDisable(void);
 protected:
     void interruptHandler(void);
 private:

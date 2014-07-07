@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       Button.h
+ * @file       GpioIn.h
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -13,24 +13,34 @@
  *
  */
 
-#ifndef BUTTON_H_
-#define BUTTON_H_
+#ifndef GPIO_IN_H_
+#define GPIO_IN_H_
+
+#include <stdint.h>
 
 #include "Gpio.h"
+#include "InterruptHandler.h"
 
-class Button : public Gpio
+typedef void (*callback_t)(void);
+
+class GpioIn : public Gpio
 {
 
 friend class InterruptHandler;
 
 public:
-    Button(uint32_t port_, uint8_t pin_, uint32_t edge_);
+    GpioIn(uint32_t port_, uint8_t pin_, uint32_t edge_);
+    void setCallback(callback_t callback_);
+    void clearCallback(void);
     void enableInterrupt(void);
     void disableInterrupt(void);
 protected:
     void interruptHandler(void);
-private:
+protected:
     uint32_t edge;
+    callback_t callback = nullptr;
+private:
+
 };
 
-#endif /* BUTTON_H_ */
+#endif /* GPIO_IN_H_ */

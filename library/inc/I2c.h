@@ -16,22 +16,17 @@
 #ifndef I2C_H_
 #define I2C_H_
 
-#include "interrupt.h"
-#include "ioc.h"
-#include "i2c.h"
-#include "sys_ctrl.h"
+#include <stdint.h>
 
-#include "hw_ioc.h"
-#include "hw_ints.h"
-#include "hw_types.h"
-#include "hw_i2cm.h"
-#include "hw_i2cs.h"
+#include "Gpio.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
 
 class Gpio;
+
+typedef void (*callback_t)(void);
 
 class I2c
 {

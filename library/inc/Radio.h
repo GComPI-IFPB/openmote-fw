@@ -16,15 +16,9 @@
 #ifndef RADIO_H_
 #define RADIO_H_
 
-#include "interrupt.h"
-#include "ioc.h"
-#include "sys_ctrl.h"
+#include <stdint.h>
 
-#include "hw_ints.h"
-#include "hw_rfcore_sfr.h"
-#include "hw_rfcore_xreg.h"
-#include "hw_memmap.h"
-#include "hw_types.h"
+#include "InterruptHandler.h"
 
 typedef void (*callback_t)(void);
 

@@ -16,7 +16,7 @@
 #ifndef BOARD_H_
 #define BOARD_H_
 
-#include "hw_types.h"
+#include <stdint.h>
 
 class Board {
 public:
