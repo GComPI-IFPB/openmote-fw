@@ -109,7 +109,6 @@ void InterruptHandler::registerInterruptHandler(Radio * radio_)
 
 /*********************************protected***********************************/
 
-
 inline void InterruptHandler::GPIOA_InterruptHandler(void)
 {
     uint32_t status;
