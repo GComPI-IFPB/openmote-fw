@@ -15,10 +15,6 @@
 
 /*================================ include ==================================*/
 
-#include "Board.h"
-#include "Button.h"
-#include "Led.h"
-
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -32,19 +28,6 @@
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
-
-Board board;
-
-Led led_green(LED_GREEN_PORT, LED_GREEN_PIN);
-Led led_orange(LED_ORANGE_PORT, LED_ORANGE_PIN);
-Led led_red(LED_RED_PORT, LED_RED_PIN);
-Led led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
-
-Led debug_tick(GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN);
-Led debug_idle(GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN);
-Led debug_red(GPIO_DEBUG_AD2_PORT, GPIO_DEBUG_AD2_PIN);
-
-Led tps62730(TPS62730_PORT, TPS62730_ONBYP_PIN);
 
 /*=============================== prototypes ================================*/
 
@@ -62,7 +45,7 @@ static void prvGreenLedTask( void *pvParameters ) {
 }
 
 int main (void) {    
-    tps62730.off();
+    tps62730_bypass.off();
     
     xTaskCreate(prvGreenLedTask, ( const char * ) "Red", 128, NULL, greenLedTask_PRIORITY, NULL );      
 
@@ -74,10 +57,10 @@ int main (void) {
 extern "C" {
 
     void vApplicationTickHook(void) {
-        debug_tick.toggle();
+        debug_ad0.toggle();
     }
 
     void vApplicationIdleHook(void) {
-        debug_idle.toggle();
+        debug_ad1.toggle();
     }
 }
