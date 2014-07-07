@@ -78,7 +78,8 @@
 
 #define TPS62730_PORT           ( GPIO_B_BASE )
 #define TPS62730_STATUS_PIN     ( GPIO_PIN_0 )
-#define TPS62730_ONBYPASS_PIN   ( GPIO_PIN_1 )
+#define TPS62730_STATUS_EDGE    ( GPIO_BOTH_EDGES )
+#define TPS62730_BYPASS_PIN     ( GPIO_PIN_1 )
 
 #define UART_PERIPHERAL         ( SYS_CTRL_PERIPH_UART0 )
 #define UART_BASE               ( UART0_BASE )
@@ -100,13 +101,22 @@
 #define I2C_SDA                 ( GPIO_PIN_4 )
 #define I2C_BAUDRATE            ( 100000 )
 
+#define ADXL346_INT_PORT        ( GPIO_B_BASE)
+#define ADXL346_INT_PIN         ( GPIO_PIN_5 )
+#define ADXL346_INT_EDGE        ( GPIO_FALLING_EDGE )
+
+#define MAX44009_INT_PORT       ( GPIO_B_BASE)
+#define MAX44009_INT_PIN        ( GPIO_PIN_2 )
+#define MAX44009_INT_EDGE       ( GPIO_FALLING_EDGE )
+
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
 
 Board board;
 
-GpioOut tps62730_bypass(TPS62730_PORT, TPS62730_ONBYPASS_PIN);
+GpioOut tps62730_bypass(TPS62730_PORT, TPS62730_BYPASS_PIN);
+GpioIn  tps62730_status(TPS62730_PORT, TPS62730_STATUS_PIN, TPS62730_STATUS_EDGE);
 
 GpioOut debug_ad0(GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN);
 GpioOut debug_ad1(GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN);
@@ -128,8 +138,11 @@ Gpio i2c_scl(I2C_BASE, I2C_SCL);
 Gpio i2c_sda(I2C_BASE, I2C_SDA);
 I2c i2c(I2C_PERIPHERAL, &i2c_scl, &i2c_sda);
 
-Adxl346 adxl346(&i2c);
-Max44009 max44009(&i2c);
+GpioIn adxl346_int(ADXL346_INT_PORT, ADXL346_INT_PIN, ADXL346_INT_EDGE);
+GpioIn max44009_int(MAX44009_INT_PORT, MAX44009_INT_PIN, MAX44009_INT_EDGE);
+
+Adxl346 adxl346(&i2c, &adxl346_int);
+Max44009 max44009(&i2c, &max44009_int);
 Sht21 sht21(&i2c);
 
 /*=============================== prototypes ================================*/
