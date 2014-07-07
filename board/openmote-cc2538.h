@@ -19,14 +19,22 @@
 /*================================ include ==================================*/
 
 #include "gpio.h"
+#include "i2c.h"
+#include "interrupt.h"
+#include "ioc.h"
+#include "sys_ctrl.h"
+#include "uart.h"
 
 #include "hw_gpio.h"
-#include "hw_types.h"
+#include "hw_ints.h"
+#include "hw_ioc.h"
 #include "hw_memmap.h"
+#include "hw_types.h"
 
 #include "Board.h"
-#include "Button.h"
-#include "Led.h"
+#include "GpioIn.h"
+#include "GpioInPow.h"
+#include "GpioOut.h"
 #include "I2c.h"
 #include "Uart.h"
 
@@ -61,13 +69,16 @@
 #define GPIO_DEBUG_AD2_PORT     ( GPIO_D_BASE )
 #define GPIO_DEBUG_AD2_PIN      ( GPIO_PIN_1 )
 
+#define GPIO_DEBUG_AD3_PORT     ( GPIO_D_BASE )
+#define GPIO_DEBUG_AD3_PIN      ( GPIO_PIN_0 )
+
 #define BUTTON_USER_PORT        ( GPIO_C_BASE )
 #define BUTTON_USER_PIN         ( GPIO_PIN_3 )
 #define BUTTON_USER_EDGE        ( GPIO_FALLING_EDGE )
 
 #define TPS62730_PORT           ( GPIO_B_BASE )
-#define TPS62730_STAT_PIN       ( GPIO_PIN_0 )
-#define TPS62730_ONBYP_PIN      ( GPIO_PIN_1 )
+#define TPS62730_STATUS_PIN     ( GPIO_PIN_0 )
+#define TPS62730_ONBYPASS_PIN   ( GPIO_PIN_1 )
 
 #define UART_PERIPHERAL         ( SYS_CTRL_PERIPH_UART0 )
 #define UART_BASE               ( UART0_BASE )
@@ -95,14 +106,19 @@
 
 Board board;
 
-Led tps62730(TPS62730_PORT, TPS62730_ONBYP_PIN);
+GpioOut tps62730_bypass(TPS62730_PORT, TPS62730_ONBYPASS_PIN);
 
-Led led_green(LED_GREEN_PORT, LED_GREEN_PIN);
-Led led_orange(LED_ORANGE_PORT, LED_ORANGE_PIN);
-Led led_red(LED_RED_PORT, LED_RED_PIN);
-Led led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
+GpioOut debug_ad0(GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN);
+GpioOut debug_ad1(GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN);
+GpioOut debug_ad2(GPIO_DEBUG_AD2_PORT, GPIO_DEBUG_AD2_PIN);
+GpioOut debug_ad3(GPIO_DEBUG_AD3_PORT, GPIO_DEBUG_AD3_PIN);
 
-Button button_user(BUTTON_USER_PORT, BUTTON_USER_PIN, BUTTON_USER_EDGE);
+GpioOut led_green(LED_GREEN_PORT, LED_GREEN_PIN);
+GpioOut led_orange(LED_ORANGE_PORT, LED_ORANGE_PIN);
+GpioOut led_red(LED_RED_PORT, LED_RED_PIN);
+GpioOut led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
+
+GpioInPow button_user(BUTTON_USER_PORT, BUTTON_USER_PIN, BUTTON_USER_EDGE);
 
 Gpio uart_rx(UART_RX_PORT, UART_RX_PIN);
 Gpio uart_tx(UART_TX_PORT, UART_TX_PIN);
