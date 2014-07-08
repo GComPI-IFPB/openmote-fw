@@ -139,10 +139,11 @@ Gpio i2c_sda(I2C_BASE, I2C_SDA);
 I2c i2c(I2C_PERIPHERAL, &i2c_scl, &i2c_sda);
 
 GpioIn adxl346_int(ADXL346_INT_PORT, ADXL346_INT_PIN, ADXL346_INT_EDGE);
-GpioIn max44009_int(MAX44009_INT_PORT, MAX44009_INT_PIN, MAX44009_INT_EDGE);
-
 Adxl346 adxl346(&i2c, &adxl346_int);
+
+GpioIn max44009_int(MAX44009_INT_PORT, MAX44009_INT_PIN, MAX44009_INT_EDGE);
 Max44009 max44009(&i2c, &max44009_int);
+
 Sht21 sht21(&i2c);
 
 /*=============================== prototypes ================================*/
