@@ -14,7 +14,9 @@
  */
 
 #include "Adxl346.h"
+
 #include "I2c.h"
+#include "GpioIn.h"
 
 #define ADXL346_ADDRESS                     ( 0x53 )
 #define ADXL346_DEVID_VALUE                 ( 0xE6 )
@@ -125,6 +127,18 @@ void Adxl346::reset(void)
 {
 }
 
+void Adxl346::setCallback(callback_t callback)
+{
+    gpio->setCallback(callback);
+    gpio->enableInterrupt();
+}
+
+void Adxl346::clearCallback(void)
+{
+    gpio->clearCallback();
+    gpio->disableInterrupt();
+}
+
 bool Adxl346::isPresent(void)
 {
     uint8_t status;
@@ -162,3 +176,4 @@ uint16_t Adxl346::getZ(void)
 {
     return z;
 }
+

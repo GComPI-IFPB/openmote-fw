@@ -20,6 +20,8 @@
 
 #include "Sensor.h"
 
+typedef void (*callback_t)(void);
+
 class I2c;
 class GpioIn;
 
@@ -31,6 +33,8 @@ public:
     void enable(void);
     void reset(void);
     bool isPresent(void);
+    void setCallback(callback_t callback);
+    void clearCallback(void);
     void readAcceleration(void);
     uint16_t getX(void);
     uint16_t getY(void);

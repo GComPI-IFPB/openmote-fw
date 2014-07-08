@@ -20,6 +20,8 @@
 
 #include "Sensor.h"
 
+typedef void (*callback_t)(void);
+
 class I2c;
 class GpioIn;
 
@@ -30,6 +32,8 @@ public:
     Max44009(I2c* i2c_, GpioIn* gpio_);
     void enable(void);
     void reset(void);
+    void setCallback(callback_t callback);
+    void clearCallback(void);
     bool isPresent(void);
     void readLux(void);
     float getLux(void);

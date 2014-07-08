@@ -14,7 +14,9 @@
  */
 
 #include "Max44009.h"
+
 #include "I2c.h"
+#include "GpioIn.h"
 
 #define MAX44009_ADDRESS                    ( 0x4A )
 #define MAX44009_NOT_FOUND                  ( 0x00 )
@@ -64,6 +66,18 @@ void Max44009::enable(void)
 
 void Max44009::reset(void)
 {
+}
+
+void Max44009::setCallback(callback_t callback)
+{
+    gpio->setCallback(callback);
+    gpio->enableInterrupt();
+}
+
+void Max44009::clearCallback(void)
+{
+    gpio->clearCallback();
+    gpio->disableInterrupt();
 }
 
 bool Max44009::isPresent(void)
