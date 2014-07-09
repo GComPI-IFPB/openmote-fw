@@ -20,10 +20,6 @@
 
 #include "Gpio.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
-
 class Gpio;
 
 typedef void (*callback_t)(void);
@@ -40,11 +36,11 @@ public:
     void wakeup(void);
     void lock(void);
     void unlock(void);
-    uint8_t readByte(uint8_t address_, uint8_t register_);
-    uint8_t readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uint8_t size);
-    void writeByte(uint8_t address_, uint8_t register_);
-    void writeByte(uint8_t address_, uint8_t register_, uint8_t data_);
-    void writeByte(uint8_t address_, uint8_t * data_, uint8_t size);;
+    bool readByte(uint8_t address_, uint8_t register_, uint8_t * buffer);
+    bool readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uint8_t size);
+    bool writeByte(uint8_t address_, uint8_t register_);
+    bool writeByte(uint8_t address_, uint8_t register_, uint8_t data_);
+    bool writeByte(uint8_t address_, uint8_t * data_, uint8_t size);;
 protected:
     void interruptHandler(void);
 private:
@@ -52,7 +48,6 @@ private:
     uint32_t clock;
     Gpio* scl;
     Gpio* sda;
-    SemaphoreHandle_t xMutex;
 };
 
 #endif /* I2C_H_ */

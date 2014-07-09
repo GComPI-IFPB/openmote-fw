@@ -31,7 +31,7 @@
 
 /*********************************variables***********************************/
 
-
+#define DELAY_TICKS         ( )
 
 /**********************************public*************************************/
 
@@ -65,10 +65,6 @@ void I2c::enable(uint32_t clock_)
     I2CMasterEnable();
 
     I2CMasterInitExpClk(SysCtrlClockGet(), status);
-    
-    xMutex = xSemaphoreCreateMutex();
-    if (xMutex == NULL) {
-    }
 }
 
 void I2c::sleep(void)
@@ -103,19 +99,9 @@ void I2c::wakeup(void)
     I2CMasterInitExpClk(SysCtrlClockGet(), status);
 }
 
-void I2c::lock(void)
+bool I2c::readByte(uint8_t address_, uint8_t register_, uint8_t * buffer)
 {
-    xSemaphoreTake(xMutex, portMAX_DELAY);
-}
-
-void I2c::unlock(void)
-{
-    xSemaphoreGive(xMutex);
-}
-
-uint8_t I2c::readByte(uint8_t address_, uint8_t register_)
-{
-    uint8_t data;
+    uint32_t delayTicks;
     
     I2CMasterSlaveAddrSet(address_, false); // write
 
@@ -123,37 +109,35 @@ uint8_t I2c::readByte(uint8_t address_, uint8_t register_)
 
     I2CMasterControl(I2C_MASTER_CMD_SINGLE_SEND);
     
-    TickType_t delayMilliseconds = 10;
-    while(I2CMasterBusy() && delayMilliseconds--) {
-        vTaskDelay(1 / portTICK_PERIOD_MS);
-    }
-        
-    if (delayMilliseconds == 0) {
-        xSemaphoreGive(xMutex);
-        return 0;
+    delayTicks = 1000;
+    while(I2CMasterBusy() && delayTicks--)
+    {
+        if (delayTicks == 0) {
+            return false;
+        }
     }
 
     I2CMasterSlaveAddrSet(address_, true); // read
 
     I2CMasterControl(I2C_MASTER_CMD_SINGLE_RECEIVE);
 
-    delayMilliseconds = 10;
-    while(I2CMasterBusy() && delayMilliseconds--) {
-        vTaskDelay(1 / portTICK_PERIOD_MS);
-    }
-    
-    if (delayMilliseconds == 0) {
-        xSemaphoreGive(xMutex);
-        return 0;
+    delayTicks = 1000;
+    while(I2CMasterBusy() && delayTicks--)
+    {
+        if (delayTicks == 0) {
+            return false;
+        }
     }
 
-    data = I2CMasterDataGet();
+    *buffer = I2CMasterDataGet();
     
-    return data;
+    return true;
 }
 
-uint8_t I2c::readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uint8_t size)
-{        
+bool I2c::readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uint8_t size)
+{
+    uint32_t delayTicks;
+    
     while(size) {
 
         I2CMasterSlaveAddrSet(address_, false); // write
@@ -162,28 +146,24 @@ uint8_t I2c::readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uin
 
         I2CMasterControl(I2C_MASTER_CMD_SINGLE_SEND);
 
-        TickType_t delayMilliseconds = 10;
-        while(I2CMasterBusy() && delayMilliseconds--) {
-            vTaskDelay(1 / portTICK_PERIOD_MS);
+        delayTicks = 1000;
+        while(I2CMasterBusy() && delayTicks--)
+        {
+            if (delayTicks == 0) {
+                return 0;
+            }
         }
         
-        if (delayMilliseconds == 0) {
-            xSemaphoreGive(xMutex);
-            return 0;
-        }
-
         I2CMasterSlaveAddrSet(address_, true); // read
 
         I2CMasterControl(I2C_MASTER_CMD_SINGLE_RECEIVE);
 
-        delayMilliseconds = 10;
-        while(I2CMasterBusy() && delayMilliseconds--) {
-            vTaskDelay(1 / portTICK_PERIOD_MS);
-        }
-        
-        if (delayMilliseconds == 0) {
-            xSemaphoreGive(xMutex);
-            return 0;
+        delayTicks = 1000;
+        while(I2CMasterBusy() && delayTicks--)
+        {
+            if (delayTicks == 0) {
+                return 0;
+            }
         }
 
         *buffer++ = I2CMasterDataGet();
@@ -193,33 +173,36 @@ uint8_t I2c::readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uin
     return size;
 }
 
-void I2c::writeByte(uint8_t address_, uint8_t register_)
-{    
+bool I2c::writeByte(uint8_t address_, uint8_t register_)
+{
+    uint32_t delayTicks;
+    
     I2CMasterSlaveAddrSet(address_, false); // write
 
     I2CMasterDataPut(register_);
 
     I2CMasterControl(I2C_MASTER_CMD_SINGLE_SEND);
 
-    TickType_t delayMilliseconds = 10;
-    while(I2CMasterBusy() && delayMilliseconds--) {
-        vTaskDelay(1 / portTICK_PERIOD_MS);
+    delayTicks = 1000;
+    while(I2CMasterBusy() && delayTicks--) {
+        if (delayTicks == 0) {
+            return false;
+        }
     }
     
-    if (delayMilliseconds == 0) {
-        xSemaphoreGive(xMutex);
-        return;
-    }
+    return true;
 }
 
-void I2c::writeByte(uint8_t address_, uint8_t register_, uint8_t data_)
+bool I2c::writeByte(uint8_t address_, uint8_t register_, uint8_t data_)
 {
     uint8_t buffer_[2] {register_, data_};
-    writeByte(address_, buffer_, sizeof(buffer_));
+    return writeByte(address_, buffer_, sizeof(buffer_));
 }
 
-void I2c::writeByte(uint8_t address_, uint8_t * data_, uint8_t size_)
+bool I2c::writeByte(uint8_t address_, uint8_t * data_, uint8_t size_)
 {
+    uint32_t delayTicks;
+    
     I2CMasterSlaveAddrSet(address_, false); // write
 
     I2CMasterDataPut(*data_++);
@@ -227,30 +210,24 @@ void I2c::writeByte(uint8_t address_, uint8_t * data_, uint8_t size_)
 
     I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_START);
 
-    TickType_t delayMilliseconds = 10;
-    while(I2CMasterBusy() && delayMilliseconds--) {
-        vTaskDelay(1 / portTICK_PERIOD_MS);
+    delayTicks = 1000;
+    while(I2CMasterBusy() && delayTicks--) {
+        if (delayTicks == 0) {
+            return false;
+        }
     }
     
-    if (delayMilliseconds == 0) {
-        xSemaphoreGive(xMutex);
-        return;
-    }
-        
     while(size_ > 1) {
         I2CMasterDataPut(*data_++);
         size_--;
 
         I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_CONT);
 
-        delayMilliseconds = 10;
-        while(I2CMasterBusy() && delayMilliseconds--) {
-            vTaskDelay(1 / portTICK_PERIOD_MS);
-        }
-        
-        if (delayMilliseconds == 0) {
-            xSemaphoreGive(xMutex);
-            return;
+        delayTicks = 1000;
+        while(I2CMasterBusy() && delayTicks--) {
+            if (delayTicks == 0) {
+                return false;
+            }
         }
     }
     
@@ -259,15 +236,14 @@ void I2c::writeByte(uint8_t address_, uint8_t * data_, uint8_t size_)
 
     I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_FINISH);
 
-    delayMilliseconds = 10;
-    while(I2CMasterBusy() && delayMilliseconds--) {
-        vTaskDelay(1 / portTICK_PERIOD_MS);
+    delayTicks = 1000;
+    while(I2CMasterBusy() && delayTicks--) {
+        if (delayTicks == 0) {
+            return false;
+        }
     }
-    
-    if (delayMilliseconds == 0) {
-        xSemaphoreGive(xMutex);
-        return;
-    }   
+
+    return true;
 }
 
 /*********************************protected***********************************/
