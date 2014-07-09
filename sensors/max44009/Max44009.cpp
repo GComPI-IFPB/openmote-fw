@@ -84,9 +84,7 @@ bool Max44009::isPresent(void)
 {
     uint8_t status;
     
-    i2c->lock();
-    status = i2c->readByte(MAX44009_ADDRESS, MAX44009_CONFIG_ADDR);
-    i2c->unlock();
+    i2c->readByte(MAX44009_ADDRESS, MAX44009_CONFIG_ADDR, &status);
         
     return (status != MAX44009_NOT_FOUND);
 }
@@ -95,9 +93,7 @@ void Max44009::readLux(void)
 {
     uint8_t max44009_data[2];
 
-    i2c->lock();
     i2c->readByte(MAX44009_ADDRESS, MAX44009_LUX_HIGH_ADDR, max44009_data, sizeof(max44009_data));
-    i2c->unlock();
     
     exponent = (( max44009_data[0] >> 4 )  & 0x0E);
     mantissa = (( max44009_data[0] & 0x0F) << 4) | (max44009_data[1] & 0x0F);

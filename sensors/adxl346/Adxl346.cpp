@@ -127,6 +127,13 @@ void Adxl346::reset(void)
 {
 }
 
+bool Adxl346::isPresent(void)
+{
+    uint8_t status;
+    i2c->readByte(ADXL346_ADDRESS, ADXL346_DEVID_ADDR, &status);
+    return (status == ADXL346_DEVID_VALUE);
+}
+
 void Adxl346::setCallback(callback_t callback)
 {
     gpio->setCallback(callback);
@@ -139,22 +146,11 @@ void Adxl346::clearCallback(void)
     gpio->disableInterrupt();
 }
 
-bool Adxl346::isPresent(void)
-{
-    uint8_t status;
-    i2c->lock();
-    status = i2c->readByte(ADXL346_ADDRESS, ADXL346_DEVID_ADDR);
-    i2c->unlock();
-    return (status == ADXL346_DEVID_VALUE);
-}
-
 void Adxl346::readAcceleration(void)
 {
     uint8_t status;
     uint8_t acceleration[6];
-    i2c->lock();
     status = i2c->readByte(ADXL346_ADDRESS, ADXL346_DATAX0_ADDR, acceleration, sizeof(acceleration));
-    i2c->unlock();
     if (status) {
         x = (acceleration[0] << 8) | acceleration[1];
         y = (acceleration[2] << 8) | acceleration[3];
