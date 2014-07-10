@@ -1,17 +1,25 @@
 # 
 FREERTOS_NAME = FreeRTOS
+DRIVERS_NAME  = Drivers
 
 # 
 KERNEL_SRC = $(KERNEL_PATH)/$(FREERTOS_NAME)
 KERNEL_INC = $(KERNEL_PATH)/$(FREERTOS_NAME)
 
+#
+DRIVERS_SRC = $(KERNEL_PATH)/$(DRIVERS_NAME)
+DRIVERS_INC = $(KERNEL_PATH)/$(DRIVERS_NAME)
+
 # Append to the include path
 SRC_PATH += -I $(KERNEL_SRC)
+SRC_PATH += -I $(DRIVERS_SRC)
 INC_PATH += -I $(KERNEL_INC)
+INC_PATH += -I $(DRIVERS_INC)
 
 # Extend the virtual path
-VPATH += $(KERNEL_SRC) $(KERNEL_INC)
+VPATH += $(KERNEL_SRC) $(KERNEL_INC) $(DRIVERS_INC) $(DRIVERS_INC)
 
 # Include the Makefiles in the various subdirectories in the current folder
 include $(KERNEL_SRC)/Makefile.include
+include $(DRIVERS_SRC)/Makefile.include
 
