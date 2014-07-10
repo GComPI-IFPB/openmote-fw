@@ -35,8 +35,9 @@
 #include "GpioIn.h"
 #include "GpioInPow.h"
 #include "GpioOut.h"
-#include "I2c.h"
 #include "Uart.h"
+
+#include "I2cDriver.h"
 
 #include "Adxl346.h"
 #include "Max44009.h"
@@ -136,7 +137,7 @@ Uart uart(UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INTERRUPT, &uart_rx, UART
 
 Gpio i2c_scl(I2C_BASE, I2C_SCL);
 Gpio i2c_sda(I2C_BASE, I2C_SDA);
-I2c i2c(I2C_PERIPHERAL, &i2c_scl, &i2c_sda);
+I2cDriver i2c(I2C_PERIPHERAL, &i2c_scl, &i2c_sda);
 
 GpioInPow adxl346_int(ADXL346_INT_PORT, ADXL346_INT_PIN, ADXL346_INT_EDGE);
 Adxl346 adxl346(&i2c, &adxl346_int);
