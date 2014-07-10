@@ -34,8 +34,6 @@ public:
     void enable(uint32_t clock_);
     void sleep(void);
     void wakeup(void);
-    void lock(void);
-    void unlock(void);
     bool readByte(uint8_t address_, uint8_t register_, uint8_t * buffer);
     bool readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uint8_t size);
     bool writeByte(uint8_t address_, uint8_t register_);
@@ -43,7 +41,7 @@ public:
     bool writeByte(uint8_t address_, uint8_t * data_, uint8_t size);;
 protected:
     void interruptHandler(void);
-private:
+protected:
     uint32_t peripheral;
     uint32_t clock;
     Gpio* scl;
