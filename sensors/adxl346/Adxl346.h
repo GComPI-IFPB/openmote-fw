@@ -22,14 +22,14 @@
 
 typedef void (*callback_t)(void);
 
-class I2c;
+class I2cDriver;
 class GpioIn;
 
 class Adxl346: public Sensor
 {
 
 public:
-    Adxl346(I2c* i2c_, GpioIn* gpio_);
+    Adxl346(I2cDriver* i2c_, GpioIn* gpio_);
     void enable(void);
     void reset(void);
     bool isPresent(void);
@@ -40,7 +40,7 @@ public:
     uint16_t getY(void);
     uint16_t getZ(void);
 private:
-    I2c * i2c;
+    I2cDriver * i2c;
     GpioIn * gpio;
     uint16_t x;
     uint16_t y;

@@ -22,14 +22,14 @@
 
 typedef void (*callback_t)(void);
 
-class I2c;
+class I2cDriver;
 class GpioIn;
 
 class Max44009: public Sensor
 {
 
 public:
-    Max44009(I2c* i2c_, GpioIn* gpio_);
+    Max44009(I2cDriver* i2c_, GpioIn* gpio_);
     void enable(void);
     void reset(void);
     void setCallback(callback_t callback);
@@ -39,7 +39,7 @@ public:
     float getLux(void);
     uint16_t getLuxRaw(void);
 private:
-    I2c * i2c;
+    I2cDriver * i2c;
     GpioIn * gpio;
     uint8_t exponent;
     uint8_t mantissa;

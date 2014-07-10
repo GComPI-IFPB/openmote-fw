@@ -20,12 +20,12 @@
 
 #include "Sensor.h"
 
-class I2c;
+class I2cDriver;
 
 class Sht21: public Sensor
 {
 public:
-    Sht21(I2c* i2c_);
+    Sht21(I2cDriver* i2c_);
     void enable(void);
     void reset(void);
     bool isPresent(void);
@@ -36,7 +36,7 @@ public:
     float getHumidity(void);
     uint16_t getHumidityRaw(void);
 private:
-    I2c* i2c;
+    I2cDriver* i2c;
     uint16_t temperature;
     uint16_t humidity;
 };

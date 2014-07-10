@@ -15,7 +15,7 @@
 
 #include "Adxl346.h"
 
-#include "I2c.h"
+#include "I2cDriver.h"
 #include "GpioIn.h"
 
 #define ADXL346_ADDRESS                     ( 0x53 )
@@ -114,7 +114,7 @@
 #define ADXL346_DATA_FORMAT_RANGE_PM_8g     ( 2 )
 #define ADXL346_DATA_FORMAT_RANGE_PM_16g    ( 3 )
 
-Adxl346::Adxl346(I2c* i2c_, GpioIn* gpio_):
+Adxl346::Adxl346(I2cDriver* i2c_, GpioIn* gpio_):
     i2c(i2c_), gpio(gpio_)
 {
 }
@@ -129,9 +129,14 @@ void Adxl346::reset(void)
 
 bool Adxl346::isPresent(void)
 {
-    uint8_t status;
-    i2c->readByte(ADXL346_ADDRESS, ADXL346_DEVID_ADDR, &status);
-    return (status == ADXL346_DEVID_VALUE);
+    bool status;
+    uint8_t isPresent;
+    
+    i2c->lock();
+    status = i2c->readByte(ADXL346_ADDRESS, ADXL346_DEVID_ADDR, &isPresent);
+    i2c->unlock();
+    
+    return (status && isPresent == ADXL346_DEVID_VALUE);
 }
 
 void Adxl346::setCallback(callback_t callback)
@@ -148,9 +153,13 @@ void Adxl346::clearCallback(void)
 
 void Adxl346::readAcceleration(void)
 {
-    uint8_t status;
+    bool status;
     uint8_t acceleration[6];
+    
+    i2c->lock();
     status = i2c->readByte(ADXL346_ADDRESS, ADXL346_DATAX0_ADDR, acceleration, sizeof(acceleration));
+    i2c->unlock();
+    
     if (status) {
         x = (acceleration[0] << 8) | acceleration[1];
         y = (acceleration[2] << 8) | acceleration[3];

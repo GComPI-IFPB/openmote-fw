@@ -14,7 +14,7 @@
  */
 
 #include "Sht21.h"
-#include "I2c.h"
+#include "I2cDriver.h"
 
 #define SHT21_ADDRESS                   ( 0x40 )
 
@@ -31,7 +31,7 @@
 #define SHT21_HUMIDITY_NHM_CMD          ( 0xF5 )
 #define SHT21_RESET_CMD                 ( 0xFE )
 
-Sht21::Sht21(I2c* i2c_):
+Sht21::Sht21(I2cDriver* i2c_):
     i2c(i2c_)
 {
 }
@@ -42,34 +42,57 @@ void Sht21::enable(void)
 
 void Sht21::reset(void)
 {
-    i2c->writeByte(SHT21_ADDRESS, SHT21_RESET_CMD);
+    bool status;
+    
+    i2c->lock();
+    status = i2c->writeByte(SHT21_ADDRESS, SHT21_RESET_CMD);
+    i2c->unlock();
+    
+    if (!status)
+    {
+    }
 }
 
 bool Sht21::isPresent(void)
 {
-    uint8_t status;
+    bool status;
+    uint8_t isPresent;
     
-    i2c->readByte(SHT21_ADDRESS, SHT21_READ_USER_REG, &status);
+    i2c->lock();
+    status = i2c->readByte(SHT21_ADDRESS, SHT21_READ_USER_REG, &isPresent);
+    i2c->unlock();
     
-    return (status == SHT21_CONFIG_DEFAULT);
+    return (status && isPresent == SHT21_CONFIG_DEFAULT);
 }
 
 void Sht21::readTemperature(void)
 {
+    bool status;
     uint8_t sht21_temperature[2];
+    
+    i2c->lock();
+    status = i2c->readByte(SHT21_ADDRESS, SHT21_TEMPERATURE_HM_CMD, sht21_temperature, sizeof(sht21_temperature));
+    i2c->lock();
 
-    i2c->readByte(SHT21_ADDRESS, SHT21_TEMPERATURE_HM_CMD, sht21_temperature, sizeof(sht21_temperature));
-
-    temperature = (sht21_temperature[1] << 8) | sht21_temperature[0];
+    if (status)
+    {
+        temperature = (sht21_temperature[1] << 8) | sht21_temperature[0];
+    }
 }
 
 void Sht21::readHumidity(void)
 {
+    bool status;
     uint8_t sht21_humidity[2];
 
-    i2c->readByte(SHT21_ADDRESS, SHT21_HUMIDITY_HM_CMD, sht21_humidity, sizeof(sht21_humidity));
+    i2c->lock();
+    status = i2c->readByte(SHT21_ADDRESS, SHT21_HUMIDITY_HM_CMD, sht21_humidity, sizeof(sht21_humidity));
+    i2c->unlock();
 
-    humidity = (sht21_humidity[1] << 8) | sht21_humidity[0];
+    if (status)
+    {
+        humidity = (sht21_humidity[1] << 8) | sht21_humidity[0];
+    }
 }
 
 float Sht21::getTemperature(void)

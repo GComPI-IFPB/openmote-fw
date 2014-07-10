@@ -15,7 +15,7 @@
 
 #include "Max44009.h"
 
-#include "I2c.h"
+#include "I2cDriver.h"
 #include "GpioIn.h"
 
 #define MAX44009_ADDRESS                    ( 0x4A )
@@ -55,7 +55,7 @@
                                               MAX44009_CONFIG_CDR_NORMAL | \
                                               MAX44009_CONFIG_INTEGRATION_100ms )
 
-Max44009::Max44009(I2c* i2c_, GpioIn* gpio_):
+Max44009::Max44009(I2cDriver* i2c_, GpioIn* gpio_):
     i2c(i2c_), gpio(gpio_)
 {
 }
@@ -82,21 +82,30 @@ void Max44009::clearCallback(void)
 
 bool Max44009::isPresent(void)
 {
-    uint8_t status;
+    bool status;
+    uint8_t isPresent;
     
-    i2c->readByte(MAX44009_ADDRESS, MAX44009_CONFIG_ADDR, &status);
-        
-    return (status != MAX44009_NOT_FOUND);
+    i2c->lock();
+    status = i2c->readByte(MAX44009_ADDRESS, MAX44009_CONFIG_ADDR, &isPresent);
+    i2c->unlock();
+    
+    return (status && isPresent != MAX44009_NOT_FOUND);
 }
 
 void Max44009::readLux(void)
 {
+    bool status;
     uint8_t max44009_data[2];
 
-    i2c->readByte(MAX44009_ADDRESS, MAX44009_LUX_HIGH_ADDR, max44009_data, sizeof(max44009_data));
+    i2c->lock();
+    status = i2c->readByte(MAX44009_ADDRESS, MAX44009_LUX_HIGH_ADDR, max44009_data, sizeof(max44009_data));
+    i2c->unlock();
     
-    exponent = (( max44009_data[0] >> 4 )  & 0x0E);
-    mantissa = (( max44009_data[0] & 0x0F) << 4) | (max44009_data[1] & 0x0F);
+    if (status)
+    {
+        exponent = (( max44009_data[0] >> 4 )  & 0x0E);
+        mantissa = (( max44009_data[0] & 0x0F) << 4) | (max44009_data[1] & 0x0F);
+    }
 }
 
 float Max44009::getLux(void)
