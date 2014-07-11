@@ -47,10 +47,6 @@ void Sht21::reset(void)
     i2c->lock();
     status = i2c->writeByte(SHT21_ADDRESS, SHT21_RESET_CMD);
     i2c->unlock();
-    
-    if (!status)
-    {
-    }
 }
 
 bool Sht21::isPresent(void)
@@ -72,7 +68,7 @@ void Sht21::readTemperature(void)
     
     i2c->lock();
     status = i2c->readByte(SHT21_ADDRESS, SHT21_TEMPERATURE_HM_CMD, sht21_temperature, sizeof(sht21_temperature));
-    i2c->lock();
+    i2c->unlock();
 
     if (status)
     {
