@@ -1,6 +1,6 @@
 # Project name and files to compile
 PROJECT_NAME  = test-cc2538
-PROJECT_FILES = test-cc2538.cpp cc2538_it.cpp
+PROJECT_FILES = test-cc2538.cpp
 PROJECT_DIR   = .
 
 # Location of the root directory

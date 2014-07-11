@@ -1,6 +1,6 @@
 # Project name and files to compile
 PROJECT_NAME  = sensors-cc2538
-PROJECT_FILES = sensors-cc2538.cpp cc2538_it.cpp cc2538_lowpower.c
+PROJECT_FILES = sensors-cc2538.cpp cc2538_lowpower.c
 PROJECT_DIR   = .
 
 # Location of the root directory
