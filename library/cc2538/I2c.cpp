@@ -101,7 +101,35 @@ void I2c::wakeup(void)
 
 bool I2c::readByte(uint8_t address_, uint8_t register_, uint8_t * buffer)
 {
-    return readByte(address_, register_, buffer, 1);
+    uint32_t delayTicks;
+    
+    I2CMasterSlaveAddrSet(address_, false); // write
+
+    I2CMasterDataPut(register_);
+
+    I2CMasterControl(I2C_MASTER_CMD_SINGLE_SEND);
+
+    delayTicks = 10000;
+    while(I2CMasterBusy() && delayTicks--) {
+        if (delayTicks == 0) {
+            return false;
+        }
+    }
+
+    I2CMasterSlaveAddrSet(address_, true); // read
+
+    I2CMasterControl(I2C_MASTER_CMD_SINGLE_RECEIVE);
+
+    delayTicks = 10000;
+    while(I2CMasterBusy() && delayTicks--) {
+        if (delayTicks == 0) {
+            return false;
+        }
+    }
+
+    *buffer = I2CMasterDataGet();
+
+    return true;
 }
 
 bool I2c::readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uint8_t size)
@@ -116,19 +144,19 @@ bool I2c::readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uint8_
 
         I2CMasterControl(I2C_MASTER_CMD_SINGLE_SEND);
 
-        delayTicks = 1000;
+        delayTicks = 10000;
         while(I2CMasterBusy() && delayTicks--)
         {
             if (delayTicks == 0) {
                 return false;
             }
         }
-        
+
         I2CMasterSlaveAddrSet(address_, true); // read
 
         I2CMasterControl(I2C_MASTER_CMD_SINGLE_RECEIVE);
 
-        delayTicks = 1000;
+        delayTicks = 10000;
         while(I2CMasterBusy() && delayTicks--)
         {
             if (delayTicks == 0) {
@@ -153,7 +181,7 @@ bool I2c::writeByte(uint8_t address_, uint8_t register_)
 
     I2CMasterControl(I2C_MASTER_CMD_SINGLE_SEND);
 
-    delayTicks = 1000;
+    delayTicks = 10000;
     while(I2CMasterBusy() && delayTicks--) {
         if (delayTicks == 0) {
             return false;
@@ -180,7 +208,7 @@ bool I2c::writeByte(uint8_t address_, uint8_t * data_, uint8_t size_)
 
     I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_START);
 
-    delayTicks = 1000;
+    delayTicks = 10000;
     while(I2CMasterBusy() && delayTicks--) {
         if (delayTicks == 0) {
             return false;
@@ -193,7 +221,7 @@ bool I2c::writeByte(uint8_t address_, uint8_t * data_, uint8_t size_)
 
         I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_CONT);
 
-        delayTicks = 1000;
+        delayTicks = 10000;
         while(I2CMasterBusy() && delayTicks--) {
             if (delayTicks == 0) {
                 return false;
@@ -206,7 +234,7 @@ bool I2c::writeByte(uint8_t address_, uint8_t * data_, uint8_t size_)
 
     I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_FINISH);
 
-    delayTicks = 1000;
+    delayTicks = 10000;
     while(I2CMasterBusy() && delayTicks--) {
         if (delayTicks == 0) {
             return false;
