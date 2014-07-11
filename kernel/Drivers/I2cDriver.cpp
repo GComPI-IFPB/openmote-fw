@@ -29,7 +29,7 @@
 /*================================= public ==================================*/
 
 I2cDriver::I2cDriver(uint32_t peripheral_, Gpio* scl_, Gpio* sda_):
-    I2c(peripheral_, scl_, sda)
+    I2c(peripheral_, scl_, sda_)
 {
     xMutex = xSemaphoreCreateMutex();
     if (xMutex == NULL) {
