@@ -72,20 +72,6 @@ int main (void) {
     vTaskStartScheduler();
 }
 
-/**
- *
- */
-void board_sleep(TickType_t xModifiableIdleTicks)
-{
-}
-
-/**
- *
- */
-void board_wakeup(TickType_t xModifiableIdleTicks)
-{
-}
-
 /*================================ private ==================================*/
 
 static void button_user_callback(void) {
