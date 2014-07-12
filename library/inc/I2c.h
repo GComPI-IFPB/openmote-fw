@@ -34,11 +34,9 @@ public:
     void enable(uint32_t clock_);
     void sleep(void);
     void wakeup(void);
-    bool readByte(uint8_t address_, uint8_t register_, uint8_t * buffer);
-    bool readByte(uint8_t address_, uint8_t register_, uint8_t * buffer, uint8_t size);
+    bool readByte(uint8_t address_, uint8_t * buffer);
+    bool readByte(uint8_t address_, uint8_t * buffer, uint8_t size);
     bool writeByte(uint8_t address_, uint8_t register_);
-    bool writeByte(uint8_t address_, uint8_t register_, uint8_t data_);
-    bool writeByte(uint8_t address_, uint8_t * data_, uint8_t size);;
 protected:
     void interruptHandler(void);
 protected:
