@@ -15,10 +15,6 @@
 
 /*================================ include ==================================*/
 
-#include "Board.h"
-#include "Button.h"
-#include "Led.h"
-
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -33,15 +29,6 @@
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
-
-Board board;
-
-Led led_green(LED_GREEN_PORT, LED_GREEN_PIN);
-Led led_orange(LED_ORANGE_PORT, LED_ORANGE_PIN);
-Led led_red(LED_RED_PORT, LED_RED_PIN);
-Led led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
-
-Button button_user(BUTTON_USER_PORT, BUTTON_USER_PIN, BUTTON_USER_EDGE);
 
 SemaphoreHandle_t xSemaphore = NULL;
 
