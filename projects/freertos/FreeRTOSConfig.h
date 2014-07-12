@@ -20,8 +20,8 @@
 #define configCPU_CLOCK_HZ				        16000000
 #define configTICK_RATE_HZ				        ( ( TickType_t ) 100 )
 
-#define configPRE_STOP_PROCESSING(x)            ( ) 
-#define configPOST_STOP_PROCESSING(x)           ( )
+#define configPRE_SLEEP_PROCESSING(x)           ( ) 
+#define configPOST_SLEEP_PROCESSING(x)          ( )
 
 #define configUSE_PREEMPTION			        1
 #define configUSE_IDLE_HOOK				        0
