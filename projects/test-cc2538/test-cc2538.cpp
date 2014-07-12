@@ -15,16 +15,6 @@
 
 /*================================ include ==================================*/
 
-#include "Board.h"
-#include "Button.h"
-#include "Led.h"
-#include "I2c.h"
-#include "Uart.h"
-
-#include "Adxl346.h"
-#include "Max44009.h"
-#include "Sht21.h"
-
 #include "openmote-cc2538.h"
 
 /*================================ define ===================================*/
