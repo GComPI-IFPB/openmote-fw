@@ -30,7 +30,7 @@ class Adxl346: public Sensor
 
 public:
     Adxl346(I2cDriver* i2c_, GpioIn* gpio_);
-    void enable(void);
+    bool enable(void);
     bool reset(void);
     bool isPresent(void);
     void setCallback(callback_t callback);

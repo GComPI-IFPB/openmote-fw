@@ -46,7 +46,7 @@
 #define ADXL346_BW_RATE_ADDR                ( 0x2C )
 #define ADXL346_POWER_CTL_ADDR              ( 0x2D )
 #define ADXL346_INT_ENABLE_ADDR             ( 0x2E )
-#define ADXL346_INT_ADDR_ADDR               ( 0x2F )
+#define ADXL346_INT_MAP_ADDR                ( 0x2F )
 #define ADXL346_INT_SOURCE_ADDR             ( 0x30 )
 #define ADXL346_DATA_FORMAT_ADDR            ( 0x31 )
 #define ADXL346_DATAX0_ADDR                 ( 0x32 )
@@ -130,8 +130,24 @@ Adxl346::Adxl346(I2cDriver* i2c_, GpioIn* gpio_):
 {
 }
 
-void Adxl346::enable(void)
+bool Adxl346::enable(void)
 {
+    bool status;
+    uint8_t config[2];
+    
+    i2c->lock();
+
+    config[0] = ADXL346_BW_RATE_ADDR;
+    config[1] = (ADXL346_BW_RATE_RATE(11));
+    status = i2c->writeByte(ADXL346_ADDRESS, config, sizeof(config));    
+    
+    config[0] = ADXL346_DATA_FORMAT_ADDR;
+    config[1] = (ADXL346_DATA_FORMAT_SELF_TEST);
+    status = i2c->writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    
+    i2c->unlock();
+    
+    return status;
 }
 
 bool Adxl346::reset(void)
