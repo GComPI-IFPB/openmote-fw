@@ -142,7 +142,13 @@ bool Adxl346::enable(void)
     status = i2c->writeByte(ADXL346_ADDRESS, config, sizeof(config));    
     
     config[0] = ADXL346_DATA_FORMAT_ADDR;
-    config[1] = (ADXL346_DATA_FORMAT_SELF_TEST);
+    config[1] = (ADXL346_DATA_FORMAT_SELF_TEST |
+                 ADXL346_DATA_FORMAT_FULL_RES  |
+                 ADXL346_DATA_FORMAT_RANGE_PM_16g);
+    status = i2c->writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    
+    config[0] = ADXL346_POWER_CTL_ADDR;
+    config[1] = (ADXL346_POWER_CTL_MEASURE);
     status = i2c->writeByte(ADXL346_ADDRESS, config, sizeof(config));
     
     i2c->unlock();
