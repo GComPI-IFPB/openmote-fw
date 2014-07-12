@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       freertos.c
+ * @file       tickless-cc2538.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -35,6 +35,19 @@ static void prvGreenLedTask(void *pvParameters);
 
 /*================================= public ==================================*/
 
+int main (void) {
+    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
+    tps62730_bypass.off();
+    
+    // Create a task that blinks the green led once every 5 seconds
+    xTaskCreate(prvGreenLedTask, ( const char * ) "Red", 128, NULL, greenLedTask_PRIORITY, NULL );      
+    
+    // Kick the FreeRTOS scheduler
+	vTaskStartScheduler();
+}
+
+/*================================ private ==================================*/
+
 static void prvGreenLedTask( void *pvParameters ) {
     while(true) {
         led_green.off();
@@ -44,23 +57,3 @@ static void prvGreenLedTask( void *pvParameters ) {
 	}
 }
 
-int main (void) {    
-    tps62730_bypass.off();
-    
-    xTaskCreate(prvGreenLedTask, ( const char * ) "Red", 128, NULL, greenLedTask_PRIORITY, NULL );      
-
-	vTaskStartScheduler();
-}
-
-/*================================ private ==================================*/
-
-extern "C" {
-
-    void vApplicationTickHook(void) {
-        debug_ad0.toggle();
-    }
-
-    void vApplicationIdleHook(void) {
-        debug_ad1.toggle();
-    }
-}
