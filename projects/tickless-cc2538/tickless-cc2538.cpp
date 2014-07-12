@@ -31,6 +31,9 @@
 
 /*=============================== prototypes ================================*/
 
+extern "C" TickType_t board_sleep(TickType_t xModifiableIdleTime);
+extern "C" TickType_t board_wakeup(TickType_t xModifiableIdleTime);
+
 static void prvGreenLedTask(void *pvParameters);
 
 /*================================= public ==================================*/
@@ -44,6 +47,16 @@ int main (void) {
     
     // Kick the FreeRTOS scheduler
 	vTaskStartScheduler();
+}
+
+TickType_t board_sleep(TickType_t xModifiableIdleTime)
+{
+    return xModifiableIdleTime;
+}
+
+TickType_t board_wakeup(TickType_t xModifiableIdleTime)
+{
+    return xModifiableIdleTime;
 }
 
 /*================================ private ==================================*/
