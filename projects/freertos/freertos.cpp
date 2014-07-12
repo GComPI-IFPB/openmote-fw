@@ -23,8 +23,8 @@
 
 /*================================ define ===================================*/
 
-#define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
-#define BUTTON_TASK_PRIORITY                ( tskIDLE_PRIORITY + 0 )
+#define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
+#define BUTTON_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 
 /*================================ typedef ==================================*/
 
@@ -36,24 +36,31 @@ SemaphoreHandle_t xSemaphore = NULL;
 
 static void prvGreenLedTask(void *pvParameters);
 static void prvButtonTask(void *pvParameters);
+
 static void button_user_callback(void);
 
 /*================================= public ==================================*/
 
 int main (void) {
-	xTaskCreate(prvGreenLedTask, ( const char * ) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL );
-	xTaskCreate(prvButtonTask, ( const char * ) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
+    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
+    tps62730_bypass.off();
 
+    // Create two FreeRTOS tasks
+	xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
+	xTaskCreate(prvButtonTask, (const char *) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
+
+    // Kick the FreeRTOS scheduler
 	vTaskStartScheduler();
 }
 
 /*================================ private ==================================*/
 
-static void button_user_callback(void) {
+static void button_user_callback(void)
+{
     static BaseType_t xHigherPriorityTaskWoken; 
     xHigherPriorityTaskWoken = pdFALSE;
-    xSemaphoreGiveFromISR( xSemaphore, &xHigherPriorityTaskWoken );
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+    xSemaphoreGiveFromISR(xSemaphore, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 static void prvButtonTask( void *pvParameters ) {
@@ -62,15 +69,19 @@ static void prvButtonTask( void *pvParameters ) {
     button_user.setCallback(button_user_callback);
     button_user.enableInterrupt();
 
-    while(true) {
-        if (xSemaphoreTake( xSemaphore, ( TickType_t ) 10 ) == pdTRUE) {
+    while(true)
+    {
+        if (xSemaphoreTake( xSemaphore, ( TickType_t ) 10 ) == pdTRUE)
+        {
             led_red.toggle();
         }
     } 
 }
 
-static void prvGreenLedTask( void *pvParameters ) {
-	while(true) {
+static void prvGreenLedTask( void *pvParameters )
+{
+	while(true)
+	{
 		led_green.toggle();
 		vTaskDelay(1000 / portTICK_RATE_MS);
 	}

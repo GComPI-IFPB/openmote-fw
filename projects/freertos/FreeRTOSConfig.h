@@ -16,6 +16,7 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
+#define configUSE_TICKLESS_IDLE			        1
 #define configCPU_CLOCK_HZ				        16000000
 #define configTICK_RATE_HZ				        ( ( TickType_t ) 100 )
 
