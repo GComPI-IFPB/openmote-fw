@@ -30,7 +30,7 @@
 
 /*=============================== variables =================================*/
 
-SemaphoreHandle_t xSemaphore = NULL;
+static SemaphoreHandle_t xSemaphore;
 
 /*=============================== prototypes ================================*/
 
@@ -82,7 +82,9 @@ static void prvGreenLedTask( void *pvParameters )
 {
 	while(true)
 	{
-		led_green.toggle();
-		vTaskDelay(1000 / portTICK_RATE_MS);
+		led_green.off();
+		vTaskDelay(950 / portTICK_RATE_MS);
+		led_green.on();
+		vTaskDelay(50 / portTICK_RATE_MS);
 	}
 }
