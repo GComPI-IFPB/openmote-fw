@@ -20,7 +20,7 @@
 #define configTICK_RATE_HZ				        ( ( TickType_t ) 100 )
 
 #define configPRE_STOP_PROCESSING(x)            ( ) 
-#define configPOST_STOP_PROCESSING(x)			( )
+#define configPOST_STOP_PROCESSING(x)           ( )
 
 #define configUSE_PREEMPTION			        1
 #define configUSE_IDLE_HOOK				        0

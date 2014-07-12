@@ -23,7 +23,7 @@
 
 /*================================ define ===================================*/
 
-#define RED_LED_TASK_PRIORITY               ( tskIDLE_PRIORITY + 1 )
+#define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
 #define BUTTON_TASK_PRIORITY                ( tskIDLE_PRIORITY + 0 )
 
 /*================================ typedef ==================================*/
@@ -34,14 +34,14 @@ SemaphoreHandle_t xSemaphore = NULL;
 
 /*=============================== prototypes ================================*/
 
-static void prvRedLedTask(void *pvParameters);
+static void prvGreenLedTask(void *pvParameters);
 static void prvButtonTask(void *pvParameters);
 static void button_user_callback(void);
 
 /*================================= public ==================================*/
 
-int main (void) {   
-	xTaskCreate(prvRedLedTask, ( const char * ) "Red", 128, NULL, RED_LED_TASK_PRIORITY, NULL );
+int main (void) {
+	xTaskCreate(prvGreenLedTask, ( const char * ) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL );
 	xTaskCreate(prvButtonTask, ( const char * ) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
 
 	vTaskStartScheduler();
@@ -64,14 +64,14 @@ static void prvButtonTask( void *pvParameters ) {
 
     while(true) {
         if (xSemaphoreTake( xSemaphore, ( TickType_t ) 10 ) == pdTRUE) {
-            led_orange.toggle();
+            led_red.toggle();
         }
     } 
 }
 
-static void prvRedLedTask( void *pvParameters ) {
+static void prvGreenLedTask( void *pvParameters ) {
 	while(true) {
-		led_red.toggle();
+		led_green.toggle();
 		vTaskDelay(1000 / portTICK_RATE_MS);
 	}
 }

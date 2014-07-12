@@ -10,7 +10,7 @@ PROJECT_HOME = ../..
 INC_PATH += -I $(PROJECT_DIR)
 
 # Define options passed to the C compiler
-DOPTIONS +=
+DOPTIONS += -DNO_CLOCK_DIVIDER_RESTORE
 
 # Configure compiling
 USE_KERNEL = TRUE
