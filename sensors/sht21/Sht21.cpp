@@ -40,13 +40,15 @@ void Sht21::enable(void)
 {
 }
 
-void Sht21::reset(void)
+bool Sht21::reset(void)
 {
     bool status;
     
     i2c->lock();
     status = i2c->writeByte(SHT21_ADDRESS, SHT21_RESET_CMD);
     i2c->unlock();
+    
+    return status;
 }
 
 bool Sht21::isPresent(void)
@@ -55,7 +57,8 @@ bool Sht21::isPresent(void)
     uint8_t isPresent;
     
     i2c->lock();
-    status = i2c->readByte(SHT21_ADDRESS, SHT21_READ_USER_REG, &isPresent);
+    status = i2c->writeByte(SHT21_ADDRESS, SHT21_READ_USER_REG);
+    status = i2c->readByte(SHT21_ADDRESS, &isPresent);
     i2c->unlock();
     
     return (status && isPresent == SHT21_CONFIG_DEFAULT);
@@ -67,7 +70,8 @@ void Sht21::readTemperature(void)
     uint8_t sht21_temperature[2];
     
     i2c->lock();
-    status = i2c->readByte(SHT21_ADDRESS, SHT21_TEMPERATURE_HM_CMD, sht21_temperature, sizeof(sht21_temperature));
+    status = i2c->writeByte(SHT21_ADDRESS, SHT21_TEMPERATURE_HM_CMD);
+    status = i2c->readByte(SHT21_ADDRESS, sht21_temperature, sizeof(sht21_temperature));
     i2c->unlock();
 
     if (status)
@@ -82,7 +86,8 @@ void Sht21::readHumidity(void)
     uint8_t sht21_humidity[2];
 
     i2c->lock();
-    status = i2c->readByte(SHT21_ADDRESS, SHT21_HUMIDITY_HM_CMD, sht21_humidity, sizeof(sht21_humidity));
+    status = i2c->writeByte(SHT21_ADDRESS, SHT21_HUMIDITY_HM_CMD);
+    status = i2c->readByte(SHT21_ADDRESS, sht21_humidity, sizeof(sht21_humidity));
     i2c->unlock();
 
     if (status)

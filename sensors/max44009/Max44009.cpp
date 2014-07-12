@@ -64,8 +64,9 @@ void Max44009::enable(void)
 {
 }
 
-void Max44009::reset(void)
+bool Max44009::reset(void)
 {
+    return false;
 }
 
 void Max44009::setCallback(callback_t callback)
@@ -86,19 +87,20 @@ bool Max44009::isPresent(void)
     uint8_t isPresent;
     
     i2c->lock();
-    status = i2c->readByte(MAX44009_ADDRESS, MAX44009_CONFIG_ADDR, &isPresent);
+    status = false;
+    isPresent = 0;
     i2c->unlock();
     
     return (status && isPresent != MAX44009_NOT_FOUND);
 }
 
-void Max44009::readLux(void)
+bool Max44009::readLux(void)
 {
     bool status;
     uint8_t max44009_data[2];
 
     i2c->lock();
-    status = i2c->readByte(MAX44009_ADDRESS, MAX44009_LUX_HIGH_ADDR, max44009_data, sizeof(max44009_data));
+    status = false;
     i2c->unlock();
     
     if (status)
@@ -106,6 +108,8 @@ void Max44009::readLux(void)
         exponent = (( max44009_data[0] >> 4 )  & 0x0E);
         mantissa = (( max44009_data[0] & 0x0F) << 4) | (max44009_data[1] & 0x0F);
     }
+    
+    return status;
 }
 
 float Max44009::getLux(void)
