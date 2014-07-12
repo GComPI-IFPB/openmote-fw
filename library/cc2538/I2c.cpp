@@ -31,7 +31,7 @@
 
 /**********************************defines************************************/
 
-#define DELAY_TICKS         ( )
+
 
 /*********************************variables***********************************/
 
@@ -85,6 +85,10 @@ void I2c::sleep(void)
 void I2c::wakeup(void)
 {
     bool status;
+    
+    SysCtrlPeripheralEnable(peripheral);
+    SysCtrlPeripheralSleepDisable(peripheral);
+    SysCtrlPeripheralDeepSleepDisable(peripheral);
     
     SysCtrlPeripheralReset(peripheral);
 
@@ -170,11 +174,48 @@ bool I2c::writeByte(uint8_t address_, uint8_t register_)
     }
     
     return true;
-}
+}   
 
-bool writeByte(uint8_t address_, uint8_t * buffer, uint8_t size)
+bool I2c::writeByte(uint8_t address_, uint8_t * buffer, uint8_t size)
 {
-    return false;
+    uint32_t delayTicks;
+    
+    I2CMasterSlaveAddrSet(address_, false); // write
+
+    I2CMasterDataPut(*buffer++);
+    size--;
+
+    I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_START);
+
+    delayTicks = 1000000;
+    while(I2CMasterBusy() && delayTicks--) {
+        if (delayTicks == 0) {
+            return false;
+        }
+    }
+
+    while(size) {
+        I2CMasterDataPut(*buffer++);
+        size--;
+        
+        if (size == 0)
+        {
+            I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_FINISH);
+        }
+        else
+        {
+            I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_CONT);
+        }
+               
+        delayTicks = 1000000;
+        while(I2CMasterBusy() && delayTicks--) {
+            if (delayTicks == 0) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 /*********************************protected***********************************/
