@@ -87,8 +87,8 @@ bool Max44009::isPresent(void)
     uint8_t isPresent;
     
     i2c->lock();
-    status = false;
-    isPresent = 0;
+    status = i2c->writeByte(MAX44009_ADDRESS, MAX44009_CONFIG_ADDR);
+    status = i2c->readByte(MAX44009_ADDRESS, &isPresent);
     i2c->unlock();
     
     return (status && isPresent != MAX44009_NOT_FOUND);
@@ -100,7 +100,10 @@ bool Max44009::readLux(void)
     uint8_t max44009_data[2];
 
     i2c->lock();
-    status = false;
+    status = i2c->writeByte(MAX44009_ADDRESS, MAX44009_LUX_HIGH_ADDR);
+    status = i2c->readByte(MAX44009_ADDRESS, &max44009_data[0]);
+    status = i2c->writeByte(MAX44009_ADDRESS, MAX44009_LUX_LOW_ADDR);
+    status = i2c->readByte(MAX44009_ADDRESS, &max44009_data[1]);
     i2c->unlock();
     
     if (status)

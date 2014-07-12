@@ -134,8 +134,8 @@ bool Adxl346::isPresent(void)
     uint8_t isPresent;
     
     i2c->lock();
-    status = false;
-    isPresent = 0;
+    status = i2c->writeByte(ADXL346_ADDRESS, ADXL346_DEVID_ADDR);
+    status = i2c->readByte(ADXL346_ADDRESS, &isPresent);
     i2c->unlock();
     
     return (status && isPresent == ADXL346_DEVID_VALUE);
@@ -156,15 +156,38 @@ void Adxl346::clearCallback(void)
 bool Adxl346::readAcceleration(void)
 {
     bool status;
-    uint8_t acceleration[6];
+    uint8_t acceleration[2];
     
-    status = false;
+    i2c->lock();
+    
+    status = i2c->writeByte(ADXL346_ADDRESS, ADXL346_DATAX0_ADDR);
+    status = i2c->readByte(ADXL346_ADDRESS, &acceleration[0]);
+    status = i2c->writeByte(ADXL346_ADDRESS, ADXL346_DATAX1_ADDR);
+    status = i2c->readByte(ADXL346_ADDRESS, &acceleration[1]);
     
     if (status) {
         x = (acceleration[0] << 8) | acceleration[1];
-        y = (acceleration[2] << 8) | acceleration[3];
-        z = (acceleration[4] << 8) | acceleration[5];
     }
+    
+    status = i2c->writeByte(ADXL346_ADDRESS, ADXL346_DATAY0_ADDR);
+    status = i2c->readByte(ADXL346_ADDRESS, &acceleration[0]);
+    status = i2c->writeByte(ADXL346_ADDRESS, ADXL346_DATAY1_ADDR);
+    status = i2c->readByte(ADXL346_ADDRESS, &acceleration[1]);
+    
+    if (status) {
+        y = (acceleration[0] << 8) | acceleration[1];
+    }
+    
+    status = i2c->writeByte(ADXL346_ADDRESS, ADXL346_DATAZ0_ADDR);
+    status = i2c->readByte(ADXL346_ADDRESS, &acceleration[0]);
+    status = i2c->writeByte(ADXL346_ADDRESS, ADXL346_DATAZ1_ADDR);
+    status = i2c->readByte(ADXL346_ADDRESS, &acceleration[1]);
+    
+    if (status) {
+        z = (acceleration[0] << 8) | acceleration[1];
+    }
+    
+    i2c->unlock();
     
     return status;
 }
