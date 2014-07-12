@@ -76,8 +76,9 @@ Max44009::Max44009(I2cDriver* i2c_, GpioIn* gpio_):
 {
 }
 
-void Max44009::enable(void)
+bool Max44009::enable(void)
 {
+    return false;
 }
 
 bool Max44009::reset(void)

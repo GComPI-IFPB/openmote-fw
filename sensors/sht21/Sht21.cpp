@@ -46,8 +46,9 @@ Sht21::Sht21(I2cDriver* i2c_):
 {
 }
 
-void Sht21::enable(void)
+bool Sht21::enable(void)
 {
+    return false;
 }
 
 bool Sht21::reset(void)
