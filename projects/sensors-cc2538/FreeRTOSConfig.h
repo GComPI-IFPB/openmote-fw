@@ -16,12 +16,12 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
-#define configUSE_TICKLESS_IDLE			        1
+#define configUSE_TICKLESS_IDLE			        0
 #define configCPU_CLOCK_HZ				        16000000
 #define configTICK_RATE_HZ				        ( ( TickType_t ) 100 )
 
-#define configPRE_STOP_PROCESSING(x)            board_sleep(x)
-#define configPOST_STOP_PROCESSING(x)           board_wakeup(x)
+#define configPRE_STOP_PROCESSING(x)            ( )
+#define configPOST_STOP_PROCESSING(x)           ( )
 
 #define configUSE_PREEMPTION			        1
 #define configUSE_IDLE_HOOK				        0
