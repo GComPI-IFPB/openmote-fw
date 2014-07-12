@@ -27,10 +27,6 @@
 #include "hw_memmap.h"
 #include "hw_types.h"
 
-/*********************************variables***********************************/
-
-Radio Radio::instance;
-
 /**********************************defines************************************/
 
 // Defines for the transmit power
@@ -83,6 +79,10 @@ Radio Radio::instance;
   HWREG(RFCORE_SFR_RFST) = CC2538_RF_CSP_OP_ISFLUSHTX; \
   HWREG(RFCORE_SFR_RFST) = CC2538_RF_CSP_OP_ISFLUSHTX; \
 } while(0)
+
+/*********************************variables***********************************/
+
+Radio Radio::instance;
 
 /**********************************public*************************************/
 

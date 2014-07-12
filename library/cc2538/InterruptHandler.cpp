@@ -34,6 +34,10 @@
 #include "hw_rfcore_sfr.h"
 #include "hw_rfcore_xreg.h"
 
+/**********************************defines************************************/
+
+
+
 /*********************************variables***********************************/
 
 InterruptHandler InterruptHandler::instance;

@@ -13,11 +13,16 @@
  *
  */
 
+/**********************************include************************************/
+
 #include "Adxl346.h"
 
 #include "I2cDriver.h"
 #include "GpioIn.h"
 
+/**********************************defines************************************/
+
+/* ADDRESS AND IDENTIFIER */
 #define ADXL346_ADDRESS                     ( 0x53 )
 #define ADXL346_DEVID_VALUE                 ( 0xE6 )
 
@@ -114,6 +119,12 @@
 #define ADXL346_DATA_FORMAT_RANGE_PM_8g     ( 2 )
 #define ADXL346_DATA_FORMAT_RANGE_PM_16g    ( 3 )
 
+/*********************************variables***********************************/
+
+
+
+/**********************************public*************************************/
+
 Adxl346::Adxl346(I2cDriver* i2c_, GpioIn* gpio_):
     i2c(i2c_), gpio(gpio_)
 {
@@ -206,4 +217,10 @@ uint16_t Adxl346::getZ(void)
 {
     return z;
 }
+
+/*********************************protected***********************************/
+
+
+
+/**********************************private************************************/
 
