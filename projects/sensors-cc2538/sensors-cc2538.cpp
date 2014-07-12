@@ -37,6 +37,9 @@ static xSemaphoreHandle xSemaphoreButton;
 
 /*=============================== prototypes ================================*/
 
+extern "C" TickType_t board_sleep(TickType_t xModifiableIdleTime);
+extern "C" TickType_t board_wakeup(TickType_t xModifiableIdleTime);
+
 static void prvGreenLedTask(void *pvParameters);
 static void prvLightTask(void *pvParameters);
 static void prvTemperatureTask(void *pvParameters);
@@ -63,6 +66,18 @@ int main (void) {
 
     // Kick the FreeRTOS scheduler
     vTaskStartScheduler();
+}
+
+TickType_t board_sleep(TickType_t xModifiableIdleTime)
+{
+    i2c.sleep();
+    return xModifiableIdleTime;
+}
+
+TickType_t board_wakeup(TickType_t xModifiableIdleTime)
+{
+    i2c.wakeup();
+    return xModifiableIdleTime;
 }
 
 /*================================ private ==================================*/

@@ -64,6 +64,9 @@ static volatile uint32_t ulTickFlag = pdFALSE;
 
 /*=============================== prototypes ================================*/
 
+TickType_t board_sleep(TickType_t xModifiableIdleTime);
+TickType_t board_wakeup(TickType_t xModifiableIdleTime);
+
 void SleepTimer_Handler(void);
 
 static void prvEnableRTC(void);
