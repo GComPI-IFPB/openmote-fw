@@ -40,6 +40,15 @@ static void button_user_callback(void);
 
 /*================================= public ==================================*/
 
+int main (void) {   
+	xTaskCreate(prvRedLedTask, ( const char * ) "Red", 128, NULL, RED_LED_TASK_PRIORITY, NULL );
+	xTaskCreate(prvButtonTask, ( const char * ) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
+
+	vTaskStartScheduler();
+}
+
+/*================================ private ==================================*/
+
 static void button_user_callback(void) {
     static BaseType_t xHigherPriorityTaskWoken; 
     xHigherPriorityTaskWoken = pdFALSE;
@@ -48,6 +57,11 @@ static void button_user_callback(void) {
 }
 
 static void prvButtonTask( void *pvParameters ) {
+    xSemaphore = xSemaphoreCreateMutex();
+
+    button_user.setCallback(button_user_callback);
+    button_user.enableInterrupt();
+
     while(true) {
         if (xSemaphoreTake( xSemaphore, ( TickType_t ) 10 ) == pdTRUE) {
             led_orange.toggle();
@@ -61,20 +75,3 @@ static void prvRedLedTask( void *pvParameters ) {
 		vTaskDelay(1000 / portTICK_RATE_MS);
 	}
 }
-
-int main (void) {
-    led_green.on();
-    
-    button_user.setCallback(button_user_callback);
-    button_user.enableInterrupt();
-    
-    xSemaphore = xSemaphoreCreateMutex();
-    
-	xTaskCreate(prvRedLedTask, ( const char * ) "Red", 128, NULL, RED_LED_TASK_PRIORITY, NULL );
-	xTaskCreate(prvButtonTask, ( const char * ) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
-
-	vTaskStartScheduler();
-}
-
-/*================================ private ==================================*/
-
