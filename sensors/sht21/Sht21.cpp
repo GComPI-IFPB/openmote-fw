@@ -26,14 +26,14 @@
 #define SHT21_USER_REG_WRITE            ( 0xE6 )
 #define SHT21_USER_REG_RESERVED_BITS    ( 0x38 )
 
-#define SHT21_RESOLUTION_12b_14b        ( (0 << 7) | (0 << 0) ) // 29 + 85 = 114 ms
-#define SHT21_RESOLUTION_8b_12b         ( (0 << 7) | (1 << 0) ) //  4 + 22 =  26 ms
-#define SHT21_RESOLUTION_10b_13b        ( (1 << 7) | (0 << 0) ) //  9 + 43 =  52 ms
-#define SHT21_RESOLUTION_11b_11b        ( (1 << 7) | (1 << 0) ) // 15 + 11 =  26 ms
-#define SHT21_ONCHIP_HEATER_ENABLE      ( 1 << 2 )
-#define SHT21_ONCHIP_HEATER_DISABLE     ( 0 << 2 )
+#define SHT21_RESOLUTION_12b_14b        ( (0 << 7) | (0 << 0) )
+#define SHT21_RESOLUTION_8b_12b         ( (0 << 7) | (1 << 0) )
+#define SHT21_RESOLUTION_10b_13b        ( (1 << 7) | (0 << 0) )
+#define SHT21_RESOLUTION_11b_11b        ( (1 << 7) | (1 << 0) )
 #define SHT21_BATTERY_ABOVE_2V25        ( 0 << 6 )
 #define SHT21_BATTERY_BELOW_2V25        ( 1 << 6 )
+#define SHT21_ONCHIP_HEATER_ENABLE      ( 1 << 2 )
+#define SHT21_ONCHIP_HEATER_DISABLE     ( 0 << 2 )
 #define SHT21_OTP_RELOAD_ENABLE         ( 0 << 1 )
 #define SHT21_OTP_RELOAD_DISABLE        ( 1 << 1 )
 
@@ -43,9 +43,14 @@
 #define SHT21_HUMIDITY_NHM_CMD          ( 0xF5 )
 #define SHT21_RESET_CMD                 ( 0xFE )
 
-#define SHT21_DEFAULT_CONFIG            ( SHT21_RESOLUTION_8b_12b | \
+#define SHT21_DEFAULT_CONFIG            ( SHT21_RESOLUTION_12b_14b | \
                                           SHT21_ONCHIP_HEATER_DISABLE | \
-                                          SHT21_BATTERY_ABOVE_2V25 \ \
+                                          SHT21_BATTERY_ABOVE_2V25 | \
+                                          SHT21_OTP_RELOAD_DISABLE )
+                                          
+#define SHT21_USER_CONFIG               ( SHT21_RESOLUTION_8b_12b | \
+                                          SHT21_ONCHIP_HEATER_DISABLE | \
+                                          SHT21_BATTERY_ABOVE_2V25 | \
                                           SHT21_OTP_RELOAD_DISABLE )
 
 /*********************************variables***********************************/
@@ -62,18 +67,29 @@ Sht21::Sht21(I2cDriver* i2c_):
 bool Sht21::enable(void)
 {
     bool status;
-    uint8_t config;
+    uint8_t config[2];
     
+    // Setup the configuration vector, the first position holds address
+    // and the second position holds the actual configuration
+    config[0] = SHT21_USER_REG_WRITE;
+    config[1] = 0;
+    
+    // Obtain the mutex of the I2C driver
     i2c->lock();
     
-    status = i2c->writeByte(SHT21_ADDRESS, SHT21_READ_USER_REG);
-    status = i2c->readByte(SHT21_ADDRESS, &config);
+    // Read the current configuration according to the datasheet (pag. 9, fig. 18)
+    status = i2c->writeByte(SHT21_ADDRESS, SHT21_USER_REG_READ);
+    status = i2c->readByte(SHT21_ADDRESS, &config[1]);
 
-    config &= SHT21_USER_REG_RESERVED_BITS;
-    config |= SHT21_DEFAULT_CONFIG;
-
-    status = i2c->writeByte(SHT21_ADDRESS, SHT21_WRITE_USER_REG, &config);
+    // Clean all the configuration bits except those reserved
+    config[1] &= SHT21_USER_REG_RESERVED_BITS;
     
+    // Set the configuration bits without changing those reserved
+    config[1] |= SHT21_USER_CONFIG;
+    
+    status = i2c->writeByte(SHT21_ADDRESS, config, sizeof(config));
+    
+    // Release the mutex of the I2C driver
     i2c->unlock();
 
     return status;
@@ -83,8 +99,13 @@ bool Sht21::reset(void)
 {
     bool status;
     
+    // Obtain the mutex of the I2C driver
     i2c->lock();
+    
+    // Send a soft-reset command according to the datasheet (pag. 9, fig. 17)
     status = i2c->writeByte(SHT21_ADDRESS, SHT21_RESET_CMD);
+    
+    // Release the mutex of the I2C driver
     i2c->unlock();
     
     return status;
@@ -95,44 +116,68 @@ bool Sht21::isPresent(void)
     bool status;
     uint8_t isPresent;
     
+    // Obtain the mutex of the I2C driver
     i2c->lock();
-    status = i2c->writeByte(SHT21_ADDRESS, SHT21_READ_USER_REG);
+    
+    // Read the current configuration according to the datasheet (pag. 9, fig. 18)
+    status = i2c->writeByte(SHT21_ADDRESS, SHT21_USER_REG_READ);
     status = i2c->readByte(SHT21_ADDRESS, &isPresent);
+    
+    // Clear the reserved bits according to the datasheet (pag. 9, tab. 8)
+    isPresent &= ~SHT21_USER_REG_RESERVED_BITS;
+    
+    // Release the mutex of the I2C driver
     i2c->unlock();
     
-    return (status && isPresent == SHT21_CONFIG_DEFAULT);
+    return (status && isPresent == SHT21_DEFAULT_CONFIG);
 }
 
-void Sht21::readTemperature(void)
+bool Sht21::readTemperature(void)
 {
     bool status;
     uint8_t sht21_temperature[2];
     
+    // Obtain the mutex of the I2C driver
     i2c->lock();
+    
+    // Read the current temperature according to the datasheet (pag. 8, fig. 15)
     status = i2c->writeByte(SHT21_ADDRESS, SHT21_TEMPERATURE_HM_CMD);
     status = i2c->readByte(SHT21_ADDRESS, sht21_temperature, sizeof(sht21_temperature));
+    
+    // Release the mutex of the I2C driver
     i2c->unlock();
 
+    // If the read succeeded, update the temperature
     if (status)
     {
         temperature = (sht21_temperature[1] << 8) | sht21_temperature[0];
     }
+    
+    return status;
 }
 
-void Sht21::readHumidity(void)
+bool Sht21::readHumidity(void)
 {
     bool status;
     uint8_t sht21_humidity[2];
 
+    // Obtain the mutex of the I2C driver
     i2c->lock();
+    
+    // Read the current humidity according to the datasheet (pag. 8, fig. 15)
     status = i2c->writeByte(SHT21_ADDRESS, SHT21_HUMIDITY_HM_CMD);
     status = i2c->readByte(SHT21_ADDRESS, sht21_humidity, sizeof(sht21_humidity));
+    
+    // Release the mutex of the I2C driver
     i2c->unlock();
 
+    // If the read succeeded, update the humidity
     if (status)
     {
         humidity = (sht21_humidity[1] << 8) | sht21_humidity[0];
     }
+
+    return status;
 }
 
 float Sht21::getTemperature(void)

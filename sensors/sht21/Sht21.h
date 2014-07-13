@@ -29,8 +29,8 @@ public:
     bool enable(void);
     bool reset(void);
     bool isPresent(void);
-    void readTemperature(void);
-    void readHumidity(void);
+    bool readTemperature(void);
+    bool readHumidity(void);
     float getTemperature(void);
     uint16_t getTemperatureRaw(void);
     float getHumidity(void);
