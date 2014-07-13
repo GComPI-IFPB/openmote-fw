@@ -50,7 +50,8 @@ static void button_user_callback(void);
 
 /*================================= public ==================================*/
 
-int main (void) {
+int main (void)
+{
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730_bypass.off();
 
@@ -82,36 +83,46 @@ TickType_t board_wakeup(TickType_t xModifiableIdleTime)
 
 /*================================ private ==================================*/
 
-static void button_user_callback(void) {
+static void button_user_callback(void)
+{
     static BaseType_t xHigherPriorityTaskWoken;
+    
     xHigherPriorityTaskWoken = pdFALSE;
-    xSemaphoreGiveFromISR( xSemaphoreButton, &xHigherPriorityTaskWoken );
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+    
+    xSemaphoreGiveFromISR(xSemaphoreButton, &xHigherPriorityTaskWoken);
+    
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-static void prvButtonTask( void *pvParameters ) {
+static void prvButtonTask(void *pvParameters)
+{
     xSemaphoreButton = xSemaphoreCreateMutex();
 
     button_user.setCallback(button_user_callback);
     button_user.enableInterrupt();
 
-    while(true) {
+    while(true)
+    {
         /* The second parameter indicates the interval at which the xSempahore
            is polled and, thus, it determines latency and energy consumption. */
-        if (xSemaphoreTake( xSemaphoreButton, ( TickType_t ) portMAX_DELAY ) == pdTRUE) {
+        if (xSemaphoreTake(xSemaphoreButton, (TickType_t) portMAX_DELAY) == pdTRUE)
+        {
             led_red.toggle();
         }
     } 
 }
 
-static void prvTemperatureTask( void *pvParameters ) {
+static void prvTemperatureTask(void *pvParameters)
+{
     uint16_t temperature;
     uint16_t humidity;
 
     vTaskDelay(500 / portTICK_RATE_MS);
 
-    if (sht21.isPresent() == true) {
-    	while(true) {
+    if (sht21.isPresent() == true)
+    {
+    	while(true)
+    	{
     	    led_orange.on();
 
             sht21.readTemperature();
@@ -124,19 +135,24 @@ static void prvTemperatureTask( void *pvParameters ) {
 
             vTaskDelay(2000 / portTICK_RATE_MS);
 	    }
-	} else {
+	}
+	else
+	{
 	    led_red.on();
-	    vTaskDelete( NULL );
+	    vTaskDelete(NULL);
 	}
 }
 
-static void prvLightTask( void *pvParameters ) {
+static void prvLightTask(void *pvParameters)
+{
     uint16_t light;
     
     vTaskDelay(500 / portTICK_RATE_MS);
 
-    if (max44009.isPresent() == true) {
-    	while(true) {
+    if (max44009.isPresent() == true)
+    {
+    	while(true)
+    	{
         	led_orange.on();
 
         	max44009.readLux();
@@ -146,22 +162,25 @@ static void prvLightTask( void *pvParameters ) {
 
             vTaskDelay(2000 / portTICK_RATE_MS);
 	    }
-	} else {
+	}
+	else
+	{
 	    led_red.on();
-	    vTaskDelete( NULL );
+	    vTaskDelete(NULL);
 	}
 }
 
-static void prvAccelerationTask( void *pvParameters ) {
+static void prvAccelerationTask(void *pvParameters) {
     uint16_t x, y, z;
 
     vTaskDelay(500 / portTICK_RATE_MS);
 
-    if (adxl346.isPresent() == true) {
-
+    if (adxl346.isPresent() == true)
+    {
         adxl346.enable();
 
-    	while(true) {
+    	while(true)
+    	{
             led_orange.on();
 
             adxl346.readAcceleration();
@@ -173,14 +192,18 @@ static void prvAccelerationTask( void *pvParameters ) {
 
             vTaskDelay(2000 / portTICK_RATE_MS);
 	    }
-	} else {
+	}
+	else
+	{
 	    led_red.on();
-	    vTaskDelete( NULL );
+	    vTaskDelete(NULL);
 	}
 }
 
-static void prvGreenLedTask( void *pvParameters ) {
-	while(true) {
+static void prvGreenLedTask(void *pvParameters)
+{
+	while(true)
+	{
 		led_green.on();
 		vTaskDelay(50/ portTICK_RATE_MS);
         led_green.off();
