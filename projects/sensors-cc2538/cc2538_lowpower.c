@@ -184,7 +184,7 @@ void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTicks )
 		   the standard configPRE_SLEEP_PROCESSING() macro as described on the
 		   FreeRTOS.org website. */
 		xModifiableIdleTicks = xExpectedIdleTicks;
-		configPRE_SLEEP_PROCESSING( xModifiableIdleTicks );
+		configPRE_STOP_PROCESSING( xModifiableIdleTicks );
 
 		/* xExpectedIdleTicks being set to 0 by configPRE_SLEEP_PROCESSING()
 		   means the application defined code has already executed the wait/sleep
@@ -220,7 +220,7 @@ void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTicks )
 		/* Allow the application to define some post sleep processing. This is
 		   the standard configPOST_SLEEP_PROCESSING() macro, as described on the
 		   FreeRTOS.org website. */
-		configPOST_SLEEP_PROCESSING( xModifiableIdleTicks );
+		configPOST_STOP_PROCESSING( xModifiableIdleTicks );
 
 		/* Stop RTC.  Again, the time the clock is stopped for in not accounted
 		   for here (as it would normally be) because the clock is so slow it is
