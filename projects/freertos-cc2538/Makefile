@@ -1,6 +1,6 @@
 # Project name and files to compile
-PROJECT_NAME  = freertos
-PROJECT_FILES = freertos.cpp
+PROJECT_NAME  = freertos-cc2538
+PROJECT_FILES = freertos-cc2538.cpp
 PROJECT_DIR   = .
 
 # Location of the root directory

@@ -41,7 +41,8 @@ static void button_user_callback(void);
 
 /*================================= public ==================================*/
 
-int main (void) {
+int main (void)
+{
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730_bypass.off();
 
@@ -63,7 +64,8 @@ static void button_user_callback(void)
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-static void prvButtonTask( void *pvParameters ) {
+static void prvButtonTask(void *pvParameters)
+{
     xSemaphore = xSemaphoreCreateMutex();
 
     button_user.setCallback(button_user_callback);
@@ -71,14 +73,14 @@ static void prvButtonTask( void *pvParameters ) {
 
     while(true)
     {
-        if (xSemaphoreTake( xSemaphore, ( TickType_t ) 10 ) == pdTRUE)
+        if (xSemaphoreTake( xSemaphore, (TickType_t) portMAX_DELAY) == pdTRUE)
         {
             led_red.toggle();
         }
     } 
 }
 
-static void prvGreenLedTask( void *pvParameters )
+static void prvGreenLedTask(void *pvParameters)
 {
 	while(true)
 	{
