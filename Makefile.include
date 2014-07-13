@@ -1,4 +1,4 @@
-################################################################################
+###############################################################################
 
 CC = arm-none-eabi-gcc
 CPP = arm-none-eabi-g++
@@ -8,7 +8,7 @@ GDB = arm-none-eabi-gdb
 OBJCOPY = arm-none-eabi-objcopy
 OBJSIZE = arm-none-eabi-size
 
-################################################################################
+###############################################################################
 
 # C compiling flags
 CFLAGS += -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd
@@ -45,7 +45,7 @@ LDFLAGS += --specs=nosys.specs
 OBJCOPY_FLAGS += -O binary --gap-fill 0xFF
 OBJDUMP_FLAGS += --disassemble --source --disassembler-options=force-thumb
 
-################################################################################
+###############################################################################
 
 #define the board subdirectory
 BOARD_NAME = board
@@ -71,7 +71,7 @@ CONNECTIVITY_PATH = $(PROJECT_HOME)/$(CONNECTIVITY_NAME)
 SENSORS_NAME = sensors
 SENSORS_PATH = $(PROJECT_HOME)/$(SENSORS_NAME)
 
-################################################################################
+###############################################################################
 
 # Include the names of the source files to compile
 SRC_FILES += $(PROJECT_FILES)
@@ -89,7 +89,7 @@ BIN_FILES = $(filter-out %.c %.cpp %.h, $(TMP_FILES))
 # Adds the path to where the object files need to be stored
 BIN_TARGET = $(addprefix $(BIN_PATH)/, $(BIN_FILES))
 
-################################################################################
+###############################################################################
 
 # Add the various directories in the project home to the virtual path
 VPATH += $(PLATFORM_PATH) $(LIBRARY_PATH)
@@ -110,7 +110,7 @@ ifeq ($(USE_KERNEL), TRUE)
 	include $(KERNEL_PATH)/Makefile.include
 endif
 
-################################################################################
+###############################################################################
 
 .DEFAULT_GOAL = all
 
@@ -147,7 +147,7 @@ clean:
 	@rm -f $(PROJECT_NAME)
 	@rm -f *.bin *.elf *.hex .map
 
-################################################################################
+###############################################################################
 
 # Target to compile C files into object files
 $(BIN_PATH)/%.o: %.c

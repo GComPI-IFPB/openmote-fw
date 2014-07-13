@@ -1,4 +1,6 @@
-# 
+###############################################################################
+
+# Define the Platform path
 PLATFORM_CC2538 = $(PLATFORM_PATH)
 PLATFORM_SRC = $(PLATFORM_PATH)/src
 PLATFORM_INC = $(PLATFORM_PATH)/inc
@@ -22,7 +24,7 @@ VPATH += $(PLATFORM_CC2538) $(PLATFORM_SRC) $(PLATFORM_INC)
 # Include the Makefiles in the various subdirectories in the current folder
 include $(PLATFORM_SRC)/Makefile.include
 
-################################################################################
+###############################################################################
 
 # Configure the Segger J-Link
 JLINK_NAME = JLinkGDBServer
@@ -48,7 +50,7 @@ BSL_PATH = $(PROJECT_HOME)/tools/cc2538-bsl
 BSL_OPT = -e -w
 BSL_EXT = hex
 
-################################################################################
+###############################################################################
 
 .PHONY: jlink load debug bsl
 

@@ -1,7 +1,7 @@
-# 
+# Define the ENC28J60 path
 CONNECTIVITY_ENC28J60  = $(CONNECTIVITY_PATH)/enc28j60
 
-# Append to the include path
+# Append to the source and include paths
 SRC_PATH += -I $(CONNECTIVITY_ENC28J60)
 INC_PATH += -I $(CONNECTIVITY_ENC28J60)
 

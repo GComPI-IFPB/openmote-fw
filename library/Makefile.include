@@ -1,8 +1,8 @@
-# 
+# Define the Library path
 LIBRARY_SRC = $(LIBRARY_PATH)/$(TARGET)
 LIBRARY_INC = $(LIBRARY_PATH)/inc
 
-# Append to the include path
+# Append to the source and include paths
 SRC_PATH += -I $(LIBRARY_SRC)
 INC_PATH += -I $(LIBRARY_INC)
 
