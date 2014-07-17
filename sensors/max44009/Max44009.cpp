@@ -28,7 +28,7 @@
 
 /* REGISTER ADDRESSES */
 #define MAX44009_INT_STATUS_ADDR            ( 0x00 )    // R
-#define MAX44009_IN_ENABLE_ADDR             ( 0x01 )    // R/W
+#define MAX44009_INT_ENABLE_ADDR            ( 0x01 )    // R/W
 #define MAX44009_CONFIG_ADDR                ( 0x02 )    // R/W
 #define MAX44009_LUX_HIGH_ADDR              ( 0x03 )    // R
 #define MAX44009_LUX_LOW_ADDR               ( 0x04 )    // R
@@ -78,12 +78,54 @@ Max44009::Max44009(I2cDriver* i2c_, GpioIn* gpio_):
 
 bool Max44009::enable(void)
 {
-    return false;
+    uint8_t max44009_address[5] = {MAX44009_INT_ENABLE_ADDR, MAX44009_CONFIG_ADDR, \
+                                   MAX44009_THR_HIGH_ADDR, MAX44009_THR_LOW_ADDR, \
+                                   MAX44009_THR_TIMER_ADDR};
+    uint8_t max44009_value[5];
+    uint8_t max44009_data[2];
+    bool status;
+    
+    max44009_value[0] = (MAX44009_INT_STATUS_ON);
+    max44009_value[1] = (MAX44009_DEFAULT_CONFIGURATION);
+    max44009_value[2] = (0xFF);
+    max44009_value[3] = (0x00);
+    max44009_value[4] = (0xFF);
+    
+    for(uint8_t i = 0; i < sizeof(max44009_address); i++)
+    {
+        max44009_data[0] = max44009_value[i];
+        max44009_data[1] = max44009_data[i];
+        status = i2c->writeByte(MAX44009_ADDRESS, max44009_data, 2);
+        if (status == false)
+        {
+            return status;
+        }
+    }
+    
+    return true;
 }
 
 bool Max44009::reset(void)
 {
-    return false;
+    uint8_t max44009_address[5] = {MAX44009_INT_ENABLE_ADDR, MAX44009_CONFIG_ADDR, \
+                                   MAX44009_THR_HIGH_ADDR, MAX44009_THR_LOW_ADDR, \
+                                   MAX44009_THR_TIMER_ADDR};
+    uint8_t max44009_value[5] = {0x00, 0x03, 0xFF, 0x00, 0xFF};
+    uint8_t max44009_data[2];
+    bool status;
+    
+    for(uint8_t i = 0; i < sizeof(max44009_address); i++)
+    {
+        max44009_data[0] = max44009_value[i];
+        max44009_data[1] = max44009_data[i];
+        status = i2c->writeByte(MAX44009_ADDRESS, max44009_data, 2);
+        if (status == false)
+        {
+            return status;
+        }
+    }
+    
+    return true;
 }
 
 void Max44009::setCallback(callback_t callback)
