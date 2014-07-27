@@ -1,0 +1,14 @@
+.
+../../../board
+../../../connectivity/enc28j60
+../../../kernel/Drivers
+../../../kernel/FreeRTOS
+../../../library/cc2538
+../../../library/inc
+../../../platform/cc2538
+../../../platform/cc2538/inc
+../../../platform/cc2538/src
+../../../sensors
+../../../sensors/adxl346
+../../../sensors/sht21
+../../../sensors/max44009
