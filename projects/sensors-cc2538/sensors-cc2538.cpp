@@ -121,6 +121,8 @@ static void prvTemperatureTask(void *pvParameters)
 
     if (sht21.isPresent() == true)
     {
+        sht21.enable();
+        
     	while(true)
     	{
     	    led_orange.on();
@@ -151,6 +153,9 @@ static void prvLightTask(void *pvParameters)
 
     if (max44009.isPresent() == true)
     {
+        
+        max44009.enable();
+        
     	while(true)
     	{
         	led_orange.on();
