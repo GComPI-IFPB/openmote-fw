@@ -91,6 +91,8 @@ bool Max44009::enable(void)
     max44009_value[3] = (0x00);
     max44009_value[4] = (0xFF);
     
+    i2c->lock();
+    
     for(uint8_t i = 0; i < sizeof(max44009_address); i++)
     {
         max44009_data[0] = max44009_value[i];
@@ -98,9 +100,12 @@ bool Max44009::enable(void)
         status = i2c->writeByte(MAX44009_ADDRESS, max44009_data, 2);
         if (status == false)
         {
+            i2c->unlock();
             return status;
         }
     }
+    
+    i2c->unlock();
     
     return true;
 }
@@ -114,6 +119,8 @@ bool Max44009::reset(void)
     uint8_t max44009_data[2];
     bool status;
     
+    i2c->lock();
+    
     for(uint8_t i = 0; i < sizeof(max44009_address); i++)
     {
         max44009_data[0] = max44009_value[i];
@@ -121,10 +128,12 @@ bool Max44009::reset(void)
         status = i2c->writeByte(MAX44009_ADDRESS, max44009_data, 2);
         if (status == false)
         {
+            i2c->unlock();
             return status;
         }
     }
     
+    i2c->unlock();
     return true;
 }
 
