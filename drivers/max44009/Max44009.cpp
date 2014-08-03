@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       max44009.cpp
+ * @file       Max44009.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
