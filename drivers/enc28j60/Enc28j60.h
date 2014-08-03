@@ -13,3 +13,14 @@
  *
  */
 
+#include "SpiDriver.h"
+
+class Enc28j60
+{
+public:
+    Enc28j60(SpiDriver spi_);
+protected:
+
+private:
+    SpiDriver spi;
+};

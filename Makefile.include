@@ -63,13 +63,9 @@ LIBRARY_PATH = $(PROJECT_HOME)/$(LIBRARY_NAME)
 KERNEL_NAME = kernel
 KERNEL_PATH = $(PROJECT_HOME)/$(KERNEL_NAME)
 
-# Define the sensors subdirectory
-CONNECTIVITY_NAME = connectivity
-CONNECTIVITY_PATH = $(PROJECT_HOME)/$(CONNECTIVITY_NAME)
-
-# Define the sensors subdirectory
-SENSORS_NAME = sensors
-SENSORS_PATH = $(PROJECT_HOME)/$(SENSORS_NAME)
+# Define the drivers subdirectory
+DRIVERS_NAME = drivers
+DRIVERS_PATH = $(PROJECT_HOME)/$(DRIVERS_NAME)
 
 ###############################################################################
 
@@ -100,9 +96,8 @@ include $(PLATFORM_PATH)/Makefile.include
 
 # Decide if we need to include the kernel makefile
 ifeq ($(USE_LIBRARY), TRUE)
-	include $(CONNECTIVITY_PATH)/Makefile.include
 	include $(LIBRARY_PATH)/Makefile.include
-	include $(SENSORS_PATH)/Makefile.include
+	include $(DRIVERS_PATH)/Makefile.include
 endif
 
 # Decide if we need to include the kernel makefile
@@ -122,7 +117,6 @@ pre:
 	@mkdir -p $(BIN_PATH)
 
 build: $(BIN_TARGET)
-	
 
 post: $(PROJECT_NAME).hex $(PROJECT_NAME).bin
 	@echo "Building '$(PROJECT_NAME)' done."
