@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       Pwm.cpp
+ * @file       GpioPwm.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -15,7 +15,7 @@
 
 /**********************************include************************************/
 
-#include "Pwm.h"
+#include "GpioPwm.h"
 
 /**********************************defines************************************/
 
@@ -27,7 +27,8 @@
 
 /**********************************public*************************************/
 
-Pwm::Pwm()
+GpioPwm::GpioPwm(uint32_t port_, uint8_t pin_):
+    Gpio(port_, pin_)
 {
 }
 
