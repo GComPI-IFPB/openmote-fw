@@ -1,11 +1,15 @@
 ../FreeRTOSConfig.h
 ../cc2538_lowpower.c
-../tickless-cc2538.cpp
+../sensors-cc2538.cpp
 ../../../board/openmote-cc2538.h
 ../../../connectivity/enc28j60/Enc28j60.cpp
 ../../../connectivity/enc28j60/Enc28j60.h
 ../../../kernel/Drivers/I2cDriver.cpp
 ../../../kernel/Drivers/I2cDriver.h
+../../../kernel/Drivers/SpiDriver.cpp
+../../../kernel/Drivers/SpiDriver.h
+../../../kernel/Drivers/UartDriver.cpp
+../../../kernel/Drivers/UartDriver.h
 ../../../kernel/FreeRTOS/FreeRTOS.h
 ../../../kernel/FreeRTOS/StackMacros.h
 ../../../kernel/FreeRTOS/croutine.c
@@ -32,6 +36,7 @@
 ../../../kernel/FreeRTOS/timers.h
 ../../../library/cc2538/Board.cpp
 ../../../library/cc2538/Gpio.cpp
+../../../library/cc2538/GpioAdc.cpp
 ../../../library/cc2538/GpioIn.cpp
 ../../../library/cc2538/GpioInPow.cpp
 ../../../library/cc2538/GpioOut.cpp
@@ -45,6 +50,7 @@
 ../../../library/cc2538/Uart.cpp
 ../../../library/inc/Board.h
 ../../../library/inc/Gpio.h
+../../../library/inc/GpioAdc.h
 ../../../library/inc/GpioIn.h
 ../../../library/inc/GpioInPow.h
 ../../../library/inc/GpioOut.h
