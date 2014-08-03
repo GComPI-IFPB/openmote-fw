@@ -21,6 +21,7 @@ class GpioInPow;
 class I2c;
 class Radio;
 class Uart;
+class Spi;
 
 class InterruptHandler {
 
@@ -29,6 +30,7 @@ public:
     static void registerInterruptHandler(GpioIn* gpio_);
     static void registerInterruptHandler(Uart* uart_);
     static void registerInterruptHandler(I2c* i2c_);
+    static void registerInterruptHandler(Spi* spi_);
     static void registerInterruptHandler(Radio* radio_);
 protected:
     static inline void GPIOA_InterruptHandler(void);
@@ -38,6 +40,8 @@ protected:
     static inline void UART0_InterruptHandler(void);
     static inline void UART1_InterruptHandler(void);
     static inline void I2C_InterruptHandler(void);
+    static inline void SPI0_InterruptHandler(void);
+    static inline void SPI1_InterruptHandler(void);
     static inline void RFCore_InterruptHandler(void);
     static inline void RFError_InterruptHandler(void);
 private:
@@ -50,7 +54,9 @@ private:
     static GpioIn* GPIOD_interruptVector[8];
     static Uart* UART0_interruptVector;
     static Uart* UART1_interruptVector;
-    static I2c*  I2c_interruptVector;
+    static I2c*  I2C_interruptVector;
+    static Spi*  SPI0_interruptVector;
+    static Spi*  SPI1_interruptVector;
     static Radio* Radio_interruptVector;
 };
 

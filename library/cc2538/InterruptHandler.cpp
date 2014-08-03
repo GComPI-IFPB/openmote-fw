@@ -20,6 +20,7 @@
 #include "InterruptHandler.h"
 #include "Uart.h"
 #include "I2c.h"
+#include "Spi.h"
 #include "Radio.h"
 
 #include "interrupt.h"
@@ -27,6 +28,7 @@
 #include "uart.h"
 #include "i2c.h"
 #include "ioc.h"
+#include "ssi.h"
 
 #include "hw_ints.h"
 #include "hw_memmap.h"
@@ -50,7 +52,10 @@ GpioIn* InterruptHandler::GPIOD_interruptVector[8];
 Uart* InterruptHandler::UART0_interruptVector;
 Uart* InterruptHandler::UART1_interruptVector;
 
-I2c* InterruptHandler::I2c_interruptVector;
+I2c* InterruptHandler::I2C_interruptVector;
+
+Spi* InterruptHandler::SPI0_interruptVector;
+Spi* InterruptHandler::SPI1_interruptVector;
 
 Radio* InterruptHandler::Radio_interruptVector;
 
@@ -71,30 +76,51 @@ void InterruptHandler::registerInterruptHandler(GpioIn * gpio_)
     // Select the pin number
     if (pin_ == GPIO_PIN_0) {
         pin_ = 0;
-    } else if (pin_ == GPIO_PIN_1) {
+    }
+    else if (pin_ == GPIO_PIN_1)
+    {
         pin_ = 1;
-    } else if (pin_ == GPIO_PIN_2) {
+    }
+    else if (pin_ == GPIO_PIN_2)
+    {
         pin_ = 2;
-    } else if (pin_ == GPIO_PIN_3) {
+    }
+    else if (pin_ == GPIO_PIN_3)
+    {
         pin_ = 3;
-    } else if (pin_ == GPIO_PIN_4) {
+    }
+    else if (pin_ == GPIO_PIN_4)
+    {
         pin_ = 4;
-    } else if (pin_ == GPIO_PIN_5) {
+    }
+    else if (pin_ == GPIO_PIN_5)
+    {
         pin_ = 5;
-    } else if (pin_ == GPIO_PIN_6) {
+    }
+    else if (pin_ == GPIO_PIN_6)
+    {
         pin_ = 6;
-    } else if (pin_ == GPIO_PIN_7) {
+    }
+    else if (pin_ == GPIO_PIN_7)
+    {
         pin_ = 7;
     }
 
     // Store a pointer to the GPIO object in the interrupt vector
-    if (port_ == GPIO_A_BASE) {
+    if (port_ == GPIO_A_BASE)
+    {
         GPIOA_interruptVector[pin_] = gpio_;
-    } else if (port_ == GPIO_B_BASE) {
+    }
+    else if (port_ == GPIO_B_BASE)
+    {
         GPIOB_interruptVector[pin_] = gpio_;
-    } else if (port_ == GPIO_C_BASE) {
+    }
+    else if (port_ == GPIO_C_BASE)
+    {
         GPIOC_interruptVector[pin_] = gpio_;
-    } else if (port_ == GPIO_D_BASE) {
+    }
+    else if (port_ == GPIO_D_BASE)
+    {
         GPIOD_interruptVector[pin_] = gpio_;
     }   
 }
@@ -105,9 +131,12 @@ void InterruptHandler::registerInterruptHandler(Uart * uart_)
     uint32_t base = uart_->getBase();
 
     // Store a pointer to the UART object in the interrupt vector
-    if (base == UART0_BASE) {
+    if (base == UART0_BASE)
+    {
         UART0_interruptVector = uart_;
-    } else if (base == UART1_BASE) {
+    }
+    else if (base == UART1_BASE)
+    {
         UART1_interruptVector = uart_;
     }
 }
@@ -115,7 +144,23 @@ void InterruptHandler::registerInterruptHandler(Uart * uart_)
 void InterruptHandler::registerInterruptHandler(I2c * i2c_)
 {
     // Store a pointer to the I2C object in the interrupt vector
-    I2c_interruptVector = i2c_;
+    I2C_interruptVector = i2c_;
+}
+
+void InterruptHandler::registerInterruptHandler(Spi * spi_)
+{
+    // Get the UART base
+    uint32_t base = spi_->getBase();
+
+    // Store a pointer to the UART object in the interrupt vector
+    if (base == SSI0_BASE)
+    {
+        SPI0_interruptVector = spi_;
+    }
+    else if (base == SSI1_BASE)
+    {
+        SPI1_interruptVector = spi_;
+    }
 }
 
 void InterruptHandler::registerInterruptHandler(Radio * radio_)
@@ -135,13 +180,13 @@ inline void InterruptHandler::GPIOA_InterruptHandler(void)
     uint32_t pow_status = GPIOPowIntStatus(GPIO_A_BASE, true);
     
     // Clear the regular GPIO interrupt status
-    if(pin_status)
+    if (pin_status)
     {
         GPIOPinIntClear(GPIO_A_BASE, pin_status);
     }
     
     // Clear the power GPIO interrupt status
-    if(pow_status)
+    if (pow_status)
     {
         GPIOPowIntClear(GPIO_A_BASE, pow_status);
     }
@@ -150,28 +195,36 @@ inline void InterruptHandler::GPIOA_InterruptHandler(void)
     status = pin_status | pow_status;
     
     // Call all the GPIO interrupt handlers
-    if (status & GPIO_PIN_0) {
+    if (status & GPIO_PIN_0)
+    {
         GPIOA_interruptVector[0]->interruptHandler();
     }
-    if (status & GPIO_PIN_1) {
+    if (status & GPIO_PIN_1)
+    {
         GPIOA_interruptVector[1]->interruptHandler();
     }
-    if (status & GPIO_PIN_2) {
+    if (status & GPIO_PIN_2)
+    {
         GPIOA_interruptVector[2]->interruptHandler();    
     }
-    if (status & GPIO_PIN_3) {
+    if (status & GPIO_PIN_3)
+    {
         GPIOA_interruptVector[3]->interruptHandler();    
     }
-    if (status & GPIO_PIN_4) {
+    if (status & GPIO_PIN_4)
+    {
         GPIOA_interruptVector[4]->interruptHandler();    
     }
-    if (status & GPIO_PIN_5) {
+    if (status & GPIO_PIN_5)
+    {
         GPIOA_interruptVector[5]->interruptHandler();    
     }
-    if (status & GPIO_PIN_6) {
+    if (status & GPIO_PIN_6)
+    {
         GPIOA_interruptVector[6]->interruptHandler();    
     }
-    if (status & GPIO_PIN_7) {
+    if (status & GPIO_PIN_7)
+    {
         GPIOA_interruptVector[7]->interruptHandler();
     }
 }
@@ -185,13 +238,13 @@ inline void InterruptHandler::GPIOB_InterruptHandler(void)
     uint32_t pow_status = GPIOPowIntStatus(GPIO_B_BASE, true);
     
     // Clear the regular GPIO interrupt status
-    if(pin_status)
+    if (pin_status)
     {
         GPIOPinIntClear(GPIO_B_BASE, pin_status);
     }
     
     // Clear the power GPIO interrupt status
-    if(pow_status)
+    if (pow_status)
     {
         GPIOPowIntClear(GPIO_B_BASE, pow_status);
     }
@@ -200,28 +253,36 @@ inline void InterruptHandler::GPIOB_InterruptHandler(void)
     status = pin_status | pow_status;
     
     // Call all the GPIO interrupt handlers
-    if (status & GPIO_PIN_0) {
+    if (status & GPIO_PIN_0)
+    {
         GPIOB_interruptVector[0]->interruptHandler();
     }
-    if (status & GPIO_PIN_1) {
+    if (status & GPIO_PIN_1)
+    {
         GPIOB_interruptVector[1]->interruptHandler();
     }
-    if (status & GPIO_PIN_2) {
+    if (status & GPIO_PIN_2)
+    {
         GPIOB_interruptVector[2]->interruptHandler();
     }
-    if (status & GPIO_PIN_3) {
+    if (status & GPIO_PIN_3)
+    {
         GPIOB_interruptVector[3]->interruptHandler();
     }
-    if (status & GPIO_PIN_4) {
+    if (status & GPIO_PIN_4)
+    {
         GPIOB_interruptVector[4]->interruptHandler();
     }
-    if (status & GPIO_PIN_5) {
+    if (status & GPIO_PIN_5)
+    {
         GPIOB_interruptVector[5]->interruptHandler();
     }
-    if (status & GPIO_PIN_6) {
+    if (status & GPIO_PIN_6)
+    {
         GPIOB_interruptVector[6]->interruptHandler();
     }
-    if (status & GPIO_PIN_7) {
+    if (status & GPIO_PIN_7)
+    {
         GPIOB_interruptVector[7]->interruptHandler();
     }
 }
@@ -235,13 +296,13 @@ inline void InterruptHandler::GPIOC_InterruptHandler(void)
     uint32_t pow_status = GPIOPowIntStatus(GPIO_C_BASE, true);
     
     // Clear the regular GPIO interrupt status
-    if(pin_status)
+    if (pin_status)
     {
         GPIOPinIntClear(GPIO_C_BASE, pin_status);
     }
     
     // Clear the power GPIO interrupt status
-    if(pow_status)
+    if (pow_status)
     {
         GPIOPowIntClear(GPIO_C_BASE, pow_status);
     }
@@ -250,28 +311,36 @@ inline void InterruptHandler::GPIOC_InterruptHandler(void)
     status = pin_status | pow_status;
     
     // Call all the GPIO interrupt handlers
-    if (status & GPIO_PIN_0) {
+    if (status & GPIO_PIN_0)
+    {
         GPIOC_interruptVector[0]->interruptHandler();
     }
-    if (status & GPIO_PIN_1) {
+    if (status & GPIO_PIN_1)
+    {
         GPIOC_interruptVector[1]->interruptHandler();
     }
-    if (status & GPIO_PIN_2) {
+    if (status & GPIO_PIN_2)
+    {
         GPIOC_interruptVector[2]->interruptHandler();
     }
-    if (status & GPIO_PIN_3) {
+    if (status & GPIO_PIN_3)
+    {
         GPIOC_interruptVector[3]->interruptHandler();
     }
-    if (status & GPIO_PIN_4) {
+    if (status & GPIO_PIN_4)
+    {
         GPIOC_interruptVector[4]->interruptHandler();
     }
-    if (status & GPIO_PIN_5) {
+    if (status & GPIO_PIN_5)
+    {
         GPIOC_interruptVector[5]->interruptHandler();
     }
-    if (status & GPIO_PIN_6) {
+    if (status & GPIO_PIN_6)
+    {
         GPIOC_interruptVector[6]->interruptHandler();
     }
-    if (status & GPIO_PIN_7) {
+    if (status & GPIO_PIN_7)
+    {
         GPIOC_interruptVector[7]->interruptHandler();
     }
 }
@@ -285,13 +354,13 @@ inline void InterruptHandler::GPIOD_InterruptHandler(void)
     uint32_t pow_status = GPIOPowIntStatus(GPIO_D_BASE, true);
     
     // Clear the regular GPIO interrupt status
-    if(pin_status)
+    if (pin_status)
     {
         GPIOPinIntClear(GPIO_D_BASE, pin_status);
     }
     
     // Clear the power GPIO interrupt status
-    if(pow_status)
+    if (pow_status)
     {
         GPIOPowIntClear(GPIO_D_BASE, pow_status);
     }
@@ -300,32 +369,39 @@ inline void InterruptHandler::GPIOD_InterruptHandler(void)
     status = pin_status | pow_status;
     
     // Call all the GPIO interrupt handlers
-    if (status & GPIO_PIN_0) {
+    if (status & GPIO_PIN_0)
+    {
         GPIOD_interruptVector[0]->interruptHandler();
     }
-    if (status & GPIO_PIN_1) {
+    if (status & GPIO_PIN_1)
+    {
         GPIOD_interruptVector[1]->interruptHandler();
     }
-    if (status & GPIO_PIN_2) {
+    if (status & GPIO_PIN_2)
+    {
         GPIOD_interruptVector[2]->interruptHandler();
     }
-    if (status & GPIO_PIN_3) {
+    if (status & GPIO_PIN_3)
+    {
         GPIOD_interruptVector[3]->interruptHandler();
     }
-    if (status & GPIO_PIN_4) {
+    if (status & GPIO_PIN_4)
+    {
         GPIOD_interruptVector[4]->interruptHandler();
     }
-    if (status & GPIO_PIN_5) {
+    if (status & GPIO_PIN_5)
+    {
         GPIOD_interruptVector[5]->interruptHandler();
     }
-    if (status & GPIO_PIN_6) {
+    if (status & GPIO_PIN_6)
+    {
         GPIOD_interruptVector[6]->interruptHandler();
     }
-    if (status & GPIO_PIN_7) {
+    if (status & GPIO_PIN_7)
+    {
         GPIOD_interruptVector[7]->interruptHandler();
     }
 }
-
 
 inline void InterruptHandler::UART0_InterruptHandler(void)
 {
@@ -342,7 +418,19 @@ inline void InterruptHandler::UART1_InterruptHandler(void)
 inline void InterruptHandler::I2C_InterruptHandler(void)
 {
     // Call the I2C interrupt handler
-    I2c_interruptVector->interruptHandler();
+    I2C_interruptVector->interruptHandler();
+}
+
+inline void InterruptHandler::SPI0_InterruptHandler(void)
+{
+    // Call the SPI interrupt handler
+    SPI0_interruptVector->interruptHandler();
+}
+
+inline void InterruptHandler::SPI1_InterruptHandler(void)
+{
+    // Call the SPI interrupt handler
+    SPI1_interruptVector->interruptHandler();
 }
 
 inline void InterruptHandler::RFCore_InterruptHandler(void)
@@ -374,8 +462,11 @@ InterruptHandler::InterruptHandler()
     // Register the I2C interrupt handler
     I2CIntRegister(I2C_InterruptHandler);
 
+    // Register the SPI interrupt handler
+    SSIIntRegister(SSI0_BASE, SPI0_InterruptHandler);
+    SSIIntRegister(SSI1_BASE, SPI1_InterruptHandler);
+
     // Register the RF CORE and ERROR interrupt handlers    
     IntRegister(INT_RFCORERTX, RFCore_InterruptHandler);
     IntRegister(INT_RFCOREERR, RFError_InterruptHandler);
 }
-

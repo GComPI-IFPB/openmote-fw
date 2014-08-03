@@ -24,6 +24,8 @@
 #include "ioc.h"
 #include "sys_ctrl.h"
 #include "uart.h"
+#include "ssi.h"
+#include "gptimer.h"
 
 #include "hw_gpio.h"
 #include "hw_ints.h"
@@ -35,9 +37,10 @@
 #include "GpioIn.h"
 #include "GpioInPow.h"
 #include "GpioOut.h"
-#include "Uart.h"
 
 #include "I2cDriver.h"
+#include "SpiDriver.h"
+#include "UartDriver.h"
 
 #include "Adxl346.h"
 #include "Max44009.h"
@@ -96,6 +99,29 @@
 #define UART_CONFIG             ( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE )
 #define UART_INT_MODE           ( UART_TXINT_MODE_EOT ) 
 
+#define SPI_PERIPHERAL          ( SYS_CTRL_PERIPH_SSI0 )
+#define SPI_BASE                ( SSI0_BASE )
+#define SPI_CLOCK               ( SSI_CLOCK_PIOSC )
+#define SPI_MISO_BASE           ( GPIO_A_BASE )
+#define SPI_MISO_PIN            ( GPIO_PIN_5 )
+#define SPI_MOSI_BASE           ( GPIO_A_BASE )
+#define SPI_MOSI_PIN            ( GPIO_PIN_4 )
+#define SPI_nCS_BASE            ( GPIO_A_BASE )
+#define SPI_nCS_PIN             ( GPIO_PIN_3 )
+#define SPI_CLK_BASE            ( GPIO_A_BASE )
+#define SPI_CLK_PIN             ( GPIO_PIN_2 )
+#define SPI_MODE                ( SSI_MODE_MASTER )
+#define SPI_PROTOCOL            ( SSI_FRF_MOTO_MODE_3 )
+#define SPI_DATAWIDTH           ( 8 )
+#define SPI_BAUDRATE            (  )
+#define SPI_CONFIG              (  )
+
+#define TIMER_PERIPHERAL        ( GPTIMER0_BASE )
+#define TIMER_MODE              ( GPTIMER_BOTH )
+#define TIMER_SPLIT             ( GPTIMER_CFG_SPLIT_PAIR )
+#define TIMER_SHOT              ( GPTIMER_CFG_A_ONE_SHOT )
+#define TIMER_COUNT
+
 #define I2C_PERIPHERAL          ( SYS_CTRL_PERIPH_I2C )
 #define I2C_BASE                ( GPIO_B_BASE )
 #define I2C_SCL                 ( GPIO_PIN_3 )
@@ -106,9 +132,13 @@
 #define ADXL346_INT_PIN         ( GPIO_PIN_5 )
 #define ADXL346_INT_EDGE        ( GPIO_FALLING_EDGE )
 
-#define MAX44009_INT_PORT       ( GPIO_B_BASE)
+#define MAX44009_INT_PORT       ( GPIO_B_BASE )
 #define MAX44009_INT_PIN        ( GPIO_PIN_2 )
 #define MAX44009_INT_EDGE       ( GPIO_FALLING_EDGE )
+
+#define ENC28J60_INT_PORT       ( GPIO_B_BASE )
+#define ENC28J60_INT_PIN        ( GPIO_PIN_2 )
+#define ENC28J60_INT_EDGE       ( GPIO_FALLING_EDGE )
 
 /*================================ typedef ==================================*/
 
@@ -131,13 +161,19 @@ GpioOut led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
 
 GpioInPow button_user(BUTTON_USER_PORT, BUTTON_USER_PIN, BUTTON_USER_EDGE);
 
-Gpio uart_rx(UART_RX_PORT, UART_RX_PIN);
-Gpio uart_tx(UART_TX_PORT, UART_TX_PIN);
-Uart uart(UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INTERRUPT, &uart_rx, UART_RX_IOC, &uart_tx, UART_TX_IOC );
-
 Gpio i2c_scl(I2C_BASE, I2C_SCL);
 Gpio i2c_sda(I2C_BASE, I2C_SDA);
 I2cDriver i2c(I2C_PERIPHERAL, &i2c_scl, &i2c_sda);
+
+Gpio spi_miso(SPI_MISO_BASE, SPI_MISO_PIN);
+Gpio spi_mosi(SPI_MOSI_BASE, SPI_MOSI_PIN);
+Gpio spi_clk(SPI_CLK_BASE, SPI_CLK_PIN);
+Gpio spi_ncs(SPI_nCS_BASE, SPI_nCS_PIN);
+SpiDriver spi(SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, &spi_miso, &spi_mosi, &spi_clk, &spi_ncs);
+
+Gpio uart_rx(UART_RX_PORT, UART_RX_PIN);
+Gpio uart_tx(UART_TX_PORT, UART_TX_PIN);
+UartDriver uart(UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INTERRUPT, &uart_rx, UART_RX_IOC, &uart_tx, UART_TX_IOC );
 
 GpioInPow adxl346_int(ADXL346_INT_PORT, ADXL346_INT_PIN, ADXL346_INT_EDGE);
 Adxl346 adxl346(&i2c, &adxl346_int);

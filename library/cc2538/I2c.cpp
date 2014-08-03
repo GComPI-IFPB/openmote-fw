@@ -50,25 +50,30 @@ void I2c::enable(uint32_t clock_)
     
     clock = clock_;
     
+    // Enable peripheral except in sleep and deep sleep modes
     SysCtrlPeripheralEnable(peripheral);
     SysCtrlPeripheralSleepDisable(peripheral);
     SysCtrlPeripheralDeepSleepDisable(peripheral);
     
+    // Reset peripheral previous to configuring it
     SysCtrlPeripheralReset(peripheral);
 
+    // Configure the SCL pin
     GPIOPinTypeI2C(scl->getPort(), scl->getPin());
     IOCPinConfigPeriphInput(scl->getPort(), scl->getPin(), IOC_I2CMSSCL);
     IOCPinConfigPeriphOutput(scl->getPort(), scl->getPin(), IOC_MUX_OUT_SEL_I2C_CMSSCL);
 
+    // Configure the SDA pin
     GPIOPinTypeI2C(sda->getPort(), sda->getPin());    
     IOCPinConfigPeriphInput(sda->getPort(), sda->getPin(), IOC_I2CMSSDA);
     IOCPinConfigPeriphOutput(sda->getPort(), sda->getPin(), IOC_MUX_OUT_SEL_I2C_CMSSDA);
     
+    // Configure the I2C clock
     status = (clock == 400000 ? true : false);
-    
-    I2CMasterEnable();
-
     I2CMasterInitExpClk(SysCtrlClockGet(), status);
+
+    // Enable the I2C module as master
+    I2CMasterEnable();
 }
 
 void I2c::sleep(void)
@@ -84,27 +89,7 @@ void I2c::sleep(void)
 
 void I2c::wakeup(void)
 {
-    bool status;
-    
-    SysCtrlPeripheralEnable(peripheral);
-    SysCtrlPeripheralSleepDisable(peripheral);
-    SysCtrlPeripheralDeepSleepDisable(peripheral);
-    
-    SysCtrlPeripheralReset(peripheral);
-
-    GPIOPinTypeI2C(scl->getPort(), scl->getPin());
-    IOCPinConfigPeriphInput(scl->getPort(), scl->getPin(), IOC_I2CMSSCL);
-    IOCPinConfigPeriphOutput(scl->getPort(), scl->getPin(), IOC_MUX_OUT_SEL_I2C_CMSSCL);
-
-    GPIOPinTypeI2C(sda->getPort(), sda->getPin());    
-    IOCPinConfigPeriphInput(sda->getPort(), sda->getPin(), IOC_I2CMSSDA);
-    IOCPinConfigPeriphOutput(sda->getPort(), sda->getPin(), IOC_MUX_OUT_SEL_I2C_CMSSDA);
-    
-    status = (clock == 400000 ? true : false);
-    
-    I2CMasterEnable();
-
-    I2CMasterInitExpClk(SysCtrlClockGet(), status);
+    enable(clock);
 }
 
 bool I2c::readByte(uint8_t address_, uint8_t * buffer)

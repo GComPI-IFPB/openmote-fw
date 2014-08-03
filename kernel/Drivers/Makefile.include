@@ -1,2 +1,2 @@
 # Append to the files to compile
-SRC_FILES += I2cDriver.cpp
+SRC_FILES += I2cDriver.cpp SpiDriver.cpp UartDriver.cpp
