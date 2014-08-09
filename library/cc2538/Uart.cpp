@@ -38,23 +38,9 @@
 
 /**********************************public*************************************/
 
-Uart::Uart(uint32_t peripheral_, uint32_t base_, uint32_t clock_, uint32_t interrupt_, Gpio * rx_, uint32_t rx_ioc_, Gpio * tx_, uint32_t tx_ioc_):
+Uart::Uart(uint32_t peripheral_, uint32_t base_, uint32_t clock_, uint32_t interrupt_, GpioUart * rx_, GpioUart * tx_):
     peripheral(peripheral_), base(base_), clock(clock_), interrupt(interrupt_), rx(rx_), tx(tx_)
 {
-    // Configure the UART RX pin
-    IOCPinConfigPeriphInput(rx->getPort(), rx->getPin(), rx_ioc_);
-    GPIOPinTypeUARTInput(rx->getPort(), rx->getPin());
-
-    // Configure the UART TX pin    
-    IOCPinConfigPeriphOutput(tx->getPort(), tx->getPin(), tx_ioc_);
-    GPIOPinTypeUARTOutput(tx->getPort(), tx->getPin());
-
-    // Enable and reset the UART peripheral
-    SysCtrlPeripheralEnable(peripheral);
-    SysCtrlPeripheralReset(peripheral);
-
-    // Set IO clock as UART clock source
-    UARTClockSourceSet(base, clock);
 }
 
 uint32_t Uart::getBase(void)
@@ -69,17 +55,50 @@ void Uart::enable(uint32_t baudrate_, uint32_t config_, uint32_t mode_)
     config   = config_;
     mode     = mode_;
     
+    // Enable peripheral except in sleep and deep sleep modes
+    SysCtrlPeripheralEnable(peripheral);
+    SysCtrlPeripheralSleepDisable(peripheral);
+    SysCtrlPeripheralDeepSleepDisable(peripheral);
+
+    // Reset peripheral previous to configuring it
+    UARTDisable(peripheral);
+
+    // Set IO clock as UART clock source
+    UARTClockSourceSet(base, clock);
+
+    // Configure the UART RX and TX pins
+    IOCPinConfigPeriphInput(rx->getPort(), rx->getPin(), rx->getIoc());
+    IOCPinConfigPeriphOutput(tx->getPort(), tx->getPin(), tx->getIoc());
+
+    // Configure the UART GPIOs
+    GPIOPinTypeUARTInput(rx->getPort(), rx->getPin());
+    GPIOPinTypeUARTOutput(tx->getPort(), tx->getPin());
+
     // Configure the UART
     UARTConfigSetExpClk(base, SysCtrlIOClockGet(), baudrate, config);
-
-    // Enable UART hardware
-    UARTEnable(base);
 
     // Disable FIFO as we only use a one-byte buffer
     UARTFIFODisable(base);
 
     // Raise an interrupt at the end of transmission
     UARTTxIntModeSet(base, mode);
+
+    // Enable UART hardware
+    UARTEnable(base);
+}
+
+void Uart::sleep(void)
+{
+    GPIOPinTypeGPIOOutput(rx->getPort(), rx->getPin());
+    GPIOPinTypeGPIOOutput(tx->getPort(), tx->getPin());
+
+    GPIOPinWrite(rx->getPort(), rx->getPin(), 0);
+    GPIOPinWrite(tx->getPort(), tx->getPin(), 0);
+}
+
+void Uart::wakeup(void)
+{
+    enable(baudrate, config, mode);
 }
 
 void Uart::setRxCallback(callback_t callback_)
@@ -90,30 +109,6 @@ void Uart::setRxCallback(callback_t callback_)
 void Uart::setTxCallback(callback_t callback_)
 {
     tx_callback = callback_;
-}
-
-uint8_t Uart::readByte(void)
-{
-    int32_t byte;
-    byte = UARTCharGet(base);
-	return (uint8_t)(byte & 0xFF);
-}
-
-uint8_t Uart::readByte(uint8_t * buffer, uint8_t len)
-{
-    return 0;
-}
-
-void Uart::writeByte(uint8_t byte)
-{
-    UARTCharPut(base, byte);
-}
-
-void Uart::writeByte(uint8_t * buffer, uint8_t len)
-{
-    while(len--) {
-        writeByte(*buffer++);
-    }
 }
 
 void Uart::interruptEnable(void)
@@ -129,9 +124,49 @@ void Uart::interruptDisable(void)
 {
     // Disable the UART RX and TX interrupts
     UARTIntDisable(base, UART_INT_RX | UART_INT_TX);
-    
+
     // Disable the UART interrupt
     IntDisable(interrupt);
+}
+
+uint8_t Uart::readByte(void)
+{
+    int32_t byte;
+    byte = UARTCharGet(base);
+	return (uint8_t)(byte & 0xFF);
+}
+
+uint8_t Uart::readByte(uint8_t * buffer, uint8_t length)
+{
+    uint32_t data;
+    for (uint32_t i = 0; i < length; i++)
+    {
+        data = UARTCharGet(base);
+        *buffer++ = (uint8_t) data;
+    }
+
+    // Wait until it is complete
+    while(UARTBusy(base))
+        ;
+
+    return 0;
+}
+
+void Uart::writeByte(uint8_t byte)
+{
+    UARTCharPut(base, byte);
+}
+
+void Uart::writeByte(uint8_t * buffer, uint8_t length)
+{
+    for (uint32_t i = 0; i < length; i++)
+    {
+        UARTCharPut(base, *buffer++);
+    }
+
+    // Wait until it is complete
+    while(UARTBusy(base))
+        ;
 }
 
 /*********************************protected***********************************/

@@ -13,6 +13,9 @@
  *
  */
 
+#ifndef UART_DRIVER_H_
+#define UART_DRIVER_H_
+
 #include "Uart.h"
 
 #include "FreeRTOS.h"
@@ -24,10 +27,11 @@ class UartDriver : public Uart
 
 public:
     UartDriver(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
-               uint32_t interrupt_, Gpio * rx_, uint32_t rx_ioc_,\
-               Gpio * tx_, uint32_t tx_ioc_);
+               uint32_t interrupt_, GpioUart * rx_, GpioUart * tx_);
     void lock(void);
     void unlock(void);
 private:
     SemaphoreHandle_t xMutex;
 };
+
+#endif /* UART_DRIVER_H_ */

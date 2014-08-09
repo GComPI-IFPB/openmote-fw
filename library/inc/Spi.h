@@ -31,7 +31,7 @@ friend class InterruptHandler;
 
 public:
     Spi(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
-        Gpio* miso_, Gpio* mosi_, Gpio* clk_, Gpio* ncs_);
+        GpioSpi* miso_, GpioSpi* mosi_, GpioSpi* clk_, GpioSpi* ncs_);
     uint32_t getBase(void);
     void enable(uint32_t mode_, uint32_t protocol_, uint32_t datawidth_, uint32_t baudrate_);
     void sleep(void);
@@ -49,17 +49,17 @@ protected:
 private:
     uint32_t peripheral;
     uint32_t base;
-    uint32_t interrupt;
     uint32_t clock;
+    uint32_t interrupt;
     uint32_t mode;
     uint32_t protocol;
     uint32_t baudrate;
     uint32_t datawidth;
 
-    Gpio* miso;
-    Gpio* mosi;
-    Gpio* clk;
-    Gpio* ncs;
+    GpioSpi* miso;
+    GpioSpi* mosi;
+    GpioSpi* clk;
+    GpioSpi* ncs;
 
     callback_t rx_callback = nullptr;
     callback_t tx_callback = nullptr;

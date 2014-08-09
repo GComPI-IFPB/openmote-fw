@@ -18,28 +18,19 @@
 #include "Spi.h"
 
 #include "gpio.h"
+#include "interrupt.h"
 #include "ioc.h"
 #include "sys_ctrl.h"
 #include "ssi.h"
-#include "interrupt.h"
 
 #include "hw_ioc.h"
 #include "hw_ints.h"
-#include "hw_memmap.h"
 #include "hw_types.h"
 #include "hw_ssi.h"
 
 /**********************************defines************************************/
 
-#define EXAMPLE_PIN_SSI_CLK             GPIO_PIN_2
-#define EXAMPLE_PIN_SSI_FSS             GPIO_PIN_3
-#define EXAMPLE_PIN_SSI_RX              GPIO_PIN_4
-#define EXAMPLE_PIN_SSI_TX              GPIO_PIN_5
-#define EXAMPLE_GPIO_SSI_BASE           GPIO_A_BASE
 
-#define EXAMPLE_PIN_UART_RXD            GPIO_PIN_0
-#define EXAMPLE_PIN_UART_TXD            GPIO_PIN_1
-#define EXAMPLE_GPIO_UART_BASE          GPIO_A_BASE
 
 /*********************************variables***********************************/
 
@@ -48,7 +39,7 @@
 /**********************************public*************************************/
 
 Spi::Spi(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
-         Gpio* miso_, Gpio* mosi_, Gpio* clk_, Gpio* ncs_):
+         GpioSpi* miso_, GpioSpi* mosi_, GpioSpi* clk_, GpioSpi* ncs_):
         peripheral(peripheral_), base(base_), clock(clock_), \
         miso(miso_), mosi(mosi_), clk(clk_), ncs(ncs_)
 {
@@ -61,6 +52,7 @@ uint32_t Spi::getBase(void)
 
 void Spi::enable(uint32_t mode_, uint32_t protocol_, uint32_t datawidth_, uint32_t baudrate_)
 {
+    // Store SPI mode, protoco, baudrate and datawidth
     mode = mode_;
     protocol = protocol_;
     baudrate = baudrate_;
@@ -78,10 +70,10 @@ void Spi::enable(uint32_t mode_, uint32_t protocol_, uint32_t datawidth_, uint32
     SSIClockSourceSet(base, clock);
 
     // Configure the CLK, nCS, MOSI and MISO pins
-    IOCPinConfigPeriphInput(miso->getPort(), miso->getPin(), IOC_SSIRXD_SSI0);
-    IOCPinConfigPeriphOutput(mosi->getPort(), mosi->getPin(), IOC_MUX_OUT_SEL_SSI0_TXD);
-    IOCPinConfigPeriphOutput(clk->getPort(), clk->getPin(), IOC_MUX_OUT_SEL_SSI0_CLKOUT);
-    IOCPinConfigPeriphOutput(ncs->getPort(), ncs->getPin(), IOC_MUX_OUT_SEL_SSI0_FSSOUT);
+    IOCPinConfigPeriphInput(miso->getPort(), miso->getPin(), miso->getIoc());
+    IOCPinConfigPeriphOutput(mosi->getPort(), mosi->getPin(), mosi->getIoc());
+    IOCPinConfigPeriphOutput(clk->getPort(), clk->getPin(), clk->getIoc());
+    IOCPinConfigPeriphOutput(ncs->getPort(), ncs->getPin(), ncs->getIoc());
 
     // Configure SPI0 GPIOs
     GPIOPinTypeSSI(miso->getPort(), miso->getPin());

@@ -1,3 +1,3 @@
 # Append to the files to compile
-SRC_FILES += Board.cpp InterruptHandler.cpp Gpio.cpp GpioAdc.cpp GpioIn.cpp GpioInPow.cpp \
+SRC_FILES += Board.cpp InterruptHandler.cpp GpioAdc.cpp GpioIn.cpp GpioInPow.cpp \
              GpioOut.cpp Uart.cpp I2c.cpp Spi.cpp Timer.cpp GpioPwm.cpp Radio.cpp

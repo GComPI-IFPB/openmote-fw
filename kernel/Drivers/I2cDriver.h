@@ -13,6 +13,9 @@
  *
  */
 
+#ifndef I2C_DRIVER_H_
+#define I2C_DRIVER_H_
+
 #include "I2c.h"
 
 #include "FreeRTOS.h"
@@ -23,9 +26,11 @@ class I2cDriver : public I2c
 {
 
 public:
-    I2cDriver(uint32_t peripheral_, Gpio* scl_, Gpio* sda_);
+    I2cDriver(uint32_t peripheral_, GpioI2c* scl_, GpioI2c* sda_);
     void lock(void);
     void unlock(void);
 private:
     SemaphoreHandle_t xMutex;
 };
+
+#endif /* I2C_DRIVER_H_ */

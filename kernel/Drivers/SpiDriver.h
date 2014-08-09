@@ -27,7 +27,7 @@ class SpiDriver : public Spi
 
 public:
     SpiDriver(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
-         Gpio* miso_, Gpio* mosi_, Gpio* clk_, Gpio* ncs_);
+         GpioSpi* miso_, GpioSpi* mosi_, GpioSpi* clk_, GpioSpi* ncs_);
     void lock(void);
     void unlock(void);
 private:

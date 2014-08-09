@@ -107,14 +107,19 @@
 #define SPI_PERIPHERAL          ( SYS_CTRL_PERIPH_SSI0 )
 #define SPI_BASE                ( SSI0_BASE )
 #define SPI_CLOCK               ( SSI_CLOCK_PIOSC )
+#define SPI_INTERRUPT           ( INT_SSI0 )
 #define SPI_MISO_BASE           ( GPIO_A_BASE )
 #define SPI_MISO_PIN            ( GPIO_PIN_5 )
+#define SPI_MISO_IOC            ( IOC_SSIRXD_SSI0 )
 #define SPI_MOSI_BASE           ( GPIO_A_BASE )
 #define SPI_MOSI_PIN            ( GPIO_PIN_4 )
+#define SPI_MOSI_IOC            ( IOC_MUX_OUT_SEL_SSI0_TXD )
 #define SPI_nCS_BASE            ( GPIO_A_BASE )
 #define SPI_nCS_PIN             ( GPIO_PIN_3 )
+#define SPI_nCS_IOC             ( IOC_MUX_OUT_SEL_SSI0_FSSOUT )
 #define SPI_CLK_BASE            ( GPIO_A_BASE )
 #define SPI_CLK_PIN             ( GPIO_PIN_2 )
+#define SPI_CLK_IOC             ( IOC_MUX_OUT_SEL_SSI0_CLKOUT )
 #define SPI_MODE                ( SSI_MODE_MASTER )
 #define SPI_PROTOCOL            ( SSI_FRF_MOTO_MODE_3 )
 #define SPI_DATAWIDTH           ( 8 )
@@ -166,19 +171,19 @@ GpioOut led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
 
 GpioInPow button_user(BUTTON_USER_PORT, BUTTON_USER_PIN, BUTTON_USER_EDGE);
 
-Gpio i2c_scl(I2C_BASE, I2C_SCL);
-Gpio i2c_sda(I2C_BASE, I2C_SDA);
+GpioI2c i2c_scl(I2C_BASE, I2C_SCL);
+GpioI2c i2c_sda(I2C_BASE, I2C_SDA);
 I2cDriver i2c(I2C_PERIPHERAL, &i2c_scl, &i2c_sda);
 
-Gpio spi_miso(SPI_MISO_BASE, SPI_MISO_PIN);
-Gpio spi_mosi(SPI_MOSI_BASE, SPI_MOSI_PIN);
-Gpio spi_clk(SPI_CLK_BASE, SPI_CLK_PIN);
-Gpio spi_ncs(SPI_nCS_BASE, SPI_nCS_PIN);
+GpioSpi spi_miso(SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC);
+GpioSpi spi_mosi(SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC);
+GpioSpi spi_clk(SPI_CLK_BASE, SPI_CLK_PIN, SPI_CLK_IOC);
+GpioSpi spi_ncs(SPI_nCS_BASE, SPI_nCS_PIN, SPI_nCS_IOC);
 SpiDriver spi(SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, &spi_miso, &spi_mosi, &spi_clk, &spi_ncs);
 
-Gpio uart_rx(UART_RX_PORT, UART_RX_PIN);
-Gpio uart_tx(UART_TX_PORT, UART_TX_PIN);
-UartDriver uart(UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INTERRUPT, &uart_rx, UART_RX_IOC, &uart_tx, UART_TX_IOC );
+GpioUart uart_rx(UART_RX_PORT, UART_RX_PIN, UART_RX_IOC);
+GpioUart uart_tx(UART_TX_PORT, UART_TX_PIN, UART_TX_IOC);
+UartDriver uart(UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INTERRUPT, &uart_rx, &uart_tx);
 
 GpioInPow adxl346_int(ADXL346_INT_PORT, ADXL346_INT_PIN, ADXL346_INT_EDGE);
 Adxl346 adxl346(&i2c, &adxl346_int);
