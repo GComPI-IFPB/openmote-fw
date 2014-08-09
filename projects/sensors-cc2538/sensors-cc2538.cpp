@@ -53,7 +53,7 @@ static void button_user_callback(void);
 int main (void)
 {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730_bypass.off();
+    tps62730.setBypass();
 
     // Enable the I2C interface
     i2c.enable(I2C_BAUDRATE);

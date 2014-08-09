@@ -47,7 +47,7 @@ static void button_user_callback(void);
 int main (void)
 {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730_bypass.off();
+    tps62730.setBypass();
 
     // Create two FreeRTOS tasks
 	xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
