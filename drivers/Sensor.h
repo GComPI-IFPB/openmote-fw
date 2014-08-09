@@ -16,6 +16,8 @@
 #ifndef SENSOR_H_
 #define SENSOR_H_
 
+#include <stdint.h>
+
 class Sensor {
 public:
     virtual bool enable(void) = 0;
