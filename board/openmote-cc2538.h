@@ -46,10 +46,15 @@
 #include "Max44009.h"
 #include "Sht21.h"
 
+#include "Tps62730.h"
+#include "Enc28j60.h"
+
 /*================================ define ===================================*/
 
-#define BOARD_HAS_32MHz_XTAL    ( )
-#define BOARD_HAS_32kHz_XTAL    ( )
+#define BOARD_HAS_32MHz_XTAL    ( TRUE )
+#define BOARD_HAS_32kHz_XTAL    ( TRUE )
+#define BOARD_USE_32MHz_XTAL    ( FALSE )
+#define BOARD_USE_32kHz_XTAL    ( TRUE )
 #define BOARD_CLOCK             ( SYS_CTRL_SYSDIV_16MHZ )
 
 #define LED_RED_PORT            ( GPIO_C_BASE )
@@ -113,8 +118,7 @@
 #define SPI_MODE                ( SSI_MODE_MASTER )
 #define SPI_PROTOCOL            ( SSI_FRF_MOTO_MODE_3 )
 #define SPI_DATAWIDTH           ( 8 )
-#define SPI_BAUDRATE            (  )
-#define SPI_CONFIG              (  )
+#define SPI_BAUDRATE            ( 1000000 )
 
 #define TIMER_PERIPHERAL        ( GPTIMER0_BASE )
 #define TIMER_MODE              ( GPTIMER_BOTH )
@@ -146,8 +150,9 @@
 
 Board board;
 
-GpioOut tps62730_bypass(TPS62730_PORT, TPS62730_BYPASS_PIN);
-GpioIn  tps62730_status(TPS62730_PORT, TPS62730_STATUS_PIN, TPS62730_STATUS_EDGE);
+GpioOut bypass(TPS62730_PORT, TPS62730_BYPASS_PIN);
+GpioIn  status(TPS62730_PORT, TPS62730_STATUS_PIN, TPS62730_STATUS_EDGE);
+Tps62730 tps62730(&bypass, &status);
 
 GpioOut debug_ad0(GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN);
 GpioOut debug_ad1(GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN);
@@ -182,6 +187,9 @@ GpioIn max44009_int(MAX44009_INT_PORT, MAX44009_INT_PIN, MAX44009_INT_EDGE);
 Max44009 max44009(&i2c, &max44009_int);
 
 Sht21 sht21(&i2c);
+
+GpioIn enc28j60_int(ENC28J60_INT_PORT, ENC28J60_INT_PIN, ENC28J60_INT_EDGE);
+Enc28j60 enc28j60(&spi, &enc28j60_int);
 
 /*=============================== prototypes ================================*/
 

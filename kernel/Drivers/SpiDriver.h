@@ -13,6 +13,9 @@
  *
  */
 
+#ifndef SPI_DRIVER_H_
+#define SPI_DRIVER_H_
+
 #include "Spi.h"
 
 #include "FreeRTOS.h"
@@ -30,3 +33,5 @@ public:
 private:
     SemaphoreHandle_t xMutex;
 };
+
+#endif /* SPI_DRIVER_H_ */

@@ -33,7 +33,7 @@ public:
     Spi(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
         Gpio* miso_, Gpio* mosi_, Gpio* clk_, Gpio* ncs_);
     uint32_t getBase(void);
-    void enable(uint32_t mode_, uint32_t protocol_, uint32_t baudrate_, uint32_t config_);
+    void enable(uint32_t mode_, uint32_t protocol_, uint32_t datawidth_, uint32_t baudrate_);
     void sleep(void);
     void wakeup(void);
     void setRxCallback(callback_t callback_);
@@ -54,7 +54,7 @@ private:
     uint32_t mode;
     uint32_t protocol;
     uint32_t baudrate;
-    uint32_t config;
+    uint32_t datawidth;
 
     Gpio* miso;
     Gpio* mosi;

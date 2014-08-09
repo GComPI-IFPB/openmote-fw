@@ -25,12 +25,21 @@
 
 #include "hw_ioc.h"
 #include "hw_ints.h"
+#include "hw_memmap.h"
 #include "hw_types.h"
 #include "hw_ssi.h"
 
 /**********************************defines************************************/
 
+#define EXAMPLE_PIN_SSI_CLK             GPIO_PIN_2
+#define EXAMPLE_PIN_SSI_FSS             GPIO_PIN_3
+#define EXAMPLE_PIN_SSI_RX              GPIO_PIN_4
+#define EXAMPLE_PIN_SSI_TX              GPIO_PIN_5
+#define EXAMPLE_GPIO_SSI_BASE           GPIO_A_BASE
 
+#define EXAMPLE_PIN_UART_RXD            GPIO_PIN_0
+#define EXAMPLE_PIN_UART_TXD            GPIO_PIN_1
+#define EXAMPLE_GPIO_UART_BASE          GPIO_A_BASE
 
 /*********************************variables***********************************/
 
@@ -50,12 +59,12 @@ uint32_t Spi::getBase(void)
     return base;
 }
 
-void Spi::enable(uint32_t mode_, uint32_t protocol_, uint32_t baudrate_, uint32_t config_)
+void Spi::enable(uint32_t mode_, uint32_t protocol_, uint32_t datawidth_, uint32_t baudrate_)
 {
     mode = mode_;
     protocol = protocol_;
     baudrate = baudrate_;
-    config = config_;
+    datawidth = datawidth_;
 
     // Enable peripheral except in sleep and deep sleep modes
     SysCtrlPeripheralEnable(peripheral);
@@ -69,17 +78,20 @@ void Spi::enable(uint32_t mode_, uint32_t protocol_, uint32_t baudrate_, uint32_
     SSIClockSourceSet(base, clock);
 
     // Configure the CLK, nCS, MOSI and MISO pins
+    IOCPinConfigPeriphInput(miso->getPort(), miso->getPin(), IOC_SSIRXD_SSI0);
+    IOCPinConfigPeriphOutput(mosi->getPort(), mosi->getPin(), IOC_MUX_OUT_SEL_SSI0_TXD);
     IOCPinConfigPeriphOutput(clk->getPort(), clk->getPin(), IOC_MUX_OUT_SEL_SSI0_CLKOUT);
     IOCPinConfigPeriphOutput(ncs->getPort(), ncs->getPin(), IOC_MUX_OUT_SEL_SSI0_FSSOUT);
-    IOCPinConfigPeriphOutput(mosi->getPort(), mosi->getPin(), IOC_MUX_OUT_SEL_SSI0_TXD);
-    IOCPinConfigPeriphInput(miso->getPort(), miso->getPin(), IOC_SSIRXD_SSI0);
 
     // Configure SPI0 GPIOs
-    GPIOPinTypeSSI(base, clk->getPin() | ncs->getPin() | mosi->getPin() | miso->getPin());
+    GPIOPinTypeSSI(miso->getPort(), miso->getPin());
+    GPIOPinTypeSSI(mosi->getPort(), mosi->getPin());
+    GPIOPinTypeSSI(clk->getPort(), clk->getPin());
+    GPIOPinTypeSSI(ncs->getPort(), ncs->getPin());
 
     // Configure the SPI0 clock
-    SSIConfigSetExpClk(base, SysCtrlIOClockGet(), SSI_FRF_MOTO_MODE_3,
-                       mode, SysCtrlClockGet()/2, 8);
+    SSIConfigSetExpClk(base, SysCtrlIOClockGet(), protocol, \
+                       mode, SysCtrlClockGet()/2, datawidth);
 
     // Enable the SPI0 module
     SSIEnable(base);
@@ -102,7 +114,7 @@ void Spi::sleep(void)
 
 void Spi::wakeup(void)
 {
-    enable(mode, protocol, baudrate, config);
+    enable(mode, protocol, datawidth, baudrate);
 }
 
 void Spi::setRxCallback(callback_t callback_)
@@ -152,6 +164,8 @@ uint8_t Spi::readByte(uint8_t* buffer, uint32_t length)
     // Wait until it is complete
     while(SSIBusy(base))
         ;
+
+    return 0;
 }
 
 void Spi::writeByte(uint8_t byte)
@@ -169,7 +183,6 @@ void Spi::writeByte(uint8_t * buffer, uint32_t length)
     // Wait until it is complete
     while(SSIBusy(base))
         ;
-
 }
 
 /*********************************protected***********************************/
