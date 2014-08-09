@@ -42,6 +42,13 @@ GpioIn::GpioIn(uint32_t port_, uint8_t pin_, uint32_t edge_):
     GPIOIntTypeSet(port, pin, edge);
 }
 
+bool GpioIn::read(void)
+{
+    uint32_t state;
+    state = GPIOPinRead(port, pin);
+    return (bool) state;
+}
+
 void GpioIn::setCallback(callback_t callback_)
 {
     // Save the pointer to the callback function

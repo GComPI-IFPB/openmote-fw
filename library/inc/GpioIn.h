@@ -30,6 +30,7 @@ friend class InterruptHandler;
 
 public:
     GpioIn(uint32_t port_, uint8_t pin_, uint32_t edge_);
+    bool read(void);
     void setCallback(callback_t callback_);
     void clearCallback(void);
     void enableInterrupt(void);
