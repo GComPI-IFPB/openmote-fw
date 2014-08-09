@@ -38,5 +38,5 @@ include $(SENSORS_ADXL346)/Makefile.include
 include $(SENSORS_MAX44009)/Makefile.include
 include $(SENSORS_SHT21)/Makefile.include
 include $(CONNECTIVITY_ENC28J60)/Makefile.include
-include $(POWER_TPS63730)/Makefile.include
+include $(POWER_TPS62730)/Makefile.include
 
