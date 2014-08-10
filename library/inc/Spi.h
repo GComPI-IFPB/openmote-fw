@@ -41,11 +41,14 @@ public:
     void interruptEnable(void);
     void interruptDisable(void);
     uint8_t readByte(void);
-    uint8_t readByte(uint8_t * buffer, uint32_t length);
+    uint32_t readByte(uint8_t * buffer, uint32_t length);
     void writeByte(uint8_t byte);
-    void writeByte(uint8_t * buffer, uint32_t length);
+    uint32_t writeByte(uint8_t * buffer, uint32_t length);
 protected:
     void interruptHandler(void);
+private:
+    void interruptHandlerRx();
+    void interruptHandlerTx();
 private:
     uint32_t peripheral;
     uint32_t base;

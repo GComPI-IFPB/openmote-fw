@@ -40,9 +40,9 @@ public:
     void interruptEnable(void);
     void interruptDisable(void);
     uint8_t readByte(void);
-    uint8_t readByte(uint8_t * buffer, uint8_t len);
+    uint32_t readByte(uint8_t * buffer, uint8_t len);
     void writeByte(uint8_t byte);
-    void writeByte(uint8_t * buffer, uint8_t len);
+    uint32_t writeByte(uint8_t * buffer, uint8_t len);
 protected:
     void interruptHandler(void);
 private:

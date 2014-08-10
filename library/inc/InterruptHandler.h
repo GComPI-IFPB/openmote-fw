@@ -28,11 +28,17 @@ class InterruptHandler {
 public:
     static InterruptHandler& getInstance(void);
     static void registerInterruptHandler(GpioIn* gpio_);
+    static void removeInterruptHandler(GpioIn* gpio_);
     static void registerInterruptHandler(Uart* uart_);
+    static void removeInterruptHandler(Uart* uart_);
     static void registerInterruptHandler(I2c* i2c_);
+    static void removeInterruptHandler(I2c* i2c_);
     static void registerInterruptHandler(Spi* spi_);
+    static void removeInterruptHandler(Spi* spi_);
     static void registerInterruptHandler(Radio* radio_);
-protected:
+    static void removeInterruptHandler(Radio* radio_);
+private:
+    InterruptHandler();
     static inline void GPIOA_InterruptHandler(void);
     static inline void GPIOB_InterruptHandler(void);
     static inline void GPIOC_InterruptHandler(void);
@@ -44,8 +50,6 @@ protected:
     static inline void SPI1_InterruptHandler(void);
     static inline void RFCore_InterruptHandler(void);
     static inline void RFError_InterruptHandler(void);
-private:
-    InterruptHandler();
 private:
     static InterruptHandler instance;
     static GpioIn* GPIOA_interruptVector[8];

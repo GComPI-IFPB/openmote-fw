@@ -140,7 +140,7 @@ uint8_t Uart::readByte(void)
 	return (uint8_t)(byte & 0xFF);
 }
 
-uint8_t Uart::readByte(uint8_t * buffer, uint8_t length)
+uint32_t Uart::readByte(uint8_t * buffer, uint8_t length)
 {
     uint32_t data;
     for (uint32_t i = 0; i < length; i++)
@@ -161,7 +161,7 @@ void Uart::writeByte(uint8_t byte)
     UARTCharPut(base, byte);
 }
 
-void Uart::writeByte(uint8_t * buffer, uint8_t length)
+uint32_t Uart::writeByte(uint8_t * buffer, uint8_t length)
 {
     for (uint32_t i = 0; i < length; i++)
     {
@@ -171,6 +171,8 @@ void Uart::writeByte(uint8_t * buffer, uint8_t length)
     // Wait until it is complete
     while(UARTBusy(base))
         ;
+
+    return 0;
 }
 
 /*********************************protected***********************************/
@@ -186,29 +188,29 @@ void Uart::interruptHandler(void)
     IntPendClear(interrupt);
 
     // Process TX interrupt
-    if(status & UART_INT_TX){
+    if (status & UART_INT_TX) {
         interruptHandlerTx();
     }
 
     // Process RX interrupt
-    if(status & UART_INT_RX) {
+    if (status & UART_INT_RX) {
         interruptHandlerRx();
     }
 }
 
 /**********************************private************************************/
 
-void Uart::interruptHandlerRx()
+void Uart::interruptHandlerRx(void)
 {
-    if(rx_callback != nullptr)
+    if (rx_callback != nullptr)
     {
         rx_callback();
     }
 }
 
-void Uart::interruptHandlerTx()
+void Uart::interruptHandlerTx(void)
 {
-    if(tx_callback != nullptr)
+    if (tx_callback != nullptr)
     {
         tx_callback();
     }

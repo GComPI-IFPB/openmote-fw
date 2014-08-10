@@ -63,7 +63,7 @@ Radio* InterruptHandler::Radio_interruptVector;
 
 InterruptHandler &InterruptHandler::getInstance(void)
 {
-    // Returns an instance of the InterruptHandler
+    // Returns the only instance of the InterruptHandler
     return instance;
 }
 
@@ -125,6 +125,64 @@ void InterruptHandler::registerInterruptHandler(GpioIn * gpio_)
     }   
 }
 
+void InterruptHandler::removeInterruptHandler(GpioIn * gpio_)
+{
+    // Get the GPIO port and pin
+    uint32_t port_ = gpio_->getPort();
+    uint8_t pin_   = gpio_->getPin();
+
+    // Select the pin number
+    if (pin_ == GPIO_PIN_0) {
+        pin_ = 0;
+    }
+    else if (pin_ == GPIO_PIN_1)
+    {
+        pin_ = 1;
+    }
+    else if (pin_ == GPIO_PIN_2)
+    {
+        pin_ = 2;
+    }
+    else if (pin_ == GPIO_PIN_3)
+    {
+        pin_ = 3;
+    }
+    else if (pin_ == GPIO_PIN_4)
+    {
+        pin_ = 4;
+    }
+    else if (pin_ == GPIO_PIN_5)
+    {
+        pin_ = 5;
+    }
+    else if (pin_ == GPIO_PIN_6)
+    {
+        pin_ = 6;
+    }
+    else if (pin_ == GPIO_PIN_7)
+    {
+        pin_ = 7;
+    }
+
+    // Remove the pointer to the GPIO object in the interrupt vector
+    if (port_ == GPIO_A_BASE)
+    {
+        GPIOA_interruptVector[pin_] = nullptr;
+    }
+    else if (port_ == GPIO_B_BASE)
+    {
+        GPIOB_interruptVector[pin_] = nullptr;
+    }
+    else if (port_ == GPIO_C_BASE)
+    {
+        GPIOC_interruptVector[pin_] = nullptr;
+    }
+    else if (port_ == GPIO_D_BASE)
+    {
+        GPIOD_interruptVector[pin_] = nullptr;
+    }
+}
+
 void InterruptHandler::registerInterruptHandler(Uart * uart_)
 {
     // Get the UART base
@@ -141,10 +199,32 @@ void InterruptHandler::registerInterruptHandler(Uart * uart_)
     }
 }
 
+void InterruptHandler::removeInterruptHandler(Uart * uart_)
+{
+    // Get the UART base
+    uint32_t base = uart_->getBase();
+
+    // Remove the pointer to the UART object in the interrupt vector
+    if (base == UART0_BASE)
+    {
+        UART0_interruptVector = nullptr;
+    }
+    else if (base == UART1_BASE)
+    {
+        UART1_interruptVector = nullptr;
+    }
+}
+
 void InterruptHandler::registerInterruptHandler(I2c * i2c_)
 {
     // Store a pointer to the I2C object in the interrupt vector
     I2C_interruptVector = i2c_;
+}
+
+void InterruptHandler::removeInterruptHandler(I2c * i2c_)
+{
+    // Remvoe the pointer to the I2C object in the interrupt vector
+    I2C_interruptVector = nullptr;
 }
 
 void InterruptHandler::registerInterruptHandler(Spi * spi_)
@@ -163,10 +243,32 @@ void InterruptHandler::registerInterruptHandler(Spi * spi_)
     }
 }
 
+void InterruptHandler::removeInterruptHandler(Spi * spi_)
+{
+    // Get the UART base
+    uint32_t base = spi_->getBase();
+
+    // Remove the pointer to the UART object in the interrupt vector
+    if (base == SSI0_BASE)
+    {
+        SPI0_interruptVector = nullptr;
+    }
+    else if (base == SSI1_BASE)
+    {
+        SPI1_interruptVector = nullptr;
+    }
+}
+
 void InterruptHandler::registerInterruptHandler(Radio * radio_)
 {
     // Store a pointer to the RADIO object in the interrupt vector
     Radio_interruptVector = radio_;
+}
+
+void InterruptHandler::removeInterruptHandler(Radio * radio_)
+{
+    // Remove the pointer to the RADIO object in the interrupt vector
+    Radio_interruptVector = nullptr;
 }
 
 /*********************************protected***********************************/

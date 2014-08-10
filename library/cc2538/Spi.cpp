@@ -16,6 +16,7 @@
 /**********************************include************************************/
 
 #include "Spi.h"
+#include "InterruptHandler.h"
 
 #include "gpio.h"
 #include "interrupt.h"
@@ -121,6 +122,9 @@ void Spi::setTxCallback(callback_t callback_)
 
 void Spi::interruptEnable(void)
 {
+    // Register the interrupt handler
+    InterruptHandler::getInstance().registerInterruptHandler(this);
+
     // Enable the SPI interrupt
     SSIIntEnable(base, (SSI_TXFF | SSI_RXFF | SSI_RXTO | SSI_RXOR));
 
@@ -144,18 +148,18 @@ uint8_t Spi::readByte(void)
     return (uint8_t)(byte & 0xFF);
 }
 
-uint8_t Spi::readByte(uint8_t* buffer, uint32_t length)
+uint32_t Spi::readByte(uint8_t* buffer, uint32_t length)
 {
     uint32_t data;
     for (uint32_t i =  0; i < length; i++)
     {
         SSIDataGet(base, &data);
         *buffer++ = (uint8_t) data;
-    }
 
-    // Wait until it is complete
-    while(SSIBusy(base))
-        ;
+        // Wait until it is complete
+        while(SSIBusy(base))
+            ;
+    }
 
     return 0;
 }
@@ -165,24 +169,57 @@ void Spi::writeByte(uint8_t byte)
     SSIDataPut(base, byte);
 }
 
-void Spi::writeByte(uint8_t * buffer, uint32_t length)
+uint32_t Spi::writeByte(uint8_t * buffer, uint32_t length)
 {
     for (uint32_t i = 0; i < length; i++)
     {
         SSIDataPut(base, *buffer++);
+
+        // Wait until it is complete
+        while(SSIBusy(base))
+            ;
     }
 
-    // Wait until it is complete
-    while(SSIBusy(base))
-        ;
+    return 0;
 }
 
 /*********************************protected***********************************/
 
+void Spi::interruptHandler(void)
+{
+    uint32_t status;
 
+    // Read interrupt source
+    status = SSIIntStatus(base, true);
+
+    // Clear SPI interrupt in the NVIC
+    IntPendClear(interrupt);
+
+    // Process TX interrupt
+    if (status & SSI_TXFF) {
+        interruptHandlerTx();
+    }
+
+    // Process RX interrupt
+    if (status & SSI_RXFF) {
+        interruptHandlerRx();
+    }
+}
 
 /**********************************private************************************/
 
-void Spi::interruptHandler(void)
+void Spi::interruptHandlerRx(void)
 {
+    if (tx_callback != nullptr)
+    {
+        tx_callback();
+    }
+}
+
+void Spi::interruptHandlerTx(void)
+{
+    if (rx_callback != nullptr)
+    {
+        rx_callback();
+    }
 }
