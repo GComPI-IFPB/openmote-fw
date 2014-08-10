@@ -120,6 +120,9 @@ void Uart::interruptEnable(void)
     // Enable UART RX and TX interrupts
     UARTIntEnable(base, UART_INT_RX | UART_INT_TX);
 
+    // Set the UART interrupt priority
+    // IntPrioritySet(interrupt, (7 << 5));
+
     // Enable the UART interrupt
     IntEnable(interrupt);
 }
@@ -189,11 +192,13 @@ void Uart::interruptHandler(void)
 
     // Process TX interrupt
     if (status & UART_INT_TX) {
+        UARTIntClear(base, UART_INT_TX);
         interruptHandlerTx();
     }
 
     // Process RX interrupt
     if (status & UART_INT_RX) {
+        UARTIntClear(base, UART_INT_RX);
         interruptHandlerRx();
     }
 }

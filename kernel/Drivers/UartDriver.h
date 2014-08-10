@@ -30,8 +30,10 @@ public:
                uint32_t interrupt_, GpioUart * rx_, GpioUart * tx_);
     void lock(void);
     void unlock(void);
+    void unlockFromIsr(void);
 private:
     SemaphoreHandle_t xMutex;
+    BaseType_t xHigherPriorityTaskWoken;
 };
 
 #endif /* UART_DRIVER_H_ */
