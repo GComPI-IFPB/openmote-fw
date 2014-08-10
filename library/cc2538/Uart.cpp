@@ -16,6 +16,7 @@
 /**********************************include************************************/
 
 #include "Uart.h"
+#include "InterruptHandler.h"
 
 #include "gpio.h"
 #include "interrupt.h"
@@ -113,6 +114,9 @@ void Uart::setTxCallback(callback_t callback_)
 
 void Uart::interruptEnable(void)
 {
+    // Register the interrupt handler
+    InterruptHandler::getInstance().registerInterruptHandler(this);
+
     // Enable UART RX and TX interrupts
     UARTIntEnable(base, UART_INT_RX | UART_INT_TX);
 

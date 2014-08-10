@@ -32,7 +32,7 @@ friend class InterruptHandler;
 public:
     Uart(uint32_t peripheral_, uint32_t base_, uint32_t clock_, uint32_t interrupt_, GpioUart * rx_, GpioUart * tx_);
     uint32_t getBase(void);
-    void enable(uint32_t baudrate_, uint32_t config_, uint32_t mode);
+    void enable(uint32_t baudrate_, uint32_t config_, uint32_t mode_);
     void sleep(void);
     void wakeup(void);
     void setRxCallback(callback_t callback_);
