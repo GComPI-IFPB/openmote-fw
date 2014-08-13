@@ -28,7 +28,7 @@ include $(PLATFORM_SRC)/Makefile.include
 
 # Configure the Segger J-Link
 JLINK_NAME = JLinkGDBServer
-JLINK_PATH = /opt/Segger/JLink
+JLINK_PATH = /opt/segger/JLink
 JLINK_OPT = -device
 JLINK_DEV = CC2538SF53
 

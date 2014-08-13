@@ -19,10 +19,9 @@
 #include <stdint.h>
 
 #include "Gpio.h"
+#include "Callback.h"
 
 class Gpio;
-
-typedef void (*callback_t)(void);
 
 class Uart
 {
@@ -35,8 +34,8 @@ public:
     void enable(uint32_t baudrate_, uint32_t config_, uint32_t mode_);
     void sleep(void);
     void wakeup(void);
-    void setRxCallback(callback_t callback_);
-    void setTxCallback(callback_t callback_);
+    void setRxCallback(Callback* callback_);
+    void setTxCallback(Callback* callback_);
     void interruptEnable(void);
     void interruptDisable(void);
     uint8_t readByte(void);
@@ -60,8 +59,8 @@ private:
     GpioUart * rx;
     GpioUart * tx;
 
-    callback_t rx_callback = nullptr;
-    callback_t tx_callback = nullptr;
+    Callback* rx_callback;
+    Callback* tx_callback;
 };
 
 #endif /* UART_H_ */

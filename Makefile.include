@@ -45,6 +45,9 @@ LDFLAGS += --specs=nosys.specs
 OBJCOPY_FLAGS += -O binary --gap-fill 0xFF
 OBJDUMP_FLAGS += --disassemble --source --disassembler-options=force-thumb
 
+# Makefile flags
+MAKEFLAGS = -j4
+
 ###############################################################################
 
 #define the board subdirectory

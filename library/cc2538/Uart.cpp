@@ -102,12 +102,12 @@ void Uart::wakeup(void)
     enable(baudrate, config, mode);
 }
 
-void Uart::setRxCallback(callback_t callback_)
+void Uart::setRxCallback(Callback* callback_)
 {
     rx_callback = callback_;
 }
 
-void Uart::setTxCallback(callback_t callback_)
+void Uart::setTxCallback(Callback* callback_)
 {
     tx_callback = callback_;
 }
@@ -161,7 +161,7 @@ uint32_t Uart::readByte(uint8_t * buffer, uint8_t length)
 
 void Uart::writeByte(uint8_t byte)
 {
-    UARTCharPut(base, byte);
+    UARTCharPutNonBlocking(base, byte);
 }
 
 uint32_t Uart::writeByte(uint8_t * buffer, uint8_t length)
@@ -209,7 +209,7 @@ void Uart::interruptHandlerRx(void)
 {
     if (rx_callback != nullptr)
     {
-        rx_callback();
+        rx_callback->execute();
     }
 }
 
@@ -217,6 +217,6 @@ void Uart::interruptHandlerTx(void)
 {
     if (tx_callback != nullptr)
     {
-        tx_callback();
+        tx_callback->execute();
     }
 }
