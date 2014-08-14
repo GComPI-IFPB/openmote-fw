@@ -21,6 +21,9 @@
 #include "UartDriver.h"
 #include "SerialCallback.h"
 
+static const uint8_t RX_BUFFER_SIZE = 128;
+static const uint8_t TX_BUFFER_SIZE = 128;
+
 class Serial
 {
 public:
@@ -37,15 +40,15 @@ private:
     SerialCallback rxCallback;
     SerialCallback txCallback;
 
-    uint8_t rxBuffer[];
-    uint8_t* rxBuffer_head;
-    uint8_t* rxBuffer_tail;
-    uint32_t rxBuffer_size;
+    uint8_t rxBuffer[RX_BUFFER_SIZE];
+    uint8_t* rxBufferHead;
+    uint8_t* rxBufferTail;
+    uint32_t rxBufferSize;
     
-    uint8_t txBuffer[];
-    uint8_t* txBuffer_head;
-    uint8_t* txBuffer_tail;
-    uint32_t txBuffer_size;
+    uint8_t txBuffer[TX_BUFFER_SIZE];
+    uint8_t* txBufferHead;
+    uint8_t* txBufferTail;
+    uint32_t txBufferSize;
 };
 
 #endif /* SERIAL_H_ */
