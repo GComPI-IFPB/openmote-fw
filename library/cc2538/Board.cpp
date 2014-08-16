@@ -13,7 +13,7 @@
  *
  */
 
-/**********************************include************************************/
+/*================================ include ==================================*/
 
 #include "Board.h"
 
@@ -30,15 +30,15 @@
 #include "hw_memmap.h"
 #include "hw_types.h"
 
-/**********************************defines************************************/
+/*================================ define ===================================*/
 
+/*================================ typedef ==================================*/
 
+/*=============================== variables =================================*/
 
-/*********************************variables***********************************/
+/*=============================== prototypes ================================*/
 
-
-
-/**********************************public*************************************/
+/*================================= public ==================================*/
 
 Board::Board()
 {
@@ -62,14 +62,14 @@ Board::Board()
      * This way peripherals can run while the system clock is gated
      */
     SysCtrlIOClockSet(SYS_CTRL_SYSDIV_16MHZ);
-    
+
     /**
      * Wait until the 32 kHz oscillator becomes stable
      */
     while(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_OSC32K);
-    
+
     /**
-     * 
+     * Set default peripheral settings (disabled)
      */
     defaultPeripheralSettings();
 }
@@ -104,6 +104,10 @@ void Board::disableInterrupts(void)
     IntMasterDisable();
 }
 
+/*=============================== protected =================================*/
+
+/*================================ private ==================================*/
+
 void Board::defaultPeripheralSettings(void)
 {
     /* Disable General Purpose Timers 0, 1, 2, 3 when running */
@@ -125,7 +129,7 @@ void Board::defaultPeripheralSettings(void)
     SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_PKA);
     SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_AES);
     SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_RFC);
-    
+
     /* Disable General Purpose Timers 0, 1, 2, 3 during sleep */
     SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_GPT0);
     SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_GPT1);
@@ -145,7 +149,7 @@ void Board::defaultPeripheralSettings(void)
     SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_PKA);
     SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_AES);
     SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_RFC);
-    
+
     /* Disable General Purpose Timers 0, 1, 2, 3 during deep sleep */
     SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_GPT0);
     SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_GPT1);
@@ -166,10 +170,3 @@ void Board::defaultPeripheralSettings(void)
     SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_AES);
     SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_RFC);
 }
-
-/*********************************protected***********************************/
-
-
-
-/**********************************private************************************/
-

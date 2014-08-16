@@ -27,7 +27,6 @@ public:
     GpioInPow(uint32_t port_, uint8_t pin_, uint32_t edge_);
     void enableInterrupt(void);
     void disableInterrupt(void);
-
 };
 
 #endif /* GPIO_IN_POW_H_ */

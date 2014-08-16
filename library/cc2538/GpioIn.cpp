@@ -13,7 +13,7 @@
  *
  */
 
-/**********************************include************************************/
+/*================================ include ==================================*/
 
 #include "GpioIn.h"
 
@@ -22,22 +22,22 @@
 #include "hw_memmap.h"
 #include "hw_types.h"
 
-/**********************************defines************************************/
+/*================================ define ===================================*/
 
+/*================================ typedef ==================================*/
 
+/*=============================== variables =================================*/
 
-/*********************************variables***********************************/
+/*=============================== prototypes ================================*/
 
-
-
-/**********************************public*************************************/
+/*================================= public ==================================*/
 
 GpioIn::GpioIn(uint32_t port_, uint8_t pin_, uint32_t edge_):
     Gpio(port_, pin_), edge(edge_)
 {
     // Set the pin as input
     GPIOPinTypeGPIOInput(port, pin);
-    
+
     // Set the edge of the interrupt
     GPIOIntTypeSet(port, pin, edge);
 }
@@ -49,16 +49,16 @@ bool GpioIn::read(void)
     return (bool) state;
 }
 
-void GpioIn::setCallback(callback_t callback_)
+void GpioIn::setCallback(Callback* callback_)
 {
     // Save the pointer to the callback function
     callback = callback_;
-    
+
     // Get a reference to the interruptHandler object
     InterruptHandler & interruptHandler = InterruptHandler::getInstance();
-    
+
     // Register to the interruptHandler by passing a pointer to the object
-    interruptHandler.registerInterruptHandler(this);
+    interruptHandler.setInterruptHandler(this);
 }
 
 void GpioIn::clearCallback(void)
@@ -71,9 +71,9 @@ void GpioIn::enableInterrupt(void)
 {
     // Clear the interrupt
     GPIOPinIntClear(port, pin);
-    
+
     // Enable the interrupt
-	GPIOPinIntEnable(port, pin);
+    GPIOPinIntEnable(port, pin);
 }
 
 void GpioIn::disableInterrupt(void)
@@ -86,13 +86,10 @@ void GpioIn::interruptHandler(void)
 {
     // Call the interrupt handler if it is NOT null
     if (callback != nullptr) {
-        callback();
+        callback->execute();
     }
 }
 
-/*********************************protected***********************************/
+/*=============================== protected =================================*/
 
-
-
-/**********************************private************************************/
-
+/*================================ private ==================================*/

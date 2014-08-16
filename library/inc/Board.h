@@ -29,8 +29,6 @@ public:
     void disableInterrupts(void);
 private:
     void defaultPeripheralSettings(void);
-private:
-    
 };
 
 #endif /* BOARD_H_ */

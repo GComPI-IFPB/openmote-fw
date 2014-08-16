@@ -13,7 +13,7 @@
  *
  */
 
-/**********************************include************************************/
+/*================================ include ==================================*/
 
 #include "I2c.h"
 
@@ -29,15 +29,15 @@
 #include "hw_i2cm.h"
 #include "hw_i2cs.h"
 
-/**********************************defines************************************/
+/*================================ define ===================================*/
 
+/*================================ typedef ==================================*/
 
+/*=============================== variables =================================*/
 
-/*********************************variables***********************************/
+/*=============================== prototypes ================================*/
 
-
-
-/**********************************public*************************************/
+/*================================= public ==================================*/
 
 I2c::I2c(uint32_t peripheral_, GpioI2c* scl_, GpioI2c* sda_):
     peripheral(peripheral_), scl(scl_), sda(sda_)
@@ -47,14 +47,14 @@ I2c::I2c(uint32_t peripheral_, GpioI2c* scl_, GpioI2c* sda_):
 void I2c::enable(uint32_t clock_)
 {
     bool status;
-    
+
     clock = clock_;
-    
+
     // Enable peripheral except in sleep and deep sleep modes
     SysCtrlPeripheralEnable(peripheral);
     SysCtrlPeripheralSleepDisable(peripheral);
     SysCtrlPeripheralDeepSleepDisable(peripheral);
-    
+
     // Reset peripheral previous to configuring it
     SysCtrlPeripheralReset(peripheral);
 
@@ -64,10 +64,10 @@ void I2c::enable(uint32_t clock_)
     IOCPinConfigPeriphOutput(scl->getPort(), scl->getPin(), IOC_MUX_OUT_SEL_I2C_CMSSCL);
 
     // Configure the SDA pin
-    GPIOPinTypeI2C(sda->getPort(), sda->getPin());    
+    GPIOPinTypeI2C(sda->getPort(), sda->getPin());
     IOCPinConfigPeriphInput(sda->getPort(), sda->getPin(), IOC_I2CMSSDA);
     IOCPinConfigPeriphOutput(sda->getPort(), sda->getPin(), IOC_MUX_OUT_SEL_I2C_CMSSDA);
-    
+
     // Configure the I2C clock
     status = (clock == 400000 ? true : false);
     I2CMasterInitExpClk(SysCtrlClockGet(), status);
@@ -79,10 +79,10 @@ void I2c::enable(uint32_t clock_)
 void I2c::sleep(void)
 {
     I2CMasterDisable();
-    
+
     GPIOPinTypeGPIOOutput(scl->getPort(), scl->getPin());
     GPIOPinTypeGPIOOutput(sda->getPort(), sda->getPin());
-    
+
     GPIOPinWrite(scl->getPort(), scl->getPin(), 0);
     GPIOPinWrite(sda->getPort(), sda->getPin(), 0);
 }
@@ -95,7 +95,7 @@ void I2c::wakeup(void)
 bool I2c::readByte(uint8_t address_, uint8_t * buffer)
 {
     uint32_t delayTicks;
-    
+
     I2CMasterSlaveAddrSet(address_, true); // read
 
     I2CMasterControl(I2C_MASTER_CMD_SINGLE_RECEIVE);
@@ -115,7 +115,7 @@ bool I2c::readByte(uint8_t address_, uint8_t * buffer)
 bool I2c::readByte(uint8_t address_, uint8_t * buffer, uint8_t size)
 {
     uint32_t delayTicks;
-    
+
     I2CMasterSlaveAddrSet(address_, true); // read
 
     I2CMasterControl(I2C_MASTER_CMD_BURST_RECEIVE_START);
@@ -127,16 +127,16 @@ bool I2c::readByte(uint8_t address_, uint8_t * buffer, uint8_t size)
                 return false;
             }
         }
-        
+
         *buffer++ = I2CMasterDataGet();
         size--;
-        
+
         if(size == 1) {
             I2CMasterControl(I2C_MASTER_CMD_BURST_RECEIVE_FINISH);
         } else {
             I2CMasterControl(I2C_MASTER_CMD_BURST_RECEIVE_CONT);
         }
-    }   
+    }
 
     return true;
 }
@@ -144,7 +144,7 @@ bool I2c::readByte(uint8_t address_, uint8_t * buffer, uint8_t size)
 bool I2c::writeByte(uint8_t address_, uint8_t register_)
 {
     uint32_t delayTicks;
-    
+
     I2CMasterSlaveAddrSet(address_, false); // write
 
     I2CMasterDataPut(register_);
@@ -157,14 +157,14 @@ bool I2c::writeByte(uint8_t address_, uint8_t register_)
             return false;
         }
     }
-    
+
     return true;
-}   
+}
 
 bool I2c::writeByte(uint8_t address_, uint8_t * buffer, uint8_t size)
 {
     uint32_t delayTicks;
-    
+
     I2CMasterSlaveAddrSet(address_, false); // write
 
     I2CMasterDataPut(*buffer++);
@@ -182,7 +182,7 @@ bool I2c::writeByte(uint8_t address_, uint8_t * buffer, uint8_t size)
     while(size) {
         I2CMasterDataPut(*buffer++);
         size--;
-        
+
         if (size == 0)
         {
             I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_FINISH);
@@ -191,7 +191,7 @@ bool I2c::writeByte(uint8_t address_, uint8_t * buffer, uint8_t size)
         {
             I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_CONT);
         }
-               
+
         delayTicks = 1000000;
         while(I2CMasterBusy() && delayTicks--) {
             if (delayTicks == 0) {
@@ -203,11 +203,10 @@ bool I2c::writeByte(uint8_t address_, uint8_t * buffer, uint8_t size)
     return true;
 }
 
-/*********************************protected***********************************/
+/*=============================== protected =================================*/
 
 void I2c::interruptHandler(void)
 {
 }
 
-/**********************************private************************************/
-
+/*================================ private ==================================*/

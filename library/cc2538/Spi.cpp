@@ -13,7 +13,7 @@
  *
  */
 
-/**********************************include************************************/
+/*================================ include ==================================*/
 
 #include "Spi.h"
 #include "InterruptHandler.h"
@@ -29,15 +29,15 @@
 #include "hw_types.h"
 #include "hw_ssi.h"
 
-/**********************************defines************************************/
+/*================================ define ===================================*/
 
+/*================================ typedef ==================================*/
 
+/*=============================== variables =================================*/
 
-/*********************************variables***********************************/
+/*=============================== prototypes ================================*/
 
-
-
-/**********************************public*************************************/
+/*================================= public ==================================*/
 
 Spi::Spi(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
          GpioSpi* miso_, GpioSpi* mosi_, GpioSpi* clk_, GpioSpi* ncs_):
@@ -110,12 +110,12 @@ void Spi::wakeup(void)
     enable(mode, protocol, datawidth, baudrate);
 }
 
-void Spi::setRxCallback(callback_t callback_)
+void Spi::setRxCallback(Callback* callback_)
 {
     rx_callback = callback_;
 }
 
-void Spi::setTxCallback(callback_t callback_)
+void Spi::setTxCallback(Callback* callback_)
 {
     tx_callback = callback_;
 }
@@ -123,7 +123,7 @@ void Spi::setTxCallback(callback_t callback_)
 void Spi::interruptEnable(void)
 {
     // Register the interrupt handler
-    InterruptHandler::getInstance().registerInterruptHandler(this);
+    InterruptHandler::getInstance().setInterruptHandler(this);
 
     // Enable the SPI interrupt
     SSIIntEnable(base, (SSI_TXFF | SSI_RXFF | SSI_RXTO | SSI_RXOR));
@@ -183,7 +183,7 @@ uint32_t Spi::writeByte(uint8_t * buffer, uint32_t length)
     return 0;
 }
 
-/*********************************protected***********************************/
+/*=============================== protected =================================*/
 
 void Spi::interruptHandler(void)
 {
@@ -206,13 +206,13 @@ void Spi::interruptHandler(void)
     }
 }
 
-/**********************************private************************************/
+/*================================ private ==================================*/
 
 void Spi::interruptHandlerRx(void)
 {
     if (tx_callback != nullptr)
     {
-        tx_callback();
+        tx_callback->execute();
     }
 }
 
@@ -220,6 +220,6 @@ void Spi::interruptHandlerTx(void)
 {
     if (rx_callback != nullptr)
     {
-        rx_callback();
+        rx_callback->execute();
     }
 }

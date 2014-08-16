@@ -19,10 +19,9 @@
 #include <stdint.h>
 
 #include "Gpio.h"
+#include "Callback.h"
 
 class Gpio;
-
-typedef void (*callback_t)(void);
 
 class I2c
 {
@@ -40,7 +39,7 @@ public:
     bool writeByte(uint8_t address_, uint8_t * buffer, uint8_t size);
 protected:
     void interruptHandler(void);
-protected:
+private:
     uint32_t peripheral;
     uint32_t clock;
 

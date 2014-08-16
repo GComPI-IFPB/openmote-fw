@@ -13,7 +13,7 @@
  *
  */
 
-/**********************************include************************************/
+/*================================ include ==================================*/
 
 #include "Radio.h"
 
@@ -27,7 +27,7 @@
 #include "hw_memmap.h"
 #include "hw_types.h"
 
-/**********************************defines************************************/
+/*================================ define ===================================*/
 
 // Defines for the transmit power
 #define CC2538_RF_TX_POWER_RECOMMENDED          0xD5
@@ -80,15 +80,16 @@
   HWREG(RFCORE_SFR_RFST) = CC2538_RF_CSP_OP_ISFLUSHTX; \
 } while(0)
 
-/*********************************variables***********************************/
+/*================================ typedef ==================================*/
 
-Radio Radio::instance;
+/*=============================== variables =================================*/
 
-/**********************************public*************************************/
+/*=============================== prototypes ================================*/
 
-Radio & Radio::getInstance(void)
+/*================================= public ==================================*/
+
+Radio::Radio()
 {
-    return instance;
 }
 
 void Radio::enable(void)
@@ -103,9 +104,9 @@ void Radio::sleep(void)
 
     // Don't turn off if we are off as this will trigger a Strobe Error
     if(HWREG(RFCORE_XREG_RXENABLE) != 0) {
-        // 
+        //
         CC2538_RF_CSP_ISRFOFF();
-        
+
         // Clear fifo isr flag
         HWREG(RFCORE_SFR_RFIRQF0) = ~(RFCORE_SFR_RFIRQF0_FIFOP | RFCORE_SFR_RFIRQF0_RXPKTDONE);
     }
@@ -123,47 +124,47 @@ void Radio::receive(void)
 {
 }
 
-void Radio::loadPacket(void)
+void Radio::loadPacket(uint8_t* data, uint32_t length)
 {
 }
 
-void Radio::getPacket(void)
+void Radio::getPacket(uint8_t* buffer, uint32_t length)
 {
 }
 
-void Radio::registerRxInterrupts(callback_t rx_init_, callback_t rx_done_)
+void Radio::registerRxInterrupts(Callback* rxInit_, Callback* rxDone_)
 {
-    if (rx_init_ != nullptr)
+    if (rxInit_ != nullptr)
     {
-        rx_init = rx_init_;
+        rxInit = rxInit_;
     }
-    
-    if (rx_done_ != nullptr)
+
+    if (rxDone_ != nullptr)
     {
-        rx_done = rx_done_;
+        rxDone = rxDone_;
     }
 }
 
-void Radio::registerTxInterrupts(callback_t tx_init_, callback_t tx_done_)
+void Radio::registerTxInterrupts(Callback* txInit_, Callback* txDone_)
 {
-    if (tx_init_ != nullptr)
+    if (txInit_ != nullptr)
     {
-        tx_init = tx_init_;
+        txInit = txInit_;
     }
-    
-    if (tx_done_ != nullptr)
+
+    if (txDone_ != nullptr)
     {
-        tx_done = tx_done_;
+        txDone = txDone_;
     }
 }
 
 void Radio::enableInterrupts(void)
 {
     IntEnable(INT_RFCORERTX);
-    
+
     HWREG(RFCORE_XREG_RFERRM) = RFCORE_XREG_RFERRM_RFERRM_M;
     IntEnable(INT_RFCOREERR);
-    
+
     /* Enable RF interrupts 0, RXPKTDONE,SFD,FIFOP only -- see page 751  */
     HWREG(RFCORE_XREG_RFIRQM0) |= ((0x06|0x02|0x01) << RFCORE_XREG_RFIRQM0_RFIRQM_S) & RFCORE_XREG_RFIRQM0_RFIRQM_M;
 
@@ -175,14 +176,14 @@ void Radio::disableInterrupts(void)
 {
    /* Enable RF interrupts 0, RXPKTDONE,SFD,FIFOP only -- see page 751  */
    HWREG(RFCORE_XREG_RFIRQM0) = 0;
-   
+
    /* Enable RF interrupts 1, TXDONE only */
    HWREG(RFCORE_XREG_RFIRQM1) = 0;
 }
 
 void Radio::setChannel(uint8_t channel)
 {
-   
+
     // Check that the channel is within bounds
     if((channel < CC2538_RF_CHANNEL_MIN) || (channel > CC2538_RF_CHANNEL_MAX))
     {
@@ -190,7 +191,7 @@ void Radio::setChannel(uint8_t channel)
     }
 
     /* Changes to FREQCTRL take effect after the next recalibration */
-    HWREG(RFCORE_XREG_FREQCTRL) = (CC2538_RF_CHANNEL_MIN + 
+    HWREG(RFCORE_XREG_FREQCTRL) = (CC2538_RF_CHANNEL_MIN +
                                   (channel - CC2538_RF_CHANNEL_MIN) * CC2538_RF_CHANNEL_SPACING);
 }
 
@@ -198,7 +199,7 @@ void Radio::setPower(uint8_t power)
 {
 }
 
-/*********************************protected***********************************/
+/*=============================== protected =================================*/
 
 void Radio::interruptHandler(void)
 {
@@ -219,44 +220,30 @@ void Radio::interruptHandler(void)
     // Start of frame event
     if ((irq_status0 & RFCORE_SFR_RFIRQF0_SFD) == RFCORE_SFR_RFIRQF0_SFD)
     {
-
-    }
-    else
-    {
-        while(true);
+        // txInit
+        // rxInit
     }
 
     // STATUS0 Register
     // End of frame event
     if (((irq_status0 & RFCORE_SFR_RFIRQF0_RXPKTDONE) ==  RFCORE_SFR_RFIRQF0_RXPKTDONE))
     {
-
-    }
-    else
-    {
-        while(true);
+        // rxDone
     }
 
     // STATUS0 Register
     // Fifo is full event
     if (((irq_status0 & RFCORE_SFR_RFIRQF0_FIFOP) ==  RFCORE_SFR_RFIRQF0_FIFOP))
     {
-    }
-    else
-    {
-        while(true);
+        //
     }
 
     // STATUS1 Register
     // End of frame event
     if (((irq_status1 & RFCORE_SFR_RFIRQF1_TXDONE) == RFCORE_SFR_RFIRQF1_TXDONE))
     {
+        // txDone
     }
-    else
-    {
-        while(true);
-    }
-
 }
 
 void Radio::errorHandler(void)
@@ -265,15 +252,15 @@ void Radio::errorHandler(void)
 
     // Read RFERR_STATUS
     rferrm = (uint8_t) HWREG(RFCORE_XREG_RFERRM);
-    
+
     // Clear pending interrupt
     IntPendClear(INT_RFCOREERR);
 
     if ((HWREG(RFCORE_XREG_RFERRM) & (((0x02) << RFCORE_XREG_RFERRM_RFERRM_S) & RFCORE_XREG_RFERRM_RFERRM_M)) & ((uint32_t)rferrm))
     {
-        // 
+        //
         HWREG(RFCORE_XREG_RFERRM) = ~(((0x02)<<RFCORE_XREG_RFERRM_RFERRM_S)&RFCORE_XREG_RFERRM_RFERRM_M);
-        
+
         // ToDO: Handler error
     }
     else
@@ -282,16 +269,4 @@ void Radio::errorHandler(void)
     }
 }
 
-/**********************************private************************************/
-
-Radio::Radio()
-{    
-}
-
-void Radio::flushRxBuffer(void)
-{
-}
-
-void Radio::flushTxBuffer(void)
-{
-}
+/*================================ private ==================================*/

@@ -19,10 +19,9 @@
 #include <stdint.h>
 
 #include "Gpio.h"
+#include "Callback.h"
 
 class Gpio;
-
-typedef void (*callback_t)(void);
 
 class Spi
 {
@@ -36,8 +35,8 @@ public:
     void enable(uint32_t mode_, uint32_t protocol_, uint32_t datawidth_, uint32_t baudrate_);
     void sleep(void);
     void wakeup(void);
-    void setRxCallback(callback_t callback_);
-    void setTxCallback(callback_t callback_);
+    void setRxCallback(Callback* callback_);
+    void setTxCallback(Callback* callback_);
     void interruptEnable(void);
     void interruptDisable(void);
     uint8_t readByte(void);
@@ -64,8 +63,8 @@ private:
     GpioSpi* clk;
     GpioSpi* ncs;
 
-    callback_t rx_callback = nullptr;
-    callback_t tx_callback = nullptr;
+    Callback* rx_callback;
+    Callback* tx_callback;
 };
 
 #endif /* SPI_H_ */

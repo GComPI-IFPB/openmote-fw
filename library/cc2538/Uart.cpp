@@ -13,7 +13,7 @@
  *
  */
 
-/**********************************include************************************/
+/*================================ include ==================================*/
 
 #include "Uart.h"
 #include "InterruptHandler.h"
@@ -29,15 +29,15 @@
 #include "hw_types.h"
 #include "hw_uart.h"
 
-/**********************************defines************************************/
+/*================================ define ===================================*/
 
+/*================================ typedef ==================================*/
 
+/*=============================== variables =================================*/
 
-/*********************************variables***********************************/
+/*=============================== prototypes ================================*/
 
-
-
-/**********************************public*************************************/
+/*================================= public ==================================*/
 
 Uart::Uart(uint32_t peripheral_, uint32_t base_, uint32_t clock_, uint32_t interrupt_, GpioUart * rx_, GpioUart * tx_):
     peripheral(peripheral_), base(base_), clock(clock_), interrupt(interrupt_), rx(rx_), tx(tx_)
@@ -55,7 +55,7 @@ void Uart::enable(uint32_t baudrate_, uint32_t config_, uint32_t mode_)
     baudrate = baudrate_;
     config   = config_;
     mode     = mode_;
-    
+
     // Enable peripheral except in sleep and deep sleep modes
     SysCtrlPeripheralEnable(peripheral);
     SysCtrlPeripheralSleepDisable(peripheral);
@@ -115,7 +115,7 @@ void Uart::setTxCallback(Callback* callback_)
 void Uart::interruptEnable(void)
 {
     // Register the interrupt handler
-    InterruptHandler::getInstance().registerInterruptHandler(this);
+    InterruptHandler::getInstance().setInterruptHandler(this);
 
     // Enable UART RX and TX interrupts
     UARTIntEnable(base, UART_INT_RX | UART_INT_TX);
@@ -140,10 +140,10 @@ uint8_t Uart::readByte(void)
 {
     int32_t byte;
     byte = UARTCharGet(base);
-	return (uint8_t)(byte & 0xFF);
+    return (uint8_t)(byte & 0xFF);
 }
 
-uint32_t Uart::readByte(uint8_t * buffer, uint8_t length)
+uint32_t Uart::readByte(uint8_t * buffer, uint32_t length)
 {
     uint32_t data;
     for (uint32_t i = 0; i < length; i++)
@@ -164,7 +164,7 @@ void Uart::writeByte(uint8_t byte)
     UARTCharPutNonBlocking(base, byte);
 }
 
-uint32_t Uart::writeByte(uint8_t * buffer, uint8_t length)
+uint32_t Uart::writeByte(uint8_t * buffer, uint32_t length)
 {
     for (uint32_t i = 0; i < length; i++)
     {
@@ -178,7 +178,7 @@ uint32_t Uart::writeByte(uint8_t * buffer, uint8_t length)
     return 0;
 }
 
-/*********************************protected***********************************/
+/*=============================== protected =================================*/
 
 void Uart::interruptHandler(void)
 {
@@ -203,7 +203,7 @@ void Uart::interruptHandler(void)
     }
 }
 
-/**********************************private************************************/
+/*================================ private ==================================*/
 
 void Uart::interruptHandlerRx(void)
 {

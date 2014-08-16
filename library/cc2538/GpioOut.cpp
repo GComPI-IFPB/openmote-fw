@@ -13,7 +13,7 @@
  *
  */
 
-/**********************************include************************************/
+/*================================ include ==================================*/
 
 #include "GpioOut.h"
 
@@ -22,22 +22,22 @@
 #include "hw_memmap.h"
 #include "hw_types.h"
 
-/**********************************defines************************************/
+/*================================ define ===================================*/
 
+/*================================ typedef ==================================*/
 
+/*=============================== variables =================================*/
 
-/*********************************variables***********************************/
+/*=============================== prototypes ================================*/
 
-
-
-/**********************************public*************************************/
+/*================================= public ==================================*/
 
 GpioOut::GpioOut(uint32_t port_, uint8_t pin_):
     Gpio(port_, pin_)
 {
     // Set the pin as output
     GPIOPinTypeGPIOOutput(port, pin);
-    
+
     // Set the pin low
     GPIOPinWrite(port, pin, 0);
 }
@@ -58,10 +58,10 @@ void GpioOut::toggle(void)
 {
     // Read the old status of the pin
     uint32_t status = GPIOPinRead(port, pin);
-    
+
     // Change the status of the pin
     status = (~status) & pin;
-    
+
     // Set the new status of the pin
     GPIOPinWrite(port, pin, status);
 }
@@ -70,14 +70,11 @@ uint32_t GpioOut::status(void)
 {
     // Read the pin status
     uint32_t status = GPIOPinRead(port, pin);
-    
+
     // Return the pin status
     return (status & pin);
 }
 
-/*********************************protected***********************************/
+/*=============================== protected =================================*/
 
-
-
-/**********************************private************************************/
-
+/*================================ private ==================================*/

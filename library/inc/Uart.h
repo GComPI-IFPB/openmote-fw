@@ -39,14 +39,14 @@ public:
     void interruptEnable(void);
     void interruptDisable(void);
     uint8_t readByte(void);
-    uint32_t readByte(uint8_t * buffer, uint8_t len);
+    uint32_t readByte(uint8_t * buffer, uint32_t length);
     void writeByte(uint8_t byte);
-    uint32_t writeByte(uint8_t * buffer, uint8_t len);
+    uint32_t writeByte(uint8_t * buffer, uint32_t length);
 protected:
     void interruptHandler(void);
 private:
-    void interruptHandlerRx();
-    void interruptHandlerTx();
+    void interruptHandlerRx(void);
+    void interruptHandlerTx(void);
 private:
     uint32_t peripheral;
     uint32_t base;
@@ -56,8 +56,8 @@ private:
     uint32_t config;
     uint32_t baudrate;
 
-    GpioUart * rx;
-    GpioUart * tx;
+    GpioUart* rx;
+    GpioUart* tx;
 
     Callback* rx_callback;
     Callback* tx_callback;

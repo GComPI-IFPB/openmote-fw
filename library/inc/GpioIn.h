@@ -19,9 +19,8 @@
 #include <stdint.h>
 
 #include "Gpio.h"
+#include "Callback.h"
 #include "InterruptHandler.h"
-
-typedef void (*callback_t)(void);
 
 class GpioIn : public Gpio
 {
@@ -31,7 +30,7 @@ friend class InterruptHandler;
 public:
     GpioIn(uint32_t port_, uint8_t pin_, uint32_t edge_);
     bool read(void);
-    void setCallback(callback_t callback_);
+    void setCallback(Callback* callback_);
     void clearCallback(void);
     void enableInterrupt(void);
     void disableInterrupt(void);
@@ -39,9 +38,7 @@ protected:
     void interruptHandler(void);
 protected:
     uint32_t edge;
-    callback_t callback = nullptr;
-private:
-
+    Callback* callback = nullptr;
 };
 
 #endif /* GPIO_IN_H_ */

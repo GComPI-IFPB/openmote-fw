@@ -29,8 +29,6 @@ public:
     void off(void);
     void toggle(void);
     uint32_t status(void);
-private:
-    
 };
 
 #endif /* GPIO_OUT_H_ */

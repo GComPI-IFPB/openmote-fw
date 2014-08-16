@@ -16,12 +16,18 @@
 #ifndef TIMER_H_
 #define TIMER_H_
 
+#include <stdint.h>
+
 class Timer
 {
-public:
-    Timer();
-private:
 
+friend class InterruptHandler;
+
+public:
+    Timer(uint32_t base_, uint32_t config_);
+private:
+    uint32_t base;
+    uint32_t config;
 };
 
 #endif /* TIMER_H_ */

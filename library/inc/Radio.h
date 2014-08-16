@@ -18,9 +18,7 @@
 
 #include <stdint.h>
 
-#include "InterruptHandler.h"
-
-typedef void (*callback_t)(void);
+#include "Callback.h"
 
 class Radio
 {
@@ -28,16 +26,16 @@ class Radio
 friend class InterruptHandler;
 
 public:
-    Radio & getInstance(void);
+    Radio();
     void enable(void);
     void sleep(void);
     void wakeup(void);
     void transmit(void);
     void receive(void);
-    void loadPacket(void);
-    void getPacket(void);
-    void registerRxInterrupts(callback_t rx_init_, callback_t rx_done_);
-    void registerTxInterrupts(callback_t tx_init_, callback_t tx_done_);
+    void loadPacket(uint8_t* data, uint32_t length);
+    void getPacket(uint8_t* buffer, uint32_t length);
+    void registerRxInterrupts(Callback* rxInit_, Callback* rxDone_);
+    void registerTxInterrupts(Callback* txInit_, Callback* txDone_);
     void enableInterrupts(void);
     void disableInterrupts(void);
     void setChannel(uint8_t channel);
@@ -46,13 +44,10 @@ protected:
     void interruptHandler(void);
     void errorHandler(void);
 private:
-    Radio();
-    void flushRxBuffer(void);
-    void flushTxBuffer(void);
-private:
-    static Radio instance;
-    static callback_t rx_init, rx_done;
-    static callback_t tx_init, tx_done;
+    Callback* rxInit;
+    Callback* rxDone;
+    Callback* txInit;
+    Callback* txDone;
 };
 
 #endif /* RADIO_H_ */
