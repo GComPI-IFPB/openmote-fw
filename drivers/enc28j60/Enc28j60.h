@@ -13,12 +13,10 @@
  *
  */
 
-#include "EthernetDevice.h"
-
 #include "SpiDriver.h"
 #include "GpioIn.h"
 
-class Enc28j60 : public EthernetDevice
+class Enc28j60
 {
 public:
     Enc28j60(SpiDriver* spi_, GpioIn* gpio_);
