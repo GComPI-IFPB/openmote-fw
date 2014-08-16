@@ -13,12 +13,12 @@
  *
  */
 
-/**********************************include************************************/
+/*================================ include ==================================*/
 
 #include "Sht21.h"
 #include "I2cDriver.h"
 
-/**********************************defines************************************/
+/*================================ define ===================================*/
 
 #define SHT21_ADDRESS                   ( 0x40 )
 
@@ -47,17 +47,19 @@
                                           SHT21_ONCHIP_HEATER_DISABLE | \
                                           SHT21_BATTERY_ABOVE_2V25 | \
                                           SHT21_OTP_RELOAD_DISABLE )
-                                          
+
 #define SHT21_USER_CONFIG               ( SHT21_RESOLUTION_8b_12b | \
                                           SHT21_ONCHIP_HEATER_DISABLE | \
                                           SHT21_BATTERY_ABOVE_2V25 | \
                                           SHT21_OTP_RELOAD_DISABLE )
 
-/*********************************variables***********************************/
+/*================================ typedef ==================================*/
 
+/*=============================== variables =================================*/
 
+/*=============================== prototypes ================================*/
 
-/**********************************public*************************************/
+/*================================= public ==================================*/
 
 Sht21::Sht21(I2cDriver* i2c_):
     i2c(i2c_)
@@ -68,27 +70,27 @@ bool Sht21::enable(void)
 {
     bool status;
     uint8_t config[2];
-    
+
     // Setup the configuration vector, the first position holds address
     // and the second position holds the actual configuration
     config[0] = SHT21_USER_REG_WRITE;
     config[1] = 0;
-    
+
     // Obtain the mutex of the I2C driver
     i2c->lock();
-    
+
     // Read the current configuration according to the datasheet (pag. 9, fig. 18)
     status = i2c->writeByte(SHT21_ADDRESS, SHT21_USER_REG_READ);
     status = i2c->readByte(SHT21_ADDRESS, &config[1]);
 
     // Clean all the configuration bits except those reserved
     config[1] &= SHT21_USER_REG_RESERVED_BITS;
-    
+
     // Set the configuration bits without changing those reserved
     config[1] |= SHT21_USER_CONFIG;
-    
+
     status = i2c->writeByte(SHT21_ADDRESS, config, sizeof(config));
-    
+
     // Release the mutex of the I2C driver
     i2c->unlock();
 
@@ -98,16 +100,16 @@ bool Sht21::enable(void)
 bool Sht21::reset(void)
 {
     bool status;
-    
+
     // Obtain the mutex of the I2C driver
     i2c->lock();
-    
+
     // Send a soft-reset command according to the datasheet (pag. 9, fig. 17)
     status = i2c->writeByte(SHT21_ADDRESS, SHT21_RESET_CMD);
-    
+
     // Release the mutex of the I2C driver
     i2c->unlock();
-    
+
     return status;
 }
 
@@ -115,20 +117,20 @@ bool Sht21::isPresent(void)
 {
     bool status;
     uint8_t isPresent;
-    
+
     // Obtain the mutex of the I2C driver
     i2c->lock();
-    
+
     // Read the current configuration according to the datasheet (pag. 9, fig. 18)
     status = i2c->writeByte(SHT21_ADDRESS, SHT21_USER_REG_READ);
     status = i2c->readByte(SHT21_ADDRESS, &isPresent);
-    
+
     // Clear the reserved bits according to the datasheet (pag. 9, tab. 8)
     isPresent &= ~SHT21_USER_REG_RESERVED_BITS;
-    
+
     // Release the mutex of the I2C driver
     i2c->unlock();
-    
+
     return (status && isPresent == SHT21_DEFAULT_CONFIG);
 }
 
@@ -136,14 +138,14 @@ bool Sht21::readTemperature(void)
 {
     bool status;
     uint8_t sht21_temperature[2];
-    
+
     // Obtain the mutex of the I2C driver
     i2c->lock();
-    
+
     // Read the current temperature according to the datasheet (pag. 8, fig. 15)
     status = i2c->writeByte(SHT21_ADDRESS, SHT21_TEMPERATURE_HM_CMD);
     status = i2c->readByte(SHT21_ADDRESS, sht21_temperature, sizeof(sht21_temperature));
-    
+
     // Release the mutex of the I2C driver
     i2c->unlock();
 
@@ -152,7 +154,7 @@ bool Sht21::readTemperature(void)
     {
         temperature = (sht21_temperature[1] << 8) | sht21_temperature[0];
     }
-    
+
     return status;
 }
 
@@ -163,11 +165,11 @@ bool Sht21::readHumidity(void)
 
     // Obtain the mutex of the I2C driver
     i2c->lock();
-    
+
     // Read the current humidity according to the datasheet (pag. 8, fig. 15)
     status = i2c->writeByte(SHT21_ADDRESS, SHT21_HUMIDITY_HM_CMD);
     status = i2c->readByte(SHT21_ADDRESS, sht21_humidity, sizeof(sht21_humidity));
-    
+
     // Release the mutex of the I2C driver
     i2c->unlock();
 
@@ -206,9 +208,6 @@ float Sht21::getHumidity(void)
     return result;
 }
 
-/*********************************protected***********************************/
+/*=============================== protected =================================*/
 
-
-
-/**********************************private************************************/
-
+/*================================ private ==================================*/

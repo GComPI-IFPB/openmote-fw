@@ -16,14 +16,11 @@
 #ifndef SENSOR_H_
 #define SENSOR_H_
 
-#include <stdint.h>
-
 class Sensor {
 public:
     virtual bool enable(void) = 0;
-    virtual bool reset(void) = 0; 
+    virtual bool reset(void) = 0;
     virtual bool isPresent(void) = 0;
-private:
 };
 
 #endif /* SENSOR_H_ */

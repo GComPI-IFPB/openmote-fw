@@ -13,14 +13,14 @@
  *
  */
 
-/**********************************include************************************/
+/*================================ include ==================================*/
 
 #include "Max44009.h"
 
 #include "I2cDriver.h"
 #include "GpioIn.h"
 
-/**********************************defines************************************/
+/*================================ define ===================================*/
 
 /* ADDRESS AND NOT_FOUND VALUE */
 #define MAX44009_ADDRESS                    ( 0x4A )
@@ -64,12 +64,13 @@
                                               MAX44009_CONFIG_CDR_NORMAL | \
                                               MAX44009_CONFIG_INTEGRATION_100ms )
 
-/*********************************variables***********************************/
+/*================================ typedef ==================================*/
 
+/*=============================== variables =================================*/
 
+/*=============================== prototypes ================================*/
 
-/**********************************public*************************************/
-
+/*================================= public ==================================*/
 
 Max44009::Max44009(I2cDriver* i2c_, GpioIn* gpio_):
     i2c(i2c_), gpio(gpio_)
@@ -84,15 +85,15 @@ bool Max44009::enable(void)
     uint8_t max44009_value[5];
     uint8_t max44009_data[2];
     bool status;
-    
+
     max44009_value[0] = (MAX44009_INT_STATUS_ON);
     max44009_value[1] = (MAX44009_DEFAULT_CONFIGURATION);
     max44009_value[2] = (0xFF);
     max44009_value[3] = (0x00);
     max44009_value[4] = (0xFF);
-    
+
     i2c->lock();
-    
+
     for(uint8_t i = 0; i < sizeof(max44009_address); i++)
     {
         max44009_data[0] = max44009_value[i];
@@ -104,9 +105,9 @@ bool Max44009::enable(void)
             return status;
         }
     }
-    
+
     i2c->unlock();
-    
+
     return true;
 }
 
@@ -118,9 +119,9 @@ bool Max44009::reset(void)
     uint8_t max44009_value[5] = {0x00, 0x03, 0xFF, 0x00, 0xFF};
     uint8_t max44009_data[2];
     bool status;
-    
+
     i2c->lock();
-    
+
     for(uint8_t i = 0; i < sizeof(max44009_address); i++)
     {
         max44009_data[0] = max44009_value[i];
@@ -132,14 +133,14 @@ bool Max44009::reset(void)
             return status;
         }
     }
-    
+
     i2c->unlock();
     return true;
 }
 
-void Max44009::setCallback(callback_t callback)
+void Max44009::setCallback(Callback* callback_)
 {
-    gpio->setCallback(callback);
+    gpio->setCallback(callback_);
     gpio->enableInterrupt();
 }
 
@@ -153,12 +154,12 @@ bool Max44009::isPresent(void)
 {
     bool status;
     uint8_t isPresent;
-    
+
     i2c->lock();
     status = i2c->writeByte(MAX44009_ADDRESS, MAX44009_CONFIG_ADDR);
     status = i2c->readByte(MAX44009_ADDRESS, &isPresent);
     i2c->unlock();
-    
+
     return (status && isPresent != MAX44009_NOT_FOUND);
 }
 
@@ -173,13 +174,13 @@ bool Max44009::readLux(void)
     status = i2c->writeByte(MAX44009_ADDRESS, MAX44009_LUX_LOW_ADDR);
     status = i2c->readByte(MAX44009_ADDRESS, &max44009_data[1]);
     i2c->unlock();
-    
+
     if (status)
     {
         exponent = (( max44009_data[0] >> 4 )  & 0x0E);
         mantissa = (( max44009_data[0] & 0x0F) << 4) | (max44009_data[1] & 0x0F);
     }
-    
+
     return status;
 }
 
@@ -197,9 +198,6 @@ uint16_t Max44009::getLuxRaw(void)
     return lux;
 }
 
-/*********************************protected***********************************/
+/*=============================== protected =================================*/
 
-
-
-/**********************************private************************************/
-
+/*================================ private ==================================*/

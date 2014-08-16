@@ -16,7 +16,7 @@
 #ifndef SHT21_H_
 #define SHT21_H_
 
-#include "hw_types.h"
+#include <stdint.h>
 
 #include "Sensor.h"
 

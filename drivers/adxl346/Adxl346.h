@@ -19,21 +19,19 @@
 #include <stdint.h>
 
 #include "Sensor.h"
-
-typedef void (*callback_t)(void);
+#include "Callback.h"
 
 class I2cDriver;
 class GpioIn;
 
 class Adxl346: public Sensor
 {
-
 public:
     Adxl346(I2cDriver* i2c_, GpioIn* gpio_);
     bool enable(void);
     bool reset(void);
     bool isPresent(void);
-    void setCallback(callback_t callback);
+    void setCallback(Callback* callback_);
     void clearCallback(void);
     bool readAcceleration(void);
     uint16_t getX(void);
