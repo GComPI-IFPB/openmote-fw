@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       I2cDriver.cpp
+ * @file       Hdlc.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -15,9 +15,13 @@
 
 /*================================ include ==================================*/
 
-#include "I2cDriver.h"
+#include "Hdlc.h"
 
 /*================================ define ===================================*/
+
+#define HDLC_FLAG                   ( 0x7E )
+#define HDLC_ESCAPE                 ( 0x7D )
+#define HDLC_ESCAPE_MASK            ( 0x20 )
 
 /*================================ typedef ==================================*/
 
@@ -27,23 +31,8 @@
 
 /*================================= public ==================================*/
 
-I2cDriver::I2cDriver(uint32_t peripheral_, GpioI2c* scl_, GpioI2c* sda_):
-    I2c(peripheral_, scl_, sda_)
+Hdlc::Hdlc()
 {
-    xMutex = xSemaphoreCreateMutex();
-    if (xMutex == NULL) {
-        while(true);
-    }
-}
-
-void I2cDriver::lock(void)
-{
-    xSemaphoreTake(xMutex, portMAX_DELAY);
-}
-
-void I2cDriver::unlock(void)
-{
-    xSemaphoreGive(xMutex);
 }
 
 /*=============================== protected =================================*/

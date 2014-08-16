@@ -19,10 +19,20 @@
 #include <stdint.h>
 
 #include "UartDriver.h"
-#include "SerialCallback.h"
 
-static const uint8_t RX_BUFFER_SIZE = 128;
-static const uint8_t TX_BUFFER_SIZE = 128;
+class Serial;
+
+class SerialCallback : public Callback
+{
+public:
+    SerialCallback(Serial* object_ = nullptr, \
+                   void(Serial:: *method_)(void) = nullptr ):
+                   object(object_), method(method_){}
+    void execute(void) {(object->*method)();}
+private:
+    Serial* object;
+    void(Serial:: *method)(void);
+};
 
 class Serial
 {
@@ -40,12 +50,12 @@ private:
     SerialCallback rxCallback;
     SerialCallback txCallback;
 
-    uint8_t rxBuffer[RX_BUFFER_SIZE];
+    uint8_t rxBuffer[128];
     uint8_t* rxBufferHead;
     uint8_t* rxBufferTail;
     uint32_t rxBufferSize;
-    
-    uint8_t txBuffer[TX_BUFFER_SIZE];
+
+    uint8_t txBuffer[128];
     uint8_t* txBufferHead;
     uint8_t* txBufferTail;
     uint32_t txBufferSize;

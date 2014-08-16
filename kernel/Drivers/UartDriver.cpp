@@ -47,12 +47,13 @@ void UartDriver::unlock(void)
     xSemaphoreGive(xMutex);
 }
 
-void UartDriver::unlockFromIsr(void)
+void UartDriver::unlockFromInterrupt(void)
 {
     xHigherPriorityTaskWoken = pdFALSE;
     xSemaphoreGiveFromISR(xMutex, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-/*================================ private ==================================*/
+/*=============================== protected =================================*/
 
+/*================================ private ==================================*/

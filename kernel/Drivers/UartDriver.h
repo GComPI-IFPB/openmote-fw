@@ -24,13 +24,12 @@
 
 class UartDriver : public Uart
 {
-
 public:
     UartDriver(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
                uint32_t interrupt_, GpioUart * rx_, GpioUart * tx_);
     void lock(void);
     void unlock(void);
-    void unlockFromIsr(void);
+    void unlockFromInterrupt(void);
 private:
     SemaphoreHandle_t xMutex;
     BaseType_t xHigherPriorityTaskWoken;
