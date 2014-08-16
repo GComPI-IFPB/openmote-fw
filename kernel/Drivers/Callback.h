@@ -16,11 +16,22 @@
 #ifndef CALLBACK_H_
 #define CALLBACK_H_
 
+typedef void(*callback_t)(void);
+
 class Callback
 {
 public:
     virtual void execute(void) = 0;
 private:
+};
+
+class GenericCallback : public Callback
+{
+public:
+    GenericCallback(callback_t callback_){callback = callback_;}
+    void execute(void){callback();}
+private:
+    callback_t callback;
 };
 
 #endif /* CALLBACK_H_ */
