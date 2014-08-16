@@ -21,6 +21,8 @@
 
 #include "openmote-cc2538.h"
 
+#include "Callback.h"
+
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY         ( tskIDLE_PRIORITY + 0 )
@@ -57,7 +59,13 @@ int main (void)
 
     // Enable the I2C interface
     i2c.enable(I2C_BAUDRATE);
-    
+
+    // Enable the SPI interface
+    // spi.enable(SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE);
+
+    // Enable the UART interface
+    // uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
+
     // Create the FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "GreenLed", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
     xTaskCreate(prvAccelerationTask, (const char *) "Acceleration", 128, NULL, ACCELERATION_TASK_PRIORITY, NULL);
@@ -86,19 +94,21 @@ TickType_t board_wakeup(TickType_t xModifiableIdleTime)
 static void button_user_callback(void)
 {
     static BaseType_t xHigherPriorityTaskWoken;
-    
+
     xHigherPriorityTaskWoken = pdFALSE;
-    
+
     xSemaphoreGiveFromISR(xSemaphoreButton, &xHigherPriorityTaskWoken);
-    
+
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 static void prvButtonTask(void *pvParameters)
 {
+    static GenericCallback genericCallback(button_user_callback);
+
     xSemaphoreButton = xSemaphoreCreateMutex();
 
-    button_user.setCallback(button_user_callback);
+    button_user.setCallback(&genericCallback);
     button_user.enableInterrupt();
 
     while(true)
@@ -109,7 +119,7 @@ static void prvButtonTask(void *pvParameters)
         {
             led_red.toggle();
         }
-    } 
+    }
 }
 
 static void prvTemperatureTask(void *pvParameters)
@@ -122,10 +132,10 @@ static void prvTemperatureTask(void *pvParameters)
     if (sht21.isPresent() == true)
     {
         sht21.enable();
-        
-    	while(true)
-    	{
-    	    led_orange.on();
+
+        while(true)
+        {
+            led_orange.on();
 
             sht21.readTemperature();
             temperature = sht21.getTemperatureRaw();
@@ -136,43 +146,43 @@ static void prvTemperatureTask(void *pvParameters)
             led_orange.off();
 
             vTaskDelay(2000 / portTICK_RATE_MS);
-	    }
-	}
-	else
-	{
-	    led_red.on();
-	    vTaskDelete(NULL);
-	}
+        }
+    }
+    else
+    {
+        led_red.on();
+        vTaskDelete(NULL);
+    }
 }
 
 static void prvLightTask(void *pvParameters)
 {
     uint16_t light;
-    
+
     vTaskDelay(500 / portTICK_RATE_MS);
 
     if (max44009.isPresent() == true)
     {
-        
+
         max44009.enable();
-        
-    	while(true)
-    	{
-        	led_orange.on();
 
-        	max44009.readLux();
-        	light = max44009.getLuxRaw();
+        while(true)
+        {
+            led_orange.on();
 
-           	led_orange.off();
+            max44009.readLux();
+            light = max44009.getLuxRaw();
+
+            led_orange.off();
 
             vTaskDelay(2000 / portTICK_RATE_MS);
-	    }
-	}
-	else
-	{
-	    led_red.on();
-	    vTaskDelete(NULL);
-	}
+        }
+    }
+    else
+    {
+        led_red.on();
+        vTaskDelete(NULL);
+    }
 }
 
 static void prvAccelerationTask(void *pvParameters) {
@@ -184,8 +194,8 @@ static void prvAccelerationTask(void *pvParameters) {
     {
         adxl346.enable();
 
-    	while(true)
-    	{
+        while(true)
+        {
             led_orange.on();
 
             adxl346.readAcceleration();
@@ -196,23 +206,23 @@ static void prvAccelerationTask(void *pvParameters) {
             led_orange.off();
 
             vTaskDelay(2000 / portTICK_RATE_MS);
-	    }
-	}
-	else
-	{
-	    led_red.on();
-	    vTaskDelete(NULL);
-	}
+        }
+    }
+    else
+    {
+        led_red.on();
+        vTaskDelete(NULL);
+    }
 }
 
 static void prvGreenLedTask(void *pvParameters)
 {
-	while(true)
-	{
-		led_green.on();
-		vTaskDelay(50/ portTICK_RATE_MS);
+    while(true)
+    {
+        led_green.on();
+        vTaskDelay(50/ portTICK_RATE_MS);
         led_green.off();
-		vTaskDelay(1950 / portTICK_RATE_MS);
-	}
+        vTaskDelay(1950 / portTICK_RATE_MS);
+    }
 }
 

@@ -1,6 +1,6 @@
 # Project name and files to compile
 PROJECT_NAME  = test-uart
-PROJECT_FILES = test-uart.cpp
+PROJECT_FILES = main.cpp
 PROJECT_DIR   = .
 
 # Location of the root directory

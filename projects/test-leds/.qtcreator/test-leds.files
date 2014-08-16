@@ -1,5 +1,5 @@
 ../FreeRTOSConfig.h
-../test-leds.cpp
+../main.cpp
 ../../../board/openmote-cc2538.h
 ../../../drivers/Ethernet.h
 ../../../drivers/Sensor.h
@@ -13,6 +13,11 @@
 ../../../drivers/sht21/Sht21.h
 ../../../drivers/tps62730/Tps62730.cpp
 ../../../drivers/tps62730/Tps62730.h
+../../../kernel/Drivers/Callback.h
+../../../kernel/Drivers/Crc16.cpp
+../../../kernel/Drivers/Crc16.h
+../../../kernel/Drivers/Hdlc.cpp
+../../../kernel/Drivers/Hdlc.h
 ../../../kernel/Drivers/I2cDriver.cpp
 ../../../kernel/Drivers/I2cDriver.h
 ../../../kernel/Drivers/SpiDriver.cpp
@@ -21,8 +26,6 @@
 ../../../kernel/Drivers/UartDriver.h
 ../../../kernel/Drivers/Serial.cpp
 ../../../kernel/Drivers/Serial.h
-../../../kernel/Drivers/Callback.h
-../../../kernel/Drivers/SerialCallback.h
 ../../../kernel/FreeRTOS/FreeRTOS.h
 ../../../kernel/FreeRTOS/StackMacros.h
 ../../../kernel/FreeRTOS/croutine.c

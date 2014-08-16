@@ -1,6 +1,6 @@
 # Project name and files to compile
 PROJECT_NAME  = tickless-cc2538
-PROJECT_FILES = tickless-cc2538.cpp cc2538_lowpower.c
+PROJECT_FILES = main.cpp cc2538_lowpower.c
 PROJECT_DIR   = .
 
 # Location of the root directory

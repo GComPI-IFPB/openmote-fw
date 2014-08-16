@@ -1,6 +1,6 @@
 # Project name and files to compile
 PROJECT_NAME  = test-leds
-PROJECT_FILES = test-leds.cpp
+PROJECT_FILES = main.cpp
 PROJECT_DIR   = .
 
 # Location of the root directory

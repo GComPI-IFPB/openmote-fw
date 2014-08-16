@@ -1,6 +1,6 @@
 # Project name and files to compile
 PROJECT_NAME  = test-button
-PROJECT_FILES = test-button.cpp
+PROJECT_FILES = main.cpp
 PROJECT_DIR   = .
 
 # Location of the root directory

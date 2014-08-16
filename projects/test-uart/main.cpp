@@ -19,9 +19,9 @@
 #include "task.h"
 #include "semphr.h"
 
-#include "Serial.h"
-
 #include "openmote-cc2538.h"
+
+#include "Serial.h"
 
 #include "string.h"
 
@@ -35,8 +35,8 @@
 
 /*=============================== variables =================================*/
 
-static uint8_t dataA[64];
-static uint8_t dataB[64];
+static uint8_t serialDataA[64];
+static uint8_t serialDataB[64];
 
 static Serial serial(uart);
 
@@ -56,8 +56,8 @@ int main (void)
     uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
     serial.enable();
 
-    memset(dataA, 0xAA, sizeof(dataA));
-    memset(dataB, 0xBB, sizeof(dataB));
+    memset(serialDataA, 0xAA, sizeof(serialDataA));
+    memset(serialDataB, 0xBB, sizeof(serialDataB));
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
@@ -68,13 +68,17 @@ int main (void)
     vTaskStartScheduler();
 }
 
+/*=============================== protected =================================*/
+
+/*================================ private ==================================*/
+
 static void prvSerialTaskA(void *pvParameters)
 {
     while(true)
     {
         led_red.on();
-        serial.printf(dataA, sizeof(dataA));
-        led_red.off();  
+        serial.printf(serialDataA, sizeof(serialDataA));
+        led_red.off();
         vTaskDelay(100 / portTICK_RATE_MS);
     }
 }
@@ -84,7 +88,7 @@ static void prvSerialTaskB(void *pvParameters)
     while(true)
     {
         led_orange.on();
-        serial.printf(dataB, sizeof(dataB));
+        serial.printf(serialDataB, sizeof(serialDataB));
         led_orange.off();
         vTaskDelay(100 / portTICK_RATE_MS);
     }
@@ -100,6 +104,3 @@ static void prvGreenLedTask(void *pvParameters)
         vTaskDelay(50 / portTICK_RATE_MS);
     }
 }
-
-/*================================ private ==================================*/
-

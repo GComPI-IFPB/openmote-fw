@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       test-leds.cpp
+ * @file       test-radio.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -24,7 +24,6 @@
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
-#define RED_LED_TASK_PRIORITY               ( tskIDLE_PRIORITY + 0 )
 
 /*================================ typedef ==================================*/
 
@@ -33,7 +32,6 @@
 /*=============================== prototypes ================================*/
 
 static void prvGreenLedTask(void *pvParameters);
-static void prvRedLedTask(void *pvParameters);
 
 /*================================= public ==================================*/
 
@@ -44,19 +42,9 @@ int main (void)
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-    xTaskCreate(prvRedLedTask, (const char *) "Red", 128, NULL, RED_LED_TASK_PRIORITY, NULL);
 
     // Kick the FreeRTOS scheduler
     vTaskStartScheduler();
-}
-
-static void prvRedLedTask(void *pvParameters)
-{
-    while(true)
-    {
-        vTaskDelay(100 / portTICK_RATE_MS);
-        led_red.toggle();
-    }
 }
 
 static void prvGreenLedTask(void *pvParameters)
@@ -71,4 +59,3 @@ static void prvGreenLedTask(void *pvParameters)
 }
 
 /*================================ private ==================================*/
-

@@ -21,6 +21,8 @@
 
 #include "openmote-cc2538.h"
 
+#include "Callback.h"
+
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
@@ -50,11 +52,11 @@ int main (void)
     tps62730.setBypass();
 
     // Create two FreeRTOS tasks
-	xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-	xTaskCreate(prvButtonTask, (const char *) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
+    xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
+    xTaskCreate(prvButtonTask, (const char *) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
 
     // Kick the FreeRTOS scheduler
-	vTaskStartScheduler();
+    vTaskStartScheduler();
 }
 
 TickType_t board_sleep(TickType_t xModifiableIdleTime)
@@ -71,7 +73,7 @@ TickType_t board_wakeup(TickType_t xModifiableIdleTime)
 
 static void button_user_callback(void)
 {
-    static BaseType_t xHigherPriorityTaskWoken; 
+    static BaseType_t xHigherPriorityTaskWoken;
     xHigherPriorityTaskWoken = pdFALSE;
     xSemaphoreGiveFromISR(xSemaphore, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -79,9 +81,11 @@ static void button_user_callback(void)
 
 static void prvButtonTask(void *pvParameters)
 {
+    static GenericCallback genericCallback(button_user_callback);
+
     xSemaphore = xSemaphoreCreateMutex();
 
-    button_user.setCallback(button_user_callback);
+    button_user.setCallback(&genericCallback);
     button_user.enableInterrupt();
 
     while(true)
@@ -90,7 +94,7 @@ static void prvButtonTask(void *pvParameters)
         {
             led_red.toggle();
         }
-    } 
+    }
 }
 
 static void prvGreenLedTask(void *pvParameters)
@@ -101,6 +105,6 @@ static void prvGreenLedTask(void *pvParameters)
         vTaskDelay(1950 / portTICK_PERIOD_MS);
         led_green.on();
         vTaskDelay(50 / portTICK_PERIOD_MS);
-	}
+    }
 }
 
