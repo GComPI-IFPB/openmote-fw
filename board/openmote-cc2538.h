@@ -157,7 +157,7 @@ Board board;
 
 GpioOut bypass(TPS62730_PORT, TPS62730_BYPASS_PIN);
 GpioIn  status(TPS62730_PORT, TPS62730_STATUS_PIN, TPS62730_STATUS_EDGE);
-Tps62730 tps62730(&bypass, &status);
+Tps62730 tps62730(bypass, status);
 
 GpioOut debug_ad0(GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN);
 GpioOut debug_ad1(GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN);
@@ -173,28 +173,28 @@ GpioInPow button_user(BUTTON_USER_PORT, BUTTON_USER_PIN, BUTTON_USER_EDGE);
 
 GpioI2c i2c_scl(I2C_BASE, I2C_SCL);
 GpioI2c i2c_sda(I2C_BASE, I2C_SDA);
-I2cDriver i2c(I2C_PERIPHERAL, &i2c_scl, &i2c_sda);
+I2cDriver i2c(I2C_PERIPHERAL, i2c_scl, i2c_sda);
 
 GpioSpi spi_miso(SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC);
 GpioSpi spi_mosi(SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC);
 GpioSpi spi_clk(SPI_CLK_BASE, SPI_CLK_PIN, SPI_CLK_IOC);
 GpioSpi spi_ncs(SPI_nCS_BASE, SPI_nCS_PIN, SPI_nCS_IOC);
-SpiDriver spi(SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, &spi_miso, &spi_mosi, &spi_clk, &spi_ncs);
+SpiDriver spi(SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, spi_miso, spi_mosi, spi_clk, spi_ncs);
 
 GpioUart uart_rx(UART_RX_PORT, UART_RX_PIN, UART_RX_IOC);
 GpioUart uart_tx(UART_TX_PORT, UART_TX_PIN, UART_TX_IOC);
-UartDriver uart(UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INTERRUPT, &uart_rx, &uart_tx);
+UartDriver uart(UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INTERRUPT, uart_rx, uart_tx);
 
 GpioInPow adxl346_int(ADXL346_INT_PORT, ADXL346_INT_PIN, ADXL346_INT_EDGE);
-Adxl346 adxl346(&i2c, &adxl346_int);
+Adxl346 adxl346(i2c, adxl346_int);
 
 GpioIn max44009_int(MAX44009_INT_PORT, MAX44009_INT_PIN, MAX44009_INT_EDGE);
-Max44009 max44009(&i2c, &max44009_int);
+Max44009 max44009(i2c, max44009_int);
 
-Sht21 sht21(&i2c);
+Sht21 sht21(i2c);
 
 GpioIn enc28j60_int(ENC28J60_INT_PORT, ENC28J60_INT_PIN, ENC28J60_INT_EDGE);
-Enc28j60 enc28j60(&spi, &enc28j60_int);
+Enc28j60 enc28j60(spi, enc28j60_int);
 
 /*=============================== prototypes ================================*/
 

@@ -39,7 +39,7 @@
 
 /*================================= public ==================================*/
 
-Uart::Uart(uint32_t peripheral_, uint32_t base_, uint32_t clock_, uint32_t interrupt_, GpioUart * rx_, GpioUart * tx_):
+Uart::Uart(uint32_t peripheral_, uint32_t base_, uint32_t clock_, uint32_t interrupt_, GpioUart& rx_, GpioUart& tx_):
     peripheral(peripheral_), base(base_), clock(clock_), interrupt(interrupt_), rx(rx_), tx(tx_)
 {
 }
@@ -68,12 +68,12 @@ void Uart::enable(uint32_t baudrate_, uint32_t config_, uint32_t mode_)
     UARTClockSourceSet(base, clock);
 
     // Configure the UART RX and TX pins
-    IOCPinConfigPeriphInput(rx->getPort(), rx->getPin(), rx->getIoc());
-    IOCPinConfigPeriphOutput(tx->getPort(), tx->getPin(), tx->getIoc());
+    IOCPinConfigPeriphInput(rx.getPort(), rx.getPin(), rx.getIoc());
+    IOCPinConfigPeriphOutput(tx.getPort(), tx.getPin(), tx.getIoc());
 
     // Configure the UART GPIOs
-    GPIOPinTypeUARTInput(rx->getPort(), rx->getPin());
-    GPIOPinTypeUARTOutput(tx->getPort(), tx->getPin());
+    GPIOPinTypeUARTInput(rx.getPort(), rx.getPin());
+    GPIOPinTypeUARTOutput(tx.getPort(), tx.getPin());
 
     // Configure the UART
     UARTConfigSetExpClk(base, SysCtrlIOClockGet(), baudrate, config);
@@ -90,11 +90,11 @@ void Uart::enable(uint32_t baudrate_, uint32_t config_, uint32_t mode_)
 
 void Uart::sleep(void)
 {
-    GPIOPinTypeGPIOOutput(rx->getPort(), rx->getPin());
-    GPIOPinTypeGPIOOutput(tx->getPort(), tx->getPin());
+    GPIOPinTypeGPIOOutput(rx.getPort(), rx.getPin());
+    GPIOPinTypeGPIOOutput(tx.getPort(), tx.getPin());
 
-    GPIOPinWrite(rx->getPort(), rx->getPin(), 0);
-    GPIOPinWrite(tx->getPort(), tx->getPin(), 0);
+    GPIOPinWrite(rx.getPort(), rx.getPin(), 0);
+    GPIOPinWrite(tx.getPort(), tx.getPin(), 0);
 }
 
 void Uart::wakeup(void)

@@ -110,7 +110,7 @@
 
 /*================================= public ==================================*/
 
-Enc28j60::Enc28j60(SpiDriver* spi_, GpioIn* gpio_):
+Enc28j60::Enc28j60(SpiDriver& spi_, GpioIn& gpio_):
     spi(spi_), gpio(gpio_)
 {
 }

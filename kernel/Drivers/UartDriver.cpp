@@ -28,7 +28,7 @@
 /*================================= public ==================================*/
 
 UartDriver::UartDriver(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
-                       uint32_t interrupt_, GpioUart * rx_, GpioUart * tx_):
+                       uint32_t interrupt_, GpioUart& rx_, GpioUart& tx_):
     Uart(peripheral_, base_, clock_, interrupt_, rx_, tx_)
 {
     xMutex = xSemaphoreCreateMutex();

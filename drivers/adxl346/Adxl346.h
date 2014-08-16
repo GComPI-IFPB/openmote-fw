@@ -27,7 +27,7 @@ class GpioIn;
 class Adxl346: public Sensor
 {
 public:
-    Adxl346(I2cDriver* i2c_, GpioIn* gpio_);
+    Adxl346(I2cDriver& i2c_, GpioIn& gpio_);
     bool enable(void);
     bool reset(void);
     bool isPresent(void);
@@ -38,8 +38,8 @@ public:
     uint16_t getY(void);
     uint16_t getZ(void);
 private:
-    I2cDriver * i2c;
-    GpioIn * gpio;
+    I2cDriver& i2c;
+    GpioIn& gpio;
     uint16_t x;
     uint16_t y;
     uint16_t z;

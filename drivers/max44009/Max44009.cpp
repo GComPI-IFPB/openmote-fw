@@ -72,7 +72,7 @@
 
 /*================================= public ==================================*/
 
-Max44009::Max44009(I2cDriver* i2c_, GpioIn* gpio_):
+Max44009::Max44009(I2cDriver& i2c_, GpioIn& gpio_):
     i2c(i2c_), gpio(gpio_)
 {
 }
@@ -92,21 +92,21 @@ bool Max44009::enable(void)
     max44009_value[3] = (0x00);
     max44009_value[4] = (0xFF);
 
-    i2c->lock();
+    i2c.lock();
 
     for(uint8_t i = 0; i < sizeof(max44009_address); i++)
     {
         max44009_data[0] = max44009_value[i];
         max44009_data[1] = max44009_data[i];
-        status = i2c->writeByte(MAX44009_ADDRESS, max44009_data, 2);
+        status = i2c.writeByte(MAX44009_ADDRESS, max44009_data, 2);
         if (status == false)
         {
-            i2c->unlock();
+            i2c.unlock();
             return status;
         }
     }
 
-    i2c->unlock();
+    i2c.unlock();
 
     return true;
 }
@@ -120,34 +120,34 @@ bool Max44009::reset(void)
     uint8_t max44009_data[2];
     bool status;
 
-    i2c->lock();
+    i2c.lock();
 
     for(uint8_t i = 0; i < sizeof(max44009_address); i++)
     {
         max44009_data[0] = max44009_value[i];
         max44009_data[1] = max44009_data[i];
-        status = i2c->writeByte(MAX44009_ADDRESS, max44009_data, 2);
+        status = i2c.writeByte(MAX44009_ADDRESS, max44009_data, 2);
         if (status == false)
         {
-            i2c->unlock();
+            i2c.unlock();
             return status;
         }
     }
 
-    i2c->unlock();
+    i2c.unlock();
     return true;
 }
 
 void Max44009::setCallback(Callback* callback_)
 {
-    gpio->setCallback(callback_);
-    gpio->enableInterrupt();
+    gpio.setCallback(callback_);
+    gpio.enableInterrupt();
 }
 
 void Max44009::clearCallback(void)
 {
-    gpio->clearCallback();
-    gpio->disableInterrupt();
+    gpio.clearCallback();
+    gpio.disableInterrupt();
 }
 
 bool Max44009::isPresent(void)
@@ -155,10 +155,10 @@ bool Max44009::isPresent(void)
     bool status;
     uint8_t isPresent;
 
-    i2c->lock();
-    status = i2c->writeByte(MAX44009_ADDRESS, MAX44009_CONFIG_ADDR);
-    status = i2c->readByte(MAX44009_ADDRESS, &isPresent);
-    i2c->unlock();
+    i2c.lock();
+    status = i2c.writeByte(MAX44009_ADDRESS, MAX44009_CONFIG_ADDR);
+    status = i2c.readByte(MAX44009_ADDRESS, &isPresent);
+    i2c.unlock();
 
     return (status && isPresent != MAX44009_NOT_FOUND);
 }
@@ -168,12 +168,12 @@ bool Max44009::readLux(void)
     bool status;
     uint8_t max44009_data[2];
 
-    i2c->lock();
-    status = i2c->writeByte(MAX44009_ADDRESS, MAX44009_LUX_HIGH_ADDR);
-    status = i2c->readByte(MAX44009_ADDRESS, &max44009_data[0]);
-    status = i2c->writeByte(MAX44009_ADDRESS, MAX44009_LUX_LOW_ADDR);
-    status = i2c->readByte(MAX44009_ADDRESS, &max44009_data[1]);
-    i2c->unlock();
+    i2c.lock();
+    status = i2c.writeByte(MAX44009_ADDRESS, MAX44009_LUX_HIGH_ADDR);
+    status = i2c.readByte(MAX44009_ADDRESS, &max44009_data[0]);
+    status = i2c.writeByte(MAX44009_ADDRESS, MAX44009_LUX_LOW_ADDR);
+    status = i2c.readByte(MAX44009_ADDRESS, &max44009_data[1]);
+    i2c.unlock();
 
     if (status)
     {

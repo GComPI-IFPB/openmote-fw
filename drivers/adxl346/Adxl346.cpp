@@ -127,7 +127,7 @@
 
 /*================================= public ==================================*/
 
-Adxl346::Adxl346(I2cDriver* i2c_, GpioIn* gpio_):
+Adxl346::Adxl346(I2cDriver& i2c_, GpioIn& gpio_):
     i2c(i2c_), gpio(gpio_)
 {
 }
@@ -137,23 +137,23 @@ bool Adxl346::enable(void)
     bool status;
     uint8_t config[2];
 
-    i2c->lock();
+    i2c.lock();
 
     config[0] = ADXL346_BW_RATE_ADDR;
     config[1] = (ADXL346_BW_RATE_RATE(11));
-    status = i2c->writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    status = i2c.writeByte(ADXL346_ADDRESS, config, sizeof(config));
 
     config[0] = ADXL346_DATA_FORMAT_ADDR;
     config[1] = (ADXL346_DATA_FORMAT_SELF_TEST |
                  ADXL346_DATA_FORMAT_FULL_RES  |
                  ADXL346_DATA_FORMAT_RANGE_PM_16g);
-    status = i2c->writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    status = i2c.writeByte(ADXL346_ADDRESS, config, sizeof(config));
 
     config[0] = ADXL346_POWER_CTL_ADDR;
     config[1] = (ADXL346_POWER_CTL_MEASURE);
-    status = i2c->writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    status = i2c.writeByte(ADXL346_ADDRESS, config, sizeof(config));
 
-    i2c->unlock();
+    i2c.unlock();
 
     return status;
 }
@@ -168,24 +168,24 @@ bool Adxl346::isPresent(void)
     bool status;
     uint8_t isPresent;
 
-    i2c->lock();
-    status = i2c->writeByte(ADXL346_ADDRESS, ADXL346_DEVID_ADDR);
-    status = i2c->readByte(ADXL346_ADDRESS, &isPresent);
-    i2c->unlock();
+    i2c.lock();
+    status = i2c.writeByte(ADXL346_ADDRESS, ADXL346_DEVID_ADDR);
+    status = i2c.readByte(ADXL346_ADDRESS, &isPresent);
+    i2c.unlock();
 
     return (status && isPresent == ADXL346_DEVID_VALUE);
 }
 
 void Adxl346::setCallback(Callback* callback_)
 {
-    gpio->setCallback(callback_);
-    gpio->enableInterrupt();
+    gpio.setCallback(callback_);
+    gpio.enableInterrupt();
 }
 
 void Adxl346::clearCallback(void)
 {
-    gpio->clearCallback();
-    gpio->disableInterrupt();
+    gpio.clearCallback();
+    gpio.disableInterrupt();
 }
 
 bool Adxl346::readAcceleration(void)
@@ -193,36 +193,36 @@ bool Adxl346::readAcceleration(void)
     bool status;
     uint8_t acceleration[2];
 
-    i2c->lock();
+    i2c.lock();
 
-    status = i2c->writeByte(ADXL346_ADDRESS, ADXL346_DATAX0_ADDR);
-    status = i2c->readByte(ADXL346_ADDRESS, &acceleration[0]);
-    status = i2c->writeByte(ADXL346_ADDRESS, ADXL346_DATAX1_ADDR);
-    status = i2c->readByte(ADXL346_ADDRESS, &acceleration[1]);
+    status = i2c.writeByte(ADXL346_ADDRESS, ADXL346_DATAX0_ADDR);
+    status = i2c.readByte(ADXL346_ADDRESS, &acceleration[0]);
+    status = i2c.writeByte(ADXL346_ADDRESS, ADXL346_DATAX1_ADDR);
+    status = i2c.readByte(ADXL346_ADDRESS, &acceleration[1]);
 
     if (status) {
         x = (acceleration[0] << 8) | acceleration[1];
     }
 
-    status = i2c->writeByte(ADXL346_ADDRESS, ADXL346_DATAY0_ADDR);
-    status = i2c->readByte(ADXL346_ADDRESS, &acceleration[0]);
-    status = i2c->writeByte(ADXL346_ADDRESS, ADXL346_DATAY1_ADDR);
-    status = i2c->readByte(ADXL346_ADDRESS, &acceleration[1]);
+    status = i2c.writeByte(ADXL346_ADDRESS, ADXL346_DATAY0_ADDR);
+    status = i2c.readByte(ADXL346_ADDRESS, &acceleration[0]);
+    status = i2c.writeByte(ADXL346_ADDRESS, ADXL346_DATAY1_ADDR);
+    status = i2c.readByte(ADXL346_ADDRESS, &acceleration[1]);
 
     if (status) {
         y = (acceleration[0] << 8) | acceleration[1];
     }
 
-    status = i2c->writeByte(ADXL346_ADDRESS, ADXL346_DATAZ0_ADDR);
-    status = i2c->readByte(ADXL346_ADDRESS, &acceleration[0]);
-    status = i2c->writeByte(ADXL346_ADDRESS, ADXL346_DATAZ1_ADDR);
-    status = i2c->readByte(ADXL346_ADDRESS, &acceleration[1]);
+    status = i2c.writeByte(ADXL346_ADDRESS, ADXL346_DATAZ0_ADDR);
+    status = i2c.readByte(ADXL346_ADDRESS, &acceleration[0]);
+    status = i2c.writeByte(ADXL346_ADDRESS, ADXL346_DATAZ1_ADDR);
+    status = i2c.readByte(ADXL346_ADDRESS, &acceleration[1]);
 
     if (status) {
         z = (acceleration[0] << 8) | acceleration[1];
     }
 
-    i2c->unlock();
+    i2c.unlock();
 
     return status;
 }

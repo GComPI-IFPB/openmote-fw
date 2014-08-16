@@ -29,7 +29,7 @@ class I2c
 friend class InterruptHandler;
 
 public:
-    I2c(uint32_t peripheral_, GpioI2c* scl_, GpioI2c* sda_);
+    I2c(uint32_t peripheral_, GpioI2c& scl_, GpioI2c& sda_);
     void enable(uint32_t clock_);
     void sleep(void);
     void wakeup(void);
@@ -43,8 +43,8 @@ private:
     uint32_t peripheral;
     uint32_t clock;
 
-    GpioI2c* scl;
-    GpioI2c* sda;
+    GpioI2c& scl;
+    GpioI2c& sda;
 };
 
 #endif /* I2C_H_ */

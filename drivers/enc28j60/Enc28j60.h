@@ -19,7 +19,7 @@
 class Enc28j60
 {
 public:
-    Enc28j60(SpiDriver* spi_, GpioIn* gpio_);
+    Enc28j60(SpiDriver& spi_, GpioIn& gpio_);
     void init(uint8_t* address);
     void reset(void);
     int32_t send(uint8_t* data, uint32_t length);
@@ -34,8 +34,8 @@ private:
     void writeData(uint8_t* data, uint32_t length);
     void softReset(void);
 private:
-    SpiDriver* spi;
-    GpioIn* gpio;
+    SpiDriver& spi;
+    GpioIn& gpio;
 
     uint8_t mac_address[6];
 };

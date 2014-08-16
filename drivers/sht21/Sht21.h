@@ -25,7 +25,7 @@ class I2cDriver;
 class Sht21: public Sensor
 {
 public:
-    Sht21(I2cDriver* i2c_);
+    Sht21(I2cDriver& i2c_);
     bool enable(void);
     bool reset(void);
     bool isPresent(void);
@@ -36,7 +36,7 @@ public:
     float getHumidity(void);
     uint16_t getHumidityRaw(void);
 private:
-    I2cDriver* i2c;
+    I2cDriver& i2c;
     uint16_t temperature;
     uint16_t humidity;
 };

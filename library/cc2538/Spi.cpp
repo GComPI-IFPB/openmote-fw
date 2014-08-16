@@ -40,7 +40,7 @@
 /*================================= public ==================================*/
 
 Spi::Spi(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
-         GpioSpi* miso_, GpioSpi* mosi_, GpioSpi* clk_, GpioSpi* ncs_):
+         GpioSpi& miso_, GpioSpi& mosi_, GpioSpi& clk_, GpioSpi& ncs_):
         peripheral(peripheral_), base(base_), clock(clock_), \
         miso(miso_), mosi(mosi_), clk(clk_), ncs(ncs_)
 {
@@ -71,16 +71,16 @@ void Spi::enable(uint32_t mode_, uint32_t protocol_, uint32_t datawidth_, uint32
     SSIClockSourceSet(base, clock);
 
     // Configure the CLK, nCS, MOSI and MISO pins
-    IOCPinConfigPeriphInput(miso->getPort(), miso->getPin(), miso->getIoc());
-    IOCPinConfigPeriphOutput(mosi->getPort(), mosi->getPin(), mosi->getIoc());
-    IOCPinConfigPeriphOutput(clk->getPort(), clk->getPin(), clk->getIoc());
-    IOCPinConfigPeriphOutput(ncs->getPort(), ncs->getPin(), ncs->getIoc());
+    IOCPinConfigPeriphInput(miso.getPort(), miso.getPin(), miso.getIoc());
+    IOCPinConfigPeriphOutput(mosi.getPort(), mosi.getPin(), mosi.getIoc());
+    IOCPinConfigPeriphOutput(clk.getPort(), clk.getPin(), clk.getIoc());
+    IOCPinConfigPeriphOutput(ncs.getPort(), ncs.getPin(), ncs.getIoc());
 
     // Configure SPI0 GPIOs
-    GPIOPinTypeSSI(miso->getPort(), miso->getPin());
-    GPIOPinTypeSSI(mosi->getPort(), mosi->getPin());
-    GPIOPinTypeSSI(clk->getPort(), clk->getPin());
-    GPIOPinTypeSSI(ncs->getPort(), ncs->getPin());
+    GPIOPinTypeSSI(miso.getPort(), miso.getPin());
+    GPIOPinTypeSSI(mosi.getPort(), mosi.getPin());
+    GPIOPinTypeSSI(clk.getPort(), clk.getPin());
+    GPIOPinTypeSSI(ncs.getPort(), ncs.getPin());
 
     // Configure the SPI0 clock
     SSIConfigSetExpClk(base, SysCtrlIOClockGet(), protocol, \
@@ -94,15 +94,15 @@ void Spi::sleep(void)
 {
     SSIDisable(base);
 
-    GPIOPinTypeGPIOOutput(clk->getPort(), clk->getPin());
-    GPIOPinTypeGPIOOutput(ncs->getPort(), ncs->getPin());
-    GPIOPinTypeGPIOOutput(miso->getPort(), miso->getPin());
-    GPIOPinTypeGPIOOutput(mosi->getPort(), mosi->getPin());
+    GPIOPinTypeGPIOOutput(clk.getPort(), clk.getPin());
+    GPIOPinTypeGPIOOutput(ncs.getPort(), ncs.getPin());
+    GPIOPinTypeGPIOOutput(miso.getPort(), miso.getPin());
+    GPIOPinTypeGPIOOutput(mosi.getPort(), mosi.getPin());
 
-    GPIOPinWrite(clk->getPort(), clk->getPin(), 0);
-    GPIOPinWrite(ncs->getPort(), ncs->getPin(), 0);
-    GPIOPinWrite(miso->getPort(), miso->getPin(), 0);
-    GPIOPinWrite(mosi->getPort(), mosi->getPin(), 0);
+    GPIOPinWrite(clk.getPort(), clk.getPin(), 0);
+    GPIOPinWrite(ncs.getPort(), ncs.getPin(), 0);
+    GPIOPinWrite(miso.getPort(), miso.getPin(), 0);
+    GPIOPinWrite(mosi.getPort(), mosi.getPin(), 0);
 }
 
 void Spi::wakeup(void)

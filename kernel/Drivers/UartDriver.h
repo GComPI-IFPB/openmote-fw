@@ -26,7 +26,7 @@ class UartDriver : public Uart
 {
 public:
     UartDriver(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
-               uint32_t interrupt_, GpioUart * rx_, GpioUart * tx_);
+               uint32_t interrupt_, GpioUart& rx_, GpioUart& tx_);
     void lock(void);
     void unlock(void);
     void unlockFromInterrupt(void);

@@ -26,7 +26,7 @@ class I2cDriver : public I2c
 {
 
 public:
-    I2cDriver(uint32_t peripheral_, GpioI2c* scl_, GpioI2c* sda_);
+    I2cDriver(uint32_t peripheral_, GpioI2c& scl_, GpioI2c& sda_);
     void lock(void);
     void unlock(void);
 private:

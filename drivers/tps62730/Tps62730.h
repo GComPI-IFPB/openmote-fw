@@ -25,13 +25,13 @@ class Tps62730
 {
 
 public:
-    Tps62730(GpioOut* bypass_, GpioIn* status_);
+    Tps62730(GpioOut& bypass_, GpioIn& status_);
     void setOn(void);
     void setBypass(void);
     bool getStatus(void);
 private:
-    GpioOut* bypass;
-    GpioIn*  status;
+    GpioOut& bypass;
+    GpioIn& status;
 };
 
 #endif /* ADXL346_H_ */

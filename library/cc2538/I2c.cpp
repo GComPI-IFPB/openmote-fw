@@ -39,7 +39,7 @@
 
 /*================================= public ==================================*/
 
-I2c::I2c(uint32_t peripheral_, GpioI2c* scl_, GpioI2c* sda_):
+I2c::I2c(uint32_t peripheral_, GpioI2c& scl_, GpioI2c& sda_):
     peripheral(peripheral_), scl(scl_), sda(sda_)
 {
 }
@@ -59,14 +59,14 @@ void I2c::enable(uint32_t clock_)
     SysCtrlPeripheralReset(peripheral);
 
     // Configure the SCL pin
-    GPIOPinTypeI2C(scl->getPort(), scl->getPin());
-    IOCPinConfigPeriphInput(scl->getPort(), scl->getPin(), IOC_I2CMSSCL);
-    IOCPinConfigPeriphOutput(scl->getPort(), scl->getPin(), IOC_MUX_OUT_SEL_I2C_CMSSCL);
+    GPIOPinTypeI2C(scl.getPort(), scl.getPin());
+    IOCPinConfigPeriphInput(scl.getPort(), scl.getPin(), IOC_I2CMSSCL);
+    IOCPinConfigPeriphOutput(scl.getPort(), scl.getPin(), IOC_MUX_OUT_SEL_I2C_CMSSCL);
 
     // Configure the SDA pin
-    GPIOPinTypeI2C(sda->getPort(), sda->getPin());
-    IOCPinConfigPeriphInput(sda->getPort(), sda->getPin(), IOC_I2CMSSDA);
-    IOCPinConfigPeriphOutput(sda->getPort(), sda->getPin(), IOC_MUX_OUT_SEL_I2C_CMSSDA);
+    GPIOPinTypeI2C(sda.getPort(), sda.getPin());
+    IOCPinConfigPeriphInput(sda.getPort(), sda.getPin(), IOC_I2CMSSDA);
+    IOCPinConfigPeriphOutput(sda.getPort(), sda.getPin(), IOC_MUX_OUT_SEL_I2C_CMSSDA);
 
     // Configure the I2C clock
     status = (clock == 400000 ? true : false);
@@ -80,11 +80,11 @@ void I2c::sleep(void)
 {
     I2CMasterDisable();
 
-    GPIOPinTypeGPIOOutput(scl->getPort(), scl->getPin());
-    GPIOPinTypeGPIOOutput(sda->getPort(), sda->getPin());
+    GPIOPinTypeGPIOOutput(scl.getPort(), scl.getPin());
+    GPIOPinTypeGPIOOutput(sda.getPort(), sda.getPin());
 
-    GPIOPinWrite(scl->getPort(), scl->getPin(), 0);
-    GPIOPinWrite(sda->getPort(), sda->getPin(), 0);
+    GPIOPinWrite(scl.getPort(), scl.getPin(), 0);
+    GPIOPinWrite(sda.getPort(), sda.getPin(), 0);
 }
 
 void I2c::wakeup(void)
