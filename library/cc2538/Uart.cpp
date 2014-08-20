@@ -61,7 +61,7 @@ void Uart::enable(uint32_t baudrate_, uint32_t config_, uint32_t mode_)
     SysCtrlPeripheralSleepEnable(peripheral);
     SysCtrlPeripheralDeepSleepDisable(peripheral);
 
-    // Reset peripheral previous to configuring it
+    // Disable peripheral previous to configuring it
     UARTDisable(peripheral);
 
     // Set IO clock as UART clock source
