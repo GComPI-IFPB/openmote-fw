@@ -38,7 +38,7 @@ protected:
     void interruptHandler(void);
 protected:
     uint32_t edge;
-    Callback* callback = nullptr;
+    Callback* callback;
 };
 
 #endif /* GPIO_IN_H_ */
