@@ -18,16 +18,51 @@
 
 #include <stdint.h>
 
+#include "Callback.h"
+#include "InterruptHandler.h"
+
+class Timer;
+
+class TimerCallback : public Callback
+{
+public:
+    TimerCallback(Timer* object_ = nullptr, \
+                   void(Timer:: *method_)(void) = nullptr):
+                   object(object_), method(method_){}
+    void execute(void) {(object->*method)();}
+private:
+    Timer* object;
+    void(Timer:: *method)(void);
+};
+
 class Timer
 {
 
 friend class InterruptHandler;
 
 public:
-    Timer(uint32_t base_, uint32_t config_);
+    Timer(uint32_t peripheral_, uint32_t base_, uint32_t source_, uint32_t config_, uint32_t interrupt_, uint32_t interrupt_mode_);
+    uint32_t getBase(void);
+    uint32_t getSource(void);
+    void init(uint32_t frequency_);
+    void start(void);
+    void stop(void);
+    void setCallback(Callback* callback_);
+    void clearCallback(void);
+    void interruptEnable(void);
+    void interruptDisable(void);
+protected:
+    void interruptHandler(void);
 private:
+    uint32_t peripheral;
     uint32_t base;
+    uint32_t source;
     uint32_t config;
+    uint32_t interrupt;
+    uint32_t interrupt_mode;
+    uint32_t frequency;
+
+    Callback* callback;
 };
 
 #endif /* TIMER_H_ */

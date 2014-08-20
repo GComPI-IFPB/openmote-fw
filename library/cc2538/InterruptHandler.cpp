@@ -15,9 +15,11 @@
 
 /*================================ include ==================================*/
 
+#include "InterruptHandler.h"
+
 #include "GpioIn.h"
 #include "GpioInPow.h"
-#include "InterruptHandler.h"
+#include "Timer.h"
 #include "Uart.h"
 #include "I2c.h"
 #include "Spi.h"
@@ -25,6 +27,7 @@
 
 #include "interrupt.h"
 #include "gpio.h"
+#include "gptimer.h"
 #include "uart.h"
 #include "i2c.h"
 #include "ioc.h"
@@ -48,6 +51,11 @@ GpioIn* InterruptHandler::GPIOA_interruptVector[8];
 GpioIn* InterruptHandler::GPIOB_interruptVector[8];
 GpioIn* InterruptHandler::GPIOC_interruptVector[8];
 GpioIn* InterruptHandler::GPIOD_interruptVector[8];
+
+Timer* InterruptHandler::TIMER0_interruptVector[2];
+Timer* InterruptHandler::TIMER1_interruptVector[2];
+Timer* InterruptHandler::TIMER2_interruptVector[2];
+Timer* InterruptHandler::TIMER3_interruptVector[2];
 
 Uart* InterruptHandler::UART0_interruptVector;
 Uart* InterruptHandler::UART1_interruptVector;
@@ -187,6 +195,118 @@ void InterruptHandler::clearInterruptHandler(GpioIn * gpio_)
     }
 }
 
+void InterruptHandler::setInterruptHandler(Timer* timer_)
+{
+    // Get the TIMER base
+    uint32_t base = timer_->getBase();
+    uint32_t source = timer_->getSource();
+
+    if (base == GPTIMER0_BASE)
+    {
+        if ( (source == GPTIMER_A) || \
+             (source == GPTIMER_BOTH) )
+        {
+            TIMER0_interruptVector[0] = timer_;
+        }
+        else if (source == GPTIMER_B)
+        {
+            TIMER0_interruptVector[1] = timer_;
+        }
+    }
+    else if (base == GPTIMER1_BASE)
+    {
+        if ( (source == GPTIMER_A) || \
+             (source == GPTIMER_BOTH) )
+        {
+            TIMER1_interruptVector[0] = timer_;
+        }
+        else if (source == GPTIMER_B)
+        {
+            TIMER1_interruptVector[1] = timer_;
+        }
+    }
+    else if (base == GPTIMER2_BASE)
+    {
+        if ( (source == GPTIMER_A) || \
+             (source == GPTIMER_BOTH) )
+        {
+            TIMER2_interruptVector[0] = timer_;
+        }
+        else if (source == GPTIMER_B)
+        {
+            TIMER2_interruptVector[1] = timer_;
+        }
+    }
+    else if (base == GPTIMER3_BASE)
+    {
+        if ( (source == GPTIMER_A) || \
+             (source == GPTIMER_BOTH) )
+        {
+            TIMER3_interruptVector[0] = timer_;
+        }
+        else if (source == GPTIMER_B)
+        {
+            TIMER3_interruptVector[1] = timer_;
+        }
+    }
+}
+
+void InterruptHandler::clearInterruptHandler(Timer* timer_)
+{
+    // Get the TIMER base
+    uint32_t base = timer_->getBase();
+    uint32_t source = timer_->getSource();
+
+    if (base == GPTIMER0_BASE)
+    {
+        if ( (source == GPTIMER_A) || \
+             (source == GPTIMER_BOTH) )
+        {
+            TIMER0_interruptVector[0] = nullptr;
+        }
+        else if (source == GPTIMER_B)
+        {
+            TIMER0_interruptVector[1] = nullptr;
+        }
+    }
+    else if (base == GPTIMER1_BASE)
+    {
+        if ( (source == GPTIMER_A) || \
+             (source == GPTIMER_BOTH) )
+        {
+            TIMER1_interruptVector[0] = nullptr;
+        }
+        else if (source == GPTIMER_B)
+        {
+            TIMER1_interruptVector[1] = nullptr;
+        }
+    }
+    else if (base == GPTIMER2_BASE)
+    {
+        if ( (source == GPTIMER_A) || \
+             (source == GPTIMER_BOTH) )
+        {
+            TIMER2_interruptVector[0] = nullptr;
+        }
+        else if (source == GPTIMER_B)
+        {
+            TIMER2_interruptVector[1] = nullptr;
+        }
+    }
+    else if (base == GPTIMER3_BASE)
+    {
+        if ( (source == GPTIMER_A) || \
+             (source == GPTIMER_BOTH) )
+        {
+            TIMER3_interruptVector[0] = nullptr;
+        }
+        else if (source == GPTIMER_B)
+        {
+            TIMER3_interruptVector[1] = nullptr;
+        }
+    }
+}
+
 void InterruptHandler::setInterruptHandler(Uart * uart_)
 {
     // Get the UART base
@@ -287,14 +407,28 @@ InterruptHandler::InterruptHandler()
     GPIOPortIntRegister(GPIO_C_BASE, GPIOC_InterruptHandler);
     GPIOPortIntRegister(GPIO_D_BASE, GPIOD_InterruptHandler);
 
-    // Register the UART interrupt handlers
+    // Register the TIMERx interrupt handlers
+    TimerIntRegister(GPTIMER0_BASE, GPTIMER_A, TIMER0_InterruptHandler);
+    TimerIntRegister(GPTIMER0_BASE, GPTIMER_B, TIMER0_InterruptHandler);
+    TimerIntRegister(GPTIMER0_BASE, GPTIMER_BOTH, TIMER0_InterruptHandler);
+    TimerIntRegister(GPTIMER1_BASE, GPTIMER_A, TIMER1_InterruptHandler);
+    TimerIntRegister(GPTIMER1_BASE, GPTIMER_B, TIMER1_InterruptHandler);
+    TimerIntRegister(GPTIMER1_BASE, GPTIMER_BOTH, TIMER1_InterruptHandler);
+    TimerIntRegister(GPTIMER2_BASE, GPTIMER_A, TIMER2_InterruptHandler);
+    TimerIntRegister(GPTIMER2_BASE, GPTIMER_B, TIMER2_InterruptHandler);
+    TimerIntRegister(GPTIMER2_BASE, GPTIMER_BOTH, TIMER2_InterruptHandler);
+    TimerIntRegister(GPTIMER3_BASE, GPTIMER_A, TIMER3_InterruptHandler);
+    TimerIntRegister(GPTIMER3_BASE, GPTIMER_B, TIMER3_InterruptHandler);
+    TimerIntRegister(GPTIMER3_BASE, GPTIMER_BOTH, TIMER3_InterruptHandler);
+
+    // Register the UARTx interrupt handlers
     UARTIntRegister(UART0_BASE, UART0_InterruptHandler);
     UARTIntRegister(UART1_BASE, UART1_InterruptHandler);
 
     // Register the I2C interrupt handler
     I2CIntRegister(I2C_InterruptHandler);
 
-    // Register the SPI interrupt handler
+    // Register the SPIx interrupt handler
     SSIIntRegister(SSI0_BASE, SPI0_InterruptHandler);
     SSIIntRegister(SSI1_BASE, SPI1_InterruptHandler);
 
@@ -532,6 +666,102 @@ inline void InterruptHandler::GPIOD_InterruptHandler(void)
     if (status & GPIO_PIN_7)
     {
         GPIOD_interruptVector[7]->interruptHandler();
+    }
+}
+
+inline void InterruptHandler::TIMER0_InterruptHandler(void)
+{
+    uint32_t status;
+
+    status = TimerIntStatus(GPTIMER0_BASE, true);
+    TimerIntClear(GPTIMER0_BASE, status);
+
+    if ( (status & GPTIMER_TIMA_MATCH) || \
+         (status & GPTIMER_CAPA_EVENT) || \
+         (status & GPTIMER_TIMA_TIMEOUT) || \
+         (status & GPTIMER_CAPA_MATCH) )
+    {
+        TIMER0_interruptVector[0]->interruptHandler();
+    }
+
+    if ( (status & GPTIMER_TIMB_MATCH) || \
+         (status & GPTIMER_CAPB_EVENT) || \
+         (status & GPTIMER_TIMB_TIMEOUT) || \
+         (status & GPTIMER_CAPB_MATCH) )
+    {
+        TIMER0_interruptVector[1]->interruptHandler();
+    }
+}
+
+inline void InterruptHandler::TIMER1_InterruptHandler(void)
+{
+    uint32_t status;
+
+    status = TimerIntStatus(GPTIMER1_BASE, true);
+    TimerIntClear(GPTIMER1_BASE, status);
+
+    if ( (status & GPTIMER_TIMA_MATCH) || \
+         (status & GPTIMER_CAPA_EVENT) || \
+         (status & GPTIMER_TIMA_TIMEOUT) || \
+         (status & GPTIMER_CAPA_MATCH) )
+    {
+        TIMER1_interruptVector[0]->interruptHandler();
+    }
+
+    if ( (status & GPTIMER_TIMB_MATCH) || \
+         (status & GPTIMER_CAPB_EVENT) || \
+         (status & GPTIMER_TIMB_TIMEOUT) || \
+         (status & GPTIMER_CAPB_MATCH) )
+    {
+        TIMER1_interruptVector[1]->interruptHandler();
+    }
+}
+
+inline void InterruptHandler::TIMER2_InterruptHandler(void)
+{
+    uint32_t status;
+
+    status = TimerIntStatus(GPTIMER2_BASE, true);
+    TimerIntClear(GPTIMER2_BASE, status);
+
+    if ( (status & GPTIMER_TIMA_MATCH) || \
+         (status & GPTIMER_CAPA_EVENT) || \
+         (status & GPTIMER_TIMA_TIMEOUT) || \
+         (status & GPTIMER_CAPA_MATCH) )
+    {
+        TIMER2_interruptVector[0]->interruptHandler();
+    }
+
+    if ( (status & GPTIMER_TIMB_MATCH) || \
+         (status & GPTIMER_CAPB_EVENT) || \
+         (status & GPTIMER_TIMB_TIMEOUT) || \
+         (status & GPTIMER_CAPB_MATCH) )
+    {
+        TIMER2_interruptVector[1]->interruptHandler();
+    }
+}
+
+inline void InterruptHandler::TIMER3_InterruptHandler(void)
+{
+    uint32_t status;
+
+    status = TimerIntStatus(GPTIMER3_BASE, true);
+    TimerIntClear(GPTIMER3_BASE, status);
+
+    if ( (status & GPTIMER_TIMA_MATCH) || \
+         (status & GPTIMER_CAPA_EVENT) || \
+         (status & GPTIMER_TIMA_TIMEOUT) || \
+         (status & GPTIMER_CAPA_MATCH) )
+    {
+        TIMER3_interruptVector[0]->interruptHandler();
+    }
+
+    if ( (status & GPTIMER_TIMB_MATCH) || \
+         (status & GPTIMER_CAPB_EVENT) || \
+         (status & GPTIMER_TIMB_TIMEOUT) || \
+         (status & GPTIMER_CAPB_MATCH) )
+    {
+        TIMER3_interruptVector[1]->interruptHandler();
     }
 }
 
