@@ -56,9 +56,9 @@ void Uart::enable(uint32_t baudrate_, uint32_t config_, uint32_t mode_)
     config   = config_;
     mode     = mode_;
 
-    // Enable peripheral except in sleep and deep sleep modes
+    // Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3)
     SysCtrlPeripheralEnable(peripheral);
-    SysCtrlPeripheralSleepDisable(peripheral);
+    SysCtrlPeripheralSleepEnable(peripheral);
     SysCtrlPeripheralDeepSleepDisable(peripheral);
 
     // Reset peripheral previous to configuring it
@@ -90,15 +90,25 @@ void Uart::enable(uint32_t baudrate_, uint32_t config_, uint32_t mode_)
 
 void Uart::sleep(void)
 {
+    // Wait until UART is not busy
+    while(UARTBusy(base))
+        ;
+
+    // Disable UART hardware
+    UARTDisable(base);
+
+    // Configure the pins as outputs
     GPIOPinTypeGPIOOutput(rx.getPort(), rx.getPin());
     GPIOPinTypeGPIOOutput(tx.getPort(), tx.getPin());
 
+    // Pull the pins to ground
     GPIOPinWrite(rx.getPort(), rx.getPin(), 0);
     GPIOPinWrite(tx.getPort(), tx.getPin(), 0);
 }
 
 void Uart::wakeup(void)
 {
+    // Re-enable the UART interface
     enable(baudrate, config, mode);
 }
 
