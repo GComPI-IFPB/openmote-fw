@@ -47,7 +47,7 @@ NEMIVER_EXT = elf
 BSL_PYTHON = python
 BSL_NAME = cc2538-bsl.py
 BSL_PATH = $(PROJECT_HOME)/tools/cc2538-bsl
-BSL_OPT = -e -w
+BSL_OPT = -e -w -b 115200
 BSL_EXT = hex
 
 ###############################################################################
