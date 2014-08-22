@@ -50,7 +50,7 @@ public:
     void setCallback(Callback* callback_);
     void clearCallback(void);
     void enableInterrupt(void);
-    void enableInterrupt(void);
+    void disableInterrupt(void);
 protected:
     void interruptHandler(void);
 private:
