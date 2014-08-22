@@ -30,19 +30,23 @@ public:
     void enable(void);
     void sleep(void);
     void wakeup(void);
+    void reset(void);
     void transmit(void);
     void receive(void);
-    void loadPacket(uint8_t* data, uint32_t length);
-    void getPacket(uint8_t* buffer, uint32_t length);
-    void registerRxInterrupts(Callback* rxInit_, Callback* rxDone_);
-    void registerTxInterrupts(Callback* txInit_, Callback* txDone_);
-    void enableInterrupts(void);
-    void disableInterrupts(void);
+    void loadPacket(uint8_t* data, uint8_t length);
+    uint8_t getPacket(uint8_t* buffer, uint8_t length, int8_t* rssi, uint8_t* crc);
+    void registerRxCallbacks(Callback* rxInit_, Callback* rxDone_);
+    void registerTxCallbacks(Callback* txInit_, Callback* txDone_);
     void setChannel(uint8_t channel);
     void setPower(uint8_t power);
 protected:
     void interruptHandler(void);
     void errorHandler(void);
+private:
+    void on(void);
+    void off(void);
+    void enableInterrupts(void);
+    void disableInterrupts(void);
 private:
     Callback* rxInit;
     Callback* rxDone;
