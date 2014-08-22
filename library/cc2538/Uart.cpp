@@ -122,7 +122,7 @@ void Uart::setTxCallback(Callback* callback_)
     tx_callback = callback_;
 }
 
-void Uart::interruptEnable(void)
+void Uart::enableInterrupt(void)
 {
     // Register the interrupt handler
     InterruptHandler::getInstance().setInterruptHandler(this);
@@ -137,7 +137,7 @@ void Uart::interruptEnable(void)
     IntEnable(interrupt);
 }
 
-void Uart::interruptDisable(void)
+void Uart::disableInterrupt(void)
 {
     // Disable the UART RX and TX interrupts
     UARTIntDisable(base, UART_INT_RX | UART_INT_TX);

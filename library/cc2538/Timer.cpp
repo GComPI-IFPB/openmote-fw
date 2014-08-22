@@ -92,7 +92,7 @@ void Timer::clearCallback(void)
     callback = nullptr;
 }
 
-void Timer::interruptEnable(void)
+void Timer::enableInterrupt(void)
 {
     InterruptHandler::getInstance().setInterruptHandler(this);
 
@@ -106,7 +106,7 @@ void Timer::interruptEnable(void)
     IntEnable(interrupt);
 }
 
-void Timer::interruptDisable(void)
+void Timer::disableInterrupt(void)
 {
     // Diisable Timer interrupts
     TimerIntDisable(base, interrupt_mode);

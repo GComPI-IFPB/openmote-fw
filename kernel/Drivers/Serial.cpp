@@ -44,7 +44,7 @@ void Serial::enable(void)
     uart.setRxCallback(&rxCallback);
     uart.setTxCallback(&txCallback);
 
-    uart.interruptEnable();
+    uart.enableInterrupt();
 }
 
 void Serial::printf(uint8_t* data, uint32_t size)

@@ -49,8 +49,8 @@ public:
     void stop(void);
     void setCallback(Callback* callback_);
     void clearCallback(void);
-    void interruptEnable(void);
-    void interruptDisable(void);
+    void enableInterrupt(void);
+    void enableInterrupt(void);
 protected:
     void interruptHandler(void);
 private:

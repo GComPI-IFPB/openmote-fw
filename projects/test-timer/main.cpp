@@ -43,19 +43,19 @@ int main (void)
 {
     timer0.init(800000);
     timer0.setCallback(&callback0);
-    timer0.interruptEnable();
+    timer0.enableInterrupt();
 
     timer1.init(1600000);
     timer1.setCallback(&callback1);
-    timer1.interruptEnable();
+    timer1.enableInterrupt();
 
     timer2.init(3200000);
     timer2.setCallback(&callback2);
-    timer2.interruptEnable();
+    timer2.enableInterrupt();
 
     timer3.init(6400000);
     timer3.setCallback(&callback3);
-    timer3.interruptEnable();
+    timer3.enableInterrupt();
 
     timer0.start();
     timer1.start();

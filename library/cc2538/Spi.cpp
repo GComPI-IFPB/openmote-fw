@@ -120,7 +120,7 @@ void Spi::setTxCallback(Callback* callback_)
     tx_callback = callback_;
 }
 
-void Spi::interruptEnable(void)
+void Spi::enableInterrupt(void)
 {
     // Register the interrupt handler
     InterruptHandler::getInstance().setInterruptHandler(this);
@@ -132,7 +132,7 @@ void Spi::interruptEnable(void)
     IntEnable(interrupt);
 }
 
-void Spi::interruptDisable(void)
+void Spi::disableInterrupt(void)
 {
     // Disable the SPI interrupt
     SSIIntDisable(base, (SSI_TXFF | SSI_RXFF | SSI_RXTO | SSI_RXOR));
@@ -160,7 +160,6 @@ uint32_t Spi::readByte(uint8_t* buffer, uint32_t length)
         while(SSIBusy(base))
             ;
     }
-
     return 0;
 }
 

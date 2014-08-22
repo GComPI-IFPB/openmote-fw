@@ -36,8 +36,8 @@ public:
     void wakeup(void);
     void setRxCallback(Callback* callback_);
     void setTxCallback(Callback* callback_);
-    void interruptEnable(void);
-    void interruptDisable(void);
+    void enableInterrupt(void);
+    void disableInterrupt(void);
     uint8_t readByte(void);
     uint32_t readByte(uint8_t* buffer, uint32_t length);
     void writeByte(uint8_t byte);
