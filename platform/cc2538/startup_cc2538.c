@@ -276,10 +276,10 @@ Default_Handler (void)
 void
 Reset_Handler (void)
 {
-	uint32_t *pui32Src, *pui32Dest;
+    uint32_t *pui32Src, *pui32Dest;
 
     //
-	// Workaround for PM debug issue
+    // Workaround for PM debug issue
     //
     HWREG(SYS_CTRL_EMUOVR) = 0xFF;
 
@@ -289,13 +289,13 @@ Reset_Handler (void)
     HWREG(NVIC_VTABLE) = (uint32_t)gVectors;
 
     //
-	// Copy the data segment initializers from flash to SRAM.
+    // Copy the data segment initializers from flash to SRAM.
     //
-	pui32Src = &_etext;
-	for(pui32Dest = &_data; pui32Dest < &_edata; )
-	{
-		*pui32Dest++ = *pui32Src++;
-	}
+    pui32Src = &_etext;
+    for(pui32Dest = &_data; pui32Dest < &_edata; )
+    {
+        *pui32Dest++ = *pui32Src++;
+    }
 
     //
     // Zero fill the bss segment.
