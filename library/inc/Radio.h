@@ -20,6 +20,18 @@
 
 #include "Callback.h"
 
+typedef enum
+{
+    RadioState_Off          = 0x00,
+    RadioState_Idle         = 0x01,
+    RadioState_ReceiveInit  = 0x02,
+    RadioState_Receiving    = 0x03,
+    RadioState_ReceiveDone  = 0x04,
+    RadioState_TransmitInit = 0x05,
+    RadioState_Transmitting = 0x06,
+    RadioState_TransmitDone = 0x07
+} RadioState;
+
 class Radio
 {
 
@@ -30,24 +42,25 @@ public:
     void enable(void);
     void sleep(void);
     void wakeup(void);
+    void on(void);
+    void off(void);
     void reset(void);
-    void transmit(void);
-    void receive(void);
-    void loadPacket(uint8_t* data, uint8_t length);
-    uint8_t getPacket(uint8_t* buffer, uint8_t length, int8_t* rssi, uint8_t* crc);
-    void registerRxCallbacks(Callback* rxInit_, Callback* rxDone_);
-    void registerTxCallbacks(Callback* txInit_, Callback* txDone_);
+    void setRxCallbacks(Callback* rxInit_, Callback* rxDone_);
+    void setTxCallbacks(Callback* txInit_, Callback* txDone_);
+    void enableInterrupts(void);
+    void disableInterrupts(void);
     void setChannel(uint8_t channel);
     void setPower(uint8_t power);
+    void transmit(void);
+    void receive(void);
+    int8_t loadPacket(uint8_t* data, uint8_t length);
+    int8_t getPacket(uint8_t* buffer, uint8_t length, int8_t* rssi, uint8_t* crc);
 protected:
     void interruptHandler(void);
     void errorHandler(void);
 private:
-    void on(void);
-    void off(void);
-    void enableInterrupts(void);
-    void disableInterrupts(void);
-private:
+    volatile RadioState radioState = RadioState_Off;
+
     Callback* rxInit;
     Callback* rxDone;
     Callback* txInit;
