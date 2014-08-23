@@ -32,7 +32,6 @@
 #define PAYLOAD_LENGTH                       ( 124 )
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 2 )
-#define BUTTON_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 #define RADIO_RX_TASK_PRIORITY              ( tskIDLE_PRIORITY + 0 )
 #define RADIO_TX_TASK_PRIORITY              ( tskIDLE_PRIORITY + 0 )
 
@@ -42,7 +41,6 @@
 
 static xSemaphoreHandle rxSemaphore;
 static xSemaphoreHandle txSemaphore;
-static xSemaphoreHandle buttonSempahore;
 
 static uint8_t buffer[PAYLOAD_LENGTH];
 static int8_t rssi;
@@ -51,11 +49,9 @@ static uint8_t crc;
 /*=============================== prototypes ================================*/
 
 static void prvGreenLedTask(void *pvParameters);
-static void prvButtonTask(void *pvParameters);
 static void prvRadioRxTask(void *pvParameters);
 static void prvRadioTxTask(void *pvParameters);
 
-static void buttonCallback(void);
 static void rxInit(void);
 static void rxDone(void);
 static void txInit(void);
@@ -65,7 +61,6 @@ GenericCallback rxInitCallback(&rxInit);
 GenericCallback rxDoneCallback(&rxDone);
 GenericCallback txInitCallback(&txInit);
 GenericCallback txDoneCallback(&txDone);
-GenericCallback userCallback(buttonCallback);
 
 /*================================= public ==================================*/
 
@@ -82,9 +77,8 @@ int main (void)
     radio.setRxCallbacks(&rxInitCallback, &rxDoneCallback);
     radio.enable();
 
-    // Create three FreeRTOS tasks
+    // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-    xTaskCreate(prvButtonTask, (const char *) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
 #if (RADIO_MODE == RADIO_MODE_RX)
     xTaskCreate(prvRadioRxTask, (const char *) "RadioRx", 128, NULL, RADIO_RX_TASK_PRIORITY, NULL);
 #elif (RADIO_MODE == RADIO_MODE_TX)
@@ -109,27 +103,6 @@ static void prvGreenLedTask(void *pvParameters)
         // Turn on the green LED and keep it for 50 ms
         led_green.on();
         vTaskDelay(50 / portTICK_RATE_MS);
-    }
-}
-
-static void prvButtonTask(void *pvParameters)
-{
-    // Create the button semaphore
-    buttonSempahore = xSemaphoreCreateMutex();
-
-    // Configure the user button
-    button_user.setCallback(&userCallback);
-    button_user.enableInterrupt();
-
-    // Forever
-    while (true)
-    {
-        // Take the buttonSemaphore, block until available
-        if (xSemaphoreTake(buttonSempahore, (TickType_t) portMAX_DELAY) == pdTRUE)
-        {
-            // Toggle the orange LED
-            led_orange.toggle();
-        }
     }
 }
 
@@ -198,19 +171,6 @@ static void prvRadioTxTask(void *pvParameters)
             vTaskDelay(100 / portTICK_RATE_MS);
         }
     }
-}
-
-static void buttonCallback(void)
-{
-    // Determines if the interrupt triggers a context switch
-    static BaseType_t xHigherPriorityTaskWoken;
-    xHigherPriorityTaskWoken = pdFALSE;
-
-    // Give the button semaphore as the button has been pressed
-    xSemaphoreGiveFromISR(buttonSempahore, &xHigherPriorityTaskWoken);
-
-    // Force a context switch after the interrupt if required
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 static void rxInit(void)
