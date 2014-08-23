@@ -38,6 +38,7 @@
 #include "GpioInPow.h"
 #include "GpioOut.h"
 #include "Timer.h"
+#include "Radio.h"
 
 #include "I2cDriver.h"
 #include "SpiDriver.h"
@@ -221,6 +222,9 @@ SpiDriver spi(SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, spi_miso, spi_mosi, spi_clk, 
 GpioUart uart_rx(UART_RX_PORT, UART_RX_PIN, UART_RX_IOC);
 GpioUart uart_tx(UART_TX_PORT, UART_TX_PIN, UART_TX_IOC);
 UartDriver uart(UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INTERRUPT, uart_rx, uart_tx);
+
+// IEEE 802.15.4 radio
+Radio radio;
 
 // Acceleration sensor
 GpioInPow adxl346_int(ADXL346_INT_PORT, ADXL346_INT_PIN, ADXL346_INT_EDGE);
