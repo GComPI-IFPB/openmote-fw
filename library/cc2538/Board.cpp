@@ -32,6 +32,12 @@
 
 /*================================ define ===================================*/
 
+// Defines for the EUI64 address
+#define CC2538_EUI64_ADDRESS_HI_H               ( 0x0028002F )
+#define CC2538_EUI64_ADDRESS_HI_L               ( 0x0028002C )
+#define CC2538_EUI64_ADDRESS_LO_H               ( 0x0028002B )
+#define CC2538_EUI64_ADDRESS_LO_L               ( 0x00280028 )
+
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
@@ -113,6 +119,21 @@ void Board::enableInterrupts(void)
 void Board::disableInterrupts(void)
 {
     IntMasterDisable();
+}
+
+void Board::getAddress(uint8_t* address)
+{
+    uint8_t* eui64_flash;
+
+    eui64_flash = (uint8_t*) CC2538_EUI64_ADDRESS_LO_H;
+    while (eui64_flash >= (uint8_t*) CC2538_EUI64_ADDRESS_LO_L) {
+        *address++ = *eui64_flash--;
+    }
+
+    eui64_flash = (uint8_t*) CC2538_EUI64_ADDRESS_HI_H;
+    while (eui64_flash >= (uint8_t*) CC2538_EUI64_ADDRESS_HI_L) {
+        *address++ = *eui64_flash--;
+    }
 }
 
 /*=============================== protected =================================*/

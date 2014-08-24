@@ -42,6 +42,7 @@ public:
     void wakeup(void);
     void enableInterrupts(void);
     void disableInterrupts(void);
+    void getAddress(uint8_t* address);
 private:
     SleepMode sleepMode = SleepMode_None;
 };

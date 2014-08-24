@@ -55,7 +55,6 @@ public:
     void setTxCallbacks(Callback* txInit_, Callback* txDone_);
     void enableInterrupts(void);
     void disableInterrupts(void);
-    void getAddress(uint8_t* address);
     void setChannel(uint8_t channel);
     void setPower(uint8_t power);
     void transmit(void);
