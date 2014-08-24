@@ -32,6 +32,12 @@ typedef enum
     RadioState_TransmitDone = 0x07
 } RadioState;
 
+typedef enum
+{
+    RadioResult_Error       = -1,
+    RadioResult_Success     =  0
+} RadioResult;
+
 class Radio
 {
 
@@ -53,8 +59,8 @@ public:
     void setPower(uint8_t power);
     void transmit(void);
     void receive(void);
-    int8_t loadPacket(uint8_t* data, uint8_t length);
-    int8_t getPacket(uint8_t* buffer, uint8_t length, int8_t* rssi, uint8_t* crc);
+    RadioResult loadPacket(uint8_t* data, uint8_t length);
+    RadioResult getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uint8_t* crc);
 protected:
     void interruptHandler(void);
     void errorHandler(void);

@@ -227,7 +227,7 @@ void Radio::setRxCallbacks(Callback* rxInit_, Callback* rxDone_)
     rxInit = rxInit_;
     rxDone = rxDone_;
 
-    /* Register the interrupt handler */
+    /* Register the receive interrupt handlers */
     InterruptHandler::getInstance().setInterruptHandler(this);
 }
 
@@ -237,7 +237,7 @@ void Radio::setTxCallbacks(Callback* txInit_, Callback* txDone_)
     txInit = txInit_;
     txDone = txDone_;
 
-    /* Register the interrupt handler */
+    /* Register the trasmit interrupt handlers */
     InterruptHandler::getInstance().setInterruptHandler(this);
 }
 
@@ -245,7 +245,7 @@ void Radio::setTxCallbacks(Callback* txInit_, Callback* txDone_)
 void Radio::enableInterrupts(void)
 {
     /* Enable RF interrupts 0, RXPKTDONE, SFD and FIFOP only -- see page 751  */
-    HWREG(RFCORE_XREG_RFIRQM0) |= ((0x06|0x02|0x01) << RFCORE_XREG_RFIRQM0_RFIRQM_S) & RFCORE_XREG_RFIRQM0_RFIRQM_M;
+    HWREG(RFCORE_XREG_RFIRQM0) |= ((0x06 | 0x02 | 0x01) << RFCORE_XREG_RFIRQM0_RFIRQM_S) & RFCORE_XREG_RFIRQM0_RFIRQM_M;
 
     /* Enable RF interrupts 1, TXDONE only */
     HWREG(RFCORE_XREG_RFIRQM1) |= ((0x02) << RFCORE_XREG_RFIRQM1_RFIRQM_S) & RFCORE_XREG_RFIRQM1_RFIRQM_M;
@@ -255,7 +255,7 @@ void Radio::enableInterrupts(void)
 
     /* Enable radio interrupts */
     IntEnable(INT_RFCORERTX);
-    // IntEnable(INT_RFCOREERR);
+    IntEnable(INT_RFCOREERR);
 }
 
 void Radio::disableInterrupts(void)
@@ -268,7 +268,7 @@ void Radio::disableInterrupts(void)
 
     /* Disable the radio interrupts */
     IntDisable(INT_RFCORERTX);
-    // IntDisable(INT_RFCOREERR);
+    IntDisable(INT_RFCOREERR);
 }
 
 void Radio::setChannel(uint8_t channel)
@@ -327,7 +327,7 @@ void Radio::receive(void)
  * -  [0-125B]  Payload (exluding CRC)
  * - *[2B]      CRC (not required)
  */
-int8_t Radio::loadPacket(uint8_t* data, uint8_t length)
+RadioResult Radio::loadPacket(uint8_t* data, uint8_t length)
 {
     /* Make sure previous transmission is not still in progress */
     while (HWREG(RFCORE_XREG_FSMSTAT1) & RFCORE_XREG_FSMSTAT1_TX_ACTIVE)
@@ -337,14 +337,14 @@ int8_t Radio::loadPacket(uint8_t* data, uint8_t length)
     if ((length > CC2538_RF_MAX_PACKET_LEN))
     {
         /* Return error */
-        return -1;
+        return RadioResult_Error;
     }
 
     /* Check if the radio state is correct */
     if (radioState != RadioState_Idle)
     {
         /* Return error */
-        return -1;
+        return RadioResult_Error;
     }
 
     /* Flush the TX buffer */
@@ -363,7 +363,7 @@ int8_t Radio::loadPacket(uint8_t* data, uint8_t length)
     }
 
     /* Return success */
-    return 0;
+    return RadioResult_Success;
 }
 
 /**
@@ -375,10 +375,9 @@ int8_t Radio::loadPacket(uint8_t* data, uint8_t length)
  * - *[1B]      RSSI (signed 2s complement)
  * - *[1B]      CRC_OK (1 bit) + Correlation (7 bits)
  */
-int8_t Radio::getPacket(uint8_t* buffer, uint8_t length, int8_t* rssi, uint8_t* crc)
+RadioResult Radio::getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uint8_t* crc)
 {
-    uint8_t crcValue;
-    uint8_t packetLength;
+    int8_t packetLength;
 
     /* Check the packet length (first byte) */
     packetLength = HWREG(RFCORE_SFR_RFDATA);
@@ -391,24 +390,24 @@ int8_t Radio::getPacket(uint8_t* buffer, uint8_t length, int8_t* rssi, uint8_t* 
         CC2538_RF_CSP_ISFLUSHRX();
 
         /* Return error */
-        return -1;
+        return RadioResult_Error;
     }
 
     /* Check if the packet fits to the buffer */
-    if (packetLength > length)
+    if (packetLength > *length)
     {
         /* Flush the RX buffer */
         CC2538_RF_CSP_ISFLUSHRX();
 
         /* Return error */
-        return -1;
+        return RadioResult_Error;
     }
 
     /* Check if the radio state is correct */
     if (radioState != RadioState_ReceiveDone)
     {
         /* Return error */
-        return -1;
+        return RadioResult_Error;
     }
 
     /* Copy the RX buffer to the buffer (except for the CRC) */
@@ -417,9 +416,10 @@ int8_t Radio::getPacket(uint8_t* buffer, uint8_t length, int8_t* rssi, uint8_t* 
         buffer[i] = HWREG(RFCORE_SFR_RFDATA);
     }
 
+    /* Update the packet length, RSSI and CRC */
+    *length    = packetLength;
     *rssi      = ((int8_t) (HWREG(RFCORE_SFR_RFDATA)) - CC2538_RF_RSSI_OFFSET);
-    crcValue   = HWREG(RFCORE_SFR_RFDATA);
-    *crc       = crcValue & CC2538_RF_CRC_BITMASK;
+    *crc       = HWREG(RFCORE_SFR_RFDATA) & CC2538_RF_CRC_BITMASK;
 
     /* Flush the RX buffer */
     CC2538_RF_CSP_ISFLUSHRX();
@@ -427,7 +427,7 @@ int8_t Radio::getPacket(uint8_t* buffer, uint8_t length, int8_t* rssi, uint8_t* 
     /* Set the radio state to receive */
     radioState = RadioState_Idle;
 
-    return packetLength;
+    return RadioResult_Success;
 }
 
 /*=============================== protected =================================*/
@@ -455,7 +455,7 @@ void Radio::interruptHandler(void)
             radioState = RadioState_Receiving;
             rxInit->execute();
         }
-        else if(radioState == RadioState_TransmitInit)
+        else if (radioState == RadioState_TransmitInit)
         {
             radioState = RadioState_Transmitting;
             txInit->execute();

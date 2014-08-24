@@ -29,7 +29,7 @@
 #define RADIO_MODE_TX                       ( 1 )
 #define RADIO_MODE                          ( RADIO_MODE_TX )
 
-#define PAYLOAD_LENGTH                       ( 124 )
+#define PAYLOAD_LENGTH                      ( 124 )
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 2 )
 #define RADIO_RX_TASK_PRIORITY              ( tskIDLE_PRIORITY + 0 )
@@ -43,6 +43,8 @@ static xSemaphoreHandle rxSemaphore;
 static xSemaphoreHandle txSemaphore;
 
 static uint8_t buffer[PAYLOAD_LENGTH];
+static uint8_t* buffer_ptr    = buffer;
+static uint8_t  buffer_len = sizeof(buffer);
 static int8_t rssi;
 static uint8_t crc;
 
@@ -133,7 +135,9 @@ static void prvRadioRxTask(void *pvParameters)
             led_yellow.off();
 
             // Get a packet from the radio buffer
-            radio.getPacket(buffer, sizeof(buffer), &rssi, &crc);
+            buffer_ptr = buffer;
+            buffer_len = sizeof(buffer);
+            radio.getPacket(buffer_ptr, &buffer_len, &rssi, &crc);
 
             // Transmit the RSSI byte over the UART
             uart.writeByte(rssi);
@@ -159,7 +163,9 @@ static void prvRadioTxTask(void *pvParameters)
             led_yellow.on();
 
             // Put the radio transceiver in transmit mode
-            radio.loadPacket(buffer, sizeof(buffer));
+            buffer_ptr = buffer;
+            buffer_len = sizeof(buffer);
+            radio.loadPacket(buffer_ptr, buffer_len);
 
             // Put the radio transceiver in transmit mode
             radio.transmit();
