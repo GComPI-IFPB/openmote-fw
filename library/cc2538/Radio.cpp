@@ -62,6 +62,12 @@
 #define CC2538_RF_CSP_OP_ISFLUSHRX              ( 0xED )
 #define CC2538_RF_CSP_OP_ISFLUSHTX              ( 0xEE )
 
+// Defines for the EUI64 address
+#define CC2538_EUI64_ADDRESS_HI_H               ( 0x0028002F )
+#define CC2538_EUI64_ADDRESS_HI_L               ( 0x0028002C )
+#define CC2538_EUI64_ADDRESS_LO_H               ( 0x0028002B )
+#define CC2538_EUI64_ADDRESS_LO_L               ( 0x00280028 )
+
 // Send an RX ON command strobe to the CSP
 #define CC2538_RF_CSP_ISRXON()    \
   do { HWREG(RFCORE_SFR_RFST) = CC2538_RF_CSP_OP_ISRXON; } while(0)
@@ -269,6 +275,21 @@ void Radio::disableInterrupts(void)
     /* Disable the radio interrupts */
     IntDisable(INT_RFCORERTX);
     IntDisable(INT_RFCOREERR);
+}
+
+void Radio::getAddress(uint8_t* address)
+{
+    uint8_t* eui64_flash;
+
+    eui64_flash = (uint8_t*) CC2538_EUI64_ADDRESS_LO_H;
+    while (eui64_flash >= (uint8_t*) CC2538_EUI64_ADDRESS_LO_L) {
+        *address++ = *eui64_flash--;
+    }
+
+    eui64_flash = (uint8_t*) CC2538_EUI64_ADDRESS_HI_H;
+    while (eui64_flash >= (uint8_t*) CC2538_EUI64_ADDRESS_HI_L) {
+        *address++ = *eui64_flash--;
+    }
 }
 
 void Radio::setChannel(uint8_t channel)
