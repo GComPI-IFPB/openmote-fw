@@ -32,35 +32,35 @@
 /*================================ define ===================================*/
 
 // Defines for the transmit power
-#define CC2538_RF_TX_POWER_DEFAULT              0xD5
+#define CC2538_RF_TX_POWER_DEFAULT              ( 0xD5 )
 
 // Defines for the channel
-#define CC2538_RF_CHANNEL_MIN                   11
-#define CC2538_RF_CHANNEL_MAX                   26
-#define CC2538_RF_CHANNEL_DEFAULT               17
-#define CC2538_RF_CHANNEL_SPACING               5
+#define CC2538_RF_CHANNEL_MIN                   ( 11 )
+#define CC2538_RF_CHANNEL_MAX                   ( 26 )
+#define CC2538_RF_CHANNEL_DEFAULT               ( 17 )
+#define CC2538_RF_CHANNEL_SPACING               ( 5 )
 
-#define CC2538_RF_RSSI_OFFSET                   73
+#define CC2538_RF_RSSI_OFFSET                   ( 73 )
 
-#define CC2538_RF_CRC_BITMASK                   0x80
-#define CC2538_RF_LQI_BITMASK                   0x7F
+#define CC2538_RF_CRC_BITMASK                   ( 0x80 )
+#define CC2538_RF_LQI_BITMASK                   ( 0x7F )
 
 // Defines for the packet
-#define CC2538_RF_MAX_PACKET_LEN                127
-#define CC2538_RF_MIN_PACKET_LEN                4
+#define CC2538_RF_MAX_PACKET_LEN                ( 127 )
+#define CC2538_RF_MIN_PACKET_LEN                ( 4 )
 
 // Defines for the CCA (Clear Channel Assessment)
-#define CC2538_RF_CCA_CLEAR                     0x01
-#define CC2538_RF_CCA_BUSY                      0x00
-#define CC2538_RF_CCA_THRESHOLD                 0xF8
+#define CC2538_RF_CCA_CLEAR                     ( 0x01 )
+#define CC2538_RF_CCA_BUSY                      ( 0x00 )
+#define CC2538_RF_CCA_THRESHOLD                 ( 0xF8 )
 
 // Defines for the CSP (Command Strobe Processor)
-#define CC2538_RF_CSP_OP_ISRXON                 0xE3
-#define CC2538_RF_CSP_OP_ISTXON                 0xE9
-#define CC2538_RF_CSP_OP_ISTXONCCA              0xEA
-#define CC2538_RF_CSP_OP_ISRFOFF                0xEF
-#define CC2538_RF_CSP_OP_ISFLUSHRX              0xED
-#define CC2538_RF_CSP_OP_ISFLUSHTX              0xEE
+#define CC2538_RF_CSP_OP_ISRXON                 ( 0xE3 )
+#define CC2538_RF_CSP_OP_ISTXON                 ( 0xE9 )
+#define CC2538_RF_CSP_OP_ISTXONCCA              ( 0xEA )
+#define CC2538_RF_CSP_OP_ISRFOFF                ( 0xEF )
+#define CC2538_RF_CSP_OP_ISFLUSHRX              ( 0xED )
+#define CC2538_RF_CSP_OP_ISFLUSHTX              ( 0xEE )
 
 // Send an RX ON command strobe to the CSP
 #define CC2538_RF_CSP_ISRXON()    \
@@ -100,6 +100,7 @@ Radio::Radio()
 
 void Radio::enable(void)
 {
+    // Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3)
     SysCtrlPeripheralEnable(SYS_CTRL_PERIPH_RFC);
     SysCtrlPeripheralSleepEnable(SYS_CTRL_PERIPH_RFC);
     SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_RFC);

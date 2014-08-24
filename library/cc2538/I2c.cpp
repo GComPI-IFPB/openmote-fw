@@ -50,9 +50,9 @@ void I2c::enable(uint32_t clock_)
 
     clock = clock_;
 
-    // Enable peripheral except in sleep and deep sleep modes
+    // Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3)
     SysCtrlPeripheralEnable(peripheral);
-    SysCtrlPeripheralSleepDisable(peripheral);
+    SysCtrlPeripheralSleepEnable(peripheral);
     SysCtrlPeripheralDeepSleepDisable(peripheral);
 
     // Reset peripheral previous to configuring it
