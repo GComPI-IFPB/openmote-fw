@@ -40,8 +40,10 @@
 #define CC2538_RF_CHANNEL_DEFAULT               ( 17 )
 #define CC2538_RF_CHANNEL_SPACING               ( 5 )
 
+// Defines for the RSSI
 #define CC2538_RF_RSSI_OFFSET                   ( 73 )
 
+// Defines for the CRC and LQI
 #define CC2538_RF_CRC_BITMASK                   ( 0x80 )
 #define CC2538_RF_LQI_BITMASK                   ( 0x7F )
 
@@ -174,11 +176,11 @@ void Radio::wakeup(void)
 
 void Radio::on(void)
 {
-    /* Turn on the radio */
-    CC2538_RF_CSP_ISRXON();
-
     /* Set the radio state to idle */
     radioState = RadioState_Idle;
+
+    /* Turn on the radio */
+    CC2538_RF_CSP_ISRXON();
 }
 
 void Radio::off(void)
@@ -186,6 +188,9 @@ void Radio::off(void)
     /* Wait for ongoing TX to complete (e.g. this could be an outgoing ACK) */
     while (HWREG(RFCORE_XREG_FSMSTAT1) & RFCORE_XREG_FSMSTAT1_TX_ACTIVE)
         ;
+
+    /* Set the radio state to off */
+    radioState = RadioState_Off;
 
     /* Don't turn off if we are off as this will trigger a Strobe Error */
     if (HWREG(RFCORE_XREG_RXENABLE) != 0)
@@ -196,15 +201,15 @@ void Radio::off(void)
         /* Clear FIFO interrupt flags */
         HWREG(RFCORE_SFR_RFIRQF0) = ~(RFCORE_SFR_RFIRQF0_FIFOP|RFCORE_SFR_RFIRQF0_RXPKTDONE);
     }
-
-    /* Set the radio state to off */
-    radioState = RadioState_Off;
 }
 
 void Radio::reset(void)
 {
     /* Wait for ongoing TX to complete (e.g. this could be an outgoing ACK) */
     while (HWREG(RFCORE_XREG_FSMSTAT1) & RFCORE_XREG_FSMSTAT1_TX_ACTIVE);
+
+    /* Set the radio state to off */
+    radioState = RadioState_Off;
 
     /* Flush the RX and TX buffers */
     CC2538_RF_CSP_ISFLUSHRX();
@@ -216,9 +221,6 @@ void Radio::reset(void)
         /* Turn off the radio */
         CC2538_RF_CSP_ISRFOFF();
     }
-
-    /* Set the radio state to off */
-    radioState = RadioState_Off;
 }
 
 void Radio::setRxCallbacks(Callback* rxInit_, Callback* rxDone_)
@@ -226,9 +228,6 @@ void Radio::setRxCallbacks(Callback* rxInit_, Callback* rxDone_)
     /* Store the receive init and done callbacks */
     rxInit = rxInit_;
     rxDone = rxDone_;
-
-    /* Register the receive interrupt handlers */
-    InterruptHandler::getInstance().setInterruptHandler(this);
 }
 
 void Radio::setTxCallbacks(Callback* txInit_, Callback* txDone_)
@@ -236,14 +235,13 @@ void Radio::setTxCallbacks(Callback* txInit_, Callback* txDone_)
     /* Store the transmit init and done callbacks */
     txInit = txInit_;
     txDone = txDone_;
-
-    /* Register the trasmit interrupt handlers */
-    InterruptHandler::getInstance().setInterruptHandler(this);
 }
-
 
 void Radio::enableInterrupts(void)
 {
+    /* Register the receive interrupt handlers */
+    InterruptHandler::getInstance().setInterruptHandler(this);
+
     /* Enable RF interrupts 0, RXPKTDONE, SFD and FIFOP only -- see page 751  */
     HWREG(RFCORE_XREG_RFIRQM0) |= ((0x06 | 0x02 | 0x01) << RFCORE_XREG_RFIRQM0_RFIRQM_S) & RFCORE_XREG_RFIRQM0_RFIRQM_M;
 
@@ -253,9 +251,12 @@ void Radio::enableInterrupts(void)
     /* Enable RF error interrupts */
     HWREG(RFCORE_XREG_RFERRM) = RFCORE_XREG_RFERRM_RFERRM_M;
 
+    // Set the UART interrupt priority
+    IntPrioritySet(INT_RFCORERTX, (7 << 5));
+
     /* Enable radio interrupts */
     IntEnable(INT_RFCORERTX);
-    IntEnable(INT_RFCOREERR);
+    // IntEnable(INT_RFCOREERR);
 }
 
 void Radio::disableInterrupts(void)
@@ -268,7 +269,7 @@ void Radio::disableInterrupts(void)
 
     /* Disable the radio interrupts */
     IntDisable(INT_RFCORERTX);
-    IntDisable(INT_RFCOREERR);
+    // IntDisable(INT_RFCOREERR);
 }
 
 void Radio::setChannel(uint8_t channel)
@@ -377,7 +378,7 @@ RadioResult Radio::loadPacket(uint8_t* data, uint8_t length)
  */
 RadioResult Radio::getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uint8_t* crc)
 {
-    int8_t packetLength;
+    uint8_t packetLength;
 
     /* Check the packet length (first byte) */
     packetLength = HWREG(RFCORE_SFR_RFDATA);
@@ -450,58 +451,57 @@ void Radio::interruptHandler(void)
     /* STATUS0 Register: Start of frame event */
     if ((irq_status0 & RFCORE_SFR_RFIRQF0_SFD) == RFCORE_SFR_RFIRQF0_SFD)
     {
-        if (radioState == RadioState_ReceiveInit)
+        if (radioState == RadioState_ReceiveInit &&
+            rxInit != nullptr)
         {
             radioState = RadioState_Receiving;
             rxInit->execute();
         }
-        else if (radioState == RadioState_TransmitInit)
+        else if (radioState == RadioState_TransmitInit &&
+                 txInit != nullptr)
         {
             radioState = RadioState_Transmitting;
             txInit->execute();
         }
         else
         {
-            while (true)
-                ;
+            // ToDo: Handle otherwise
         }
     }
 
     /* STATUS0 Register: End of frame event */
     if (((irq_status0 & RFCORE_SFR_RFIRQF0_RXPKTDONE) ==  RFCORE_SFR_RFIRQF0_RXPKTDONE))
     {
-        if (radioState == RadioState_Receiving)
+        if (radioState == RadioState_Receiving &&
+            rxDone != nullptr)
         {
             radioState = RadioState_ReceiveDone;
             rxDone->execute();
-            radioState = RadioState_Idle;
         }
         else
         {
-            while (true)
-                ;
+            // ToDo: Handle otherwise
         }
     }
 
     /* STATUS0 Register: FIFO is full event */
     if (((irq_status0 & RFCORE_SFR_RFIRQF0_FIFOP) ==  RFCORE_SFR_RFIRQF0_FIFOP))
     {
-        while (true)
-            ;
+        // ToDo: Handle otherwise
     }
 
     /* STATUS1 Register: End of frame event */
     if (((irq_status1 & RFCORE_SFR_RFIRQF1_TXDONE) == RFCORE_SFR_RFIRQF1_TXDONE))
     {
-        if (radioState == RadioState_Transmitting)
+        if (radioState == RadioState_Transmitting &&
+            txDone != nullptr)
         {
             radioState = RadioState_TransmitDone;
             txDone->execute();
         }
         else
         {
-            while (true)
-                ;
+            // ToDo: Handle otherwise
         }
     }
 }
@@ -522,12 +522,11 @@ void Radio::errorHandler(void)
         /* Clear error interrupt */
         HWREG(RFCORE_XREG_RFERRM) = ~(((0x02)<<RFCORE_XREG_RFERRM_RFERRM_S)&RFCORE_XREG_RFERRM_RFERRM_M);
 
-        // ToDo: Handler error
+        // ToDo: Handle error
     }
     else
     {
-        while (true)
-            ;
+        // ToDo: Handle otherwise
     }
 }
 

@@ -15,6 +15,8 @@
 
 /*================================ include ==================================*/
 
+#include "string.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -22,14 +24,16 @@
 #include "openmote-cc2538.h"
 
 #include "Callback.h"
+#include "Serial.h"
 
 /*================================ define ===================================*/
 
 #define RADIO_MODE_RX                       ( 0 )
 #define RADIO_MODE_TX                       ( 1 )
-#define RADIO_MODE                          ( RADIO_MODE_TX )
+#define RADIO_MODE                          ( RADIO_MODE_RX )
 
-#define PAYLOAD_LENGTH                      ( 124 )
+#define PAYLOAD_LENGTH                      ( 125 )
+#define EUI64_LENGTH                        ( 8 )
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 2 )
 #define RADIO_RX_TASK_PRIORITY              ( tskIDLE_PRIORITY + 0 )
@@ -42,13 +46,22 @@
 static xSemaphoreHandle rxSemaphore;
 static xSemaphoreHandle txSemaphore;
 
-static uint8_t buffer[PAYLOAD_LENGTH];
-static uint8_t* buffer_ptr    = buffer;
-static uint8_t  buffer_len = sizeof(buffer);
+static uint8_t radio_buffer[PAYLOAD_LENGTH];
+static uint8_t* radio_ptr = radio_buffer;
+static uint8_t  radio_len = sizeof(radio_buffer);
 static int8_t rssi;
 static uint8_t crc;
 
+static uint8_t uart_buffer[PAYLOAD_LENGTH];
+static uint8_t* uart_ptr = uart_buffer;
+static uint8_t  uart_len = sizeof(radio_buffer);
+
+static Serial serial(uart);
+
 /*=============================== prototypes ================================*/
+
+extern "C" void vApplicationTickHook(void);
+extern "C" void vApplicationIdleHook(void);
 
 static void prvGreenLedTask(void *pvParameters);
 static void prvRadioRxTask(void *pvParameters);
@@ -71,19 +84,24 @@ int main (void)
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
 
-    // Enable the UART interface
-    uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
-
-    // Configure the IEEE 802.15.4 radio
+    // Enable the IEEE 802.15.4 radio
     radio.setTxCallbacks(&txInitCallback, &txDoneCallback);
     radio.setRxCallbacks(&rxInitCallback, &rxDoneCallback);
     radio.enable();
+    radio.enableInterrupts();
 
-    // Create two FreeRTOS tasks
+    // Create the blink task
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
+
 #if (RADIO_MODE == RADIO_MODE_RX)
+    // Enable the UART driver and Serial device
+    uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
+    serial.enable();
+
+    // Create the radio receive task
     xTaskCreate(prvRadioRxTask, (const char *) "RadioRx", 128, NULL, RADIO_RX_TASK_PRIORITY, NULL);
 #elif (RADIO_MODE == RADIO_MODE_TX)
+    // Create the radio transmit task
     xTaskCreate(prvRadioTxTask, (const char *) "RadioTx", 128, NULL, RADIO_TX_TASK_PRIORITY, NULL);
 #endif
 
@@ -110,6 +128,8 @@ static void prvGreenLedTask(void *pvParameters)
 
 static void prvRadioRxTask(void *pvParameters)
 {
+    static RadioResult result;
+
     // Create the receive semaphore
     rxSemaphore = xSemaphoreCreateMutex();
 
@@ -135,20 +155,50 @@ static void prvRadioRxTask(void *pvParameters)
             led_yellow.off();
 
             // Get a packet from the radio buffer
-            buffer_ptr = buffer;
-            buffer_len = sizeof(buffer);
-            radio.getPacket(buffer_ptr, &buffer_len, &rssi, &crc);
+            radio_ptr = radio_buffer;
+            radio_len = sizeof(radio_buffer);
+            result = radio.getPacket(radio_ptr, &radio_len, &rssi, &crc);
 
-            // Transmit the RSSI byte over the UART
-            uart.writeByte(rssi);
+            if (result == RadioResult_Success && crc)
+            {
+                // Restore the UART pointer
+                uart_ptr = uart_buffer;
+
+                // Copy the payload to the UART buffer
+                memcpy(uart_ptr, radio_ptr, radio_len);
+                uart_ptr += radio_len;
+                uart_len = radio_len;
+
+                // Copy the RSSI to the UART buffer
+                *uart_ptr++ = rssi;
+                uart_len += 1;
+
+                // Copy the CRC to the UART buffer
+                *uart_ptr++ = crc;
+                uart_len += 1;
+
+                // Transmit the buffer over the UART
+                serial.printf(uart_buffer, uart_len);
+            }
         }
+
+        // Turn off the radio until the next packet
+        radio.off();
+
+        // Delay the transmission of the next packet 200 ms
+        vTaskDelay(200 / portTICK_RATE_MS);
     }
 }
 
 static void prvRadioTxTask(void *pvParameters)
 {
+    static RadioResult result;
+
     // Create the transmit semaphore
     txSemaphore = xSemaphoreCreateMutex();
+
+    // Get the EUI64 address of the board
+    board.getAddress(radio_buffer);
 
     // Turn on the radio transceiver
     radio.on();
@@ -162,19 +212,22 @@ static void prvRadioTxTask(void *pvParameters)
             // Turn the yellow LED on when the packet is being loaded
             led_yellow.on();
 
-            // Put the radio transceiver in transmit mode
-            buffer_ptr = buffer;
-            buffer_len = sizeof(buffer);
-            radio.loadPacket(buffer_ptr, buffer_len);
+            // Load the EUI64 address to the transmit buffer
+            radio_ptr = radio_buffer;
+            radio_len = EUI64_LENGTH;
+            result = radio.loadPacket(radio_ptr, radio_len);
 
-            // Put the radio transceiver in transmit mode
-            radio.transmit();
+            if (result == RadioResult_Success)
+            {
+                // Put the radio transceiver in transmit mode
+                radio.transmit();
 
-            // Turn the yellow LED off when the packet has beed loaded
-            led_yellow.off();
+                // Turn the yellow LED off when the packet has beed loaded
+                led_yellow.off();
 
-            // Delay the transmission of the next packet 100 ms
-            vTaskDelay(100 / portTICK_RATE_MS);
+                // Delay the transmission of the next packet 250 ms
+                vTaskDelay(250 / portTICK_RATE_MS);
+            }
         }
     }
 }
@@ -215,6 +268,9 @@ static void txDone(void)
 
     // Turn off the radio LED as the packet is transmitted
     led_red.off();
+
+    // Turn off the radio until the next packet
+    radio.off();
 
     // Give the transmit semaphore as the packet has been transmitted
     xSemaphoreGiveFromISR(txSemaphore, &xHigherPriorityTaskWoken);
