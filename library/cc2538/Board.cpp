@@ -46,7 +46,8 @@
 
 /*================================= public ==================================*/
 
-Board::Board()
+Board::Board():
+    sleepMode(SleepMode_None)
 {
     /**
      * Configure the 32 kHz pins, PD6 and PD7, for crystal operation
