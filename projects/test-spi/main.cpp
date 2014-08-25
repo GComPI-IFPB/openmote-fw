@@ -30,6 +30,10 @@
 
 /*=============================== variables =================================*/
 
+uint8_t spi_buffer[] = {'O','p','e','n','M','o','t','e','-','C','C','2','5','3','8'};
+uint8_t* spi_ptr = spi_buffer;
+uint8_t  spi_len = sizeof(spi_buffer);
+
 /*=============================== prototypes ================================*/
 
 static void prvGreenLedTask(void *pvParameters);
@@ -42,6 +46,8 @@ int main (void)
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
 
+    spi.enable(SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE);
+
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
     xTaskCreate(prvSpiTask, (const char *) "Spi", 128, NULL, SPI_TASK_PRIORITY, NULL);
@@ -52,13 +58,10 @@ int main (void)
 
 static void prvSpiTask(void *pvParameters)
 {
-    static uint8_t data = 0x00;
-
     while (true)
     {
         led_red.on();
-        spi.writeByte(data);
-        data++;
+        spi.writeByte(spi_ptr, spi_len);
         led_red.off();
         vTaskDelay(100 / portTICK_RATE_MS);
     }

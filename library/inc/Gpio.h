@@ -41,7 +41,7 @@ class GpioSpi : public Gpio
 {
 public:
     GpioSpi(uint32_t port_, uint8_t pin_, uint32_t ioc_):
-        Gpio(port_, pin_){}
+        Gpio(port_, pin_), ioc(ioc_){}
     uint32_t getIoc(void) {return ioc;}
 private:
     uint32_t ioc;

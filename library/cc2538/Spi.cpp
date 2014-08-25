@@ -65,7 +65,7 @@ void Spi::enable(uint32_t mode_, uint32_t protocol_, uint32_t datawidth_, uint32
     SysCtrlPeripheralDeepSleepDisable(peripheral);
 
     // Reset peripheral previous to configuring it
-    SSIDisable(peripheral);
+    SSIDisable(base);
 
     // Set IO clock as SPI0 clock source
     SSIClockSourceSet(base, clock);
@@ -84,7 +84,7 @@ void Spi::enable(uint32_t mode_, uint32_t protocol_, uint32_t datawidth_, uint32
 
     // Configure the SPI0 clock
     SSIConfigSetExpClk(base, SysCtrlIOClockGet(), protocol, \
-                       mode, SysCtrlClockGet()/2, datawidth);
+                       mode, baudrate, datawidth);
 
     // Enable the SPI0 module
     SSIEnable(base);
@@ -166,6 +166,10 @@ uint32_t Spi::readByte(uint8_t* buffer, uint32_t length)
 void Spi::writeByte(uint8_t byte)
 {
     SSIDataPut(base, byte);
+
+    // Wait until it is complete
+    while(SSIBusy(base))
+        ;
 }
 
 uint32_t Spi::writeByte(uint8_t * buffer, uint32_t length)
