@@ -86,6 +86,6 @@ void Serial::txCallback_(void)
     }
     else
     {
-        uart.unlock();
+        uart.unlockFromInterrupt();
     }
 }
