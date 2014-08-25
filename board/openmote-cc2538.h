@@ -80,8 +80,8 @@
 #define GPIO_DEBUG_AD2_PORT     ( GPIO_D_BASE )
 #define GPIO_DEBUG_AD2_PIN      ( GPIO_PIN_1 )
 
-#define GPIO_DEBUG_AD3_PORT     ( GPIO_D_BASE )
-#define GPIO_DEBUG_AD3_PIN      ( GPIO_PIN_0 )
+#define GPIO_DEBUG_AD3_PORT     ( GPIO_A_BASE )
+#define GPIO_DEBUG_AD3_PIN      ( GPIO_PIN_6 )
 
 #define BUTTON_USER_PORT        ( GPIO_C_BASE )
 #define BUTTON_USER_PIN         ( GPIO_PIN_3 )
@@ -169,8 +169,8 @@
 #define MAX44009_INT_PIN        ( GPIO_PIN_2 )
 #define MAX44009_INT_EDGE       ( GPIO_FALLING_EDGE )
 
-#define ENC28J60_INT_PORT       ( GPIO_B_BASE )
-#define ENC28J60_INT_PIN        ( GPIO_PIN_2 )
+#define ENC28J60_INT_PORT       ( GPIO_D_BASE )
+#define ENC28J60_INT_PIN        ( GPIO_PIN_0 )
 #define ENC28J60_INT_EDGE       ( GPIO_FALLING_EDGE )
 
 /*================================ typedef ==================================*/
