@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       sensors-cc2538.cpp
+ * @file       main.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -33,10 +33,6 @@
 
 /*================================ typedef ==================================*/
 
-/*=============================== variables =================================*/
-
-static xSemaphoreHandle xSemaphoreButton;
-
 /*=============================== prototypes ================================*/
 
 extern "C" TickType_t board_sleep(TickType_t xModifiableIdleTime);
@@ -48,7 +44,12 @@ static void prvTemperatureTask(void *pvParameters);
 static void prvAccelerationTask(void *pvParameters);
 static void prvButtonTask(void *pvParameters);
 
-static void button_user_callback(void);
+static void buttonCallback(void);
+
+/*=============================== variables =================================*/
+
+static xSemaphoreHandle buttonSemaphore;
+static GenericCallback userCallback(buttonCallback);
 
 /*================================= public ==================================*/
 
@@ -59,12 +60,6 @@ int main (void)
 
     // Enable the I2C interface
     i2c.enable(I2C_BAUDRATE);
-
-    // Enable the SPI interface
-    // spi.enable(SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE);
-
-    // Enable the UART interface
-    // uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
 
     // Create the FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "GreenLed", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
@@ -91,32 +86,35 @@ TickType_t board_wakeup(TickType_t xModifiableIdleTime)
 
 /*================================ private ==================================*/
 
-static void button_user_callback(void)
+static void buttonCallback(void)
 {
+    // Determines if the interrupt triggers a context switch
     static BaseType_t xHigherPriorityTaskWoken;
-
     xHigherPriorityTaskWoken = pdFALSE;
 
-    xSemaphoreGiveFromISR(xSemaphoreButton, &xHigherPriorityTaskWoken);
+    // Give the button semaphore as the button has been pressed
+    xSemaphoreGiveFromISR(buttonSemaphore, &xHigherPriorityTaskWoken);
 
+    // Force a context switch after the interrupt if required
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 static void prvButtonTask(void *pvParameters)
 {
-    static GenericCallback genericCallback(button_user_callback);
+    // Create the button semaphore
+    buttonSemaphore = xSemaphoreCreateMutex();
 
-    xSemaphoreButton = xSemaphoreCreateMutex();
-
-    button_user.setCallback(&genericCallback);
+    // Configure the user button
+    button_user.setCallback(&userCallback);
     button_user.enableInterrupt();
 
-    while(true)
+    // Forever
+    while (true)
     {
-        /* The second parameter indicates the interval at which the xSempahore
-           is polled and, thus, it determines latency and energy consumption. */
-        if (xSemaphoreTake(xSemaphoreButton, (TickType_t) portMAX_DELAY) == pdTRUE)
+        // Take the buttonSemaphore, block until available
+        if (xSemaphoreTake(buttonSemaphore, (TickType_t) portMAX_DELAY) == pdTRUE)
         {
+            // Toggle the red LED
             led_red.toggle();
         }
     }
@@ -217,12 +215,16 @@ static void prvAccelerationTask(void *pvParameters) {
 
 static void prvGreenLedTask(void *pvParameters)
 {
+    // Forever
     while(true)
     {
-        led_green.on();
-        vTaskDelay(50/ portTICK_RATE_MS);
+        // Turn off green LED for 1950 ms
         led_green.off();
         vTaskDelay(1950 / portTICK_RATE_MS);
+
+        // Turn on green LED for 50 ms
+        led_green.on();
+        vTaskDelay(50 / portTICK_RATE_MS);
     }
 }
 

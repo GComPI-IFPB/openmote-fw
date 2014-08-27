@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       freertos.cpp
+ * @file       main.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -30,16 +30,17 @@
 
 /*================================ typedef ==================================*/
 
-/*=============================== variables =================================*/
-
-static SemaphoreHandle_t xSemaphore;
-
 /*=============================== prototypes ================================*/
 
 static void prvGreenLedTask(void *pvParameters);
 static void prvButtonTask(void *pvParameters);
 
-static void button_user_callback(void);
+static void buttonCallback(void);
+
+/*=============================== variables =================================*/
+
+static SemaphoreHandle_t buttonSemaphore;
+static GenericCallback userCallback(buttonCallback);
 
 /*================================= public ==================================*/
 
@@ -58,27 +59,35 @@ int main (void)
 
 /*================================ private ==================================*/
 
-static void button_user_callback(void)
+static void buttonCallback(void)
 {
+    // Determines if the interrupt triggers a context switch
     static BaseType_t xHigherPriorityTaskWoken;
     xHigherPriorityTaskWoken = pdFALSE;
-    xSemaphoreGiveFromISR(xSemaphore, &xHigherPriorityTaskWoken);
+
+    // Give the button semaphore as the button has been pressed
+    xSemaphoreGiveFromISR(buttonSemaphore, &xHigherPriorityTaskWoken);
+
+    // Force a context switch after the interrupt if required
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 static void prvButtonTask(void *pvParameters)
 {
-    static GenericCallback genericCallback(button_user_callback);
+    // Create the button semaphore
+    buttonSemaphore = xSemaphoreCreateMutex();
 
-    xSemaphore = xSemaphoreCreateMutex();
-
-    button_user.setCallback(&genericCallback);
+    // Configure the user button
+    button_user.setCallback(&userCallback);
     button_user.enableInterrupt();
 
-    while(true)
+    // Forever
+    while (true)
     {
-        if (xSemaphoreTake( xSemaphore, (TickType_t) portMAX_DELAY) == pdTRUE)
+        // Take the buttonSemaphore, block until available
+        if (xSemaphoreTake(buttonSemaphore, (TickType_t) portMAX_DELAY) == pdTRUE)
         {
+            // Toggle the red LED
             led_red.toggle();
         }
     }
@@ -86,11 +95,16 @@ static void prvButtonTask(void *pvParameters)
 
 static void prvGreenLedTask(void *pvParameters)
 {
+    // Forever
     while(true)
     {
+        // Turn off green LED for 1950 ms
         led_green.off();
-        vTaskDelay(950 / portTICK_RATE_MS);
+        vTaskDelay(1950 / portTICK_RATE_MS);
+
+        // Turn on green LED for 50 ms
         led_green.on();
         vTaskDelay(50 / portTICK_RATE_MS);
     }
 }
+

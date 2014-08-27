@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       test-radio.cpp
+ * @file       main.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -41,23 +41,6 @@
 
 /*================================ typedef ==================================*/
 
-/*=============================== variables =================================*/
-
-static xSemaphoreHandle rxSemaphore;
-static xSemaphoreHandle txSemaphore;
-
-static uint8_t radio_buffer[PAYLOAD_LENGTH];
-static uint8_t* radio_ptr = radio_buffer;
-static uint8_t  radio_len = sizeof(radio_buffer);
-static int8_t rssi;
-static uint8_t crc;
-
-static uint8_t uart_buffer[PAYLOAD_LENGTH];
-static uint8_t* uart_ptr = uart_buffer;
-static uint8_t  uart_len = sizeof(radio_buffer);
-
-static Serial serial(uart);
-
 /*=============================== prototypes ================================*/
 
 extern "C" void vApplicationTickHook(void);
@@ -72,10 +55,27 @@ static void rxDone(void);
 static void txInit(void);
 static void txDone(void);
 
-GenericCallback rxInitCallback(&rxInit);
-GenericCallback rxDoneCallback(&rxDone);
-GenericCallback txInitCallback(&txInit);
-GenericCallback txDoneCallback(&txDone);
+/*=============================== variables =================================*/
+
+static xSemaphoreHandle rxSemaphore;
+static xSemaphoreHandle txSemaphore;
+
+static GenericCallback rxInitCallback(&rxInit);
+static GenericCallback rxDoneCallback(&rxDone);
+static GenericCallback txInitCallback(&txInit);
+static GenericCallback txDoneCallback(&txDone);
+
+static uint8_t radio_buffer[PAYLOAD_LENGTH];
+static uint8_t* radio_ptr = radio_buffer;
+static uint8_t  radio_len = sizeof(radio_buffer);
+static int8_t rssi;
+static uint8_t crc;
+
+static uint8_t uart_buffer[PAYLOAD_LENGTH];
+static uint8_t* uart_ptr = uart_buffer;
+static uint8_t  uart_len = sizeof(radio_buffer);
+
+static Serial serial(uart);
 
 /*================================= public ==================================*/
 

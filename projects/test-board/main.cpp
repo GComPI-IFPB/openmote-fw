@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       test-board.cpp
+ * @file       main.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -29,7 +29,7 @@
 #define RADIO_MODE_TX                       ( 1 )
 #define RADIO_MODE                          ( RADIO_MODE_TX )
 
-#define PAYLOAD_LENGTH                       ( 124 )
+#define PAYLOAD_LENGTH                      ( 124 )
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 2 )
 #define BUTTON_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
@@ -37,16 +37,6 @@
 #define RADIO_TX_TASK_PRIORITY              ( tskIDLE_PRIORITY + 0 )
 
 /*================================ typedef ==================================*/
-
-/*=============================== variables =================================*/
-
-static xSemaphoreHandle rxSemaphore;
-static xSemaphoreHandle txSemaphore;
-static xSemaphoreHandle buttonSempahore;
-
-static uint8_t buffer[PAYLOAD_LENGTH];
-static int8_t rssi;
-static uint8_t crc;
 
 /*=============================== prototypes ================================*/
 
@@ -61,11 +51,23 @@ static void rxDone(void);
 static void txInit(void);
 static void txDone(void);
 
-GenericCallback rxInitCallback(&rxInit);
-GenericCallback rxDoneCallback(&rxDone);
-GenericCallback txInitCallback(&txInit);
-GenericCallback txDoneCallback(&txDone);
-GenericCallback userCallback(buttonCallback);
+/*=============================== variables =================================*/
+
+static xSemaphoreHandle rxSemaphore;
+static xSemaphoreHandle txSemaphore;
+static xSemaphoreHandle buttonSempahore;
+
+static GenericCallback rxInitCallback(&rxInit);
+static GenericCallback rxDoneCallback(&rxDone);
+static GenericCallback txInitCallback(&txInit);
+static GenericCallback txDoneCallback(&txDone);
+static GenericCallback userCallback(buttonCallback);
+
+static uint8_t radio_buffer[PAYLOAD_LENGTH];
+static uint8_t* radio_ptr = radio_buffer;
+static uint8_t  radio_len = sizeof(radio_buffer);
+static int8_t rssi;
+static uint8_t crc;
 
 /*================================= public ==================================*/
 
@@ -100,13 +102,13 @@ int main (void)
 static void prvGreenLedTask(void *pvParameters)
 {
     // Forever
-    while (true)
+    while(true)
     {
-        // Turn off the green LED and keep it for 950 ms
+        // Turn off green LED for 950 ms
         led_green.off();
         vTaskDelay(950 / portTICK_RATE_MS);
 
-        // Turn on the green LED and keep it for 50 ms
+        // Turn on green LED for 50 ms
         led_green.on();
         vTaskDelay(50 / portTICK_RATE_MS);
     }
@@ -160,7 +162,7 @@ static void prvRadioRxTask(void *pvParameters)
             led_yellow.off();
 
             // Get a packet from the radio buffer
-            radio.getPacket(buffer, sizeof(buffer), &rssi, &crc);
+            radio.getPacket(radio_ptr, &radio_len, &rssi, &crc);
 
             // Transmit the RSSI byte over the UART
             uart.writeByte(rssi);
@@ -186,7 +188,7 @@ static void prvRadioTxTask(void *pvParameters)
             led_yellow.on();
 
             // Put the radio transceiver in transmit mode
-            radio.loadPacket(buffer, sizeof(buffer));
+            radio.loadPacket(radio_ptr, radio_len);
 
             // Put the radio transceiver in transmit mode
             radio.transmit();
@@ -194,8 +196,8 @@ static void prvRadioTxTask(void *pvParameters)
             // Turn the yellow LED off when the packet has beed loaded
             led_yellow.off();
 
-            // Delay the transmission of the next packet 100 ms
-            vTaskDelay(100 / portTICK_RATE_MS);
+            // Delay the transmission of the next packet 250 ms
+            vTaskDelay(250 / portTICK_RATE_MS);
         }
     }
 }

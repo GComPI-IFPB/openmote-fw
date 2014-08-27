@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       test-button.cpp
+ * @file       main.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -30,10 +30,6 @@
 
 /*================================ typedef ==================================*/
 
-/*=============================== variables =================================*/
-
-static xSemaphoreHandle buttonSemaphore;
-
 /*=============================== prototypes ================================*/
 
 static void prvGreenLedTask(void *pvParameters);
@@ -41,7 +37,10 @@ static void prvButtonTask(void *pvParameters);
 
 static void buttonCallback(void);
 
-GenericCallback userCallback(buttonCallback);
+/*=============================== variables =================================*/
+
+static xSemaphoreHandle buttonSemaphore;
+static GenericCallback userCallback(buttonCallback);
 
 /*================================= public ==================================*/
 

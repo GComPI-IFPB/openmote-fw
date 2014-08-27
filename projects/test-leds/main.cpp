@@ -28,12 +28,12 @@
 
 /*================================ typedef ==================================*/
 
-/*=============================== variables =================================*/
-
 /*=============================== prototypes ================================*/
 
 static void prvGreenLedTask(void *pvParameters);
 static void prvRedLedTask(void *pvParameters);
+
+/*=============================== variables =================================*/
 
 /*================================= public ==================================*/
 
@@ -52,8 +52,10 @@ int main (void)
 
 static void prvRedLedTask(void *pvParameters)
 {
+    // Forever
     while(true)
     {
+        // Togle the red LED every 100 ms
         vTaskDelay(100 / portTICK_RATE_MS);
         led_red.toggle();
     }
@@ -61,13 +63,18 @@ static void prvRedLedTask(void *pvParameters)
 
 static void prvGreenLedTask(void *pvParameters)
 {
+    // Forever
     while(true)
     {
+        // Turn off green LED for 950 ms
         led_green.off();
         vTaskDelay(950 / portTICK_RATE_MS);
+        
+        // Turn on green LED for 50 ms
         led_green.on();
         vTaskDelay(50 / portTICK_RATE_MS);
     }
 }
 
 /*================================ private ==================================*/
+
