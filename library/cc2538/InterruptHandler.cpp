@@ -25,19 +25,7 @@
 #include "Spi.h"
 #include "Radio.h"
 
-#include "interrupt.h"
-#include "gpio.h"
-#include "gptimer.h"
-#include "uart.h"
-#include "i2c.h"
-#include "ioc.h"
-#include "ssi.h"
-
-#include "hw_ints.h"
-#include "hw_memmap.h"
-#include "hw_types.h"
-#include "hw_rfcore_sfr.h"
-#include "hw_rfcore_xreg.h"
+#include "cc2538_include.h"
 
 /*================================ define ===================================*/
 

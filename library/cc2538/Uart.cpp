@@ -18,16 +18,7 @@
 #include "Uart.h"
 #include "InterruptHandler.h"
 
-#include "gpio.h"
-#include "interrupt.h"
-#include "ioc.h"
-#include "sys_ctrl.h"
-#include "uart.h"
-
-#include "hw_ioc.h"
-#include "hw_ints.h"
-#include "hw_types.h"
-#include "hw_uart.h"
+#include "cc2538_include.h"
 
 /*================================ define ===================================*/
 

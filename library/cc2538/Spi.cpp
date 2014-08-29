@@ -18,16 +18,7 @@
 #include "Spi.h"
 #include "InterruptHandler.h"
 
-#include "gpio.h"
-#include "interrupt.h"
-#include "ioc.h"
-#include "sys_ctrl.h"
-#include "ssi.h"
-
-#include "hw_ioc.h"
-#include "hw_ints.h"
-#include "hw_types.h"
-#include "hw_ssi.h"
+#include "cc2538_include.h"
 
 /*================================ define ===================================*/
 

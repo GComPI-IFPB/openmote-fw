@@ -17,7 +17,7 @@
 
 #include "GpioAdc.h"
 
-#include "adc.h"
+#include "cc2538_include.h"
 
 /*================================ define ===================================*/
 

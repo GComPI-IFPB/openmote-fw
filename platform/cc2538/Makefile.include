@@ -6,7 +6,7 @@ PLATFORM_SRC = $(PLATFORM_PATH)/src
 PLATFORM_INC = $(PLATFORM_PATH)/inc
 
 # Append to the files to compile
-SRC_FILES += startup_cc2538.c
+SRC_FILES += cc2538_startup.c
 
 # Append to the include path
 SRC_PATH += -I $(PLATFORM_CC2538)
@@ -16,7 +16,7 @@ INC_PATH += -I $(PLATFORM_INC)
 INC_PATH += -I $(PLATFORM_SRC)
 
 # Linker script
-LINKER_SCRIPT = $(PLATFORM_PATH)/cc2538.lds
+LINKER_SCRIPT = $(PLATFORM_PATH)/cc2538_linker.lds
 
 # Extend the virtual path
 VPATH += $(PLATFORM_CC2538) $(PLATFORM_SRC) $(PLATFORM_INC)

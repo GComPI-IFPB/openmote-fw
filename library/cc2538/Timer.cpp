@@ -17,13 +17,7 @@
 
 #include "Timer.h"
 
-#include "interrupt.h"
-#include "sys_ctrl.h"
-#include "gptimer.h"
-
-#include "hw_memmap.h"
-#include "hw_ints.h"
-#include "hw_types.h"
+#include "cc2538_include.h"
 
 /*================================ define ===================================*/
 

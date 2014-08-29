@@ -17,18 +17,7 @@
 
 #include "Board.h"
 
-#include "gpio.h"
-#include "interrupt.h"
-#include "ioc.h"
-#include "sys_ctrl.h"
-
-#include "hw_gpio.h"
-#include "hw_ints.h"
-#include "hw_ioc.h"
-#include "hw_sys_ctrl.h"
-
-#include "hw_memmap.h"
-#include "hw_types.h"
+#include "cc2538_include.h"
 
 /*================================ define ===================================*/
 
@@ -39,6 +28,19 @@
 #define CC2538_EUI64_ADDRESS_LO_L               ( 0x00280028 )
 
 /*================================ typedef ==================================*/
+
+/**
+ * SleepMode_None:   ~2 mA,   0 + 0 us,   wake-up from any interrupt source (e.g. UART)
+ * SleepMode_1:    ~600 uA, 0.5 + 4 us,   wake-up from Gpio, Sleep timer, USB resume
+ * SleepMode_2:    ~1.5 uA, 136 + 136 us, wake-up from Gpio, Sleep timer
+ * SleepMode_3:    ~0.8 uA, 136 + 136 us, wake-up from Gpio
+ */
+enum SleepMode : uint8_t {
+    SleepMode_None = SYS_CTRL_PM_NOACTION,
+    SleepMode_1    = SYS_CTRL_PM_1,
+    SleepMode_3    = SYS_CTRL_PM_2,
+    SleepMode_2    = SYS_CTRL_PM_3
+};
 
 /*=============================== variables =================================*/
 

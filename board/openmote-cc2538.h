@@ -18,21 +18,6 @@
 
 /*================================ include ==================================*/
 
-#include "gpio.h"
-#include "i2c.h"
-#include "interrupt.h"
-#include "ioc.h"
-#include "sys_ctrl.h"
-#include "uart.h"
-#include "ssi.h"
-#include "gptimer.h"
-
-#include "hw_gpio.h"
-#include "hw_ints.h"
-#include "hw_ioc.h"
-#include "hw_memmap.h"
-#include "hw_types.h"
-
 #include "Board.h"
 #include "GpioIn.h"
 #include "GpioInPow.h"
@@ -51,13 +36,16 @@
 #include "Tps62730.h"
 #include "Enc28j60.h"
 
+#include "cc2538_include.h"
+
 /*================================ define ===================================*/
 
 #define BOARD_HAS_32MHz_XTAL    ( TRUE )
+#define BOARD_USE_32MHz_XTAL    ( TRUE )
 #define BOARD_HAS_32kHz_XTAL    ( TRUE )
-#define BOARD_USE_32MHz_XTAL    ( FALSE )
 #define BOARD_USE_32kHz_XTAL    ( TRUE )
-#define BOARD_CLOCK             ( SYS_CTRL_SYSDIV_16MHZ )
+#define SYSTEM_CLOCK_DIVIDER    ( SYS_CTRL_SYSDIV_16MHZ )
+#define PERIPH_CLOCK_DIVIDER    ( SYS_CTRL_SYSDIV_16MHZ )
 
 #define LED_RED_PORT            ( GPIO_C_BASE )
 #define LED_RED_PIN             ( GPIO_PIN_4 )
@@ -178,68 +166,55 @@
 /*=============================== variables =================================*/
 
 // Board management
-Board board;
+extern Board board;
 
 // Step-down DC/DC converter
-GpioOut bypass(TPS62730_PORT, TPS62730_BYPASS_PIN);
-GpioIn  status(TPS62730_PORT, TPS62730_STATUS_PIN, TPS62730_STATUS_EDGE);
-Tps62730 tps62730(bypass, status);
+extern Tps62730 tps62730;
 
 // Debug pins
-GpioOut debug_ad0(GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN);
-GpioOut debug_ad1(GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN);
-GpioOut debug_ad2(GPIO_DEBUG_AD2_PORT, GPIO_DEBUG_AD2_PIN);
-GpioOut debug_ad3(GPIO_DEBUG_AD3_PORT, GPIO_DEBUG_AD3_PIN);
+extern GpioOut debug_ad0;
+extern GpioOut debug_ad1;
+extern GpioOut debug_ad2;
+extern GpioOut debug_ad3;
 
 // Leds
-GpioOut led_green(LED_GREEN_PORT, LED_GREEN_PIN);
-GpioOut led_orange(LED_ORANGE_PORT, LED_ORANGE_PIN);
-GpioOut led_red(LED_RED_PORT, LED_RED_PIN);
-GpioOut led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
+extern GpioOut led_green;
+extern GpioOut led_orange;
+extern GpioOut led_red;
+extern GpioOut led_yellow;
 
 // Button
-GpioInPow button_user(BUTTON_USER_PORT, BUTTON_USER_PIN, BUTTON_USER_EDGE);
+extern GpioInPow button_user;
 
 // Timer
-Timer timer0(TIMER0_PERIPHERAL, TIMER0_BASE, TIMER0_SOURCE, TIMER0_CONFIG, TIMER0_INTERRUPT, TIMER0_INTERRUPT_MODE);
-Timer timer1(TIMER1_PERIPHERAL, TIMER1_BASE, TIMER1_SOURCE, TIMER1_CONFIG, TIMER1_INTERRUPT, TIMER1_INTERRUPT_MODE);
-Timer timer2(TIMER2_PERIPHERAL, TIMER2_BASE, TIMER2_SOURCE, TIMER2_CONFIG, TIMER2_INTERRUPT, TIMER2_INTERRUPT_MODE);
-Timer timer3(TIMER3_PERIPHERAL, TIMER3_BASE, TIMER3_SOURCE, TIMER3_CONFIG, TIMER3_INTERRUPT, TIMER3_INTERRUPT_MODE);
+extern Timer timer0;
+extern Timer timer1;
+extern Timer timer2;
+extern Timer timer3;
 
 // I2C peripheral
-GpioI2c i2c_scl(I2C_BASE, I2C_SCL);
-GpioI2c i2c_sda(I2C_BASE, I2C_SDA);
-I2cDriver i2c(I2C_PERIPHERAL, i2c_scl, i2c_sda);
+extern I2cDriver i2c;
 
 // SPI peripheral
-GpioSpi spi_miso(SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC);
-GpioSpi spi_mosi(SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC);
-GpioSpi spi_clk(SPI_CLK_BASE, SPI_CLK_PIN, SPI_CLK_IOC);
-GpioSpi spi_ncs(SPI_nCS_BASE, SPI_nCS_PIN, SPI_nCS_IOC);
-SpiDriver spi(SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, spi_miso, spi_mosi, spi_clk, spi_ncs);
+extern SpiDriver spi;
 
 // UART peripheral
-GpioUart uart_rx(UART_RX_PORT, UART_RX_PIN, UART_RX_IOC);
-GpioUart uart_tx(UART_TX_PORT, UART_TX_PIN, UART_TX_IOC);
-UartDriver uart(UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INTERRUPT, uart_rx, uart_tx);
+extern UartDriver uart;
 
 // IEEE 802.15.4 radio
-Radio radio;
+extern Radio radio;
 
 // Acceleration sensor
-GpioInPow adxl346_int(ADXL346_INT_PORT, ADXL346_INT_PIN, ADXL346_INT_EDGE);
-Adxl346 adxl346(i2c, adxl346_int);
+extern Adxl346 adxl346;
 
 // Light sensor
-GpioIn max44009_int(MAX44009_INT_PORT, MAX44009_INT_PIN, MAX44009_INT_EDGE);
-Max44009 max44009(i2c, max44009_int);
+extern Max44009 max44009;
 
 // Temperature + Relative humidity sensor
-Sht21 sht21(i2c);
+extern Sht21 sht21;
 
 // Ethernet PHY + MAC chip
-GpioIn enc28j60_int(ENC28J60_INT_PORT, ENC28J60_INT_PIN, ENC28J60_INT_EDGE);
-Enc28j60 enc28j60(spi, enc28j60_int);
+extern Enc28j60 enc28j60;
 
 /*=============================== prototypes ================================*/
 

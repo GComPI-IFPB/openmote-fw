@@ -17,10 +17,7 @@
 
 #include "GpioIn.h"
 
-#include "gpio.h"
-
-#include "hw_memmap.h"
-#include "hw_types.h"
+#include "cc2538_include.h"
 
 /*================================ define ===================================*/
 
