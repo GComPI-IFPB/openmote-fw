@@ -37,7 +37,7 @@ static void prvSerialTask(void *pvParameters);
 
 /*=============================== variables =================================*/
 
-uint8_t serial_buffer[] = {'O','p','e','n','M','o','t','e','-','C','C','2','5','3','8'};
+uint8_t serial_buffer[] = {'O','p','e','n','M','o','t','e','-','C','C','2','5','3','8', '\r', '\n'};
 uint8_t* serial_ptr = serial_buffer;
 uint8_t serial_len  = sizeof(serial_buffer);
 
@@ -73,13 +73,13 @@ static void prvSerialTask(void *pvParameters)
     {
         // Turn on red LED
         led_red.on();
-        
+
         // Print buffer via Serial/UART
         serial.printf(serial_ptr, serial_len);
-        
+
         // Turn off red LED
         led_red.off();
-        
+
         // Delay for 250 ms
         vTaskDelay(250 / portTICK_RATE_MS);
     }
@@ -93,7 +93,7 @@ static void prvGreenLedTask(void *pvParameters)
         // Turn off green LED for 950 ms
         led_green.off();
         vTaskDelay(950 / portTICK_RATE_MS);
-        
+
         // Turn on green LED for 50 ms
         led_green.on();
         vTaskDelay(50 / portTICK_RATE_MS);

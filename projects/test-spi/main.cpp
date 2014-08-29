@@ -35,7 +35,7 @@ static void prvSpiTask(void *pvParameters);
 
 /*=============================== variables =================================*/
 
-uint8_t spi_buffer[] = {'O','p','e','n','M','o','t','e','-','C','C','2','5','3','8'};
+uint8_t spi_buffer[] = {'O','p','e','n','M','o','t','e','-','C','C','2','5','3','8','\n'};
 uint8_t* spi_ptr = spi_buffer;
 uint8_t  spi_len = sizeof(spi_buffer);
 
@@ -64,13 +64,13 @@ static void prvSpiTask(void *pvParameters)
     {
         // Turn on red LED
         led_red.on();
-        
+
         // Print buffer via SPI
         spi.writeByte(spi_ptr, spi_len);
-        
+
         // Turn off red LED
         led_red.off();
-        
+
         // Delay for 250 ms
         vTaskDelay(250 / portTICK_RATE_MS);
     }
