@@ -19,6 +19,7 @@
 #include <stdint.h>
 
 #include "UartDriver.h"
+#include "CircularBuffer.h"
 
 class Serial;
 
@@ -47,18 +48,14 @@ private:
 private:
     UartDriver& uart;
 
+    uint8_t receive_buffer[128];
+    CircularBuffer rxBuffer;
+
+    uint8_t transmit_buffer[128];
+    CircularBuffer txBuffer;
+
     SerialCallback rxCallback;
     SerialCallback txCallback;
-
-    uint8_t rxBuffer[128];
-    uint8_t* rxBufferHead;
-    uint8_t* rxBufferTail;
-    uint32_t rxBufferSize;
-
-    uint8_t txBuffer[128];
-    uint8_t* txBufferHead;
-    uint8_t* txBufferTail;
-    uint32_t txBufferSize;
 };
 
 #endif /* SERIAL_H_ */

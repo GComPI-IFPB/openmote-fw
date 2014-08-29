@@ -28,15 +28,11 @@
 /*================================= public ==================================*/
 
 Serial::Serial(UartDriver& uart_):
-    uart(uart_), rxCallback(this, &Serial::rxCallback_), txCallback(this, &Serial::txCallback_)
+    uart(uart_), \
+    rxBuffer(receive_buffer, sizeof(receive_buffer)), \
+    txBuffer(transmit_buffer, sizeof(transmit_buffer)), \
+    rxCallback(this, &Serial::rxCallback_), txCallback(this, &Serial::txCallback_)
 {
-    rxBufferHead = rxBuffer;
-    rxBufferTail = rxBuffer + sizeof(rxBuffer);
-    rxBufferSize = 0;
-
-    txBufferHead = txBuffer;
-    txBufferTail = txBuffer + sizeof(txBuffer);
-    txBufferSize = 0;
 }
 
 void Serial::enable(void)
@@ -49,20 +45,14 @@ void Serial::enable(void)
 
 void Serial::printf(uint8_t* data, uint32_t size)
 {
+    uint8_t byte;
+
     uart.lock();
 
-    txBufferHead = txBuffer;
+    txBuffer.write(data, size);
 
-    while (size-- && (txBufferHead != txBufferTail))
-    {
-        *txBufferHead++ = *data++;
-        txBufferSize++;
-    }
-
-    txBufferHead = txBuffer;
-
-    uart.writeByte(*txBufferHead++);
-    txBufferSize--;
+    txBuffer.read(&byte);
+    uart.writeByte(byte);
 }
 
 void Serial::scanf(uint8_t* buffer, uint32_t size)
@@ -79,10 +69,11 @@ void Serial::rxCallback_(void)
 
 void Serial::txCallback_(void)
 {
-    if (txBufferSize > 0)
+    uint8_t byte;
+
+    if (txBuffer.read(&byte) == 0)
     {
-        uart.writeByte(*txBufferHead++);
-        txBufferSize--;
+        uart.writeByte(byte);
     }
     else
     {
