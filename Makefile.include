@@ -11,7 +11,7 @@ OBJSIZE = arm-none-eabi-size
 ###############################################################################
 
 # C compiling flags
-CFLAGS += -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd
+CFLAGS += -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd -mlittle-endian
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -fshort-enums -fomit-frame-pointer
 CFLAGS += -Wl,--gc-sections
@@ -22,7 +22,7 @@ CFLAGS += -g
 CFLAGS += $(DOPTIONS)
 
 # C++ compiling flags
-CPPFLAGS += -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd
+CPPFLAGS += -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd -mlittle-endian
 CPPFLAGS += -ffunction-sections -fdata-sections
 CPPFLAGS += -fshort-enums -fomit-frame-pointer
 CPPFLAGS += -Wl,--gc-sections
