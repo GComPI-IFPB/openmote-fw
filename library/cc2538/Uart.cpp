@@ -19,7 +19,6 @@
 #include "InterruptHandler.h"
 
 #include "cc2538_include.h"
-
 /*================================ define ===================================*/
 
 /*================================ typedef ==================================*/
@@ -118,8 +117,8 @@ void Uart::enableInterrupt(void)
     // Register the interrupt handler
     InterruptHandler::getInstance().setInterruptHandler(this);
 
-    // Enable UART RX and TX interrupts
-    UARTIntEnable(base, UART_INT_RX | UART_INT_TX);
+    // Enable the UART RX, TX and RX timeout interrupts
+    UARTIntEnable(base, UART_INT_RX | UART_INT_TX | UART_INT_RT);
 
     // Set the UART interrupt priority
     IntPrioritySet(interrupt, (7 << 5));
@@ -130,8 +129,8 @@ void Uart::enableInterrupt(void)
 
 void Uart::disableInterrupt(void)
 {
-    // Disable the UART RX and TX interrupts
-    UARTIntDisable(base, UART_INT_RX | UART_INT_TX);
+    // Disable the UART RX, TX and RX timeout interrupts
+    UARTIntDisable(base, UART_INT_RX | UART_INT_TX | UART_INT_RT);
 
     // Disable the UART interrupt
     IntDisable(interrupt);
@@ -140,7 +139,7 @@ void Uart::disableInterrupt(void)
 uint8_t Uart::readByte(void)
 {
     int32_t byte;
-    byte = UARTCharGet(base);
+    byte = UARTCharGetNonBlocking(base);
     return (uint8_t)(byte & 0xFF);
 }
 
@@ -192,14 +191,17 @@ void Uart::interruptHandler(void)
     IntPendClear(interrupt);
 
     // Process TX interrupt
-    if (status & UART_INT_TX) {
+    if (status & UART_INT_TX)
+    {
         UARTIntClear(base, UART_INT_TX);
         interruptHandlerTx();
     }
 
     // Process RX interrupt
-    if (status & UART_INT_RX) {
-        UARTIntClear(base, UART_INT_RX);
+    if (status & UART_INT_RX ||
+        status & UART_INT_RT)
+    {
+        UARTIntClear(base, UART_INT_RX | UART_INT_RT);
         interruptHandlerRx();
     }
 }
