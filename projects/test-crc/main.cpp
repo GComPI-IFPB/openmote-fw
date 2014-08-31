@@ -111,7 +111,6 @@ static void prvCrcTask(void *pvParameters)
         led_yellow.off();
 
         vTaskDelay(250 / portTICK_RATE_MS);
-
     }
 }
 
