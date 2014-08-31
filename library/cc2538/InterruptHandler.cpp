@@ -392,6 +392,9 @@ void InterruptHandler::clearInterruptHandler(Radio * radio_)
 
 InterruptHandler::InterruptHandler()
 {
+    // Registher the SysTick interrupt handler
+    // SysTickIntRegister(SysTick_InterruptHandler);
+
     // Register the GPIO interrupt handlers
     GPIOPortIntRegister(GPIO_A_BASE, GPIOA_InterruptHandler);
     GPIOPortIntRegister(GPIO_B_BASE, GPIOB_InterruptHandler);
@@ -422,9 +425,6 @@ InterruptHandler::InterruptHandler()
     // Register the SPIx interrupt handler
     SSIIntRegister(SSI0_BASE, SPI0_InterruptHandler);
     SSIIntRegister(SSI1_BASE, SPI1_InterruptHandler);
-
-    // Registher the SysTick interrupt handler
-    SysTickIntRegister(SysTick_InterruptHandler);
 
     // Register the RF CORE and ERROR interrupt handlers
     IntRegister(INT_RFCORERTX, RFCore_InterruptHandler);
