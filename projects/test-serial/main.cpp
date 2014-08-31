@@ -45,7 +45,7 @@ uint8_t serial_rx_buffer[128];
 uint8_t* serial_rx_ptr = serial_rx_buffer;
 uint8_t serial_rx_len  = sizeof(serial_rx_buffer);
 
-static Serial serial(uart);
+Serial serial(uart);
 
 /*================================= public ==================================*/
 
@@ -57,8 +57,6 @@ int main (void)
     // Enable the UART peripheral and the serial driver
     uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
     serial.enable();
-
-    spi.enable(SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE);
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
