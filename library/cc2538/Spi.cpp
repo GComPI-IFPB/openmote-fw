@@ -163,7 +163,7 @@ void Spi::writeByte(uint8_t byte)
         ;
 }
 
-uint32_t Spi::writeByte(uint8_t * buffer, uint32_t length)
+uint32_t Spi::writeByte(uint8_t* buffer, uint32_t length)
 {
     for (uint32_t i = 0; i < length; i++)
     {
