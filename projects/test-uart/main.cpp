@@ -21,27 +21,23 @@
 
 #include "openmote-cc2538.h"
 
-#include "Serial.h"
-
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
-#define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 0 )
+#define UART_TASK_PRIORITY                  ( tskIDLE_PRIORITY + 0 )
 
 /*================================ typedef ==================================*/
 
 /*=============================== prototypes ================================*/
 
 static void prvGreenLedTask(void *pvParameters);
-static void prvSerialTask(void *pvParameters);
+static void prvUartTask(void *pvParameters);
 
 /*=============================== variables =================================*/
 
-uint8_t serial_buffer[] = {'O','p','e','n','M','o','t','e','-','C','C','2','5','3','8', '\r', '\n'};
-uint8_t* serial_ptr = serial_buffer;
-uint8_t serial_len  = sizeof(serial_buffer);
-
-static Serial serial(uart);
+uint8_t uart_buffer[] = {'O','p','e','n','M','o','t','e','-','C','C','2','5','3','8','\r','\n'};
+uint8_t* uart_ptr = uart_buffer;
+uint8_t uart_len  = sizeof(uart_buffer);
 
 /*================================= public ==================================*/
 
@@ -52,11 +48,10 @@ int main (void)
 
     // Enable the UART peripheral and the serial driver
     uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
-    serial.enable();
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-    xTaskCreate(prvSerialTask, (const char *) "Serial", 128, NULL, SERIAL_TASK_PRIORITY, NULL);
+    xTaskCreate(prvUartTask, (const char *) "Uart", 128, NULL, UART_TASK_PRIORITY, NULL);
 
     // Kick the FreeRTOS scheduler
     vTaskStartScheduler();
@@ -66,7 +61,7 @@ int main (void)
 
 /*================================ private ==================================*/
 
-static void prvSerialTask(void *pvParameters)
+static void prvUartTask(void *pvParameters)
 {
     // Forever
     while (true)
@@ -74,8 +69,8 @@ static void prvSerialTask(void *pvParameters)
         // Turn on red LED
         led_red.on();
 
-        // Print buffer via Serial/UART
-        serial.printf(serial_ptr, serial_len);
+        // Print buffer via UART
+        uart.writeByte(uart_ptr, uart_len);
 
         // Turn off red LED
         led_red.off();
@@ -99,4 +94,3 @@ static void prvGreenLedTask(void *pvParameters)
         vTaskDelay(50 / portTICK_RATE_MS);
     }
 }
-
