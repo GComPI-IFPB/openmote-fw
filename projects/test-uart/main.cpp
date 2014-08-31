@@ -66,6 +66,9 @@ static void prvUartTask(void *pvParameters)
     // Forever
     while (true)
     {
+        uart_ptr = uart_buffer;
+        uart_len = sizeof(uart_buffer);
+
         // Turn on red LED
         led_red.on();
 
