@@ -23,6 +23,7 @@ class Uart;
 class I2c;
 class Spi;
 class Radio;
+class SysTick;
 
 class InterruptHandler {
 
@@ -38,6 +39,8 @@ public:
     static void clearInterruptHandler(I2c* i2c_);
     static void setInterruptHandler(Spi* spi_);
     static void clearInterruptHandler(Spi* spi_);
+    static void setInterruptHandler(SysTick* systick_);
+    static void clearInterruptHandler(SysTick* systick_);
     static void setInterruptHandler(Radio* radio_);
     static void clearInterruptHandler(Radio* radio_);
 private:
@@ -55,6 +58,7 @@ private:
     static inline void I2C_InterruptHandler(void);
     static inline void SPI0_InterruptHandler(void);
     static inline void SPI1_InterruptHandler(void);
+    static inline void SysTick_InterruptHandler(void);
     static inline void RFCore_InterruptHandler(void);
     static inline void RFError_InterruptHandler(void);
 private:
@@ -69,9 +73,10 @@ private:
     static Timer* TIMER3_interruptVector[2];
     static Uart* UART0_interruptVector;
     static Uart* UART1_interruptVector;
-    static I2c*  I2C_interruptVector;
-    static Spi*  SPI0_interruptVector;
-    static Spi*  SPI1_interruptVector;
+    static I2c* I2C_interruptVector;
+    static Spi* SPI0_interruptVector;
+    static Spi* SPI1_interruptVector;
+    static SysTick* SysTick_interruptVector;
     static Radio* Radio_interruptVector;
 };
 

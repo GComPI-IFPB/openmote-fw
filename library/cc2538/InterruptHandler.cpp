@@ -24,6 +24,7 @@
 #include "I2c.h"
 #include "Spi.h"
 #include "Radio.h"
+#include "SysTick.h"
 
 #include "cc2538_include.h"
 
@@ -52,6 +53,8 @@ I2c* InterruptHandler::I2C_interruptVector;
 
 Spi* InterruptHandler::SPI0_interruptVector;
 Spi* InterruptHandler::SPI1_interruptVector;
+
+SysTick* InterruptHandler::SysTick_interruptVector;
 
 Radio* InterruptHandler::Radio_interruptVector;
 
@@ -420,6 +423,9 @@ InterruptHandler::InterruptHandler()
     SSIIntRegister(SSI0_BASE, SPI0_InterruptHandler);
     SSIIntRegister(SSI1_BASE, SPI1_InterruptHandler);
 
+    // Registher the SysTick interrupt handler
+    SysTickIntRegister(SysTick_InterruptHandler);
+
     // Register the RF CORE and ERROR interrupt handlers
     IntRegister(INT_RFCORERTX, RFCore_InterruptHandler);
     IntRegister(INT_RFCOREERR, RFError_InterruptHandler);
@@ -782,6 +788,13 @@ inline void InterruptHandler::SPI1_InterruptHandler(void)
     // Call the SPI interrupt handler
     SPI1_interruptVector->interruptHandler();
 }
+
+inline void InterruptHandler::SysTick_InterruptHandler(void)
+{
+    // Call the SPI interrupt handler
+    SysTick_interruptVector->interruptHandler();
+}
+
 
 inline void InterruptHandler::RFCore_InterruptHandler(void)
 {
