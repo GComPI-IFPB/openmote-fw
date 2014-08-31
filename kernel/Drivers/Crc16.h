@@ -22,12 +22,12 @@ class Crc16
 {
 public:
     Crc16();
-    void push(uint8_t byte);
-    void set(uint16_t crc16_);
+    void init(void);
     uint16_t get(void);
+    void set(uint8_t byte);
+    bool check(void);
 private:
-    uint16_t crc16;
-    static const uint16_t lut[256];
+    uint16_t crc;
 };
 
 #endif /* CRC16_H_ */

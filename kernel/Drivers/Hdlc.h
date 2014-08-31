@@ -18,16 +18,27 @@
 
 #include <stdint.h>
 
+#include "CircularBuffer.h"
+#include "Crc16.h"
+
+enum HdlcStatus : uint8_t
+{
+    HdlcStatus_Idle = 0x00,
+    HdlcStatus_Busy = 0x01,
+    HdlcStatus_Done = 0x02,
+    HdlcStatus_Error = 0x03,
+};
+
 class Hdlc
 {
 public:
-    Hdlc();
+    Hdlc(CircularBuffer& rxCircularBuffer_, CircularBuffer& txCircularBuffer_);
 
-    void rxOpen(uint8_t* buffer, uint8_t length);
-    void rxPut(uint8_t byte);
-    void rxClose(void);
+    void rxOpen(void);
+    HdlcStatus rxPut(uint8_t byte);
+    bool rxClose(void);
 
-    void txOpen(uint8_t* buffer, uint8_t length);
+    void txOpen(void);
     void txPut(uint8_t byte);
     void txClose(void);
 
@@ -35,8 +46,15 @@ private:
     void rxParse(uint8_t byte);
 
 private:
-    uint8_t lastByte;
-    bool isEscaping;
+    CircularBuffer& rxCircularBuffer;
+    CircularBuffer& txCircularBuffer;
+
+    HdlcStatus rxStatus;
+    uint8_t rxLastByte;
+    bool rxIsEscaping;
+
+    Crc16 rxCrc;
+    Crc16 txCrc;
 };
 
 #endif /* HDLC_H_ */

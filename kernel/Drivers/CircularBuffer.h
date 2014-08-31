@@ -22,20 +22,21 @@ class CircularBuffer
 {
 public:
     CircularBuffer(uint8_t* buffer_, uint32_t length_);
-    int8_t write(uint8_t* data);
+    void reset(void);
+    uint32_t getSize(void);
+    int8_t write(uint8_t data);
     int8_t write(uint8_t* data, uint32_t length);
     int8_t read(uint8_t* data);
     int8_t read(uint8_t* buffer, uint32_t length);
 private:
-    bool isEmpty();
-    bool isFull();
+    bool isEmpty(void);
+    bool isFull(void);
 private:
     uint8_t* buffer;
     uint32_t length;
     uint32_t count;
     uint8_t* head;
     uint8_t* tail;
-
 };
 
 #endif /* CIRCULAR_BUFFER_H_ */

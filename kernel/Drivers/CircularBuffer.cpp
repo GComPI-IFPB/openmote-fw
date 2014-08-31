@@ -32,13 +32,25 @@ CircularBuffer::CircularBuffer(uint8_t* buffer_, uint32_t length_):
 {
 }
 
-int8_t CircularBuffer::write(uint8_t* data)
+void CircularBuffer::reset(void)
+{
+    head = buffer;
+    tail = buffer;
+    count = 0;
+}
+
+uint32_t CircularBuffer::getSize(void)
+{
+    return count;
+}
+
+int8_t CircularBuffer::write(uint8_t data)
 {
     // Check if buffer is full
     if (!isFull())
     {
         // Write data in and count it
-        *head++ = *data;
+        *head++ = data;
         count += 1;
 
         // Check for head pointer wrap around
@@ -63,7 +75,7 @@ int8_t CircularBuffer::write(uint8_t *data, uint32_t length)
     while (length--)
     {
         // Try to write the byte
-        if (write(data++) != 0)
+        if (write(*data++) != 0)
         {
             // Return error
             return -1;
@@ -96,7 +108,6 @@ int8_t CircularBuffer::read(uint8_t* data)
         // Return error
         return -1;
     }
-
 }
 
 int8_t CircularBuffer::read(uint8_t* buffer, uint32_t length)

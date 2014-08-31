@@ -31,27 +31,49 @@ UartDriver::UartDriver(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
                        uint32_t interrupt_, GpioUart& rx_, GpioUart& tx_):
     Uart(peripheral_, base_, clock_, interrupt_, rx_, tx_)
 {
-    xMutex = xSemaphoreCreateMutex();
-    if (xMutex == NULL) {
+    rxMutex = xSemaphoreCreateMutex();
+    if (rxMutex == NULL) {
+        while(true);
+    }
+
+    txMutex = xSemaphoreCreateMutex();
+    if (txMutex == NULL) {
         while(true);
     }
 }
 
-void UartDriver::lock(void)
+void UartDriver::rxLock(void)
 {
-    xSemaphoreTake(xMutex, portMAX_DELAY);
+    xSemaphoreTake(rxMutex, portMAX_DELAY);
 }
 
-void UartDriver::unlock(void)
+void UartDriver::rxUnlock(void)
 {
-    xSemaphoreGive(xMutex);
+    xSemaphoreGive(rxMutex);
 }
 
-void UartDriver::unlockFromInterrupt(void)
+void UartDriver::txLock(void)
 {
-    xHigherPriorityTaskWoken = pdFALSE;
-    xSemaphoreGiveFromISR(xMutex, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    xSemaphoreTake(txMutex, portMAX_DELAY);
+}
+
+void UartDriver::txUnlock(void)
+{
+    xSemaphoreGive(txMutex);
+}
+
+void UartDriver::rxUnlockFromInterrupt(void)
+{
+    rxHigherPriorityTaskWoken = pdFALSE;
+    xSemaphoreGiveFromISR(rxMutex, &rxHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(rxHigherPriorityTaskWoken);
+}
+
+void UartDriver::txUnlockFromInterrupt(void)
+{
+    txHigherPriorityTaskWoken = pdFALSE;
+    xSemaphoreGiveFromISR(txMutex, &txHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(txHigherPriorityTaskWoken);
 }
 
 /*=============================== protected =================================*/

@@ -20,6 +20,7 @@
 
 #include "UartDriver.h"
 #include "CircularBuffer.h"
+#include "Hdlc.h"
 
 class Serial;
 
@@ -41,7 +42,7 @@ public:
     Serial(UartDriver& uart);
     void enable(void);
     void printf(uint8_t* data, uint32_t size);
-    void scanf(uint8_t* buffer, uint32_t size);
+    uint32_t scanf(uint8_t* buffer, uint32_t size);
 private:
     void rxCallback_(void);
     void txCallback_(void);
@@ -53,6 +54,8 @@ private:
 
     uint8_t transmit_buffer[128];
     CircularBuffer txBuffer;
+
+    Hdlc hdlc;
 
     SerialCallback rxCallback;
     SerialCallback txCallback;
