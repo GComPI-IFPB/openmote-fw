@@ -21,7 +21,11 @@
 class Watchdog
 {
 public:
-    Watchdog();
+    Watchdog(uint32_t interval_);
+    void init(void);
+    void walk(void);
+private:
+    uint32_t interval;
 };
 
 #endif /* WATCHDOG_H_ */

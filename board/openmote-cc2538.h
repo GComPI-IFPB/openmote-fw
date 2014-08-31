@@ -24,6 +24,7 @@
 #include "GpioOut.h"
 #include "Timer.h"
 #include "Radio.h"
+#include "Watchdog.h"
 
 #include "I2cDriver.h"
 #include "SpiDriver.h"
@@ -46,6 +47,7 @@
 #define BOARD_USE_32kHz_XTAL    ( TRUE )
 #define SYSTEM_CLOCK_DIVIDER    ( SYS_CTRL_SYSDIV_16MHZ )
 #define PERIPH_CLOCK_DIVIDER    ( SYS_CTRL_SYSDIV_16MHZ )
+#define WATCHDOG_INTERVAL       ( WATCHDOG_INTERVAL_32768 )
 
 #define LED_RED_PORT            ( GPIO_C_BASE )
 #define LED_RED_PIN             ( GPIO_PIN_4 )
@@ -68,8 +70,8 @@
 #define GPIO_DEBUG_AD2_PORT     ( GPIO_D_BASE )
 #define GPIO_DEBUG_AD2_PIN      ( GPIO_PIN_1 )
 
-#define GPIO_DEBUG_AD3_PORT     ( GPIO_A_BASE )
-#define GPIO_DEBUG_AD3_PIN      ( GPIO_PIN_6 )
+#define GPIO_DEBUG_AD6_PORT     ( GPIO_A_BASE )
+#define GPIO_DEBUG_AD6_PIN      ( GPIO_PIN_6 )
 
 #define BUTTON_USER_PORT        ( GPIO_C_BASE )
 #define BUTTON_USER_PIN         ( GPIO_PIN_3 )
@@ -167,6 +169,7 @@
 
 // Board management
 extern Board board;
+extern Watchdog watchdog;
 
 // Step-down DC/DC converter
 extern Tps62730 tps62730;
@@ -175,7 +178,7 @@ extern Tps62730 tps62730;
 extern GpioOut debug_ad0;
 extern GpioOut debug_ad1;
 extern GpioOut debug_ad2;
-extern GpioOut debug_ad3;
+extern GpioOut debug_ad6;
 
 // Leds
 extern GpioOut led_green;

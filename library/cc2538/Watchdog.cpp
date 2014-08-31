@@ -29,8 +29,19 @@
 
 /*================================= public ==================================*/
 
-Watchdog::Watchdog():
+Watchdog::Watchdog(uint32_t interval_):
+    interval(interval_)
 {
+}
+
+void Watchdog::init(void)
+{
+    WatchdogEnable(interval);
+}
+
+void Watchdog::walk(void)
+{
+    WatchdogClear();
 }
 
 /*=============================== protected =================================*/
