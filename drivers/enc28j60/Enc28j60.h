@@ -13,6 +13,9 @@
  *
  */
 
+#include <stdint.h>
+#include <string.h>
+
 #include "SpiDriver.h"
 #include "GpioIn.h"
 
@@ -20,22 +23,28 @@ class Enc28j60
 {
 public:
     Enc28j60(SpiDriver& spi_, GpioIn& gpio_);
-    void init(uint8_t* address);
+    void init(uint8_t* mac_address);
     void reset(void);
     int32_t send(uint8_t* data, uint32_t length);
     int32_t read(uint8_t* buffer, uint32_t length);
+protected:
+    void setMacAddress(uint8_t* mac_address);
 private:
+    void softReset(void);
     void setRegBank(uint8_t bank);
     uint8_t readRegister(uint8_t address);
     void writeRegister(uint8_t address, uint8_t data);
     uint8_t readDataByte(void);
     void writeDataByte(uint8_t byte);
-    int32_t readData(uint8_t* buffer, uint32_t length);
+    uint32_t readData(uint8_t* buffer, uint32_t length);
     void writeData(uint8_t* data, uint32_t length);
-    void softReset(void);
 private:
     SpiDriver& spi;
     GpioIn& gpio;
 
-    uint8_t mac_address[6];
+    uint8_t macAddress[6];
+
+    bool isInitialized;
+    uint32_t receivedPackets;
+    uint32_t sentPackets;
 };

@@ -13,7 +13,6 @@
  *
  */
 
-
 /*================================ include ==================================*/
 
 #include "Enc28j60.h"
@@ -58,6 +57,8 @@
 #define RX_BUF_END          ( 0x0FFF )
 
 #define TX_BUF_START        ( 0x1200 )
+
+#define PADDING_MIN_SIZE    ( 60 )
 
 /* MACONx registers are in bank 2 */
 #define MACONX_BANK         ( 0x02 )
@@ -115,69 +116,326 @@ Enc28j60::Enc28j60(SpiDriver& spi_, GpioIn& gpio_):
 {
 }
 
-void Enc28j60::init(uint8_t* address)
+void Enc28j60::init(uint8_t* mac_address)
 {
-    for(uint8_t i = 0; i < 6; i++)
+    // Check if ENC28J60 is initialized
+    if (isInitialized == true)
     {
-        mac_address[i] = *address++;
+        return;
     }
+
+    // Set the MAC address
+    setMacAddress(mac_address);
+
+    // Initialize the ENC28J60 chip
+    reset();
+
+    // ENC28J60 chip is now initialized
+    isInitialized = true;
 }
 
 void Enc28j60::reset(void)
 {
+    // Wait until clock is ready
+    while ((readRegister(ESTAT) & ESTAT_CLKRDY) == 0);
+
+    // Perform a soft reset
     softReset();
+
+    // Set register bank
+    setRegBank(ERXTX_BANK);
+
+    // Configure receive buffer
+    writeRegister(ERXSTL, RX_BUF_START & 0xFF);
+    writeRegister(ERXSTH, RX_BUF_START >> 8);
+    writeRegister(ERXNDL, RX_BUF_END & 0xFF);
+    writeRegister(ERXNDH, RX_BUF_END >> 8);
+    writeRegister(ERDPTL, RX_BUF_START & 0xFF);
+    writeRegister(ERDPTH, RX_BUF_START >> 8);
+    writeRegister(ERXRDPTL, RX_BUF_START & 0xFF);
+    writeRegister(ERXRDPTH, RX_BUF_START >> 8);
+
+    // Set register bank
+    setRegBank(EPKTCNT_BANK);
+
+    // Set receive filter
+    writeRegister(ERXFCON, 0x00);
+
+    // Set register bank
+    setRegBank(MACONX_BANK);
+
+    // Pull MAC out of reset
+    writeRegister(MACON2, 0);
+
+    // Turn on reception and IEEE-defined flow control
+    writeRegister(MACON1, readRegister(MACON1) | \
+                  (MACON1_MARXEN | MACON1_TXPAUS | MACON1_RXPAUS));
+
+    // Set Padding, CRC and Full-Duplex
+    writeRegister(MACON3, readRegister(MACON3) | \
+                  (MACON3_PADCFG_FULL | MACON3_TXCRCEN | MACON3_FULDPX | MACON3_FRMLNEN));
+
+    // Set maximum frame length
+    writeRegister(MAMXFLL, MAX_MAC_LENGTH & 0xFF);
+    writeRegister(MAMXFLH, MAX_MAC_LENGTH >> 8);
+
+    // Set back-to-back inter packet gap
+    writeRegister(MABBIPG, 0x15);
+
+    // Set non-back-to-back packet gap
+    writeRegister(MAIPGL, 0x12);
+    writeRegister(MAIPGH, 0x0C);
+
+    // Set register bank
+    setRegBank(MAADRX_BANK);
+
+    // Set MAC address
+    writeRegister(MAADR6, macAddress[5]);
+    writeRegister(MAADR5, macAddress[4]);
+    writeRegister(MAADR4, macAddress[3]);
+    writeRegister(MAADR3, macAddress[2]);
+    writeRegister(MAADR2, macAddress[1]);
+    writeRegister(MAADR1, macAddress[0]);
+
+    // Set register bank
+    setRegBank(EPKTCNT_BANK);
+
+    // Set receive filters
+    writeRegister(ERXFCON, ERXFCON_UCEN | ERXFCON_CRCEN | ERXFCON_BCEN);
+
+    // Turn on autoincrement for buffer access
+    writeRegister(ECON2, readRegister(ECON2) | ECON2_AUTOINC);
+
+    // Turn on reception
+    writeRegister(ECON1, ECON1_RXEN);
 }
 
 int32_t Enc28j60::send(uint8_t* data, uint32_t length)
 {
-    return 0;
+    int32_t padding = 0;
+
+    if (!isInitialized)
+    {
+        return -1;
+    }
+
+    // Set register bank
+    setRegBank(ERXTX_BANK);
+
+    // Set up the transmit buffer pointer
+    writeRegister(ETXSTL, TX_BUF_START & 0xFF);
+    writeRegister(ETXSTH, TX_BUF_START >> 8);
+    writeRegister(EWRPTL, TX_BUF_START & 0xFF);
+    writeRegister(EWRPTH, TX_BUF_START >> 8);
+
+    // Disable automatic data padding
+    writeDataByte(0x0B);
+
+    // Check packet size to add padding
+    if (length < PADDING_MIN_SIZE)
+    {
+        padding = PADDING_MIN_SIZE - length;
+    }
+
+    // Write a pointer to the last data byte
+    writeRegister(ETXNDL, (TX_BUF_START + length + padding) & 0xFF);
+    writeRegister(ETXNDH, (TX_BUF_START + length + padding) >> 8);
+
+    // Write data to the buffer
+    writeData(data, length);
+
+    // If packet needs padding, write padding to the buffer
+    if (padding > 0)
+    {
+        uint8_t padding_buf[60] = {0};
+        writeData(padding_buf, padding);
+    }
+
+    // Disable interrupts, use busy-wait
+    writeRegister(EIR, readRegister(EIR) & (~EIR_TXIF));
+
+    // Send the packet and busy-wait until completed
+    writeRegister(ECON1, readRegister(ECON1) | ECON1_TXRTS);
+    while ((readRegister(ECON1) & ECON1_TXRTS) > 0)
+        ;
+
+    // If status is error, return
+    if ((readRegister(ESTAT) & ESTAT_TXABRT) != 0)
+    {
+        return -1;
+    }
+
+    sentPackets++;
+
+    return length;
 }
 
 int32_t Enc28j60::read(uint8_t* buffer, uint32_t length)
 {
-    return 0;
+    uint32_t status;
+    uint32_t nextPacket;
+    uint32_t packetLength;
+    uint8_t packetCount;
+    bool error = false;
+    uint8_t temp[2];
+
+    // Set register bank
+    setRegBank(EPKTCNT_BANK);
+
+    // Read number of packets
+    packetCount = readRegister(EPKTCNT);
+
+    // Return immediately if there are no packets
+    if (packetCount == 0)
+    {
+        return -1;
+    }
+
+    // Set register bank
+    setRegBank(ERXTX_BANK);
+
+    // Read the next packet pointer
+    temp[0] = readDataByte();
+    temp[1] = readDataByte();
+    nextPacket = ((temp[1] << 8) | temp[0]);
+
+    // Read the packet length
+    temp[0] = readDataByte();
+    temp[1] = readDataByte();
+    packetLength = ((temp[1] << 8) | temp[0]);
+
+    // Read the current status
+    temp[0] = readDataByte();
+    temp[1] = readDataByte();
+    status = ((temp[1] << 8) | temp[0]);
+    status = status; // Avoid compiler warning
+
+    // Check for buffer overflow
+    if (length >= packetLength)
+    {
+        // Read received data to the buffer
+        readData(buffer, packetLength);
+    }
+    else
+    {
+        // Buffer overflow
+        error = true;
+
+        // Read and discard bytes
+        for (uint32_t i = 0; i < packetLength; i++)
+        {
+            readDataByte();
+        }
+    }
+
+    // Read an additional byte at odd lengths to avoid FIFO corruption
+    if ((packetLength % 2) != 0)
+    {
+        readDataByte();
+    }
+
+    /* Errata #14 */
+    if (nextPacket == RX_BUF_START)
+    {
+        nextPacket = RX_BUF_END;
+    }
+    else
+    {
+        nextPacket -= 1;
+    }
+    writeRegister(ERXRDPTL, (nextPacket >> 0) & 0xFF);
+    writeRegister(ERXRDPTH, (nextPacket >> 8) & 0xFF);
+
+    // Reduce the number of received packets
+    writeRegister(ECON2, readRegister(ECON2) | ECON2_PKTDEC);
+
+    // If error, return immediately
+    if (error == true) {
+        return -1;
+    }
+
+    // Account for received packets
+    receivedPackets++;
+
+    return packetLength;
 }
 
 /*=============================== protected =================================*/
 
+void Enc28j60::setMacAddress(uint8_t* mac_address)
+{
+    for (uint8_t i = 0; i < 6; i++)
+    {
+        macAddress[i] = mac_address[i];
+    }
+}
+
 /*================================ private ==================================*/
+
+void Enc28j60::softReset(void)
+{
+    spi.writeByte(0xFF);
+}
 
 void Enc28j60::setRegBank(uint8_t bank)
 {
-
+    writeRegister(ECON1, (readRegister(ECON1) & 0xFC) | (bank & 0x03));
 }
 
 uint8_t Enc28j60::readRegister(uint8_t address)
 {
-    return 0;
+    uint8_t value;
+
+    spi.writeByte(0x00 | (address & 0x1F));
+    value = spi.readByte();
+
+    return value;
 }
 
 void Enc28j60::writeRegister(uint8_t address, uint8_t data)
 {
-
+    spi.writeByte(0x40 | (address & 0x1F));
+    spi.writeByte(data);
 }
 
 uint8_t Enc28j60::readDataByte(void)
 {
-    return 0;
+    uint8_t value;
+
+    spi.writeByte(0x3A);
+    value = spi.readByte();
+
+    return value;
 }
 
 void Enc28j60::writeDataByte(uint8_t byte)
 {
-
+    spi.writeByte(0x7A);
+    spi.writeByte(byte);
 }
 
-int32_t Enc28j60::readData(uint8_t* buffer, uint32_t length)
+uint32_t Enc28j60::readData(uint8_t* buffer, uint32_t length)
 {
-    return 0;
+    uint32_t i;
+
+    spi.writeByte(0x3A);
+
+    for (i = 0; i < length; i++)
+    {
+        buffer[i] = spi.readByte();
+    }
+
+    return i;
 }
 
 void Enc28j60::writeData(uint8_t* data, uint32_t length)
 {
+    uint32_t i;
 
-}
+    spi.writeByte(0x7A);
 
-void Enc28j60::softReset(void)
-{
-
+    for (i = 0; i < length; i++)
+    {
+        spi.writeByte(data[i]);
+    }
 }
