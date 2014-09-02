@@ -1,0 +1,104 @@
+/*
+ * Copyright 2013 OpenMote Technologies, S.L.
+ */
+
+/**
+ *
+ * @file       main.cpp
+ * @author     Pere Tuset-Peiro (peretuset@openmote.com)
+ * @version    v0.1
+ * @date       May, 2014
+ * @brief
+ * @ingroup
+ *
+ */
+
+/*================================ include ==================================*/
+
+#include <string.h>
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+
+#include "openmote-cc2538.h"
+
+/*================================ define ===================================*/
+
+#define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
+#define ETHERNET_TASK_PRIORITY              ( tskIDLE_PRIORITY + 0 )
+
+/*================================ typedef ==================================*/
+
+/*=============================== prototypes ================================*/
+
+static void prvGreenLedTask(void *pvParameters);
+static void prvEthernetTask(void *pvParameters);
+
+/*=============================== variables =================================*/
+
+uint8_t eui64_address[8];
+uint8_t eui48_address[6];
+uint8_t ethernet_payload[60];
+
+/*================================= public ==================================*/
+
+int main (void)
+{
+    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
+    tps62730.setBypass();
+
+    // Get the EUI-64 address
+    board.getAddress(eui64_address);
+
+    // Set the EUI-48 address
+    memcpy(&eui48_address[0], &eui64_address[2], 6);
+
+    // Use the EUI-48 address as the MAC address
+    enc28j60.init(eui48_address);
+
+    // Create two FreeRTOS tasks
+    xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
+    xTaskCreate(prvEthernetTask, (const char *) "Ethernet", 128, NULL, ETHERNET_TASK_PRIORITY, NULL);
+
+    // Kick the FreeRTOS scheduler
+    vTaskStartScheduler();
+}
+
+/*=============================== protected =================================*/
+
+/*================================ private ==================================*/
+
+static void prvEthernetTask(void *pvParameters)
+{
+    // Forever
+    while (true)
+    {
+        // Turn on red LED
+        led_red.on();
+
+        // Send Ethernet payload
+        enc28j60.send(ethernet_payload, sizeof(ethernet_payload));
+
+        // Turn off red LED
+        led_red.off();
+
+        // Delay for 1000 ms
+        vTaskDelay(250 / portTICK_RATE_MS);
+    }
+}
+
+static void prvGreenLedTask(void *pvParameters)
+{
+    // Forever
+    while (true)
+    {
+        // Turn off green LED for 950 ms
+        led_green.off();
+        vTaskDelay(950 / portTICK_RATE_MS);
+
+        // Turn on green LED for 50 ms
+        led_green.on();
+        vTaskDelay(50 / portTICK_RATE_MS);
+    }
+}
