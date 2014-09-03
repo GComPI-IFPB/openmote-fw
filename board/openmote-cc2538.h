@@ -141,9 +141,9 @@
 #define SPI_CLK_PIN             ( GPIO_PIN_2 )
 #define SPI_CLK_IOC             ( IOC_MUX_OUT_SEL_SSI0_CLKOUT )
 #define SPI_MODE                ( SSI_MODE_MASTER )
-#define SPI_PROTOCOL            ( SSI_FRF_MOTO_MODE_3 )
+#define SPI_PROTOCOL            ( SSI_FRF_MOTO_MODE_0 )
 #define SPI_DATAWIDTH           ( 8 )
-#define SPI_BAUDRATE            ( 4000000 )
+#define SPI_BAUDRATE            ( 8000000 )
 
 #define I2C_PERIPHERAL          ( SYS_CTRL_PERIPH_I2C )
 #define I2C_BASE                ( GPIO_B_BASE )
