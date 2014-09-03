@@ -39,7 +39,16 @@ static void prvEthernetTask(void *pvParameters);
 
 uint8_t eui64_address[8];
 uint8_t eui48_address[6];
-uint8_t ethernet_payload[60];
+uint8_t ethernet_payload[60] = {
+                            0xA4, 0x5D, 0x36, 0x5B, 0xA4, 0xD0,
+                            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                            0x08, 0x06,
+                            0x00, 0x01, 0x08, 0x06, 0x04, 0x00, 0x02, 0x00,
+                            0x00, 0x01, 0x08, 0x06, 0x04, 0x00, 0x02, 0x00,
+                            0x00, 0x01, 0x08, 0x06, 0x04, 0x00, 0x02, 0x00,
+                            0x00, 0x01, 0x08, 0x06, 0x04, 0x00, 0x02, 0x00,
+                            0x00, 0x01, 0x08, 0x06, 0x04, 0x00, 0x02, 0x00,
+                            0x00, 0x01, 0x08, 0x06, 0x04, 0x00};
 
 /*================================= public ==================================*/
 
@@ -48,14 +57,8 @@ int main (void)
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
 
-    // Get the EUI-64 address
-    board.getAddress(eui64_address);
-
-    // Set the EUI-48 address
-    memcpy(&eui48_address[0], &eui64_address[2], 6);
-
-    // Use the EUI-48 address as the MAC address
-    enc28j60.init(eui48_address);
+    // Enable the SPI peripheral
+    spi.enable(SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE);
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
@@ -71,20 +74,32 @@ int main (void)
 
 static void prvEthernetTask(void *pvParameters)
 {
+    // Get the EUI-64 address
+    board.getAddress(eui64_address);
+
+    // Set the EUI-48 address
+    memcpy(&eui48_address[0], &eui64_address[2], 6);
+
+    // Set the EUI-48 address to the packet
+    memcpy(&ethernet_payload[6], eui48_address, 6);
+
+    // Use the EUI-48 address as the MAC address
+    enc28j60.init(eui48_address);
+
     // Forever
     while (true)
     {
+        // Transmit a packet every second
+        vTaskDelay(1000 / portTICK_RATE_MS);
+
         // Turn on red LED
         led_red.on();
 
         // Send Ethernet payload
-        enc28j60.send(ethernet_payload, sizeof(ethernet_payload));
+        enc28j60.sendPacket(ethernet_payload, sizeof(ethernet_payload));
 
         // Turn off red LED
         led_red.off();
-
-        // Delay for 1000 ms
-        vTaskDelay(250 / portTICK_RATE_MS);
     }
 }
 
