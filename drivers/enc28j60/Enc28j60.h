@@ -13,6 +13,9 @@
  *
  */
 
+#ifndef ENC268J60_H_
+#define ENC268J60_H_
+
 #include <stdint.h>
 #include <string.h>
 
@@ -25,8 +28,8 @@ public:
     Enc28j60(SpiDriver& spi_, GpioIn& gpio_);
     void init(uint8_t* mac_address);
     void reset(void);
-    int32_t send(uint8_t* data, uint32_t length);
-    int32_t read(uint8_t* buffer, uint32_t length);
+    int32_t sendPacket(uint8_t* data, uint32_t length);
+    int32_t receivePacket(uint8_t* buffer, uint32_t length);
 protected:
     void setMacAddress(uint8_t* mac_address);
 private:
@@ -46,5 +49,9 @@ private:
 
     bool isInitialized;
     uint32_t receivedPackets;
+    uint32_t receivedPacketsError;
     uint32_t sentPackets;
+    uint32_t sentPacketsError;
 };
+
+#endif /* ENC268J60_H_ */
