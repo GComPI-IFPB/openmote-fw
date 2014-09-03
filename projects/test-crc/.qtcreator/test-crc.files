@@ -2,7 +2,6 @@
 ../main.cpp
 ../../../board/openmote-cc2538.cpp
 ../../../board/openmote-cc2538.h
-../../../drivers/Ethernet.h
 ../../../drivers/Sensor.h
 ../../../drivers/adxl346/Adxl346.cpp
 ../../../drivers/adxl346/Adxl346.h
@@ -54,6 +53,7 @@
 ../../../kernel/FreeRTOS/timers.c
 ../../../kernel/FreeRTOS/timers.h
 ../../../library/cc2538/Board.cpp
+../../../library/cc2538/Gpio.cpp
 ../../../library/cc2538/GpioAdc.cpp
 ../../../library/cc2538/GpioIn.cpp
 ../../../library/cc2538/GpioInPow.cpp
@@ -64,6 +64,7 @@
 ../../../library/cc2538/Pwm.cpp
 ../../../library/cc2538/Radio.cpp
 ../../../library/cc2538/Spi.cpp
+../../../library/cc2538/SysTick.cpp
 ../../../library/cc2538/Timer.cpp
 ../../../library/cc2538/Uart.cpp
 ../../../library/cc2538/Watchdog.cpp
@@ -79,6 +80,7 @@
 ../../../library/inc/Pwm.h
 ../../../library/inc/Radio.h
 ../../../library/inc/Spi.h
+../../../library/inc/SysTick.h
 ../../../library/inc/Timer.h
 ../../../library/inc/Uart.h
 ../../../library/inc/Watchdog.h
@@ -152,3 +154,4 @@
 ../../../platform/cc2538/src/watchdog.c
 ../../../platform/cc2538/src/watchdog.h
 ../../../platform/cc2538/startup_cc2538.c
+
