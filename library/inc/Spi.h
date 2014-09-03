@@ -39,6 +39,8 @@ public:
     void setTxCallback(Callback* callback_);
     void enableInterrupt(void);
     void disableInterrupt(void);
+    void select(void);
+    void deselect(void);
     uint8_t readByte(void);
     uint32_t readByte(uint8_t * buffer, uint32_t length);
     void writeByte(uint8_t byte);

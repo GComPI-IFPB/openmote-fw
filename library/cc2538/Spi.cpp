@@ -61,17 +61,17 @@ void Spi::enable(uint32_t mode_, uint32_t protocol_, uint32_t datawidth_, uint32
     // Set IO clock as SPI0 clock source
     SSIClockSourceSet(base, clock);
 
-    // Configure the CLK, nCS, MOSI and MISO pins
+    // Configure the MISO, MOSI, CLK and nCS pins as peripheral
     IOCPinConfigPeriphInput(miso.getPort(), miso.getPin(), miso.getIoc());
     IOCPinConfigPeriphOutput(mosi.getPort(), mosi.getPin(), mosi.getIoc());
     IOCPinConfigPeriphOutput(clk.getPort(), clk.getPin(), clk.getIoc());
-    IOCPinConfigPeriphOutput(ncs.getPort(), ncs.getPin(), ncs.getIoc());
+    // IOCPinConfigPeriphOutput(ncs.getPort(), ncs.getPin(), ncs.getIoc());
 
-    // Configure SPI0 GPIOs
+    // Configure MISO, MOSI, CLK and nCS GPIOs
     GPIOPinTypeSSI(miso.getPort(), miso.getPin());
     GPIOPinTypeSSI(mosi.getPort(), mosi.getPin());
     GPIOPinTypeSSI(clk.getPort(), clk.getPin());
-    GPIOPinTypeSSI(ncs.getPort(), ncs.getPin());
+    // GPIOPinTypeSSI(ncs.getPort(), ncs.getPin());
 
     // Configure the SPI0 clock
     SSIConfigSetExpClk(base, SysCtrlIOClockGet(), protocol, \
@@ -85,15 +85,18 @@ void Spi::sleep(void)
 {
     SSIDisable(base);
 
-    GPIOPinTypeGPIOOutput(clk.getPort(), clk.getPin());
-    GPIOPinTypeGPIOOutput(ncs.getPort(), ncs.getPin());
+    // Configure the MISO, MOSI, CLK and nCS pins as output
     GPIOPinTypeGPIOOutput(miso.getPort(), miso.getPin());
     GPIOPinTypeGPIOOutput(mosi.getPort(), mosi.getPin());
+    GPIOPinTypeGPIOOutput(clk.getPort(), clk.getPin());
+    // GPIOPinTypeGPIOOutput(ncs.getPort(), ncs.getPin());
 
-    GPIOPinWrite(clk.getPort(), clk.getPin(), 0);
-    GPIOPinWrite(ncs.getPort(), ncs.getPin(), 0);
+    //
     GPIOPinWrite(miso.getPort(), miso.getPin(), 0);
     GPIOPinWrite(mosi.getPort(), mosi.getPin(), 0);
+    GPIOPinWrite(clk.getPort(), clk.getPin(), 0);
+    // GPIOPinWrite(ncs.getPort(), ncs.getPin(), 0);
+
 }
 
 void Spi::wakeup(void)
@@ -130,6 +133,32 @@ void Spi::disableInterrupt(void)
 
     // Disable the SPI interrupt
     IntDisable(interrupt);
+}
+
+void Spi::select(void)
+{
+    if (protocol == SSI_FRF_MOTO_MODE_0 ||
+        protocol == SSI_FRF_MOTO_MODE_1)
+    {
+        ncs.low();
+    }
+    else
+    {
+        ncs.high();
+    }
+}
+
+void Spi::deselect(void)
+{
+    if (protocol == SSI_FRF_MOTO_MODE_0 ||
+        protocol == SSI_FRF_MOTO_MODE_1)
+    {
+        ncs.high();
+    }
+    else
+    {
+        ncs.low();
+    }
 }
 
 uint8_t Spi::readByte(void)
