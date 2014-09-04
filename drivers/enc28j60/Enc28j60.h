@@ -17,12 +17,13 @@
 #define ENC268J60_H_
 
 #include <stdint.h>
-#include <string.h>
 
 #include "SpiDriver.h"
 #include "GpioIn.h"
 
-class Enc28j60
+#include "Ethernet.h"
+
+class Enc28j60 : public EthernetDevice
 {
 public:
     Enc28j60(SpiDriver& spi_, GpioIn& gpio_);
@@ -30,8 +31,6 @@ public:
     void reset(void);
     int32_t sendPacket(uint8_t* data, uint32_t length);
     int32_t receivePacket(uint8_t* buffer, uint32_t length);
-protected:
-    void setMacAddress(uint8_t* mac_address);
 private:
     void softReset(void);
     void setRegBank(uint8_t bank);
@@ -44,14 +43,6 @@ private:
 private:
     SpiDriver& spi;
     GpioIn& gpio;
-
-    uint8_t macAddress[6];
-
-    bool isInitialized;
-    uint32_t receivedPackets;
-    uint32_t receivedPacketsError;
-    uint32_t sentPackets;
-    uint32_t sentPacketsError;
 };
 
 #endif /* ENC268J60_H_ */

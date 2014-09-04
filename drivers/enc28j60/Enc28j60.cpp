@@ -109,10 +109,8 @@
 /*================================= public ==================================*/
 
 Enc28j60::Enc28j60(SpiDriver& spi_, GpioIn& gpio_):
-    spi(spi_), gpio(gpio_), \
-    isInitialized(false), \
-    receivedPackets(0), receivedPacketsError(0), \
-    sentPackets(0), sentPacketsError(0)
+    EthernetDevice(), \
+    spi(spi_), gpio(gpio_)
 {
 }
 
@@ -351,14 +349,6 @@ int32_t Enc28j60::receivePacket(uint8_t* buffer, uint32_t length)
 }
 
 /*=============================== protected =================================*/
-
-void Enc28j60::setMacAddress(uint8_t* mac_address)
-{
-    for (uint8_t i = 0; i < 6; i++)
-    {
-        macAddress[i] = mac_address[i];
-    }
-}
 
 /*================================ private ==================================*/
 
