@@ -27,6 +27,11 @@
 
 /*================================= public ==================================*/
 
+Ethernet::Ethernet(EthernetDevice& ethernetDevice_):
+    ethernetDevice(ethernetDevice_)
+{
+}
+
 EthernetDevice::EthernetDevice(void):
     isInitialized(false), \
     receivedPackets(0), receivedPacketsError(0), \

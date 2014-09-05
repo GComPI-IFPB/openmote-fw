@@ -40,7 +40,9 @@ protected:
 class Ethernet
 {
 public:
+    Ethernet(EthernetDevice& ethernetDevice_);
 private:
+    EthernetDevice& ethernetDevice;
 };
 
 #endif /* ETHERNET_H_ */
