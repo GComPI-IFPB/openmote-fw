@@ -18,6 +18,8 @@
 ../../../kernel/Drivers/CircularBuffer.h
 ../../../kernel/Drivers/Crc16.cpp
 ../../../kernel/Drivers/Crc16.h
+../../../kernel/Drivers/Ethernet.cpp
+../../../kernel/Drivers/Ethernet.h
 ../../../kernel/Drivers/Hdlc.cpp
 ../../../kernel/Drivers/Hdlc.h
 ../../../kernel/Drivers/I2cDriver.cpp
