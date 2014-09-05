@@ -1,5 +1,5 @@
 # Project name and files to compile
-PROJECT_NAME  = sensors-cc2538
+PROJECT_NAME  = test-sensors
 PROJECT_FILES = main.cpp cc2538_lowpower.c
 PROJECT_DIR   = .
 

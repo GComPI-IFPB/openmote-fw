@@ -1,5 +1,5 @@
 target remote localhost:2331
-file sensors-cc2538.elf
+file test-sensors.elf
 monitor speed 5000
 monitor endian little
 monitor flash breakpoints = 1
