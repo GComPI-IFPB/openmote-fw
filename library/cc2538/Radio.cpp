@@ -342,9 +342,6 @@ RadioResult Radio::loadPacket(uint8_t* data, uint8_t length)
     /* Flush the TX buffer */
     CC2538_RF_CSP_ISFLUSHTX();
 
-    /* Set the radio state to receive */
-    radioState = RadioState_ReceiveInit;
-
     /* Append the PHY length byte first */
     HWREG(RFCORE_SFR_RFDATA) = length;
 

@@ -136,12 +136,12 @@ static void prvRadioRxTask(void *pvParameters)
     // Take the receive semaphore so that we block until a packet is received
     xSemaphoreTake(rxSemaphore, (TickType_t) portMAX_DELAY);
 
-    // Turn on the radio transceiver
-    radio.on();
-
     // Forever
     while (true)
     {
+        // Turn on the radio transceiver
+        radio.on();
+        
         // Put the radio transceiver in receive mode
         radio.receive();
 
@@ -181,12 +181,6 @@ static void prvRadioRxTask(void *pvParameters)
                 serial.printf(uart_buffer, uart_len);
             }
         }
-
-        // Turn off the radio until the next packet
-        radio.off();
-
-        // Delay the transmission of the next packet 200 ms
-        vTaskDelay(200 / portTICK_RATE_MS);
     }
 }
 
@@ -200,15 +194,15 @@ static void prvRadioTxTask(void *pvParameters)
     // Get the EUI64 address of the board
     board.getAddress(radio_buffer);
 
-    // Turn on the radio transceiver
-    radio.on();
-
     // Forever
     while (true)
     {
         // Take the txSemaphre, block until available
         if (xSemaphoreTake(txSemaphore, (TickType_t) portMAX_DELAY) == pdTRUE)
         {
+            // Turn on the radio transceiver
+            radio.on();
+            
             // Turn the yellow LED on when the packet is being loaded
             led_yellow.on();
 
@@ -224,10 +218,10 @@ static void prvRadioTxTask(void *pvParameters)
 
                 // Turn the yellow LED off when the packet has beed loaded
                 led_yellow.off();
-
-                // Delay the transmission of the next packet 250 ms
-                vTaskDelay(250 / portTICK_RATE_MS);
             }
+            
+            // Delay the transmission of the next packet 250 ms
+            vTaskDelay(250 / portTICK_RATE_MS);
         }
     }
 }
@@ -246,6 +240,9 @@ static void rxDone(void)
 
     // Turn off the radio LED as the packet is now received
     led_red.off();
+    
+    // Turn off the radio until the next packet
+    radio.off();
 
     // Give the receive semaphore as the packet has been received
     xSemaphoreGiveFromISR(rxSemaphore, &xHigherPriorityTaskWoken);
