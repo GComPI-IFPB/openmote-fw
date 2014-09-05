@@ -107,6 +107,6 @@ static void timer3_callback(void)
 {
     // Toggle red LED and AD3 debug pin
     led_red.toggle();
-    debug_ad3.toggle();
+    debug_ad6.toggle();
 }
 
