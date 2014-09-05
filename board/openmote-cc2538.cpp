@@ -44,6 +44,10 @@ GpioOut led_orange(LED_ORANGE_PORT, LED_ORANGE_PIN);
 GpioOut led_red(LED_RED_PORT, LED_RED_PIN);
 GpioOut led_yellow(LED_YELLOW_PORT, LED_YELLOW_PIN);
 
+// Antenna
+GpioOut antenna_external(ANTENNA_EXTERNAL_PORT, ANTENNA_EXTERNAL_PIN);
+GpioOut antenna_internal(ANTENNA_INTERNAL_PORT, ANTENNA_INTERNAL_PIN);
+
 // Button
 GpioInPow button_user(BUTTON_USER_PORT, BUTTON_USER_PIN, BUTTON_USER_EDGE);
 

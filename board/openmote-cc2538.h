@@ -110,6 +110,11 @@
 #define TPS62730_STATUS_EDGE    ( GPIO_BOTH_EDGES )
 #define TPS62730_BYPASS_PIN     ( GPIO_PIN_1 )
 
+#define ANTENNA_EXTERNAL_PORT   ( GPIO_D_BASE )
+#define ANTENNA_EXTERNAL_PIN    ( GPIO_PIN_4 )
+#define ANTENNA_INTERNAL_PORT   ( GPIO_D_BASE )
+#define ANTENNA_INTERNAL_PIN    ( GPIO_PIN_5 )
+
 #define UART_PERIPHERAL         ( SYS_CTRL_PERIPH_UART0 )
 #define UART_BASE               ( UART0_BASE )
 #define UART_CLOCK              ( UART_CLOCK_PIOSC )
@@ -188,6 +193,10 @@ extern GpioOut led_yellow;
 
 // Button
 extern GpioInPow button_user;
+
+// Antenna
+extern GpioOut antenna_external;
+extern GpioOut antenna_internal;
 
 // Timer
 extern Timer timer0;
