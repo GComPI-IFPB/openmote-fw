@@ -27,9 +27,9 @@
 
 #define RADIO_MODE_RX                       ( 0 )
 #define RADIO_MODE_TX                       ( 1 )
-#define RADIO_MODE                          ( RADIO_MODE_TX )
+#define RADIO_MODE                          ( RADIO_MODE_RX )
 
-#define PAYLOAD_LENGTH                      ( 124 )
+#define PAYLOAD_LENGTH                      ( 125 )
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 2 )
 #define BUTTON_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
@@ -83,6 +83,7 @@ int main (void)
     radio.setTxCallbacks(&txInitCallback, &txDoneCallback);
     radio.setRxCallbacks(&rxInitCallback, &rxDoneCallback);
     radio.enable();
+    radio.enableInterrupts();
 
     // Create three FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
@@ -138,7 +139,7 @@ static void prvButtonTask(void *pvParameters)
 static void prvRadioRxTask(void *pvParameters)
 {
     static RadioResult result;
-    
+
     // Create the receive semaphore
     rxSemaphore = xSemaphoreCreateMutex();
 
@@ -150,7 +151,7 @@ static void prvRadioRxTask(void *pvParameters)
     {
         // Turn on the radio transceiver
         radio.on();
-        
+
         // Put the radio transceiver in receive mode
         radio.receive();
 
@@ -165,13 +166,16 @@ static void prvRadioRxTask(void *pvParameters)
 
             // Get a packet from the radio buffer
             result = radio.getPacket(radio_ptr, &radio_len, &rssi, &crc);
-            
+
             // Check the result of the operation and the packet CRC
             if (result == RadioResult_Success && crc)
             {
                 // Transmit the RSSI byte over the UART
                 uart.writeByte(rssi);
             }
+
+            // Turn off the radio until the next packet
+            radio.off();
         }
     }
 }
@@ -179,7 +183,7 @@ static void prvRadioRxTask(void *pvParameters)
 static void prvRadioTxTask(void *pvParameters)
 {
     static RadioResult result;
-    
+
     // Create the transmit semaphore
     txSemaphore = xSemaphoreCreateMutex();
 
@@ -191,7 +195,7 @@ static void prvRadioTxTask(void *pvParameters)
         {
             // Turn on the radio transceiver
             radio.on();
-        
+
             // Turn the yellow LED on when the packet is being loaded
             led_yellow.on();
 
@@ -206,7 +210,7 @@ static void prvRadioTxTask(void *pvParameters)
                 // Turn the yellow LED off when the packet has beed loaded
                 led_yellow.off();
             }
-            
+
             // Delay the transmission of the next packet 250 ms
             vTaskDelay(250 / portTICK_RATE_MS);
         }
@@ -240,9 +244,6 @@ static void rxDone(void)
 
     // Turn off the radio LED as the packet is now received
     led_red.off();
-    
-    // Turn off the radio until the next packet
-    radio.off();
 
     // Give the receive semaphore as the packet has been received
     xSemaphoreGiveFromISR(rxSemaphore, &xHigherPriorityTaskWoken);
@@ -265,7 +266,7 @@ static void txDone(void)
 
     // Turn off the radio LED as the packet is transmitted
     led_red.off();
-    
+
     // Turn off the radio until the next packet
     radio.off();
 
