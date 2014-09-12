@@ -164,7 +164,17 @@ void Spi::deselect(void)
 uint8_t Spi::readByte(void)
 {
     uint32_t byte;
+
+    // Push a byte
+    SSIDataPut(base, 0x00);
+
+    // Wait until it is complete
+    while(SSIBusy(base))
+        ;
+
+    // Read a byte
     SSIDataGet(base, &byte);
+
     return (uint8_t)(byte & 0xFF);
 }
 
@@ -173,34 +183,51 @@ uint32_t Spi::readByte(uint8_t* buffer, uint32_t length)
     uint32_t data;
     for (uint32_t i =  0; i < length; i++)
     {
-        SSIDataGet(base, &data);
-        *buffer++ = (uint8_t) data;
+        // Push a byte
+        SSIDataPut(base, 0x00);
 
         // Wait until it is complete
         while(SSIBusy(base))
             ;
+
+        // Read a byte
+        SSIDataGet(base, &data);
+
+        *buffer++ = (uint8_t) data;
     }
     return 0;
 }
 
 void Spi::writeByte(uint8_t byte)
 {
+    uint32_t data;
+
+    // Push a byte
     SSIDataPut(base, byte);
 
     // Wait until it is complete
     while(SSIBusy(base))
         ;
+
+    // Read a byte
+    SSIDataGet(base, &data);
 }
 
 uint32_t Spi::writeByte(uint8_t* buffer, uint32_t length)
 {
+    uint32_t data;
+
     for (uint32_t i = 0; i < length; i++)
     {
+        // Push a byte
         SSIDataPut(base, *buffer++);
 
         // Wait until it is complete
         while(SSIBusy(base))
             ;
+
+        // Read a byte
+        SSIDataGet(base, &data);
     }
 
     return 0;
