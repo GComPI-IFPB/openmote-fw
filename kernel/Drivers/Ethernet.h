@@ -18,23 +18,25 @@
 
 #include <stdint.h>
 
+enum Result : int8_t
+{
+    ResultError   = -1,
+    ResultSuccess =  0
+};
+
 class EthernetDevice
 {
 public:
     EthernetDevice(void);
     virtual void init(uint8_t* mac_address) = 0;
     virtual void reset(void) = 0;
-    virtual int32_t sendPacket(uint8_t* data, uint32_t length) = 0;
-    virtual int32_t receivePacket(uint8_t* buffer, uint32_t length) = 0;
+    virtual Result transmitFrame(uint8_t* data, uint32_t length) = 0;
+    virtual Result receiveFrame(uint8_t* buffer, uint32_t* length) = 0;
 protected:
     void setMacAddress(uint8_t* mac_address);
 protected:
-    uint8_t macAddress[6];
     bool isInitialized;
-    uint32_t receivedPackets;
-    uint32_t receivedPacketsError;
-    uint32_t sentPackets;
-    uint32_t sentPacketsError;
+    uint8_t macAddress[6];
 };
 
 class Ethernet
@@ -43,6 +45,11 @@ public:
     Ethernet(EthernetDevice& ethernetDevice_);
 private:
     EthernetDevice& ethernetDevice;
+
+    uint32_t receivedPackets;
+    uint32_t receivedPacketsError;
+    uint32_t sentPackets;
+    uint32_t sentPacketsError;
 };
 
 #endif /* ETHERNET_H_ */

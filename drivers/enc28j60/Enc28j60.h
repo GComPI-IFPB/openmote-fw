@@ -23,14 +23,30 @@
 
 #include "Ethernet.h"
 
+class Enc28j60;
+
+class Enc28j60Interrupt : public Callback
+{
+public:
+    Enc28j60Interrupt(Enc28j60* object_ = nullptr, \
+                   void(Enc28j60:: *method_)(void) = nullptr):
+                   object(object_), method(method_){}
+    void execute(void) {(object->*method)();}
+private:
+    Enc28j60* object;
+    void(Enc28j60:: *method)(void);
+};
+
 class Enc28j60 : public EthernetDevice
 {
 public:
     Enc28j60(SpiDriver& spi_, GpioIn& gpio_);
     void init(uint8_t* mac_address);
     void reset(void);
-    int32_t sendPacket(uint8_t* data, uint32_t length);
-    int32_t receivePacket(uint8_t* buffer, uint32_t length);
+    Result transmitFrame(uint8_t* data, uint32_t length);
+    Result receiveFrame(uint8_t* buffer, uint32_t* length);
+protected:
+    void interruptHandler(void);
 private:
     void softReset(void);
     void setRegBank(uint8_t bank);
@@ -43,6 +59,8 @@ private:
 private:
     SpiDriver& spi;
     GpioIn& gpio;
+
+    Enc28j60Interrupt callback;
 };
 
 #endif /* ENC268J60_H_ */

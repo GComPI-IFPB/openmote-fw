@@ -104,13 +104,18 @@
 
 /*=============================== variables =================================*/
 
+uint8_t buffer[MAX_MAC_LENGTH];
+uint8_t* buffer_ptr = buffer;
+uint32_t buffer_len = sizeof(buffer);
+
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/
 
 Enc28j60::Enc28j60(SpiDriver& spi_, GpioIn& gpio_):
     EthernetDevice(), \
-    spi(spi_), gpio(gpio_)
+    spi(spi_), gpio(gpio_), \
+    callback(this, &Enc28j60::interruptHandler)
 {
 }
 
@@ -209,11 +214,11 @@ void Enc28j60::reset(void)
     writeRegister(ECON1, ECON1_RXEN);
 }
 
-int32_t Enc28j60::sendPacket(uint8_t* data, uint32_t length)
+Result Enc28j60::transmitFrame(uint8_t* data, uint32_t length)
 {
     if (!isInitialized)
     {
-        return -1;
+        return ResultError;
     }
 
     // Set register bank
@@ -248,17 +253,15 @@ int32_t Enc28j60::sendPacket(uint8_t* data, uint32_t length)
     // Check packet transmission outcome
     if ((readRegister(ESTAT) & ESTAT_TXABRT) != 0)
     {
-        sentPacketsError +=1;
-        return -1;
+        return ResultError;
     }
     else
     {
-        sentPackets +=1;
-        return 0;
+        return ResultSuccess;
     }
 }
 
-int32_t Enc28j60::receivePacket(uint8_t* buffer, uint32_t length)
+Result Enc28j60::receiveFrame(uint8_t* buffer, uint32_t* length)
 {
     uint32_t status;
     uint32_t nextPacket;
@@ -276,7 +279,7 @@ int32_t Enc28j60::receivePacket(uint8_t* buffer, uint32_t length)
     // Return immediately if there are no packets
     if (packetCount == 0)
     {
-        return -1;
+        return ResultError;
     }
 
     // Set register bank
@@ -299,7 +302,7 @@ int32_t Enc28j60::receivePacket(uint8_t* buffer, uint32_t length)
     status = status; // Avoid compiler warning
 
     // Check for buffer overflow
-    if (length >= packetLength)
+    if (*length >= packetLength)
     {
         // Read received data to the buffer
         readData(buffer, packetLength);
@@ -339,16 +342,20 @@ int32_t Enc28j60::receivePacket(uint8_t* buffer, uint32_t length)
 
     // If error, return immediately
     if (error == true) {
-        return -1;
+        return ResultError;
     }
 
-    // Account for received packets
-    receivedPackets++;
-
-    return packetLength;
+    return ResultSuccess;
 }
 
 /*=============================== protected =================================*/
+
+void Enc28j60::interruptHandler(void)
+{
+    buffer_ptr = buffer;
+    buffer_len = sizeof(buffer);
+    receiveFrame(buffer_ptr, &buffer_len);
+}
 
 /*================================ private ==================================*/
 
