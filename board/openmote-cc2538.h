@@ -166,7 +166,7 @@
 
 #define ENC28J60_INT_PORT       ( GPIO_D_BASE )
 #define ENC28J60_INT_PIN        ( GPIO_PIN_0 )
-#define ENC28J60_INT_EDGE       ( GPIO_FALLING_EDGE )
+#define ENC28J60_INT_EDGE       ( GPIO_LOW_LEVEL )
 
 /*================================ typedef ==================================*/
 
