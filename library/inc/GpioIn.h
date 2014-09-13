@@ -20,7 +20,6 @@
 
 #include "Gpio.h"
 #include "Callback.h"
-#include "InterruptHandler.h"
 
 class GpioIn : public Gpio
 {
@@ -38,6 +37,7 @@ protected:
     void interruptHandler(void);
 protected:
     uint32_t edge;
+    
     Callback* callback;
 };
 

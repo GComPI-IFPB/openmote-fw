@@ -19,21 +19,7 @@
 #include <stdint.h>
 
 #include "Callback.h"
-#include "InterruptHandler.h"
 
-class SysTick;
-
-class SysTickCallback : public Callback
-{
-public:
-    SysTickCallback(SysTick* object_ = nullptr, \
-                   void(SysTick:: *method_)(void) = nullptr):
-                   object(object_), method(method_){}
-    void execute(void) {(object->*method)();}
-private:
-    SysTick* object;
-    void(SysTick:: *method)(void);
-};
 
 class SysTick
 {

@@ -16,6 +16,7 @@
 /*================================ include ==================================*/
 
 #include "SysTick.h"
+#include "InterruptHandler.h"
 
 #include "cc2538_include.h"
 

@@ -16,6 +16,7 @@
 /*================================ include ==================================*/
 
 #include "Timer.h"
+#include "InterruptHandler.h"
 
 #include "cc2538_include.h"
 

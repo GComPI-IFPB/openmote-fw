@@ -19,11 +19,8 @@
 #include <stdint.h>
 
 #include "Callback.h"
-#include "InterruptHandler.h"
 
 class Timer;
-
-typedef GenericCallback<Timer> TimerCallback;
 
 class Timer
 {
