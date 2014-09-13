@@ -57,11 +57,11 @@ static xSemaphoreHandle rxSemaphore;
 static xSemaphoreHandle txSemaphore;
 static xSemaphoreHandle buttonSempahore;
 
-static GenericCallback rxInitCallback(&rxInit);
-static GenericCallback rxDoneCallback(&rxDone);
-static GenericCallback txInitCallback(&txInit);
-static GenericCallback txDoneCallback(&txDone);
-static GenericCallback userCallback(buttonCallback);
+static PlainCallback rxInitCallback(&rxInit);
+static PlainCallback rxDoneCallback(&rxDone);
+static PlainCallback txInitCallback(&txInit);
+static PlainCallback txDoneCallback(&txDone);
+static PlainCallback userCallback(buttonCallback);
 
 static uint8_t radio_buffer[PAYLOAD_LENGTH];
 static uint8_t* radio_ptr = radio_buffer;

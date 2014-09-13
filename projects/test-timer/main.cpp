@@ -30,10 +30,10 @@ static void timer1_callback(void);
 static void timer2_callback(void);
 static void timer3_callback(void);
 
-static GenericCallback timerCallback0(timer0_callback);
-static GenericCallback timerCallback1(timer1_callback);
-static GenericCallback timerCallback2(timer2_callback);
-static GenericCallback timerCallback3(timer3_callback);
+static PlainCallback timerCallback0(timer0_callback);
+static PlainCallback timerCallback1(timer1_callback);
+static PlainCallback timerCallback2(timer2_callback);
+static PlainCallback timerCallback3(timer3_callback);
 
 /*=============================== variables =================================*/
 

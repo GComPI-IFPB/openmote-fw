@@ -23,17 +23,7 @@
 
 class Timer;
 
-class TimerCallback : public Callback
-{
-public:
-    TimerCallback(Timer* object_ = nullptr, \
-                   void(Timer:: *method_)(void) = nullptr):
-                   object(object_), method(method_){}
-    void execute(void) {(object->*method)();}
-private:
-    Timer* object;
-    void(Timer:: *method)(void);
-};
+typedef GenericCallback<Timer> TimerCallback;
 
 class Timer
 {

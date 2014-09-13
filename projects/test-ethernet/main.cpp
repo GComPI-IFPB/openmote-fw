@@ -96,7 +96,7 @@ static void prvEthernetTask(void *pvParameters)
         led_red.on();
 
         // Send Ethernet payload
-        enc28j60.sendPacket(ethernet_payload, sizeof(ethernet_payload));
+        enc28j60.transmitFrame(ethernet_payload, sizeof(ethernet_payload));
 
         // Turn off red LED
         led_red.off();

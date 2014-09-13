@@ -25,10 +25,22 @@ public:
 private:
 };
 
-class GenericCallback : public Callback
+template<typename T> class GenericCallback : public Callback
 {
 public:
-    GenericCallback(callback_t callback_){callback = callback_;}
+    GenericCallback(T* object_ = nullptr, \
+                   void(T:: *method_)(void) = nullptr):
+                   object(object_), method(method_){}
+    void execute(void) {(object->*method)();}
+private:
+    T* object;
+    void(T:: *method)(void);
+};
+
+class PlainCallback : public Callback
+{
+public:
+    PlainCallback(callback_t callback_){callback = callback_;}
     void execute(void){callback();}
 private:
     callback_t callback;

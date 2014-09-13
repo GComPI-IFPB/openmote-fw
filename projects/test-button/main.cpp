@@ -40,7 +40,7 @@ static void buttonCallback(void);
 /*=============================== variables =================================*/
 
 static xSemaphoreHandle buttonSemaphore;
-static GenericCallback userCallback(buttonCallback);
+static PlainCallback userCallback(buttonCallback);
 
 /*================================= public ==================================*/
 
