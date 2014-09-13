@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       Ethernet.cpp
+ * @file       EthernetDevice.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -15,7 +15,7 @@
 
 /*================================ include ==================================*/
 
-#include "Ethernet.h"
+#include "EthernetDevice.h"
 
 /*================================ define ===================================*/
 
@@ -26,13 +26,6 @@
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/
-
-Ethernet::Ethernet(EthernetDevice& ethernetDevice_):
-    ethernetDevice(ethernetDevice_), \
-    receivedPackets(0), receivedPacketsError(0), \
-    sentPackets(0), sentPacketsError(0)
-{
-}
 
 EthernetDevice::EthernetDevice(void):
     isInitialized(false)

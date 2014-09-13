@@ -1,28 +1,48 @@
 # Define the FreeRTOS and Drivers name 
-FREERTOS_NAME = FreeRTOS
-KDRIVERS_NAME  = Drivers
-
-# Define the FreeRTOS path
-KERNEL_SRC = $(KERNEL_PATH)/$(FREERTOS_NAME)
-KERNEL_INC = $(KERNEL_PATH)/$(FREERTOS_NAME)
+KDRIVERS_NAME   = Drivers
+FREERTOS_NAME   = FreeRTOS
+NETWORKING_NAME = Networking
+UTILS_NAME      = Utils
 
 # Define the Drivers path
 KDRIVERS_SRC = $(KERNEL_PATH)/$(KDRIVERS_NAME)
 KDRIVERS_INC = $(KERNEL_PATH)/$(KDRIVERS_NAME)
 
+# Define the FreeRTOS path
+KERNEL_SRC = $(KERNEL_PATH)/$(FREERTOS_NAME)
+KERNEL_INC = $(KERNEL_PATH)/$(FREERTOS_NAME)
+
+# Define the Networking path
+NETWORKING_SRC = $(KERNEL_PATH)/$(NETWORKING_NAME)
+NETWORKING_INC = $(KERNEL_PATH)/$(NETWORKING_NAME)
+
+# Define the Drivers path
+UTILS_SRC = $(KERNEL_PATH)/$(UTILS_NAME)
+UTILS_INC = $(KERNEL_PATH)/$(UTILS_NAME)
+
 # Append to the source and include paths
 SRC_PATH += -I $(KERNEL_SRC)
 SRC_PATH += -I $(KDRIVERS_SRC)
+SRC_PATH += -I $(NETWORKING_SRC)
+SRC_PATH += -I $(UTILS_SRC)
 INC_PATH += -I $(KERNEL_INC)
 INC_PATH += -I $(KDRIVERS_INC)
+INC_PATH += -I $(NETWORKING_INC)
+INC_PATH += -I $(UTILS_INC)
 
 # Extend the virtual path
+VPATH += $(KDRIVERS_INC)
+VPATH += $(KDRIVERS_INC)
 VPATH += $(KERNEL_SRC)
 VPATH += $(KERNEL_INC)
-VPATH += $(KDRIVERS_INC)
-VPATH += $(KDRIVERS_INC)
+VPATH += $(NETWORKING_INC)
+VPATH += $(NETWORKING_INC)
+VPATH += $(UTILS_INC)
+VPATH += $(UTILS_INC)
 
 # Include the Makefiles in the various subdirectories in the current folder
-include $(KERNEL_SRC)/Makefile.include
 include $(KDRIVERS_SRC)/Makefile.include
+include $(KERNEL_SRC)/Makefile.include
+include $(NETWORKING_SRC)/Makefile.include
+include $(UTILS_SRC)/Makefile.include
 
