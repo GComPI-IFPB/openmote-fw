@@ -16,7 +16,11 @@
 #ifndef CALLBACK_H_
 #define CALLBACK_H_
 
+/*****************************************************************************/
+
 typedef void(*callback_t)(void);
+
+/*****************************************************************************/
 
 class Callback
 {
@@ -25,7 +29,10 @@ public:
 private:
 };
 
-template<typename T> class GenericCallback : public Callback
+/*****************************************************************************/
+
+template<typename T>
+class GenericCallback : public Callback
 {
 public:
     GenericCallback(T* object_ = nullptr, \
@@ -37,6 +44,8 @@ private:
     void(T:: *method)(void);
 };
 
+/*****************************************************************************/
+
 class PlainCallback : public Callback
 {
 public:
@@ -45,5 +54,7 @@ public:
 private:
     callback_t callback;
 };
+
+/*****************************************************************************/
 
 #endif /* CALLBACK_H_ */
