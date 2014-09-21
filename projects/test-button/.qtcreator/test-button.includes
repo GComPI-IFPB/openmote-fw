@@ -8,6 +8,8 @@
 ../../../drivers/tps62730
 ../../../kernel/Drivers
 ../../../kernel/FreeRTOS
+../../../kernel/Networking
+../../../kernel/Utils
 ../../../library/cc2538
 ../../../library/inc
 ../../../platform/cc2538
