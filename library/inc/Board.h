@@ -29,7 +29,8 @@ public:
     void wakeup(void);
     void enableInterrupts(void);
     void disableInterrupts(void);
-    void getAddress(uint8_t* address);
+    void getEUI48(uint8_t* address);
+    void getEUI64(uint8_t* address);
 private:
     SleepMode sleepMode;
 };

@@ -15,6 +15,8 @@
 
 /*================================ include ==================================*/
 
+#include <string.h>
+
 #include "Board.h"
 
 #include "cc2538_include.h"
@@ -124,7 +126,17 @@ void Board::disableInterrupts(void)
     IntMasterDisable();
 }
 
-void Board::getAddress(uint8_t* address)
+void Board::getEUI48(uint8_t* address)
+{
+    uint8_t temp[8];
+
+    getEUI64(temp);
+
+    memcpy(&address[0], &temp[0], 3);
+    memcpy(&address[3], &temp[5], 3);
+}
+
+void Board::getEUI64(uint8_t* address)
 {
     uint8_t* eui64_flash;
 
