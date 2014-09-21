@@ -16,7 +16,6 @@
 /*================================ include ==================================*/
 
 #include "Enc28j60.h"
-#include "openmote-cc2538.h"
 
 /*================================ define ===================================*/
 
@@ -45,10 +44,10 @@
 #define ERXST                       ( 0x08 | 0x00 )
 #define ERXND                       ( 0x0A | 0x00 )
 #define ERXRDPT                     ( 0x0C | 0x00 )
-// #define ERXWRPT                  ( 0x0E | 0x00 )
+#define ERXWRPT                     ( 0x0E | 0x00 )
 #define EDMAST                      ( 0x10 | 0x00 )
 #define EDMAND                      ( 0x12 | 0x00 )
-// #define EDMADST                  ( 0x14 | 0x00 )
+#define EDMADST                     ( 0x14 | 0x00 )
 #define EDMACS                      ( 0x16 | 0x00 )
 
 // Bank 1 registers
@@ -69,7 +68,7 @@
 #define EPMM6                       ( 0x0E | 0x20 )
 #define EPMM7                       ( 0x0F | 0x20 )
 #define EPMCS                       ( 0x10 | 0x20 )
-// #define EPMO                     ( 0x14 | 0x20 )
+#define EPMO                        ( 0x14 | 0x20 )
 #define EWOLIE                      ( 0x16 | 0x20 )
 #define EWOLIR                      ( 0x17 | 0x20 )
 #define ERXFCON                     ( 0x18 | 0x20 )
@@ -247,26 +246,19 @@
 #define ENC28J60_BIT_FIELD_CLR      ( 0xA0 )
 #define ENC28J60_SOFT_RESET         ( 0xFF )
 
-// The RXSTART_INIT must be zero. See Rev. B4 Silicon Errata point 5.
-// Buffer boundaries applied to internal 8K ram
-// the entire available packet buffer space is allocated
-#define RXSTART_INIT                ( 0x0000 )  // start of RX buffer, room for 2 packets
-#define RXSTOP_INIT                 ( 0x0BFF )  // end of RX buffer
+// According to Errata #5, RXSTART_INIT must be zero
+#define RXSTART_INIT                ( 0x0000 )  // Start of RX buffer
+#define RXSTOP_INIT                 ( 0x0BFF )  // End of RX buffer
 
-#define TXSTART_INIT                ( 0x0C00 )  // start of TX buffer, room for 1 packet
-#define TXSTOP_INIT                 ( 0x11FF )  // end of TX buffer
+#define TXSTART_INIT                ( 0x0C00 )  // Start of TX buffer
+#define TXSTOP_INIT                 ( 0x11FF )  // End of TX buffer
 
-// max frame length which the conroller will accept:
-// (note: maximum ethernet frame length would be 1518)
-#define MAX_FRAMELEN                ( 1500 )
+// Maximum frame length which the controller will accept
+#define MAX_FRAMELEN                ( 1518 )
 
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
-
-uint8_t rx_buffer[1518];
-uint8_t* rx_buffer_ptr = rx_buffer;
-uint16_t rx_buffer_len = sizeof(rx_buffer);
 
 /*=============================== prototypes ================================*/
 
@@ -275,169 +267,179 @@ uint16_t rx_buffer_len = sizeof(rx_buffer);
 Enc28j60::Enc28j60(SpiDriver& spi_, GpioIn& gpio_):
     EthernetDevice(), \
     spi(spi_), gpio(gpio_), \
-    callback(this, &Enc28j60::interruptHandler), \
+    interrupt(this, &Enc28j60::interruptHandler), \
+    callback(nullptr), \
     nextPacketPtr(0)
 {
 }
 
 void Enc28j60::init(uint8_t* mac_address)
 {
-    // Check if ENC28J60 is initialized
-    if (isInitialized == true)
-    {
-        return;
-    }
-
-    // Set ENC28J60 interrupt
-    gpio.setCallback(&callback);
-
     // Set the MAC address
     setMacAddress(mac_address);
 
     // Initialize the ENC28J60 chip
     reset();
 
-    // Enable ENC268J60 interrupt
+    // Set and enable ENC268J60 interrupt
+    gpio.setCallback(&interrupt);
     gpio.enableInterrupt();
-
-    // ENC28J60 chip is now initialized
-    isInitialized = true;
 }
 
 void Enc28j60::reset(void)
 {
-    // Trigger a soft-reset
-    writeOp(ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
+    // Trigger a software reset
+    writeOperation(ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
 
-    // Wait for at least 1 ms
+    // Errata #2: Wait for at least 1 ms after software reset
     for (uint32_t i = 0x1FFF; i != 0; i--)
         ;
 
     // Wait until the clock becomes ready
-    while(!readOp(ENC28J60_READ_CTRL_REG, ESTAT) & ESTAT_CLKRDY);
+    while(!readOperation(ENC28J60_READ_CTRL_REG, ESTAT) & ESTAT_CLKRDY);
 
     // Store a pointer to the next packet
     nextPacketPtr = RXSTART_INIT;
 
     // Set the packet transmit and receive buffers
-    writeReg(ERXST, RXSTART_INIT);
-    writeReg(ERXRDPT, RXSTART_INIT);
-    writeReg(ERXND, RXSTOP_INIT);
-    writeReg(ETXST, TXSTART_INIT);
-    writeReg(ETXND, TXSTOP_INIT);
+    writeRegister(ERXST, RXSTART_INIT);
+    writeRegister(ERXRDPT, RXSTART_INIT);
+    writeRegister(ERXND, RXSTOP_INIT);
+    writeRegister(ETXST, TXSTART_INIT);
+    writeRegister(ETXND, TXSTOP_INIT);
 
     // Set MACON1 register
-    writeRegByte(MACON1, MACON1_MARXEN | MACON1_TXPAUS | MACON1_RXPAUS);
+    writeRegisterByte(MACON1, MACON1_MARXEN | MACON1_TXPAUS | MACON1_RXPAUS);
 
     // Set MACON2 register
-    writeRegByte(MACON2, 0x00);
+    writeRegisterByte(MACON2, 0x00);
 
     // Set MACON3 registers
-    writeOp(ENC28J60_BIT_FIELD_SET, MACON3, MACON3_PADCFG0 | MACON3_TXCRCEN | MACON3_FRMLNEN);
+    writeOperation(ENC28J60_BIT_FIELD_SET, MACON3, MACON3_PADCFG0 | MACON3_TXCRCEN | MACON3_FRMLNEN);
 
-    //
-    writeReg(MAIPG, 0x0C12);
+    // Set Non-Back-to-Back Inter-Packet Gap
+    writeRegister(MAIPG, 0x0C12);
 
-    //
-    writeRegByte(MABBIPG, 0x12);
+    // Set Back-to-Back Inter-Packet Gap
+    writeRegisterByte(MABBIPG, 0x12);
 
     // Set maximum frame length
-    writeReg(MAMXFL, MAX_FRAMELEN);
+    writeRegister(MAMXFL, MAX_FRAMELEN);
 
     // Set MAC address
-    writeRegByte(MAADR5, macAddress[0]);
-    writeRegByte(MAADR4, macAddress[1]);
-    writeRegByte(MAADR3, macAddress[2]);
-    writeRegByte(MAADR2, macAddress[3]);
-    writeRegByte(MAADR1, macAddress[4]);
-    writeRegByte(MAADR0, macAddress[5]);
+    writeRegisterByte(MAADR5, macAddress[0]);
+    writeRegisterByte(MAADR4, macAddress[1]);
+    writeRegisterByte(MAADR3, macAddress[2]);
+    writeRegisterByte(MAADR2, macAddress[3]);
+    writeRegisterByte(MAADR1, macAddress[4]);
+    writeRegisterByte(MAADR0, macAddress[5]);
 
-    // Disable loopback
+    // Errata #9/10: Disable loopback in half-duplex
     writePhy(PHCON2, PHCON2_HDLDIS);
 
     // Set ECON1 bank
     setBank(ECON1);
 
     // Enable packet interrupt
-    writeOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE | EIE_PKTIE);
+    writeOperation(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE | EIE_PKTIE);
 
-    // Enable reception
-    writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN);
+    // Enable packet reception
+    writeOperation(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN);
 }
 
-OperationResult Enc28j60::transmitFrame(uint8_t* data, uint16_t length)
+void Enc28j60::setCallback(Callback* callback_)
 {
-    // Errata # :
-    while (readOp(ENC28J60_READ_CTRL_REG, ECON1) & ECON1_TXRTS)
+    callback = callback_;
+}
+
+void Enc28j60::clearCallback(void)
+{
+    callback = nullptr;
+}
+
+OperationResult Enc28j60::transmitFrame(uint8_t* data, uint32_t length)
+{
+    // Errata #12: In half-duplex, transmit logic may stall
+    while (readOperation(ENC28J60_READ_CTRL_REG, ECON1) & ECON1_TXRTS)
     {
-        if (readRegByte(EIR) & EIR_TXERIF)
+        if (readRegisterByte(EIR) & EIR_TXERIF)
         {
-            writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRST);
-            writeOp(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_TXRST);
+            writeOperation(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRST);
+            writeOperation(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_TXRST);
         }
     }
 
     // Set transmit buffer start and end
-    writeReg(EWRPT, TXSTART_INIT);
-    writeReg(ETXND, TXSTART_INIT + length);
+    writeRegister(EWRPT, TXSTART_INIT);
+    writeRegister(ETXND, TXSTART_INIT + length);
 
     // Use default per packet control bytes
-    writeOp(ENC28J60_WRITE_BUF_MEM, 0, 0x00);
+    writeOperation(ENC28J60_WRITE_BUF_MEM, 0, 0x00);
 
-    // Write the data to buffer
-    writeBuf(data, length);
+    // Write data to buffer
+    writeBuffer(data, length);
 
     // Enable transmission
-    writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRTS);
+    writeOperation(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRTS);
 
     return ResultSuccess;
 }
 
-OperationResult Enc28j60::receiveFrame(uint8_t* buffer, uint16_t* length)
+OperationResult Enc28j60::receiveFrame(uint8_t* buffer, uint32_t* length)
 {
-    uint16_t len = 0;
+    uint32_t payloadLength = 0;
 
-    if (readRegByte(EPKTCNT) > 0)
+    if (readRegisterByte(EPKTCNT) > 0)
     {
-        writeReg(ERDPT, nextPacketPtr);
+        writeRegister(ERDPT, nextPacketPtr);
 
         struct {
             uint16_t nextPacket;
             uint16_t byteCount;
             uint16_t status;
-        } header;
+        } receiveHeader;
 
-        readBuf((uint8_t*) &header, sizeof header);
+        // Read the header
+        readBuffer((uint8_t*) &receiveHeader, sizeof(receiveHeader));
 
-        nextPacketPtr = header.nextPacket;
+        // Update the pointer to the next packet
+        nextPacketPtr = receiveHeader.nextPacket;
 
-        len = header.byteCount - 4; // Remove the CRC count
-        if (len > *length - 1)
+         // Remove the CRC count
+        payloadLength = receiveHeader.byteCount - 4;
+
+        // Check for buffer overflow
+        if (payloadLength > *length - 1)
         {
-            len = *length - 1;
+            payloadLength = *length - 1;
         }
 
-        if ((header.status & 0x80) == 0)
+        // Check for CRC errors
+        if ((receiveHeader.status & 0x0080) == 0)
         {
             return ResultError;
         }
         else
         {
-            readBuf(buffer,len);
+            // Copy the packet to the buffer
+            readBuffer(buffer, payloadLength);
         }
 
-        buffer[len] = 0;
+        // Clear last buffer position
+        buffer[payloadLength] = 0;
 
+        // Errata #14: Receive hardware may corrupt receive buffer
         if (nextPacketPtr - 1 > RXSTOP_INIT)
         {
-            writeReg(ERXRDPT, RXSTOP_INIT);
+            writeRegister(ERXRDPT, RXSTOP_INIT);
         }
         else
         {
-            writeReg(ERXRDPT, nextPacketPtr - 1);
+            writeRegister(ERXRDPT, nextPacketPtr - 1);
         }
 
-        writeOp(ENC28J60_BIT_FIELD_SET, ECON2, ECON2_PKTDEC);
+        // Decrement the number of packets
+        writeOperation(ENC28J60_BIT_FIELD_SET, ECON2, ECON2_PKTDEC);
     }
 
     return ResultSuccess;
@@ -447,29 +449,15 @@ OperationResult Enc28j60::receiveFrame(uint8_t* buffer, uint16_t* length)
 
 void Enc28j60::interruptHandler(void)
 {
-    OperationResult result;
-
-    rx_buffer_ptr = rx_buffer;
-    rx_buffer_len = sizeof(rx_buffer);
-
-    led_red.off();
-    led_orange.off();
-
-    result = receiveFrame(rx_buffer_ptr, &rx_buffer_len);
-
-    if (result == ResultSuccess)
+    if (callback != nullptr)
     {
-        led_orange.on();
-    }
-    else if (result == ResultError)
-    {
-        led_orange.off();
+        callback->execute();
     }
 }
 
 /*================================ private ==================================*/
 
-uint8_t Enc28j60::readOp(uint8_t op, uint8_t address)
+uint8_t Enc28j60::readOperation(uint8_t op, uint8_t address)
 {
     uint8_t result;
 
@@ -488,7 +476,7 @@ uint8_t Enc28j60::readOp(uint8_t op, uint8_t address)
     return result;
 }
 
-void Enc28j60::writeOp(uint8_t op, uint8_t address, uint8_t data)
+void Enc28j60::writeOperation(uint8_t op, uint8_t address, uint8_t data)
 {
     spi.select();
 
@@ -502,57 +490,57 @@ void Enc28j60::setBank(uint8_t address)
 {
     if ((address & BANK_MASK) != currentBank)
     {
-        writeOp(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_BSEL1 | ECON1_BSEL0);
+        writeOperation(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_BSEL1 | ECON1_BSEL0);
         currentBank = address & BANK_MASK;
-        writeOp(ENC28J60_BIT_FIELD_SET, ECON1, currentBank >> 5);
+        writeOperation(ENC28J60_BIT_FIELD_SET, ECON1, currentBank >> 5);
     }
 }
 
-uint8_t Enc28j60::readRegByte (uint8_t address)
+uint8_t Enc28j60::readRegisterByte (uint8_t address)
 {
     setBank(address);
-    return readOp(ENC28J60_READ_CTRL_REG, address);
+    return readOperation(ENC28J60_READ_CTRL_REG, address);
 }
 
-void Enc28j60::writeRegByte(uint8_t address, uint8_t data)
+void Enc28j60::writeRegisterByte(uint8_t address, uint8_t data)
 {
     setBank(address);
-    writeOp(ENC28J60_WRITE_CTRL_REG, address, data);
+    writeOperation(ENC28J60_WRITE_CTRL_REG, address, data);
 }
 
-uint16_t Enc28j60::readReg(uint8_t address)
+uint16_t Enc28j60::readRegister(uint8_t address)
 {
-    return readRegByte(address) + (readRegByte(address + 1) << 8);
+    return readRegisterByte(address) + (readRegisterByte(address + 1) << 8);
 }
 
-void Enc28j60::writeReg(uint8_t address, uint16_t data)
+void Enc28j60::writeRegister(uint8_t address, uint16_t data)
 {
-    writeRegByte(address, data);
-    writeRegByte(address + 1, data >> 8);
+    writeRegisterByte(address, data);
+    writeRegisterByte(address + 1, data >> 8);
 }
 
 uint16_t Enc28j60::readPhyByte(uint8_t address)
 {
-    writeRegByte(MIREGADR, address);
-    writeRegByte(MICMD, MICMD_MIIRD);
+    writeRegisterByte(MIREGADR, address);
+    writeRegisterByte(MICMD, MICMD_MIIRD);
 
-    while (readRegByte(MISTAT) & MISTAT_BUSY);
+    while (readRegisterByte(MISTAT) & MISTAT_BUSY);
 
-    writeRegByte(MICMD, 0x00);
+    writeRegisterByte(MICMD, 0x00);
 
-    return readRegByte(MIRD+1);
+    return readRegisterByte(MIRD+1);
 }
 
 void Enc28j60::writePhy(uint8_t address, uint16_t data)
 {
-    writeRegByte(MIREGADR, address);
+    writeRegisterByte(MIREGADR, address);
 
-    writeReg(MIWR, data);
+    writeRegister(MIWR, data);
 
-    while (readRegByte(MISTAT) & MISTAT_BUSY)
+    while (readRegisterByte(MISTAT) & MISTAT_BUSY)
         ;
 }
-void Enc28j60::writeBuf(const uint8_t* data, uint16_t length)
+void Enc28j60::writeBuffer(const uint8_t* data, uint16_t length)
 {
     spi.select();
 
@@ -563,7 +551,7 @@ void Enc28j60::writeBuf(const uint8_t* data, uint16_t length)
     spi.deselect();
 }
 
-void Enc28j60::readBuf(uint8_t* data, uint16_t length)
+void Enc28j60::readBuffer(uint8_t* data, uint16_t length)
 {
     spi.select();
 
