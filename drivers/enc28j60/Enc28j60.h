@@ -35,24 +35,31 @@ public:
     Enc28j60(SpiDriver& spi_, GpioIn& gpio_);
     void init(uint8_t* mac_address);
     void reset(void);
-    OperationResult transmitFrame(uint8_t* data, uint32_t length);
-    OperationResult receiveFrame(uint8_t* buffer, uint32_t* length);
+    OperationResult transmitFrame(uint8_t* data, uint16_t length);
+    OperationResult receiveFrame(uint8_t* buffer, uint16_t* length);
 protected:
     void interruptHandler(void);
 private:
-    void softReset(void);
-    void setRegBank(uint8_t bank);
-    uint8_t readRegister(uint8_t address);
-    void writeRegister(uint8_t address, uint8_t data);
-    uint8_t readDataByte(void);
-    void writeDataByte(uint8_t byte);
-    uint32_t readData(uint8_t* buffer, uint32_t length);
-    void writeData(uint8_t* data, uint32_t length);
+    uint8_t readOp(uint8_t op, uint8_t address);
+    void writeOp(uint8_t op, uint8_t address, uint8_t data);
+    void setBank(uint8_t address);
+    uint8_t readRegByte (uint8_t address);
+    void writeRegByte(uint8_t address, uint8_t data);
+    uint16_t readReg(uint8_t address);
+    void writeReg(uint8_t address, uint16_t data);
+    uint16_t readPhyByte(uint8_t address);
+    void writePhy(uint8_t address, uint16_t data);
+    void writeBuf(const uint8_t* data, uint16_t len);
+    void readBuf(uint8_t* data, uint16_t len);
+    bool isLinkUp(void);
 private:
     SpiDriver& spi;
     GpioIn& gpio;
 
     Enc28j60Callback callback;
+
+    uint8_t  currentBank;
+    uint32_t nextPacketPtr;
 };
 
 #endif /* ENC268J60_H_ */
