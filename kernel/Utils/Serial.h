@@ -24,17 +24,7 @@
 
 class Serial;
 
-class SerialCallback : public Callback
-{
-public:
-    SerialCallback(Serial* object_ = nullptr, \
-                   void(Serial:: *method_)(void) = nullptr):
-                   object(object_), method(method_){}
-    void execute(void) {(object->*method)();}
-private:
-    Serial* object;
-    void(Serial:: *method)(void);
-};
+typedef GenericCallback<Serial> SerialCallback;
 
 class Serial
 {
