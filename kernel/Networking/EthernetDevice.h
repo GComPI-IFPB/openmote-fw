@@ -18,6 +18,8 @@
 
 #include <stdint.h>
 
+#include "Callback.h"
+
 enum OperationResult : int8_t
 {
     ResultError   = -1,
@@ -30,12 +32,13 @@ public:
     EthernetDevice(void);
     virtual void init(uint8_t* mac_address) = 0;
     virtual void reset(void) = 0;
+    virtual void setCallback(Callback* callback_) = 0;
+    virtual void clearCallback(void) = 0;
     virtual OperationResult transmitFrame(uint8_t* data, uint32_t length) = 0;
     virtual OperationResult receiveFrame(uint8_t* buffer, uint32_t* length) = 0;
 protected:
     void setMacAddress(uint8_t* mac_address);
 protected:
-    bool isInitialized;
     uint8_t macAddress[6];
 };
 

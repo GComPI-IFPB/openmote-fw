@@ -27,8 +27,7 @@
 
 /*================================= public ==================================*/
 
-EthernetDevice::EthernetDevice(void):
-    isInitialized(false)
+EthernetDevice::EthernetDevice(void)
 {
 }
 
