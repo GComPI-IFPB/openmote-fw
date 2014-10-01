@@ -33,7 +33,7 @@
 #define RADIO_MODE                          ( RADIO_MODE_TX )
 
 #define PAYLOAD_LENGTH                      ( 125 )
-#define EUI64_LENGTH                        ( 8 )
+#define EUI48_LENGTH                        ( 6 )
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 2 )
 #define RADIO_RX_TASK_PRIORITY              ( tskIDLE_PRIORITY + 0 )
@@ -195,7 +195,7 @@ static void prvRadioTxTask(void *pvParameters)
     txSemaphore = xSemaphoreCreateMutex();
 
     // Get the EUI64 address of the board
-    board.getAddress(radio_buffer);
+    board.getEUI48(radio_buffer);
 
     // Forever
     while (true)
@@ -211,7 +211,7 @@ static void prvRadioTxTask(void *pvParameters)
 
             // Load the EUI64 address to the transmit buffer
             radio_ptr = radio_buffer;
-            radio_len = EUI64_LENGTH;
+            radio_len = EUI48_LENGTH;
             result = radio.loadPacket(radio_ptr, radio_len);
 
             if (result == RadioResult_Success)
