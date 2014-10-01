@@ -31,6 +31,7 @@ MEMORY
 
 SECTIONS
 {
+    /* Holds the Stored in FLASH and copied to SRAM */
     .text :
     {
         _text = .;
@@ -79,6 +80,7 @@ SECTIONS
         _etext = .;
     } > FLASH= 0
 
+    /* Holds variables stored in FLASH and copied to SRAM upon initialization */
     .data :
     {
         . = ALIGN(4);
@@ -88,12 +90,7 @@ SECTIONS
         _edata = .;
     } > SRAM AT > FLASH
 
-    .ARM.exidx :
-    {
-        . = ALIGN(4);
-        *(.ARM.exidx*)
-    } > FLASH
-
+    /* Holds unitialized variables stored in RAM */
     .bss :
     {
         . = ALIGN(4);
@@ -103,11 +100,21 @@ SECTIONS
         _ebss = .;
     } > SRAM
 
+    /* Hods the CCA section of the CC2538*/
     .flashcca :
     {
         . = ALIGN(4);
         KEEP(*(.flashcca))
     } > FLASH_CCA
+    
+    /* Contains information to unwind the stack for debugging purposes */
+    PROVIDE_HIDDEN (__exidx_start = .);
+    .ARM.exidx :
+    {
+        . = ALIGN(4);
+        *(.ARM.exidx*)
+    } > FLASH
+    PROVIDE_HIDDEN (__exidx_end = .);
     
     /DISCARD/ :
     {

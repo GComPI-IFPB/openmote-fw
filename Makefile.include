@@ -29,7 +29,6 @@ CPPFLAGS += -Wl,--gc-sections
 CPPFLAGS += -fno-unwind-tables
 CPPFLAGS += -fno-exceptions
 CPPFLAGS += -fno-builtin
-CPPFLAGS += -fno-common
 CPPFLAGS += -fno-rtti
 CPPFLAGS += -std=c++11
 CPPFLAGS += -Wall
@@ -40,6 +39,7 @@ CPPFLAGS += $(DOPTIONS)
 # Linker flags
 LDFLAGS += $(CPPFLAGS)
 LDFLAGS += --specs=nosys.specs
+LDFLAGS += -Wl,--defsym -Wl,__cxa_pure_virtual=0
 
 # Binary flags
 OBJCOPY_FLAGS += -O binary --gap-fill 0xFF
