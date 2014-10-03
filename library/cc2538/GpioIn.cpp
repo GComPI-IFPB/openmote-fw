@@ -53,7 +53,7 @@ void GpioIn::setCallback(Callback* callback_)
     callback = callback_;
 
     // Get a reference to the interruptHandler object
-    InterruptHandler & interruptHandler = InterruptHandler::getInstance();
+    InterruptHandler& interruptHandler = InterruptHandler::getInstance();
 
     // Register to the interruptHandler by passing a pointer to the object
     interruptHandler.setInterruptHandler(this);
