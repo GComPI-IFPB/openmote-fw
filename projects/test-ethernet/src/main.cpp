@@ -25,8 +25,8 @@
 
 /*================================ define ===================================*/
 
-#define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
-#define ETHERNET_TASK_PRIORITY              ( tskIDLE_PRIORITY + 0 )
+#define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
+#define ETHERNET_TASK_PRIORITY              ( tskIDLE_PRIORITY + 1 )
 
 /*================================ typedef ==================================*/
 
@@ -35,11 +35,13 @@
 static void prvGreenLedTask(void *pvParameters);
 static void prvEthernetTask(void *pvParameters);
 
+static void ethernet_process_rx(void);
+
 /*=============================== variables =================================*/
 
-uint8_t eui48_address[6];
+static uint8_t eui48_address[6];
 
-uint8_t tx_frame[] =
+static uint8_t  tx_frame[] =
                     { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                       0x80, 0x00,
@@ -47,11 +49,17 @@ uint8_t tx_frame[] =
                       0x74, 0x73, 0x2C, 0x20, 0x65, 0x6D, 0x62, 0x65, 0x64, 0x64,
                       0x65, 0x64, 0x20, 0x69, 0x6E, 0x74, 0x65, 0x6C, 0x6C, 0x69,
                       0x67, 0x65, 0x6E, 0x63, 0x65, 0x20, 0x21 };
+static uint8_t* tx_frame_ptr = tx_frame;
+static uint32_t tx_frame_len = sizeof(tx_frame);
 
-uint8_t* tx_frame_ptr = tx_frame;
-uint32_t tx_frame_len = sizeof(tx_frame);
+static uint8_t  rx_frame[128];
+static uint8_t* rx_frame_ptr = rx_frame;
+static uint32_t rx_frame_len = sizeof(rx_frame);
 
-Ethernet ethernet(enc28j60);
+static xSemaphoreHandle ethernet_rx_semaphore;
+static PlainCallback    ethernet_rx_callback(&ethernet_process_rx);
+
+static Ethernet ethernet(enc28j60);
 
 /*================================= public ==================================*/
 
@@ -75,28 +83,6 @@ int main (void)
 
 /*================================ private ==================================*/
 
-static void prvEthernetTask(void *pvParameters)
-{
-    // Get EUI-48 address
-    board.getEUI48(eui48_address);
-
-    // Set the EUI-48 address to the transmit frame
-    memcpy(&tx_frame[6], eui48_address, 6);
-
-    // Use the EUI-48 address as the MAC address
-    ethernet.init(eui48_address);
-
-    // Forever
-    while (true)
-    {
-        // Transmit a packet every second
-        vTaskDelay(1000 / portTICK_RATE_MS);
-
-        // Send Ethernet payload
-        ethernet.transmitFrame(tx_frame_ptr, tx_frame_len);
-    }
-}
-
 static void prvGreenLedTask(void *pvParameters)
 {
     // Forever
@@ -110,4 +96,62 @@ static void prvGreenLedTask(void *pvParameters)
         led_green.on();
         vTaskDelay(50 / portTICK_RATE_MS);
     }
+}
+
+static void prvEthernetTask(void *pvParameters)
+{
+    // Get EUI-48 address
+    board.getEUI48(eui48_address);
+
+    // Set the EUI-48 address to the transmit frame
+    memcpy(&tx_frame[6], eui48_address, 6);
+
+    // Use the EUI-48 address as the MAC address
+    ethernet.init(eui48_address);
+
+    // Register Ethernet callback
+    ethernet.setCallback(&ethernet_rx_callback);
+
+    // Create and initialize semaphore
+    ethernet_rx_semaphore = xSemaphoreCreateMutex();
+    xSemaphoreTake(ethernet_rx_semaphore, (TickType_t) portMAX_DELAY);
+
+    vTaskDelay(2500 / portTICK_RATE_MS);
+
+    // Forever
+    while (true)
+    {
+        // Send Ethernet payload
+        ethernet.transmitFrame(tx_frame_ptr, tx_frame_len);
+
+        // Try to take the semaphore
+        if (xSemaphoreTake(ethernet_rx_semaphore, (TickType_t) portMAX_DELAY) == pdTRUE)
+        {
+            // Receive the frame
+            ethernet.receiveFrame(rx_frame_ptr, &rx_frame_len);
+
+            // Copy source and destination addresses
+            // memcpy(&tx_frame_ptr[0], &rx_frame_ptr[6], 6);
+            // memcpy(&tx_frame_ptr[6], &rx_frame_ptr[0], 6);
+
+            // Restore frame pointers
+            rx_frame_ptr = rx_frame;
+            rx_frame_len = sizeof(rx_frame);
+
+            vTaskDelay(250 / portTICK_RATE_MS);
+        }
+    }
+}
+
+static void ethernet_process_rx(void)
+{
+    // Determines if the interrupt triggers a context switch
+    static BaseType_t xHigherPriorityTaskWoken;
+    xHigherPriorityTaskWoken = pdFALSE;
+
+    // Give the transmit semaphore as the packet has been transmitted
+    xSemaphoreGiveFromISR(ethernet_rx_semaphore, &xHigherPriorityTaskWoken);
+
+    // Force a context switch after the interrupt if required
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

@@ -1,10 +1,10 @@
 # Project name and files to compile
-PROJECT_NAME  = test-spi
+PROJECT_NAME  = test-serial
 PROJECT_FILES = main.cpp
 PROJECT_DIR   = .
 
 # Location of the root directory
-PROJECT_HOME = ../..
+PROJECT_HOME = ../../..
 
 # Include the current path
 INC_PATH += -I $(PROJECT_DIR)

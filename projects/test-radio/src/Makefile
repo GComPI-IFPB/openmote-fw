@@ -1,10 +1,10 @@
 # Project name and files to compile
-PROJECT_NAME  = test-leds
+PROJECT_NAME  = test-radio
 PROJECT_FILES = main.cpp
 PROJECT_DIR   = .
 
 # Location of the root directory
-PROJECT_HOME = ../..
+PROJECT_HOME = ../../..
 
 # Include the current path
 INC_PATH += -I $(PROJECT_DIR)
