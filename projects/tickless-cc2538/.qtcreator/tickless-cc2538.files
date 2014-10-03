@@ -1,5 +1,6 @@
-../FreeRTOSConfig.h
-../main.cpp
+../src/cc2538_lowpower.c
+../src/FreeRTOSConfig.h
+../src/main.cpp
 ../../../board/openmote-cc2538.cpp
 ../../../board/openmote-cc2538.h
 ../../../drivers/Sensor.h
