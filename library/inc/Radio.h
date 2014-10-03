@@ -65,7 +65,7 @@ protected:
     void interruptHandler(void);
     void errorHandler(void);
 private:
-    volatile RadioState radioState = RadioState_Off;
+    volatile RadioState radioState;
 
     Callback* rxInit;
     Callback* rxDone;

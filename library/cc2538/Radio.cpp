@@ -87,7 +87,10 @@
 
 /*================================= public ==================================*/
 
-Radio::Radio()
+Radio::Radio():
+    radioState(RadioState_Off), \
+    rxInit(nullptr), rxDone(nullptr), \
+	txInit(nullptr), txDone(nullptr)
 {
 }
 
