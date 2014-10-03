@@ -546,7 +546,9 @@ void Enc28j60::writeBuffer(const uint8_t* data, uint16_t length)
 
     spi.writeByte(ENC28J60_WRITE_BUF_MEM);
     while (length--)
+    {
         spi.writeByte(*data++);
+    }
 
     spi.deselect();
 }
@@ -556,7 +558,8 @@ void Enc28j60::readBuffer(uint8_t* data, uint16_t length)
     spi.select();
 
     spi.writeByte(ENC28J60_READ_BUF_MEM);
-    while (length--) {
+    while (length--)
+    {
         *data++ = spi.readByte();
     }
 
