@@ -32,18 +32,17 @@ class Ethernet
 public:
     Ethernet(EthernetDevice& ethernetDevice_);
     void init(uint8_t* mac_address);
+    void setCallback(Callback* callback_);
+    void clearCallback(void);
     void transmitFrame(uint8_t* frame, uint32_t length);
-    void receiveFrame(uint8_t* buffer, uint32_t length);
+    void receiveFrame(uint8_t* buffer, uint32_t* length);
 private:
     void interruptHandler(void);
 private:
     EthernetDevice& ethernetDevice;
-
     EthernetCallback interrupt;
 
-    uint8_t rx_buffer[1518];
-    uint8_t* rx_buffer_ptr;
-    uint32_t rx_buffer_len;
+    Callback* callback = nullptr;
 
     uint32_t receivedFrames;
     uint32_t receivedFramesError;

@@ -44,7 +44,7 @@ static uint8_t eui48_address[6];
 static uint8_t  tx_frame[] =
                     { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                      0x80, 0x00,
+                      0x08, 0x00,
                       0x53, 0x68, 0x69, 0x6E, 0x69, 0x6E, 0x67, 0x20, 0x42, 0x69,
                       0x74, 0x73, 0x2C, 0x20, 0x65, 0x6D, 0x62, 0x65, 0x64, 0x64,
                       0x65, 0x64, 0x20, 0x69, 0x6E, 0x74, 0x65, 0x6C, 0x6C, 0x69,
@@ -130,9 +130,8 @@ static void prvEthernetTask(void *pvParameters)
             // Receive the frame
             ethernet.receiveFrame(rx_frame_ptr, &rx_frame_len);
 
-            // Copy source and destination addresses
-            // memcpy(&tx_frame_ptr[0], &rx_frame_ptr[6], 6);
-            // memcpy(&tx_frame_ptr[6], &rx_frame_ptr[0], 6);
+            // Copy destination addresses to the transmit packet
+            memcpy(&tx_frame_ptr[0], &rx_frame_ptr[6], 6);
 
             // Restore frame pointers
             rx_frame_ptr = rx_frame;
