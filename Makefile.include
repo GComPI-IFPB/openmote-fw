@@ -16,9 +16,9 @@ CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -fshort-enums -fomit-frame-pointer
 CFLAGS += -Wl,--gc-sections
 CFLAGS += -std=c99
-CFLAGS += -Wall
+CFLAGS += -Wall -Wstrict-prototypes
 CFLAGS += -O0
-CFLAGS += -g
+CFLAGS += -g3 -ggdb
 CFLAGS += $(DOPTIONS)
 
 # C++ compiling flags
@@ -33,12 +33,12 @@ CPPFLAGS += -fno-rtti
 CPPFLAGS += -std=c++11
 CPPFLAGS += -Wall
 CPPFLAGS += -O0
-CPPFLAGS += -g
+CPPFLAGS += -g3 -ggdb
 CPPFLAGS += $(DOPTIONS)
 
 # Linker flags
-LDFLAGS += $(CPPFLAGS)
-LDFLAGS += --specs=nosys.specs
+LDFLAGS += -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd -mlittle-endian
+LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,--defsym -Wl,__cxa_pure_virtual=0
 
 # Binary flags
