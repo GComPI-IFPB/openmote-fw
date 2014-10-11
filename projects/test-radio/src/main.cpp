@@ -31,6 +31,7 @@
 #define RADIO_MODE_RX                       ( 0 )
 #define RADIO_MODE_TX                       ( 1 )
 #define RADIO_MODE                          ( RADIO_MODE_TX )
+#define RADIO_CHANNEL                       ( 26 )
 
 #define PAYLOAD_LENGTH                      ( 125 )
 #define EUI48_LENGTH                        ( 6 )
@@ -69,6 +70,7 @@ static uint8_t radio_buffer[PAYLOAD_LENGTH];
 static uint8_t* radio_ptr = radio_buffer;
 static uint8_t  radio_len = sizeof(radio_buffer);
 static int8_t rssi;
+static uint8_t lqi;
 static uint8_t crc;
 
 static uint8_t uart_buffer[PAYLOAD_LENGTH];
@@ -89,6 +91,7 @@ int main (void)
     radio.setRxCallbacks(&rxInitCallback, &rxDoneCallback);
     radio.enable();
     radio.enableInterrupts();
+    radio.setChannel(RADIO_CHANNEL);
 
     // Create the blink task
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
@@ -157,7 +160,7 @@ static void prvRadioRxTask(void *pvParameters)
             // Get a packet from the radio buffer
             radio_ptr = radio_buffer;
             radio_len = sizeof(radio_buffer);
-            result = radio.getPacket(radio_ptr, &radio_len, &rssi, &crc);
+            result = radio.getPacket(radio_ptr, &radio_len, &rssi, &lqi, &crc);
 
             if (result == RadioResult_Success && crc)
             {
