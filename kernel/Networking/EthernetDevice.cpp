@@ -27,10 +27,6 @@
 
 /*================================= public ==================================*/
 
-EthernetDevice::EthernetDevice(void)
-{
-}
-
 /*=============================== protected =================================*/
 
 void EthernetDevice::setMacAddress(uint8_t* mac_address)

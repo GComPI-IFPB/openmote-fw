@@ -29,7 +29,6 @@ enum OperationResult : int8_t
 class EthernetDevice
 {
 public:
-    EthernetDevice(void);
     virtual void init(uint8_t* mac_address) = 0;
     virtual void reset(void) = 0;
     virtual void setCallback(Callback* callback_) = 0;
