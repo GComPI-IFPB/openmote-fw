@@ -40,7 +40,7 @@
 
 // Defines for the packet
 #define CC2538_RF_MAX_PACKET_LEN                ( 127 )
-#define CC2538_RF_MIN_PACKET_LEN                ( 4 )
+#define CC2538_RF_MIN_PACKET_LEN                ( 3 )
 
 // Defines for the CCA (Clear Channel Assessment)
 #define CC2538_RF_CCA_CLEAR                     ( 0x01 )
@@ -247,6 +247,7 @@ void Radio::enableInterrupts(void)
 
     // Set the UART interrupt priority
     IntPrioritySet(INT_RFCORERTX, (7 << 5));
+    // IntPrioritySet(INT_RFCOREERR, (7 << 5));
 
     /* Enable radio interrupts */
     IntEnable(INT_RFCORERTX);
@@ -324,16 +325,11 @@ void Radio::receive(void)
  */
 RadioResult Radio::loadPacket(uint8_t* data, uint8_t length)
 {
+    uint8_t packetLength;
+
     /* Make sure previous transmission is not still in progress */
     while (HWREG(RFCORE_XREG_FSMSTAT1) & RFCORE_XREG_FSMSTAT1_TX_ACTIVE)
         ;
-
-    /* Check if packet is too long */
-    if ((length > CC2538_RF_MAX_PACKET_LEN))
-    {
-        /* Return error */
-        return RadioResult_Error;
-    }
 
     /* Check if the radio state is correct */
     if (radioState != RadioState_Idle)
@@ -342,11 +338,22 @@ RadioResult Radio::loadPacket(uint8_t* data, uint8_t length)
         return RadioResult_Error;
     }
 
+    /* Account for the CRC bytes */
+    packetLength = length + 2;
+
+    /* Check if packet is too long */
+    if ((packetLength >  CC2538_RF_MAX_PACKET_LEN) ||
+        (packetLength <= CC2538_RF_MIN_PACKET_LEN))
+    {
+        /* Return error */
+        return RadioResult_Error;
+    }
+
     /* Flush the TX buffer */
     CC2538_RF_CSP_ISFLUSHTX();
 
-    /* Append the PHY length byte first */
-    HWREG(RFCORE_SFR_RFDATA) = length;
+    /* Append the PHY length to the TX buffer */
+    HWREG(RFCORE_SFR_RFDATA) = packetLength;
 
     /* Append the packet payload to the TX buffer */
     for (uint8_t i = 0; i < length; i++)
@@ -360,16 +367,24 @@ RadioResult Radio::loadPacket(uint8_t* data, uint8_t length)
 
 /**
  * When reading the packet from the RX buffer, you get the following:
- * - *[1B]      Length
+ * - *[1B]      Length  (excluding itself)
  * -  [0-125B]  Payload (excluding CRC)
  * - *[2B]      CRC
- * - Notice in sniffer mode the CRC field get replaced by:
+ * - Notice that the CRC field gets replaced by:
  * - *[1B]      RSSI (signed 2s complement)
- * - *[1B]      CRC_OK (1 bit) + Correlation (7 bits)
+ * - *[1B]      CRC_OK (1 bit) + LQI (7 bits)
  */
-RadioResult Radio::getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uint8_t* crc)
+RadioResult Radio::getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uint8_t* lqi, uint8_t* crc)
 {
     uint8_t packetLength;
+    uint8_t scratch;
+
+    /* Check if the radio state is correct */
+    if (radioState != RadioState_ReceiveDone)
+    {
+        /* Return error */
+        return RadioResult_Error;
+    }
 
     /* Check the packet length (first byte) */
     packetLength = HWREG(RFCORE_SFR_RFDATA);
@@ -385,7 +400,10 @@ RadioResult Radio::getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uin
         return RadioResult_Error;
     }
 
-    /* Check if the packet fits to the buffer */
+    /* Account for the CRC bytes */
+    packetLength -= 2;
+
+    /* Check if the packet fits in the buffer */
     if (packetLength > *length)
     {
         /* Flush the RX buffer */
@@ -395,15 +413,8 @@ RadioResult Radio::getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uin
         return RadioResult_Error;
     }
 
-    /* Check if the radio state is correct */
-    if (radioState != RadioState_ReceiveDone)
-    {
-        /* Return error */
-        return RadioResult_Error;
-    }
-
     /* Copy the RX buffer to the buffer (except for the CRC) */
-    for (uint8_t i = 0; i < (packetLength - 2); i++)
+    for (uint8_t i = 0; i < packetLength; i++)
     {
         buffer[i] = HWREG(RFCORE_SFR_RFDATA);
     }
@@ -411,7 +422,9 @@ RadioResult Radio::getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uin
     /* Update the packet length, RSSI and CRC */
     *length    = packetLength;
     *rssi      = ((int8_t) (HWREG(RFCORE_SFR_RFDATA)) - CC2538_RF_RSSI_OFFSET);
-    *crc       = HWREG(RFCORE_SFR_RFDATA) & CC2538_RF_CRC_BITMASK;
+    scratch    = HWREG(RFCORE_SFR_RFDATA);
+    *crc       = scratch & CC2538_RF_CRC_BITMASK;
+    *lqi       = scratch & CC2538_RF_LQI_BITMASK;
 
     /* Flush the RX buffer */
     CC2538_RF_CSP_ISFLUSHRX();
