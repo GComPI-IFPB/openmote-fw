@@ -53,7 +53,7 @@ void Ethernet::clearCallback(void)
     callback = nullptr;
 }
 
-void Ethernet::transmitFrame(uint8_t *frame, uint32_t length)
+void Ethernet::transmitFrame(uint8_t* frame, uint32_t length)
 {
     OperationResult result;
 
