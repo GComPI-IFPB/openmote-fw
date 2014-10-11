@@ -28,6 +28,7 @@
 #define RADIO_MODE_RX                       ( 0 )
 #define RADIO_MODE_TX                       ( 1 )
 #define RADIO_MODE                          ( RADIO_MODE_RX )
+#define RADIO_CHANNEL                       ( 26 )
 
 #define PAYLOAD_LENGTH                      ( 125 )
 
@@ -67,6 +68,7 @@ static uint8_t radio_buffer[PAYLOAD_LENGTH];
 static uint8_t* radio_ptr = radio_buffer;
 static uint8_t  radio_len = sizeof(radio_buffer);
 static int8_t rssi;
+static uint8_t lqi;
 static uint8_t crc;
 
 /*================================= public ==================================*/
@@ -84,6 +86,7 @@ int main (void)
     radio.setRxCallbacks(&rxInitCallback, &rxDoneCallback);
     radio.enable();
     radio.enableInterrupts();
+    radio.setChannel(RADIO_CHANNEL);
 
     // Create three FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
@@ -165,7 +168,7 @@ static void prvRadioRxTask(void *pvParameters)
             led_yellow.off();
 
             // Get a packet from the radio buffer
-            result = radio.getPacket(radio_ptr, &radio_len, &rssi, &crc);
+            result = radio.getPacket(radio_ptr, &radio_len, &rssi, &lqi, &crc);
 
             // Check the result of the operation and the packet CRC
             if (result == RadioResult_Success && crc)
