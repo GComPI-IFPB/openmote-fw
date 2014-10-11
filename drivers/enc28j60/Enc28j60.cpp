@@ -265,7 +265,6 @@
 /*================================= public ==================================*/
 
 Enc28j60::Enc28j60(SpiDriver& spi_, GpioIn& gpio_):
-    EthernetDevice(), \
     spi(spi_), gpio(gpio_), \
     interrupt(this, &Enc28j60::interruptHandler), \
     callback(nullptr), \
