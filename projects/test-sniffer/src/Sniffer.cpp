@@ -15,12 +15,14 @@
 
 /*================================ include ==================================*/
 
+#include <string.h>
+
 #include "Sniffer.h"
-#include "Board.h"
+#include "GpioOut.h"
 
-#include "string.h"
-
-#include "openmote-cc2538.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
 
 /*================================ define ===================================*/
 
@@ -29,6 +31,9 @@
 /*=============================== prototypes ================================*/
 
 /*=============================== variables =================================*/
+
+extern GpioOut led_red;
+extern GpioOut led_orange;
 
 const uint8_t Sniffer::broadcastAddress[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 const uint8_t Sniffer::ethernetType[2]     = {0x80, 0x9A};
@@ -39,8 +44,8 @@ Sniffer::Sniffer(Board& board, Ethernet& ethernet, Radio& radio):
     board_(board), ethernet_(ethernet), radio_(radio), \
     snifferRadioRxInitCallback_(this, &Sniffer::radioRxInitCallback), \
     snifferRadioRxDoneCallback_(this, &Sniffer::radioRxDoneCallback), \
-    radioBuffer_ptr(radioBuffer), radioBuffer_len(sizeof(radioBuffer)), \
-    ethernetBuffer_ptr(ethernetBuffer), ethernetBuffer_len(sizeof(ethernetBuffer))
+    ethernetBuffer_ptr(ethernetBuffer), ethernetBuffer_len(sizeof(ethernetBuffer)), \
+    radioBuffer_ptr(radioBuffer), radioBuffer_len(sizeof(radioBuffer))
 {
 }
 
@@ -72,12 +77,14 @@ void Sniffer::start(void)
     // Start receiving
     radio_.on();
     radio_.receive();
+    led_orange.on();
 }
 
 void Sniffer::stop(void)
 {
     // Stop receiving
     radio_.off();
+    led_orange.off();
 }
 
 void Sniffer::setChannel(uint8_t channel)

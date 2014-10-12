@@ -17,16 +17,11 @@
 #ifndef SNIFFER_H_
 #define SNIFFER_H_
 
-#include <stdint.h>
-
 #include "Board.h"
+#include "Callback.h"
 #include "Ethernet.h"
 #include "Radio.h"
-
-#include "Callback.h"
-
-#include "FreeRTOS.h"
-#include "semphr.h"
+#include "Serial.h"
 
 class Sniffer;
 
@@ -61,18 +56,17 @@ private:
     static const uint8_t broadcastAddress[6];
     static const uint8_t ethernetType[2];
 
+    uint8_t  ethernetBuffer[255];
+    uint8_t* ethernetBuffer_ptr;
+    uint32_t ethernetBuffer_len;
+
     uint8_t  radioBuffer[128];
     uint8_t* radioBuffer_ptr;
     uint8_t  radioBuffer_len;
 
-    uint8_t  ethernetBuffer[255];
-    uint8_t* ethernetBuffer_ptr;
-    uint32_t  ethernetBuffer_len;
-
     int8_t  rssi;
     uint8_t lqi;
     uint8_t crc;
-
 };
 
 #endif /* SNIFFER_H_ */
