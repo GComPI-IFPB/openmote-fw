@@ -98,16 +98,19 @@ void Sniffer::processRadioFrame(void)
         radioBuffer_len = sizeof(radioBuffer);
         result = radio_.getPacket(radioBuffer_ptr, &radioBuffer_len, &rssi, &lqi, &crc);
 
-        // Turn off the radio
-        radio_.off();
+        if (result == RadioResult_Success)
+        {
+            // Turn off the radio
+            radio_.off();
 
-        // Initialize Ethernet frame
-        ethernetBuffer_ptr = ethernetBuffer;
-        ethernetBuffer_len = sizeof(ethernetBuffer);
-        initEthernetFrame(radioBuffer_ptr, radioBuffer_len, rssi, lqi, crc);
+            // Initialize Ethernet frame
+            ethernetBuffer_ptr = ethernetBuffer;
+            ethernetBuffer_len = sizeof(ethernetBuffer);
+            initEthernetFrame(radioBuffer_ptr, radioBuffer_len, rssi, lqi, crc);
 
-        // Transmit the radio frame over Ethernet
-        ethernet_.transmitFrame(ethernetBuffer_ptr, ethernetBuffer_len);
+            // Transmit the radio frame over Ethernet
+            ethernet_.transmitFrame(ethernetBuffer_ptr, ethernetBuffer_len);
+        }
     }
 }
 

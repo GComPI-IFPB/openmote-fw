@@ -54,8 +54,8 @@ static uint8_t serial_buffer[32];
 static uint8_t* serial_buffer_ptr;
 static uint8_t serial_buffer_len;
 
-static uint8_t command;
-static uint8_t channel;
+static uint8_t sniffer_command;
+static uint8_t sniffer_channel;
 
 /*================================= public ==================================*/
 
@@ -105,31 +105,35 @@ static void prvSerialTask(void *pvParamters)
 {
     while (true)
     {
+        // Reset the buffer pointer and length
+        serial_buffer_ptr = serial_buffer;
+        serial_buffer_len = sizeof(serial_buffer);
+
         // Wait until we receive a command
-        serial.scanf(serial_buffer_ptr, serial_buffer_len);
+        serial_buffer_len = serial.scanf(serial_buffer_ptr, serial_buffer_len);
 
         // Check the length of the buffer and update variables
         if (serial_buffer_len == 2)
         {
-            command = serial_buffer[0];
-            channel = serial_buffer[1];
+            sniffer_command = serial_buffer[0];
+            sniffer_channel = serial_buffer[1];
         }
 
         // Check if the received command is valid
-        if (command == SERIAL_CHANGE_CHANNEL_CMD) {
+        if (sniffer_command == SERIAL_CHANGE_CHANNEL_CMD) {
             // Stop the sniffer prior to updating the channel
             sniffer.stop();
 
             // Change the sniffer channel
-            sniffer.setChannel(channel);
+            sniffer.setChannel(sniffer_channel);
 
             // Re-start the sniffer
             sniffer.start();
         }
-
-        // Restore variables
-        command = 0x00;
-        channel = 0x00;
+        
+        // Reset the sniffer command and channel
+        sniffer_command = 0x00;
+        sniffer_channel = 0x00;
     }
 }
 
