@@ -15,18 +15,22 @@
 
 /*================================ include ==================================*/
 
+#include "Callback.h"
+
+#include "openmote-cc2538.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
 
-#include "openmote-cc2538.h"
-
-#include "Callback.h"
-
 /*================================ define ===================================*/
 
+// Defines the tasks priorities
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
 #define BUTTON_TASK_PRIORITY                ( tskIDLE_PRIORITY + 0 )
+
+// Defines the Flash address
+#define CC2538_FLASH_ADDRESS                ( 0x0027F800 )
 
 /*================================ typedef ==================================*/
 
@@ -74,8 +78,11 @@ static void buttonCallback(void)
 
 static void prvButtonTask(void *pvParameters)
 {
-    // Create the button semaphore
+    static bool flashErase = false;
+
+    // Create and take the button semaphore
     buttonSemaphore = xSemaphoreCreateMutex();
+    xSemaphoreTake(buttonSemaphore, (TickType_t)portMAX_DELAY);
 
     // Configure the user button
     button_user.setCallback(&userCallback);
@@ -87,8 +94,18 @@ static void prvButtonTask(void *pvParameters)
         // Take the buttonSemaphore, block until available
         if (xSemaphoreTake(buttonSemaphore, (TickType_t) portMAX_DELAY) == pdTRUE)
         {
-            // Toggle the red LED
-            led_red.toggle();
+            // Check if we need to erase the Flash
+            if (flashErase == true)
+            {
+                FlashMainPageErase(CC2538_FLASH_ADDRESS);
+                SysCtrlReset();
+            }
+
+            // Now we need to erase the Flash
+            flashErase = true;
+
+            // Notify that we will erase the Flash
+            led_red.on();
         }
     }
 }
