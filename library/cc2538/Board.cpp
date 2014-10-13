@@ -18,6 +18,7 @@
 #include <string.h>
 
 #include "Board.h"
+#include "GpioInPow.h"
 
 #include "cc2538_include.h"
 
@@ -28,6 +29,9 @@
 #define CC2538_EUI64_ADDRESS_HI_L               ( 0x0028002C )
 #define CC2538_EUI64_ADDRESS_LO_H               ( 0x0028002B )
 #define CC2538_EUI64_ADDRESS_LO_L               ( 0x00280028 )
+
+// Defines the Flash address
+#define CC2538_FLASH_ADDRESS                    ( 0x0027F800 )
 
 /*================================ typedef ==================================*/
 
@@ -46,12 +50,15 @@ enum SleepMode : uint8_t {
 
 /*=============================== variables =================================*/
 
+extern GpioInPow button_user;
+
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/
 
 Board::Board():
-    sleepMode(SleepMode_None)
+    sleepMode(SleepMode_None), \
+    flashEraseCallback(this, &Board::flashEraseCallback_)
 {
     /**
      * Configure the 32 kHz pins, PD6 and PD7, for crystal operation
@@ -126,6 +133,12 @@ void Board::disableInterrupts(void)
     IntMasterDisable();
 }
 
+void Board::enableFlashErase(void)
+{
+    button_user.setCallback(&flashEraseCallback);
+    button_user.enableInterrupt();
+}
+
 void Board::getEUI48(uint8_t* address)
 {
     uint8_t temp[8];
@@ -154,3 +167,10 @@ void Board::getEUI64(uint8_t* address)
 /*=============================== protected =================================*/
 
 /*================================ private ==================================*/
+
+void Board::flashEraseCallback_(void)
+{
+    IntMasterDisable();
+    FlashMainPageErase(CC2538_FLASH_ADDRESS);
+    SysCtrlReset();
+}

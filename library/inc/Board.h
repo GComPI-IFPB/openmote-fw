@@ -18,7 +18,13 @@
 
 #include <stdint.h>
 
+#include "Callback.h"
+
 enum SleepMode : uint8_t;
+
+class Board;
+
+typedef GenericCallback<Board> BoardCallback;
 
 class Board {
 public:
@@ -29,10 +35,14 @@ public:
     void wakeup(void);
     void enableInterrupts(void);
     void disableInterrupts(void);
+    void enableFlashErase(void);
     void getEUI48(uint8_t* address);
     void getEUI64(uint8_t* address);
 private:
+    void flashEraseCallback_(void);
+private:
     SleepMode sleepMode;
+    BoardCallback flashEraseCallback;
 };
 
 #endif /* BOARD_H_ */
