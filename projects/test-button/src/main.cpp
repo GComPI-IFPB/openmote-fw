@@ -97,7 +97,10 @@ static void prvButtonTask(void *pvParameters)
             // Check if we need to erase the Flash
             if (flashErase == true)
             {
+                // Erase the Flash page
                 FlashMainPageErase(CC2538_FLASH_ADDRESS);
+
+                // Reset the system
                 SysCtrlReset();
             }
 
