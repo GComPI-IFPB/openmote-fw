@@ -15,17 +15,17 @@
 
 /*================================ include ==================================*/
 
-#include "string.h"
-
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
-
-#include "openmote-cc2538.h"
+#include <string.h>
 
 #include "Callback.h"
 #include "Serial.h"
 #include "Sniffer.h"
+
+#include "openmote-cc2538.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
 
 /*================================ define ===================================*/
 
@@ -64,20 +64,22 @@ int main (void)
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
 
+    // Enable erasing the Flash with the user button
+    board.enableFlashErase();
+
     // Enable the SPI peripheral
     spi.enable(SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE);
 
-    // Enable the Serial
+    // Enable the UART peripheral
     uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
-    serial.enable();
 
     // Create the blink task
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
 
-    // Create the sniffer task
+    // Create the sniffer task to process packets
     xTaskCreate(prvSnifferTask, (const char *) "Sniffer", 128, NULL, SNIFFER_TASK_PRIORITY, NULL);
 
-    // Create the sniffer task
+    // Create the serial task to receive commands
     xTaskCreate(prvSerialTask, (const char *) "Serial", 128, NULL, SERIAL_TASK_PRIORITY, NULL);
 
     // Kick the FreeRTOS scheduler
@@ -103,6 +105,9 @@ static void prvGreenLedTask(void *pvParameters)
 
 static void prvSerialTask(void *pvParamters)
 {
+    // Init the serial
+    serial.init();
+
     while (true)
     {
         // Reset the buffer pointer and length
@@ -130,7 +135,7 @@ static void prvSerialTask(void *pvParamters)
             // Re-start the sniffer
             sniffer.start();
         }
-        
+
         // Reset the sniffer command and channel
         sniffer_command = 0x00;
         sniffer_channel = 0x00;
