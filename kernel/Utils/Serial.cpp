@@ -38,7 +38,7 @@ Serial::Serial(UartDriver& uart_):
 {
 }
 
-void Serial::enable(void)
+void Serial::init(void)
 {
     // Register UART callbacks
     uart.setRxCallback(&rxCallback);

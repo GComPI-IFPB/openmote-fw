@@ -30,7 +30,7 @@ class Serial
 {
 public:
     Serial(UartDriver& uart);
-    void enable(void);
+    void init(void);
     void printf(uint8_t* data, uint32_t size);
     uint32_t scanf(uint8_t* buffer, uint32_t size);
 private:
