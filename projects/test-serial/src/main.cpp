@@ -56,7 +56,7 @@ int main (void)
 
     // Enable the UART peripheral and the serial driver
     uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
-    serial.enable();
+    serial.init();
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
