@@ -17,7 +17,7 @@ before_install:
     - sudo apt-get update
 
 install:
-    - sudo apt-get install build-essential gcc-multilib gcc-arm-none-eabi g++-multilib
+    - sudo apt-get install build-essential gcc-multilib gcc-arm-none-eabi g++-multilib libnewlib-dev
     - wget http://mirrors.kernel.org/ubuntu/pool/universe/libs/libstdc++-arm-none-eabi/libstdc++-arm-none-eabi-newlib_4.8.3-11ubuntu1+4_all.deb
     - sudo dpkg -i libstdc++-arm-none-eabi-newlib_4.8.3-11ubuntu1+4_all.deb
 
