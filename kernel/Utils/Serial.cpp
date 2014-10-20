@@ -91,7 +91,6 @@ uint32_t Serial::scanf(uint8_t* buffer, uint32_t size)
 
     // Update the length value and account for the CRC bytes
     length = rxBuffer.getSize() - CRC_LENGTH;
-    size = length;
 
     // Check for buffer overflow
     if (length <= size)
@@ -134,8 +133,10 @@ void Serial::rxCallback_(void)
     hdlcStatus = hdlc.rxPut(byte);
 
     if (hdlcStatus == HdlcStatus_Done) // If HDLC frame is completed
-    {        // Close the HDLC frame
+    {
+        // Close the HDLC frame
         status = hdlc.rxClose();
+
         if (status) // CRC valid
         {
             uart.rxUnlockFromInterrupt();

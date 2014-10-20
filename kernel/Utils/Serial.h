@@ -29,7 +29,7 @@ typedef GenericCallback<Serial> SerialCallback;
 class Serial
 {
 public:
-    Serial(UartDriver& uart);
+    Serial(UartDriver& uart_);
     void init(void);
     void printf(uint8_t* data, uint32_t size);
     uint32_t scanf(uint8_t* buffer, uint32_t size);
