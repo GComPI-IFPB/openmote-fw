@@ -22,7 +22,7 @@ install:
     - sudo dpkg -i libstdc++-arm-none-eabi-newlib_4.8.3-11ubuntu1+4_all.deb
 
 script:
-    - bash .travis.bash
+    - bash .travis.build
 
 notifications:
     email: false
