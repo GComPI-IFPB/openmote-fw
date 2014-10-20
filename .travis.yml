@@ -1,0 +1,38 @@
+language: c
+
+cache: apt
+
+env:
+    - NPROC_MAX=8
+
+before_install:
+    - sudo apt-get install emdebian-archive-keyring
+    - echo 'deb http://www.emdebian.org/debian wheezy main' | sudo tee /etc/apt/sources.list.d/emdebian.list > /dev/null
+
+    - echo 'deb http://us.archive.ubuntu.com/ubuntu trusty           main restricted universe multiverse' | sudo tee    /etc/apt/sources.list.d/trusty.list > /dev/null
+    - echo 'deb http://us.archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse' | sudo tee -a /etc/apt/sources.list.d/trusty.list > /dev/null
+    - echo 'deb http://us.archive.ubuntu.com/ubuntu trusty-security  main restricted universe multiverse' | sudo tee -a /etc/apt/sources.list.d/trusty.list > /dev/null
+    - echo 'deb http://us.archive.ubuntu.com/ubuntu trusty-updates   main restricted universe multiverse' | sudo tee -a /etc/apt/sources.list.d/trusty.list > /dev/null
+    - sudo add-apt-repository -y ppa:terry.guo/gcc-arm-embedded
+    - sudo apt-get update
+
+install:
+    - >
+        sudo apt-get install \
+            build-essential \
+            gcc-multilib \
+            gcc-arm-none-eabi \
+            g++-multilib \
+            libstdc++-arm-none-eabi-newlib
+
+before-script:
+    - git config --global user.email "travis@openmote.com"
+    - git config --global user.name "Travis CI"
+    - git checkout https://github.com/OpenMote/firmware.git openmote-firmware
+
+script:
+    - cd openmote-firmware
+    - bash .travis.bash
+
+notifications:
+    email: false
