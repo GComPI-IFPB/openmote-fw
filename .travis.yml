@@ -21,13 +21,8 @@ install:
     - wget http://mirrors.kernel.org/ubuntu/pool/universe/libs/libstdc++-arm-none-eabi/libstdc++-arm-none-eabi-newlib_4.8.3-11ubuntu1+4_all.deb
     - sudo dpkg -i libstdc++-arm-none-eabi-newlib_4.8.3-11ubuntu1+4_all.deb
 
-before-script:
-    - git config --global user.email "travis@openmote.com"
-    - git config --global user.name "Travis CI"
-    - git checkout https://github.com/OpenMote/firmware.git openmote-firmware
-
 script:
-    - cd openmote-firmware
+    - cd OpenMote-firmware
     - bash .travis.bash
 
 notifications:
