@@ -45,6 +45,9 @@ int main (void)
 {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
+    
+    // Enable erasing the Flash with the user button
+    board.enableFlashErase();
 
     // Enable the SPI peripheral
     spi.enable(SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE);

@@ -53,6 +53,9 @@ int main (void)
 {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
+    
+    // Enable erasing the Flash with the user button
+    board.enableFlashErase();
 
     // Enable the UART peripheral and the serial driver
     uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);

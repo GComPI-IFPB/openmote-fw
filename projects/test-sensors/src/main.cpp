@@ -29,7 +29,6 @@
 #define LIGHT_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
 #define TEMPERATURE_TASK_PRIORITY       ( tskIDLE_PRIORITY + 2 )
 #define ACCELERATION_TASK_PRIORITY      ( tskIDLE_PRIORITY + 3 )
-#define BUTTON_TASK_PRIORITY            ( tskIDLE_PRIORITY + 3 )
 
 /*================================ typedef ==================================*/
 
@@ -42,14 +41,8 @@ static void prvGreenLedTask(void *pvParameters);
 static void prvLightTask(void *pvParameters);
 static void prvTemperatureTask(void *pvParameters);
 static void prvAccelerationTask(void *pvParameters);
-static void prvButtonTask(void *pvParameters);
-
-static void buttonCallback(void);
 
 /*=============================== variables =================================*/
-
-static xSemaphoreHandle buttonSemaphore;
-static PlainCallback userCallback(buttonCallback);
 
 /*================================= public ==================================*/
 
@@ -57,6 +50,9 @@ int main (void)
 {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
+    
+    // Enable erasing the Flash with the user button
+    board.enableFlashErase();
 
     // Enable the I2C interface
     i2c.enable(I2C_BAUDRATE);
@@ -66,7 +62,6 @@ int main (void)
     xTaskCreate(prvAccelerationTask, (const char *) "Acceleration", 128, NULL, ACCELERATION_TASK_PRIORITY, NULL);
     xTaskCreate(prvTemperatureTask, (const char *) "Temperature", 128, NULL, TEMPERATURE_TASK_PRIORITY, NULL);
     xTaskCreate(prvLightTask, (const char *) "Light", 128, NULL, LIGHT_TASK_PRIORITY, NULL);
-    xTaskCreate(prvButtonTask, (const char *) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
 
     // Kick the FreeRTOS scheduler
     vTaskStartScheduler();
@@ -85,40 +80,6 @@ TickType_t board_wakeup(TickType_t xModifiableIdleTime)
 }
 
 /*================================ private ==================================*/
-
-static void buttonCallback(void)
-{
-    // Determines if the interrupt triggers a context switch
-    static BaseType_t xHigherPriorityTaskWoken;
-    xHigherPriorityTaskWoken = pdFALSE;
-
-    // Give the button semaphore as the button has been pressed
-    xSemaphoreGiveFromISR(buttonSemaphore, &xHigherPriorityTaskWoken);
-
-    // Force a context switch after the interrupt if required
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-}
-
-static void prvButtonTask(void *pvParameters)
-{
-    // Create the button semaphore
-    buttonSemaphore = xSemaphoreCreateMutex();
-
-    // Configure the user button
-    button_user.setCallback(&userCallback);
-    button_user.enableInterrupt();
-
-    // Forever
-    while (true)
-    {
-        // Take the buttonSemaphore, block until available
-        if (xSemaphoreTake(buttonSemaphore, (TickType_t) portMAX_DELAY) == pdTRUE)
-        {
-            // Toggle the red LED
-            led_red.toggle();
-        }
-    }
-}
 
 static void prvTemperatureTask(void *pvParameters)
 {

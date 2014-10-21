@@ -41,6 +41,9 @@ static PlainCallback timerCallback3(timer3_callback);
 
 int main (void)
 {
+    // Enable erasing the Flash with the user button
+    board.enableFlashErase();
+
     // Initialize Timer0
     timer0.init(800000);
     timer0.setCallback(&timerCallback0);

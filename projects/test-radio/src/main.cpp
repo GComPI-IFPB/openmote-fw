@@ -85,6 +85,9 @@ int main (void)
 {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
+    
+    // Enable erasing the Flash with the user button
+    board.enableFlashErase();
 
     // Enable the IEEE 802.15.4 radio
     radio.setTxCallbacks(&txInitCallback, &txDoneCallback);
