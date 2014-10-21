@@ -9,16 +9,21 @@ cd $PROJECTS
 for PROJECT in *; do
     if [[ -d $PROJECT ]]; then
         cd $PROJECT/$SRC
-        RESULT="Building $PROJECT..."
+        
+        echo -ne "Cleaning $PROJECT..."
+        OUTPUT=$(eval $CLEAN_COMMAND 2>&1)
+        echo -e "ok!"
+        
+        echo -ne "Building $PROJECT..."
         OUTPUT=$(eval $MAKE_COMMAND 2>&1)
+        
         if [[ $OUTPUT == *rror* ]]; then
-            RESULT="$RESULT error!"
-            echo $RESULT
+            echo -e "error!"
             exit 1
         else
-            RESULT="$RESULT ok!"
-            echo $RESULT
+            echo -e "ok!"
         fi
+        
         cd ../..
     fi
 done
