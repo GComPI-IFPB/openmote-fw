@@ -24,6 +24,7 @@
 #include "I2c.h"
 #include "Spi.h"
 #include "Radio.h"
+#include "Rtc.h"
 #include "SysTick.h"
 
 #include "cc2538_include.h"
@@ -45,6 +46,8 @@ Timer* InterruptHandler::TIMER0_interruptVector[2];
 Timer* InterruptHandler::TIMER1_interruptVector[2];
 Timer* InterruptHandler::TIMER2_interruptVector[2];
 Timer* InterruptHandler::TIMER3_interruptVector[2];
+
+Rtc* InterruptHandler::RTC_interruptVector;
 
 Uart* InterruptHandler::UART0_interruptVector;
 Uart* InterruptHandler::UART1_interruptVector;
@@ -390,6 +393,16 @@ void InterruptHandler::clearInterruptHandler(Radio * radio_)
     Radio_interruptVector = nullptr;
 }
 
+void InterruptHandler::setInterruptHandler(Rtc *rtc_)
+{
+    RTC_interruptVector = rtc_;
+}
+
+void InterruptHandler::clearInterruptHandler(Rtc *rtc_)
+{
+    RTC_interruptVector = nullptr;
+}
+
 /*=============================== protected =================================*/
 
 /*================================ private ==================================*/
@@ -433,6 +446,9 @@ InterruptHandler::InterruptHandler()
     // Register the RF CORE and ERROR interrupt handlers
     IntRegister(INT_RFCORERTX, RFCore_InterruptHandler);
     IntRegister(INT_RFCOREERR, RFError_InterruptHandler);
+
+    // Register the RTC interrupt handler
+    SleepModeIntRegister(RTC_InterruptHandler);
 }
 
 inline void InterruptHandler::GPIOA_InterruptHandler(void)
@@ -799,7 +815,6 @@ inline void InterruptHandler::SysTick_InterruptHandler(void)
     SysTick_interruptVector->interruptHandler();
 }
 
-
 inline void InterruptHandler::RFCore_InterruptHandler(void)
 {
     // Call the RF CORE interrupt handler
@@ -810,4 +825,10 @@ inline void InterruptHandler::RFError_InterruptHandler(void)
 {
     // Call the RF ERROR interrupt handler
     Radio_interruptVector->errorHandler();
+}
+
+inline void InterruptHandler::RTC_InterruptHandler(void)
+{
+    // Call the RTC interrupt handler
+    RTC_interruptVector->interruptHandler();
 }

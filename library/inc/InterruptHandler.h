@@ -24,6 +24,7 @@ class I2c;
 class Spi;
 class Radio;
 class SysTick;
+class Rtc;
 
 class InterruptHandler {
 
@@ -43,6 +44,8 @@ public:
     static void clearInterruptHandler(SysTick* systick_);
     static void setInterruptHandler(Radio* radio_);
     static void clearInterruptHandler(Radio* radio_);
+    static void setInterruptHandler(Rtc* rtc_);
+    static void clearInterruptHandler(Rtc* rtc_);
 private:
     InterruptHandler();
     static inline void GPIOA_InterruptHandler(void);
@@ -61,6 +64,7 @@ private:
     static inline void SysTick_InterruptHandler(void);
     static inline void RFCore_InterruptHandler(void);
     static inline void RFError_InterruptHandler(void);
+    static inline void RTC_InterruptHandler(void);
 private:
     static InterruptHandler instance;
     static GpioIn* GPIOA_interruptVector[8];
@@ -78,6 +82,7 @@ private:
     static Spi* SPI1_interruptVector;
     static SysTick* SysTick_interruptVector;
     static Radio* Radio_interruptVector;
+    static Rtc* RTC_interruptVector;
 };
 
 #endif /* INTERRUPT_HANDLER_H */
