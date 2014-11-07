@@ -20,8 +20,6 @@
 
 #include "Callback.h"
 
-class Timer;
-
 class Timer
 {
 
