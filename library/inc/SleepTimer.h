@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       Rtc.h
+ * @file       SleepTimer.h
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -13,34 +13,34 @@
  *
  */
 
-#ifndef RTC_H_
-#define RTC_H_
+#ifndef SLEEP_TIMER_H_
+#define SLEEP_TIMER_H_
 
 #include <stdint.h>
 
 #include "Callback.h"
 
-class Rtc
+class SleepTimer
 {
 
 friend class InterruptHandler;
 
 public:
-    Rtc(uint32_t interrupt_);
+    SleepTimer(uint32_t interrupt);
     void init(void);
-    void start(uint32_t time);
+    void start(uint32_t counts);
     void stop(void);
     uint32_t read(void);
-    void setCallback(Callback* callback_);
-    void clearCallack(void);
-    void enableInterrupt(void);
-    void disableInterrupt(void);
+    void setCallback(Callback* callback);
+    void clearCallback(void);
+    void enableInterrupts(void);
+    void disableInterrupts(void);
 protected:
     void interruptHandler(void);
 private:
-    uint32_t interrupt;
+    uint32_t interrupt_;
 
-    Callback* callback;
+    Callback* callback_;
 };
 
-#endif /* RTC_H_ */
+#endif /* SLEEP_TIMER_H_ */

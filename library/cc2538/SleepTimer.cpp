@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       Rtc.cpp
+ * @file       SleepTimer.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -15,7 +15,7 @@
 
 /*================================ include ==================================*/
 
-#include "Rtc.h"
+#include "SleepTimer.h"
 #include "InterruptHandler.h"
 
 #include "cc2538_include.h"
@@ -30,51 +30,54 @@
 
 /*================================= public ==================================*/
 
-Rtc::Rtc(uint32_t interrupt_):
-    interrupt(interrupt_)
-{
-
-}
-
-void Rtc::init(void)
+SleepTimer::SleepTimer(uint32_t interrupt):
+    interrupt_(interrupt)
 {
 }
 
-void Rtc::start(uint32_t time)
+void SleepTimer::init(void)
 {
-    uint32_t t = SleepModeTimerCountGet();
-    SleepModeTimerCompareSet(t + time);
+    // Nothing to do here, SleepTimer starts counting
+    // automatically when the CC2538 boots!
 }
 
-void Rtc::stop(void)
+void SleepTimer::start(uint32_t counts)
 {
+    uint32_t current;
+    current = SleepModeTimerCountGet();
+    SleepModeTimerCompareSet(current + counts);
 }
 
-uint32_t Rtc::read(void)
+void SleepTimer::stop(void)
+{
+    // Nothing to do here, SleepTimer cannot be stopped
+}
+
+uint32_t SleepTimer::read(void)
 {
     return SleepModeTimerCountGet();
 }
 
-void Rtc::setCallback(Callback* callback_)
+void SleepTimer::setCallback(Callback* callback)
 {
-    callback = callback_;
+    callback_ = callback;
 }
 
-void Rtc::clearCallack(void)
+void SleepTimer::clearCallback(void)
 {
-    callback = nullptr;
+    callback_ = nullptr;
 }
 
-void Rtc::enableInterrupt(void)
+void SleepTimer::enableInterrupts(void)
 {
     InterruptHandler::getInstance().setInterruptHandler(this);
 
-    IntEnable(interrupt);
+    IntEnable(interrupt_);
 }
 
-void Rtc::disableInterrupt(void)
+void SleepTimer::disableInterrupts(void)
 {
-    IntDisable(interrupt);
+    IntDisable(interrupt_);
 
     InterruptHandler::getInstance().clearInterruptHandler(this);
 }
@@ -83,10 +86,10 @@ void Rtc::disableInterrupt(void)
 
 /*================================ private ==================================*/
 
-void Rtc::interruptHandler(void)
+void SleepTimer::interruptHandler(void)
 {
-    if (callback != nullptr)
+    if (callback_ != nullptr)
     {
-        callback->execute();
+        callback_->execute();
     }
 }
