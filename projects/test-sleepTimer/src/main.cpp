@@ -25,9 +25,9 @@
 
 /*=============================== prototypes ================================*/
 
-static void rtc_callback(void);
+static void sleep_timer_callback(void);
 
-static PlainCallback rtcCallback(rtc_callback);
+static PlainCallback sleepTimerCallback(sleep_timer_callback);
 
 /*=============================== variables =================================*/
 
@@ -39,12 +39,12 @@ int main (void)
     board.enableFlashErase();
 
     // Initialize Rtc
-    rtc.init();
-    rtc.setCallback(&rtcCallback);
-    rtc.enableInterrupt();
+    sleepTimer.init();
+    sleepTimer.setCallback(&sleepTimerCallback);
+    sleepTimer.enableInterrupts();
 
     // Start Rtc
-    rtc.start(32768);
+    sleepTimer.start(32768);
 
     // Enable interrupts
     board.enableInterrupts();
@@ -62,7 +62,7 @@ int main (void)
 
 /*================================ private ==================================*/
 
-static void rtc_callback(void)
+static void sleep_timer_callback(void)
 {
     static bool led_status = false;
 
@@ -70,12 +70,12 @@ static void rtc_callback(void)
     {
         led_status = false;
         led_green.off();
-        rtc.start(32768);
+        sleepTimer.start(32768);
     }
     else
     {
         led_status = true;
         led_green.on();
-        rtc.start(327);
+        sleepTimer.start(327);
     }
 }

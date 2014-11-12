@@ -69,7 +69,8 @@
 ../../../library/cc2538/InterruptHandler.cpp
 ../../../library/cc2538/Pwm.cpp
 ../../../library/cc2538/Radio.cpp
-../../../library/cc2538/Rtc.cpp
+../../../library/cc2538/SleepTimer.cpp
+../../../library/cc2538/RadioTimer.cpp
 ../../../library/cc2538/Spi.cpp
 ../../../library/cc2538/SysTick.cpp
 ../../../library/cc2538/Timer.cpp
@@ -86,7 +87,8 @@
 ../../../library/inc/InterruptHandler.h
 ../../../library/inc/Pwm.h
 ../../../library/inc/Radio.h
-../../../library/inc/Rtc.h
+../../../library/inc/SleepTimer.h
+../../../library/inc/RadioTimer.h
 ../../../library/inc/Spi.h
 ../../../library/inc/SysTick.h
 ../../../library/inc/Timer.h
