@@ -21,38 +21,38 @@
 class Gpio
 {
 public:
-    Gpio(uint32_t port_, uint8_t pin_);
+    Gpio(uint32_t port, uint8_t pin);
     uint32_t getPort(void);
     uint8_t getPin(void);
 protected:
-    uint32_t port;
-    uint8_t pin;
+    uint32_t port_;
+    uint8_t pin_;
 };
 
 class GpioI2c : public Gpio
 {
 public:
-    GpioI2c(uint32_t port_, uint8_t pin_);
+    GpioI2c(uint32_t port, uint8_t pin);
 };
 
 class GpioSpi : public Gpio
 {
 public:
-    GpioSpi(uint32_t port_, uint8_t pin_, uint32_t ioc_);
+    GpioSpi(uint32_t port, uint8_t pin, uint32_t ioc);
     uint32_t getIoc(void);
     void high(void);
     void low(void);
 private:
-    uint32_t ioc;
+    uint32_t ioc_;
 };
 
 class GpioUart : public Gpio
 {
 public:
-    GpioUart(uint32_t port_, uint8_t pin_, uint32_t ioc_);
+    GpioUart(uint32_t port, uint8_t pin, uint32_t ioc);
     uint32_t getIoc(void);
 private:
-    uint32_t ioc;
+    uint32_t ioc_;
 };
 
 #endif /* GPIO_H_ */

@@ -26,11 +26,11 @@ class I2cDriver : public I2c
 {
 
 public:
-    I2cDriver(uint32_t peripheral_, GpioI2c& scl_, GpioI2c& sda_);
+    I2cDriver(uint32_t peripheral, GpioI2c& scl, GpioI2c& sda);
     void lock(void);
     void unlock(void);
 private:
-    SemaphoreHandle_t xMutex;
+    SemaphoreHandle_t xMutex_;
 };
 
 #endif /* I2C_DRIVER_H_ */

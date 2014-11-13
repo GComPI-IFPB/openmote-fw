@@ -29,14 +29,14 @@
 
 /*================================= public ==================================*/
 
-Watchdog::Watchdog(uint32_t interval_):
-    interval(interval_)
+Watchdog::Watchdog(uint32_t interval):
+    interval_(interval)
 {
 }
 
 void Watchdog::init(void)
 {
-    WatchdogEnable(interval);
+    WatchdogEnable(interval_);
 }
 
 void Watchdog::walk(void)

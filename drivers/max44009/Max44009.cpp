@@ -141,13 +141,13 @@ bool Max44009::reset(void)
 void Max44009::setCallback(Callback* callback_)
 {
     gpio.setCallback(callback_);
-    gpio.enableInterrupt();
+    gpio.enableInterrupts();
 }
 
 void Max44009::clearCallback(void)
 {
     gpio.clearCallback();
-    gpio.disableInterrupt();
+    gpio.disableInterrupts();
 }
 
 bool Max44009::isPresent(void)

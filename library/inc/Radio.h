@@ -51,8 +51,8 @@ public:
     void on(void);
     void off(void);
     void reset(void);
-    void setRxCallbacks(Callback* rxInit_, Callback* rxDone_);
-    void setTxCallbacks(Callback* txInit_, Callback* txDone_);
+    void setRxCallbacks(Callback* rxInit, Callback* rxDone);
+    void setTxCallbacks(Callback* txInit, Callback* txDone);
     void enableInterrupts(void);
     void disableInterrupts(void);
     void setChannel(uint8_t channel);
@@ -65,12 +65,12 @@ protected:
     void interruptHandler(void);
     void errorHandler(void);
 private:
-    volatile RadioState radioState;
+    volatile RadioState radioState_;
 
-    Callback* rxInit;
-    Callback* rxDone;
-    Callback* txInit;
-    Callback* txDone;
+    Callback* rxInit_;
+    Callback* rxDone_;
+    Callback* txInit_;
+    Callback* txDone_;
 };
 
 #endif /* RADIO_H_ */

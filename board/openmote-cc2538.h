@@ -24,7 +24,8 @@
 #include "GpioOut.h"
 #include "Timer.h"
 #include "Radio.h"
-#include "Rtc.h"
+#include "SleepTimer.h"
+#include "RadioTimer.h"
 #include "Watchdog.h"
 
 #include "I2cDriver.h"
@@ -107,7 +108,9 @@
 #define TIMER3_INTERRUPT        ( INT_TIMER3A )
 #define TIMER3_INTERRUPT_MODE   ( GPTIMER_TIMA_TIMEOUT )
 
-#define RTC_INTERRUPT           ( INT_SMTIM )
+#define SLEEP_TIMER_INTERRUPT   ( INT_SMTIM )
+
+#define RADIO_TIMER_INTERRUPT   ( INT_MACTIMR )
 
 #define TPS62730_PORT           ( GPIO_B_BASE )
 #define TPS62730_STATUS_PIN     ( GPIO_PIN_0 )
@@ -208,8 +211,11 @@ extern Timer timer1;
 extern Timer timer2;
 extern Timer timer3;
 
-// RTC
-extern Rtc rtc;
+// SleepTimer
+extern SleepTimer sleepTimer;
+
+// RadioTimer
+extern RadioTimer radioTimer;
 
 // I2C peripheral
 extern I2cDriver i2c;

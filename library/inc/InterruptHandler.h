@@ -24,28 +24,31 @@ class I2c;
 class Spi;
 class Radio;
 class SysTick;
-class Rtc;
+class SleepTimer;
+class RadioTimer;
 
 class InterruptHandler {
 
 public:
     static InterruptHandler& getInstance(void);
-    static void setInterruptHandler(GpioIn* gpio_);
-    static void clearInterruptHandler(GpioIn* gpio_);
-    static void setInterruptHandler(Timer* timer_);
-    static void clearInterruptHandler(Timer* timer_);
-    static void setInterruptHandler(Uart* uart_);
-    static void clearInterruptHandler(Uart* uart_);
-    static void setInterruptHandler(I2c* i2c_);
-    static void clearInterruptHandler(I2c* i2c_);
-    static void setInterruptHandler(Spi* spi_);
-    static void clearInterruptHandler(Spi* spi_);
-    static void setInterruptHandler(SysTick* systick_);
-    static void clearInterruptHandler(SysTick* systick_);
-    static void setInterruptHandler(Radio* radio_);
-    static void clearInterruptHandler(Radio* radio_);
-    static void setInterruptHandler(Rtc* rtc_);
-    static void clearInterruptHandler(Rtc* rtc_);
+    static void setInterruptHandler(GpioIn* gpio);
+    static void clearInterruptHandler(GpioIn* gpio);
+    static void setInterruptHandler(Timer* timer);
+    static void clearInterruptHandler(Timer* timer);
+    static void setInterruptHandler(Uart* uart);
+    static void clearInterruptHandler(Uart* uart);
+    static void setInterruptHandler(I2c* i2c);
+    static void clearInterruptHandler(I2c* i2c);
+    static void setInterruptHandler(Spi* spi);
+    static void clearInterruptHandler(Spi* spi);
+    static void setInterruptHandler(SysTick* systick);
+    static void clearInterruptHandler(SysTick* systick);
+    static void setInterruptHandler(Radio* radio);
+    static void clearInterruptHandler(Radio* radio);
+    static void setInterruptHandler(SleepTimer* sleepTimer);
+    static void clearInterruptHandler(SleepTimer* sleepTimer);
+    static void setInterruptHandler(RadioTimer* radioTimer);
+    static void clearInterruptHandler(RadioTimer* radioTimer);
 private:
     InterruptHandler();
     static inline void GPIOA_InterruptHandler(void);
@@ -64,25 +67,27 @@ private:
     static inline void SysTick_InterruptHandler(void);
     static inline void RFCore_InterruptHandler(void);
     static inline void RFError_InterruptHandler(void);
-    static inline void RTC_InterruptHandler(void);
+    static inline void SleepTimer_InterruptHandler(void);
+    static inline void RadioTimer_InterruptHandler(void);
 private:
-    static InterruptHandler instance;
-    static GpioIn* GPIOA_interruptVector[8];
-    static GpioIn* GPIOB_interruptVector[8];
-    static GpioIn* GPIOC_interruptVector[8];
-    static GpioIn* GPIOD_interruptVector[8];
-    static Timer* TIMER0_interruptVector[2];
-    static Timer* TIMER1_interruptVector[2];
-    static Timer* TIMER2_interruptVector[2];
-    static Timer* TIMER3_interruptVector[2];
-    static Uart* UART0_interruptVector;
-    static Uart* UART1_interruptVector;
-    static I2c* I2C_interruptVector;
-    static Spi* SPI0_interruptVector;
-    static Spi* SPI1_interruptVector;
-    static SysTick* SysTick_interruptVector;
-    static Radio* Radio_interruptVector;
-    static Rtc* RTC_interruptVector;
+    static InterruptHandler instance_;
+    static GpioIn* GPIOA_interruptVector_[8];
+    static GpioIn* GPIOB_interruptVector_[8];
+    static GpioIn* GPIOC_interruptVector_[8];
+    static GpioIn* GPIOD_interruptVector_[8];
+    static Timer* TIMER0_interruptVector_[2];
+    static Timer* TIMER1_interruptVector_[2];
+    static Timer* TIMER2_interruptVector_[2];
+    static Timer* TIMER3_interruptVector_[2];
+    static Uart* UART0_interruptVector_;
+    static Uart* UART1_interruptVector_;
+    static I2c* I2C_interruptVector_;
+    static Spi* SPI0_interruptVector_;
+    static Spi* SPI1_interruptVector_;
+    static SysTick* SysTick_interruptVector_;
+    static Radio* Radio_interruptVector_;
+    static SleepTimer* SleepTimer_interruptVector_;
+    static RadioTimer* RadioTimer_interruptVector_;
 };
 
 #endif /* INTERRUPT_HANDLER_H */

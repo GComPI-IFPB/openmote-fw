@@ -24,9 +24,9 @@ class GpioInPow : public GpioIn
 {
 
 public:
-    GpioInPow(uint32_t port_, uint8_t pin_, uint32_t edge_);
-    void enableInterrupt(void);
-    void disableInterrupt(void);
+    GpioInPow(uint32_t port, uint8_t pin, uint32_t edge);
+    void enableInterrupts(void);
+    void disableInterrupts(void);
 };
 
 #endif /* GPIO_IN_POW_H_ */

@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       GpioPwm.cpp
+ * @file       SerialManager.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -15,9 +15,7 @@
 
 /*================================ include ==================================*/
 
-#include "GpioPwm.h"
-
-#include "cc2538_include.h"
+#include "SerialManager.h"
 
 /*================================ define ===================================*/
 
@@ -29,8 +27,16 @@
 
 /*================================= public ==================================*/
 
-GpioPwm::GpioPwm(uint32_t port, uint8_t pin):
-    Gpio(port, pin)
+SerialManager::SerialManager(Serial& serial_):
+    serial(serial_)
+{
+}
+
+void SerialManager::init(void)
+{
+}
+
+void SerialManager::registerCallback(void)
 {
 }
 

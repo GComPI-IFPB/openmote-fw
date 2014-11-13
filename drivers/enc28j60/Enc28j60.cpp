@@ -282,7 +282,7 @@ void Enc28j60::init(uint8_t* mac_address)
 
     // Set and enable ENC268J60 interrupt
     gpio.setCallback(&interrupt);
-    gpio.enableInterrupt();
+    gpio.enableInterrupts();
 }
 
 void Enc28j60::reset(void)

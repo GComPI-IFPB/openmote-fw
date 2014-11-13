@@ -45,8 +45,8 @@ extern GpioInPow button_user;
 /*================================= public ==================================*/
 
 Board::Board():
-    sleepMode(SleepMode_None), \
-    flashEraseCallback(this, &Board::flashEraseCallback_)
+    sleepMode_(SleepMode_None), \
+    flashEraseCallback_(this, &Board::flashEraseCallback)
 {
     /**
      * Configure the 32 kHz pins, PD6 and PD7, for crystal operation
@@ -85,27 +85,27 @@ void Board::reset(void)
     SysCtrlReset();
 }
 
-void Board::setSleepMode(SleepMode sleepMode_)
+void Board::setSleepMode(SleepMode sleepMode)
 {
-     sleepMode = sleepMode_;
+     sleepMode_ = sleepMode;
 }
 
 void Board::sleep(void)
 {
-    if (sleepMode == SleepMode_None)
+    if (sleepMode_ == SleepMode_None)
     {
         SysCtrlSleep();
     }
     else
     {
-        SysCtrlPowerModeSet(sleepMode);
+        SysCtrlPowerModeSet(sleepMode_);
         SysCtrlDeepSleep();
     }
 }
 
 void Board::wakeup(void)
 {
-    if (sleepMode != SleepMode_None)
+    if (sleepMode_ != SleepMode_None)
     {
         // Wake-up peripherals
     }
@@ -123,8 +123,8 @@ void Board::disableInterrupts(void)
 
 void Board::enableFlashErase(void)
 {
-    button_user.setCallback(&flashEraseCallback);
-    button_user.enableInterrupt();
+    button_user.setCallback(&flashEraseCallback_);
+    button_user.enableInterrupts();
 }
 
 void Board::getEUI48(uint8_t* address)
@@ -156,7 +156,7 @@ void Board::getEUI64(uint8_t* address)
 
 /*================================ private ==================================*/
 
-void Board::flashEraseCallback_(void)
+void Board::flashEraseCallback(void)
 {
     IntMasterDisable();
     FlashMainPageErase(CC2538_FLASH_ADDRESS);

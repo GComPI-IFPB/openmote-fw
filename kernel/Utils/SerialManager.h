@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       Watchdog.h
+ * @file       SerialManager.h
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -13,19 +13,21 @@
  *
  */
 
-#ifndef WATCHDOG_H_
-#define WATCHDOG_H_
+#ifndef SERIAL_MANAGER_H_
+#define SERIAL_MANAGER_H_
 
 #include <stdint.h>
 
-class Watchdog
+#include "Serial.h"
+
+class SerialManager
 {
 public:
-    Watchdog(uint32_t interval);
+    SerialManager(Serial& serial_);
     void init(void);
-    void walk(void);
+    void registerCallback(void);
 private:
-    uint32_t interval_;
+    Serial& serial;
 };
 
-#endif /* WATCHDOG_H_ */
+#endif /* SERIAL_H_ */

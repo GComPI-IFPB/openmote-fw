@@ -25,12 +25,12 @@
 class SpiDriver : public Spi
 {
 public:
-    SpiDriver(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
-         GpioSpi& miso_, GpioSpi& mosi_, GpioSpi& clk_, GpioSpi& ncs_);
+    SpiDriver(uint32_t peripheral, uint32_t base, uint32_t clock, \
+         GpioSpi& miso, GpioSpi& mosi, GpioSpi& clk, GpioSpi& ncs);
     void lock(void);
     void unlock(void);
 private:
-    SemaphoreHandle_t xMutex;
+    SemaphoreHandle_t xMutex_;
 };
 
 #endif /* SPI_DRIVER_H_ */

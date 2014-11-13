@@ -27,23 +27,23 @@
 
 /*================================= public ==================================*/
 
-I2cDriver::I2cDriver(uint32_t peripheral_, GpioI2c& scl_, GpioI2c& sda_):
-    I2c(peripheral_, scl_, sda_)
+I2cDriver::I2cDriver(uint32_t peripheral, GpioI2c& scl, GpioI2c& sda):
+    I2c(peripheral, scl, sda)
 {
-    xMutex = xSemaphoreCreateMutex();
-    if (xMutex == NULL) {
+    xMutex_ = xSemaphoreCreateMutex();
+    if (xMutex_ == NULL) {
         while(true);
     }
 }
 
 void I2cDriver::lock(void)
 {
-    xSemaphoreTake(xMutex, portMAX_DELAY);
+    xSemaphoreTake(xMutex_, portMAX_DELAY);
 }
 
 void I2cDriver::unlock(void)
 {
-    xSemaphoreGive(xMutex);
+    xSemaphoreGive(xMutex_);
 }
 
 /*=============================== protected =================================*/

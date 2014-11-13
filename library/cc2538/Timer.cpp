@@ -30,93 +30,96 @@
 
 /*================================= public ==================================*/
 
-Timer::Timer(uint32_t peripheral_, uint32_t base_, uint32_t source_, uint32_t config_, uint32_t interrupt_, uint32_t interrupt_mode_):
-    peripheral(peripheral_), base(base_), source(source_), config(config_), interrupt(interrupt_), interrupt_mode(interrupt_mode_)
+Timer::Timer(uint32_t peripheral, uint32_t base, uint32_t source, uint32_t config, uint32_t interrupt, uint32_t interrupt_mode):
+    peripheral_(peripheral), base_(base), source_(source), config_(config), interrupt_(interrupt), interrupt_mode_(interrupt_mode)
 {
 }
 
 uint32_t Timer::getBase(void)
 {
-    return base;
+    return base_;
 }
 
 uint32_t Timer::getSource(void)
 {
-    return source;
+    return source_;
 }
 
-void Timer::init(uint32_t frequency_)
+void Timer::init(uint32_t frequency)
 {
     // Store the Timer frequency
-    frequency = frequency_;
+    frequency_ = frequency;
 
     // Disable peripheral previous to configuring it
-    TimerDisable(base, source);
+    TimerDisable(base_, source_);
 
     // Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3)
-    SysCtrlPeripheralEnable(peripheral);
-    SysCtrlPeripheralSleepEnable(peripheral);
-    SysCtrlPeripheralDeepSleepDisable(peripheral);
+    SysCtrlPeripheralEnable(peripheral_);
+    SysCtrlPeripheralSleepEnable(peripheral_);
+    SysCtrlPeripheralDeepSleepDisable(peripheral_);
 
     // Configure the peripheral
-    TimerConfigure(base, config);
+    TimerConfigure(base_, config_);
 
     // Set the frequency
-    TimerLoadSet(base, source, frequency);
+    TimerLoadSet(base_, source_, frequency_);
 }
 
 void Timer::start(void)
 {
-    // Enable the timer
-    TimerEnable(base, source);
+    TimerEnable(base_, source_);
 }
 
 void Timer::stop(void)
 {
-    // Disable the timer
-    TimerDisable(base, source);
+    TimerDisable(base_, source_);
 }
 
-void Timer::setCallback(Callback* callback_)
+uint32_t Timer::read(void)
 {
-    callback = callback_;
+    return TimerValueGet(base_, source_);
+}
+
+void Timer::setCallback(Callback* callback)
+{
+    callback_ = callback;
 }
 
 void Timer::clearCallback(void)
 {
-    callback = nullptr;
+    callback_ = nullptr;
 }
 
-void Timer::enableInterrupt(void)
+void Timer::enableInterrupts(void)
 {
     InterruptHandler::getInstance().setInterruptHandler(this);
 
     // Enable Timer interrupts
-    TimerIntEnable(base, interrupt_mode);
+    TimerIntEnable(base_, interrupt_mode_);
 
     // Set the Timer interrupt priority
-    // IntPrioritySet(interrupt, (7 << 5));
+    // IntPrioritySet(interrupt_, (7 << 5));
 
     // Enable the Timer interrupt
-    IntEnable(interrupt);
+    IntEnable(interrupt_);
 }
 
-void Timer::disableInterrupt(void)
+void Timer::disableInterrupts(void)
 {
     // Diisable Timer interrupts
-    TimerIntDisable(base, interrupt_mode);
+    TimerIntDisable(base_, interrupt_mode_);
 
     // Disable the Timer interrupt
-    IntDisable(interrupt);
+    IntDisable(interrupt_);
 }
 
 /*=============================== protected =================================*/
 
 void Timer::interruptHandler(void)
 {
-    if (callback != nullptr)
+    if (callback_ != nullptr)
     {
-        callback->execute();
+        callback_->execute();
     }
 }
 

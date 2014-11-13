@@ -30,14 +30,14 @@
 
 /*================================= public ==================================*/
 
-SysTick::SysTick(uint32_t period_):
-    period(period_)
+SysTick::SysTick(uint32_t period):
+    period_(period)
 {
 }
 
 void SysTick::init(void)
 {
-    SysTickPeriodSet(period);
+    SysTickPeriodSet(period_);
 }
 
 void SysTick::start(void)
@@ -50,17 +50,17 @@ void SysTick::stop(void)
     SysTickDisable();
 }
 
-void SysTick::setCallback(Callback* callback_)
+void SysTick::setCallback(Callback* callback)
 {
-    callback = callback_;
+    callback_ = callback;
 }
 
 void SysTick::clearCallback(void)
 {
-    callback = nullptr;
+    callback_ = nullptr;
 }
 
-void SysTick::enableInterrupt(void)
+void SysTick::enableInterrupts(void)
 {
     InterruptHandler::getInstance().setInterruptHandler(this);
 
@@ -68,7 +68,7 @@ void SysTick::enableInterrupt(void)
     SysTickIntEnable();
 }
 
-void SysTick::disableInterrupt(void)
+void SysTick::disableInterrupts(void)
 {
     SysTickIntDisable();
 }
@@ -77,9 +77,9 @@ void SysTick::disableInterrupt(void)
 
 void SysTick::interruptHandler(void)
 {
-    if (callback != nullptr)
+    if (callback_ != nullptr)
     {
-        callback->execute();
+        callback_->execute();
     }
 }
 

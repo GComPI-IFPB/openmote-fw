@@ -29,26 +29,26 @@ typedef GenericCallback<Serial> SerialCallback;
 class Serial
 {
 public:
-    Serial(UartDriver& uart_);
+    Serial(UartDriver& uart);
     void init(void);
     void printf(uint8_t* data, uint32_t size);
     uint32_t scanf(uint8_t* buffer, uint32_t size);
 private:
-    void rxCallback_(void);
-    void txCallback_(void);
+    void rxCallback(void);
+    void txCallback(void);
 private:
-    UartDriver& uart;
+    UartDriver& uart_;
 
-    uint8_t receive_buffer[128];
-    CircularBuffer rxBuffer;
+    uint8_t receive_buffer_[128];
+    CircularBuffer rxBuffer_;
 
-    uint8_t transmit_buffer[128];
-    CircularBuffer txBuffer;
+    uint8_t transmit_buffer_[128];
+    CircularBuffer txBuffer_;
 
-    Hdlc hdlc;
+    Hdlc hdlc_;
 
-    SerialCallback rxCallback;
-    SerialCallback txCallback;
+    SerialCallback rxCallback_;
+    SerialCallback txCallback_;
 };
 
 #endif /* SERIAL_H_ */

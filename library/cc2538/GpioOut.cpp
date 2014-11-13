@@ -29,47 +29,47 @@
 
 /*================================= public ==================================*/
 
-GpioOut::GpioOut(uint32_t port_, uint8_t pin_):
-    Gpio(port_, pin_)
+GpioOut::GpioOut(uint32_t port, uint8_t pin):
+    Gpio(port, pin)
 {
     // Set the pin as output
-    GPIOPinTypeGPIOOutput(port, pin);
+    GPIOPinTypeGPIOOutput(port_, pin_);
 
     // Set the pin low
-    GPIOPinWrite(port, pin, 0);
+    GPIOPinWrite(port_, pin_, 0);
 }
 
 void GpioOut::on(void)
 {
     // Set the pin high
-    GPIOPinWrite(port, pin, pin);
+    GPIOPinWrite(port_, pin_, pin_);
 }
 
 void GpioOut::off(void)
 {
     // Set the pin low
-    GPIOPinWrite(port, pin, 0);
+    GPIOPinWrite(port_, pin_, 0);
 }
 
 void GpioOut::toggle(void)
 {
     // Read the old status of the pin
-    uint32_t status = GPIOPinRead(port, pin);
+    uint32_t status = GPIOPinRead(port_, pin_);
 
     // Change the status of the pin
-    status = (~status) & pin;
+    status = (~status) & pin_;
 
     // Set the new status of the pin
-    GPIOPinWrite(port, pin, status);
+    GPIOPinWrite(port_, pin_, status);
 }
 
 uint32_t GpioOut::status(void)
 {
     // Read the pin status
-    uint32_t status = GPIOPinRead(port, pin);
+    uint32_t status = GPIOPinRead(port_, pin_);
 
     // Return the pin status
-    return (status & pin);
+    return (status & pin_);
 }
 
 /*=============================== protected =================================*/

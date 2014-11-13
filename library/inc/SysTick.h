@@ -27,20 +27,20 @@ class SysTick
 friend class InterruptHandler;
 
 public:
-    SysTick(uint32_t period_);
+    SysTick(uint32_t period);
     void init(void);
     void start(void);
     void stop(void);
-    void setCallback(Callback* callback_);
+    void setCallback(Callback* callback);
     void clearCallback(void);
-    void enableInterrupt(void);
-    void disableInterrupt(void);
+    void enableInterrupts(void);
+    void disableInterrupts(void);
 protected:
     void interruptHandler(void);
 private:
-    uint32_t period;
+    uint32_t period_;
 
-    Callback* callback;
+    Callback* callback_;
 };
 
 #endif /* SYSTICK_H_ */

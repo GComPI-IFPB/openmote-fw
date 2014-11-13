@@ -30,134 +30,134 @@
 
 /*================================= public ==================================*/
 
-Spi::Spi(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
-         GpioSpi& miso_, GpioSpi& mosi_, GpioSpi& clk_, GpioSpi& ncs_):
-        peripheral(peripheral_), base(base_), clock(clock_), \
-        miso(miso_), mosi(mosi_), clk(clk_), ncs(ncs_)
+Spi::Spi(uint32_t peripheral, uint32_t base, uint32_t clock, \
+         GpioSpi& miso, GpioSpi& mosi, GpioSpi& clk, GpioSpi& ncs):
+        peripheral_(peripheral), base_(base), clock_(clock), \
+        miso_(miso), mosi_(mosi), clk_(clk), ncs_(ncs)
 {
 }
 
 uint32_t Spi::getBase(void)
 {
-    return base;
+    return base_;
 }
 
-void Spi::enable(uint32_t mode_, uint32_t protocol_, uint32_t datawidth_, uint32_t baudrate_)
+void Spi::enable(uint32_t mode, uint32_t protocol, uint32_t datawidth, uint32_t baudrate)
 {
     // Store SPI mode, protoco, baudrate and datawidth
-    mode = mode_;
-    protocol = protocol_;
-    baudrate = baudrate_;
-    datawidth = datawidth_;
+    mode_      = mode;
+    protocol_  = protocol;
+    baudrate_  = baudrate;
+    datawidth_ = datawidth;
 
     // Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3)
-    SysCtrlPeripheralEnable(peripheral);
-    SysCtrlPeripheralSleepEnable(peripheral);
-    SysCtrlPeripheralDeepSleepDisable(peripheral);
+    SysCtrlPeripheralEnable(peripheral_);
+    SysCtrlPeripheralSleepEnable(peripheral_);
+    SysCtrlPeripheralDeepSleepDisable(peripheral_);
 
     // Reset peripheral previous to configuring it
-    SSIDisable(base);
+    SSIDisable(base_);
 
     // Set IO clock as SPI0 clock source
-    SSIClockSourceSet(base, clock);
+    SSIClockSourceSet(base_, clock_);
 
     // Configure the MISO, MOSI, CLK and nCS pins as peripheral
-    IOCPinConfigPeriphInput(miso.getPort(), miso.getPin(), miso.getIoc());
-    IOCPinConfigPeriphOutput(mosi.getPort(), mosi.getPin(), mosi.getIoc());
-    IOCPinConfigPeriphOutput(clk.getPort(), clk.getPin(), clk.getIoc());
-    // IOCPinConfigPeriphOutput(ncs.getPort(), ncs.getPin(), ncs.getIoc());
+    IOCPinConfigPeriphInput(miso_.getPort(), miso_.getPin(), miso_.getIoc());
+    IOCPinConfigPeriphOutput(mosi_.getPort(), mosi_.getPin(), mosi_.getIoc());
+    IOCPinConfigPeriphOutput(clk_.getPort(), clk_.getPin(), clk_.getIoc());
+    // IOCPinConfigPeriphOutput(ncs_.getPort(), ncs_.getPin(), ncs_.getIoc());
 
     // Configure MISO, MOSI, CLK and nCS GPIOs
-    GPIOPinTypeSSI(miso.getPort(), miso.getPin());
-    GPIOPinTypeSSI(mosi.getPort(), mosi.getPin());
-    GPIOPinTypeSSI(clk.getPort(), clk.getPin());
-    // GPIOPinTypeSSI(ncs.getPort(), ncs.getPin());
+    GPIOPinTypeSSI(miso_.getPort(), miso_.getPin());
+    GPIOPinTypeSSI(mosi_.getPort(), mosi_.getPin());
+    GPIOPinTypeSSI(clk_.getPort(), clk_.getPin());
+    // GPIOPinTypeSSI(ncs_.getPort(), ncs_.getPin());
 
     // Configure the SPI0 clock
-    SSIConfigSetExpClk(base, SysCtrlIOClockGet(), protocol, \
-                       mode, baudrate, datawidth);
+    SSIConfigSetExpClk(base_, SysCtrlIOClockGet(), protocol_, \
+                       mode_, baudrate_, datawidth_);
 
     // Enable the SPI0 module
-    SSIEnable(base);
+    SSIEnable(base_);
 }
 
 void Spi::sleep(void)
 {
-    SSIDisable(base);
+    SSIDisable(base_);
 
     // Configure the MISO, MOSI, CLK and nCS pins as output
-    GPIOPinTypeGPIOOutput(miso.getPort(), miso.getPin());
-    GPIOPinTypeGPIOOutput(mosi.getPort(), mosi.getPin());
-    GPIOPinTypeGPIOOutput(clk.getPort(), clk.getPin());
-    // GPIOPinTypeGPIOOutput(ncs.getPort(), ncs.getPin());
+    GPIOPinTypeGPIOOutput(miso_.getPort(), miso_.getPin());
+    GPIOPinTypeGPIOOutput(mosi_.getPort(), mosi_.getPin());
+    GPIOPinTypeGPIOOutput(clk_.getPort(), clk_.getPin());
+    // GPIOPinTypeGPIOOutput(ncs_.getPort(), ncs_.getPin());
 
     //
-    GPIOPinWrite(miso.getPort(), miso.getPin(), 0);
-    GPIOPinWrite(mosi.getPort(), mosi.getPin(), 0);
-    GPIOPinWrite(clk.getPort(), clk.getPin(), 0);
-    // GPIOPinWrite(ncs.getPort(), ncs.getPin(), 0);
+    GPIOPinWrite(miso_.getPort(), miso_.getPin(), 0);
+    GPIOPinWrite(mosi_.getPort(), mosi_.getPin(), 0);
+    GPIOPinWrite(clk_.getPort(), clk_.getPin(), 0);
+    // GPIOPinWrite(ncs_.getPort(), ncs_.getPin(), 0);
 
 }
 
 void Spi::wakeup(void)
 {
-    enable(mode, protocol, datawidth, baudrate);
+    enable(mode_, protocol_, datawidth_, baudrate_);
 }
 
-void Spi::setRxCallback(Callback* callback_)
+void Spi::setRxCallback(Callback* callback)
 {
-    rx_callback = callback_;
+    rx_callback_ = callback;
 }
 
-void Spi::setTxCallback(Callback* callback_)
+void Spi::setTxCallback(Callback* callback)
 {
-    tx_callback = callback_;
+    tx_callback_ = callback;
 }
 
-void Spi::enableInterrupt(void)
+void Spi::enableInterrupts(void)
 {
     // Register the interrupt handler
     InterruptHandler::getInstance().setInterruptHandler(this);
 
     // Enable the SPI interrupt
-    SSIIntEnable(base, (SSI_TXFF | SSI_RXFF | SSI_RXTO | SSI_RXOR));
+    SSIIntEnable(base_, (SSI_TXFF | SSI_RXFF | SSI_RXTO | SSI_RXOR));
 
     // Enable the SPI interrupt
-    IntEnable(interrupt);
+    IntEnable(interrupt_);
 }
 
-void Spi::disableInterrupt(void)
+void Spi::disableInterrupts(void)
 {
     // Disable the SPI interrupt
-    SSIIntDisable(base, (SSI_TXFF | SSI_RXFF | SSI_RXTO | SSI_RXOR));
+    SSIIntDisable(base_, (SSI_TXFF | SSI_RXFF | SSI_RXTO | SSI_RXOR));
 
     // Disable the SPI interrupt
-    IntDisable(interrupt);
+    IntDisable(interrupt_);
 }
 
 void Spi::select(void)
 {
-    if (protocol == SSI_FRF_MOTO_MODE_0 ||
-        protocol == SSI_FRF_MOTO_MODE_1)
+    if (protocol_ == SSI_FRF_MOTO_MODE_0 ||
+        protocol_ == SSI_FRF_MOTO_MODE_1)
     {
-        ncs.low();
+        ncs_.low();
     }
     else
     {
-        ncs.high();
+        ncs_.high();
     }
 }
 
 void Spi::deselect(void)
 {
-    if (protocol == SSI_FRF_MOTO_MODE_0 ||
-        protocol == SSI_FRF_MOTO_MODE_1)
+    if (protocol_ == SSI_FRF_MOTO_MODE_0 ||
+        protocol_ == SSI_FRF_MOTO_MODE_1)
     {
-        ncs.high();
+        ncs_.high();
     }
     else
     {
-        ncs.low();
+        ncs_.low();
     }
 }
 
@@ -166,14 +166,14 @@ uint8_t Spi::readByte(void)
     uint32_t byte;
 
     // Push a byte
-    SSIDataPut(base, 0x00);
+    SSIDataPut(base_, 0x00);
 
     // Wait until it is complete
-    while(SSIBusy(base))
+    while(SSIBusy(base_))
         ;
 
     // Read a byte
-    SSIDataGet(base, &byte);
+    SSIDataGet(base_, &byte);
 
     return (uint8_t)(byte & 0xFF);
 }
@@ -181,17 +181,18 @@ uint8_t Spi::readByte(void)
 uint32_t Spi::readByte(uint8_t* buffer, uint32_t length)
 {
     uint32_t data;
+
     for (uint32_t i =  0; i < length; i++)
     {
         // Push a byte
-        SSIDataPut(base, 0x00);
+        SSIDataPut(base_, 0x00);
 
         // Wait until it is complete
-        while(SSIBusy(base))
+        while(SSIBusy(base_))
             ;
 
         // Read a byte
-        SSIDataGet(base, &data);
+        SSIDataGet(base_, &data);
 
         *buffer++ = (uint8_t) data;
     }
@@ -203,14 +204,14 @@ void Spi::writeByte(uint8_t byte)
     uint32_t data;
 
     // Push a byte
-    SSIDataPut(base, byte);
+    SSIDataPut(base_, byte);
 
     // Wait until it is complete
-    while(SSIBusy(base))
+    while(SSIBusy(base_))
         ;
 
     // Read a byte
-    SSIDataGet(base, &data);
+    SSIDataGet(base_, &data);
 }
 
 uint32_t Spi::writeByte(uint8_t* buffer, uint32_t length)
@@ -220,14 +221,14 @@ uint32_t Spi::writeByte(uint8_t* buffer, uint32_t length)
     for (uint32_t i = 0; i < length; i++)
     {
         // Push a byte
-        SSIDataPut(base, *buffer++);
+        SSIDataPut(base_, *buffer++);
 
         // Wait until it is complete
-        while(SSIBusy(base))
+        while(SSIBusy(base_))
             ;
 
         // Read a byte
-        SSIDataGet(base, &data);
+        SSIDataGet(base_, &data);
     }
 
     return 0;
@@ -240,10 +241,10 @@ void Spi::interruptHandler(void)
     uint32_t status;
 
     // Read interrupt source
-    status = SSIIntStatus(base, true);
+    status = SSIIntStatus(base_, true);
 
     // Clear SPI interrupt in the NVIC
-    IntPendClear(interrupt);
+    IntPendClear(interrupt_);
 
     // Process TX interrupt
     if (status & SSI_TXFF) {
@@ -260,16 +261,16 @@ void Spi::interruptHandler(void)
 
 void Spi::interruptHandlerRx(void)
 {
-    if (tx_callback != nullptr)
+    if (tx_callback_ != nullptr)
     {
-        tx_callback->execute();
+        tx_callback_->execute();
     }
 }
 
 void Spi::interruptHandlerTx(void)
 {
-    if (rx_callback != nullptr)
+    if (rx_callback_ != nullptr)
     {
-        rx_callback->execute();
+        rx_callback_->execute();
     }
 }

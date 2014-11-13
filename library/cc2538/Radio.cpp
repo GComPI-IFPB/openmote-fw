@@ -88,9 +88,9 @@
 /*================================= public ==================================*/
 
 Radio::Radio():
-    radioState(RadioState_Off), \
-    rxInit(nullptr), rxDone(nullptr), \
-	txInit(nullptr), txDone(nullptr)
+    radioState_(RadioState_Off), \
+    rxInit_(nullptr), rxDone_(nullptr), \
+    txInit_(nullptr), txDone_(nullptr)
 {
 }
 
@@ -171,7 +171,7 @@ void Radio::wakeup(void)
 void Radio::on(void)
 {
     /* Set the radio state to idle */
-    radioState = RadioState_Idle;
+    radioState_ = RadioState_Idle;
 
     /* Turn on the radio */
     CC2538_RF_CSP_ISRXON();
@@ -184,7 +184,7 @@ void Radio::off(void)
         ;
 
     /* Set the radio state to off */
-    radioState = RadioState_Off;
+    radioState_ = RadioState_Off;
 
     /* Don't turn off if we are off as this will trigger a Strobe Error */
     if (HWREG(RFCORE_XREG_RXENABLE) != 0)
@@ -203,7 +203,7 @@ void Radio::reset(void)
     while (HWREG(RFCORE_XREG_FSMSTAT1) & RFCORE_XREG_FSMSTAT1_TX_ACTIVE);
 
     /* Set the radio state to off */
-    radioState = RadioState_Off;
+    radioState_ = RadioState_Off;
 
     /* Flush the RX and TX buffers */
     CC2538_RF_CSP_ISFLUSHRX();
@@ -217,18 +217,18 @@ void Radio::reset(void)
     }
 }
 
-void Radio::setRxCallbacks(Callback* rxInit_, Callback* rxDone_)
+void Radio::setRxCallbacks(Callback* rxInit, Callback* rxDone)
 {
     /* Store the receive init and done callbacks */
-    rxInit = rxInit_;
-    rxDone = rxDone_;
+    rxInit_ = rxInit;
+    rxDone_ = rxDone;
 }
 
-void Radio::setTxCallbacks(Callback* txInit_, Callback* txDone_)
+void Radio::setTxCallbacks(Callback* txInit, Callback* txDone)
 {
     /* Store the transmit init and done callbacks */
-    txInit = txInit_;
-    txDone = txDone_;
+    txInit_ = txInit;
+    txDone_ = txDone;
 }
 
 void Radio::enableInterrupts(void)
@@ -291,7 +291,7 @@ void Radio::transmit(void)
         ;
 
     /* Set the radio state to transmit */
-    radioState = RadioState_TransmitInit;
+    radioState_ = RadioState_TransmitInit;
 
     /* Enable transmit mode */
     CC2538_RF_CSP_ISTXON();
@@ -307,7 +307,7 @@ void Radio::receive(void)
     CC2538_RF_CSP_ISFLUSHRX();
 
     /* Set the radio state to receive */
-    radioState = RadioState_ReceiveInit;
+    radioState_ = RadioState_ReceiveInit;
 
     /* Enable receive mode */
     CC2538_RF_CSP_ISRXON();
@@ -332,7 +332,7 @@ RadioResult Radio::loadPacket(uint8_t* data, uint8_t length)
         ;
 
     /* Check if the radio state is correct */
-    if (radioState != RadioState_Idle)
+    if (radioState_ != RadioState_Idle)
     {
         /* Return error */
         return RadioResult_Error;
@@ -380,7 +380,7 @@ RadioResult Radio::getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uin
     uint8_t scratch;
 
     /* Check if the radio state is correct */
-    if (radioState != RadioState_ReceiveDone)
+    if (radioState_ != RadioState_ReceiveDone)
     {
         /* Return error */
         return RadioResult_Error;
@@ -430,7 +430,7 @@ RadioResult Radio::getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uin
     CC2538_RF_CSP_ISFLUSHRX();
 
     /* Set the radio state to receive */
-    radioState = RadioState_Idle;
+    radioState_ = RadioState_Idle;
 
     return RadioResult_Success;
 }
@@ -455,17 +455,17 @@ void Radio::interruptHandler(void)
     /* STATUS0 Register: Start of frame event */
     if ((irq_status0 & RFCORE_SFR_RFIRQF0_SFD) == RFCORE_SFR_RFIRQF0_SFD)
     {
-        if (radioState == RadioState_ReceiveInit &&
-            rxInit != nullptr)
+        if (radioState_ == RadioState_ReceiveInit &&
+            rxInit_ != nullptr)
         {
-            radioState = RadioState_Receiving;
-            rxInit->execute();
+            radioState_ = RadioState_Receiving;
+            rxInit_->execute();
         }
-        else if (radioState == RadioState_TransmitInit &&
-                 txInit != nullptr)
+        else if (radioState_ == RadioState_TransmitInit &&
+                 txInit_ != nullptr)
         {
-            radioState = RadioState_Transmitting;
-            txInit->execute();
+            radioState_ = RadioState_Transmitting;
+            txInit_->execute();
         }
         else
         {
@@ -476,11 +476,11 @@ void Radio::interruptHandler(void)
     /* STATUS0 Register: End of frame event */
     if (((irq_status0 & RFCORE_SFR_RFIRQF0_RXPKTDONE) ==  RFCORE_SFR_RFIRQF0_RXPKTDONE))
     {
-        if (radioState == RadioState_Receiving &&
-            rxDone != nullptr)
+        if (radioState_ == RadioState_Receiving &&
+            rxDone_ != nullptr)
         {
-            radioState = RadioState_ReceiveDone;
-            rxDone->execute();
+            radioState_ = RadioState_ReceiveDone;
+            rxDone_->execute();
         }
         else
         {
@@ -497,11 +497,11 @@ void Radio::interruptHandler(void)
     /* STATUS1 Register: End of frame event */
     if (((irq_status1 & RFCORE_SFR_RFIRQF1_TXDONE) == RFCORE_SFR_RFIRQF1_TXDONE))
     {
-        if (radioState == RadioState_Transmitting &&
-            txDone != nullptr)
+        if (radioState_ == RadioState_Transmitting &&
+            txDone_ != nullptr)
         {
-            radioState = RadioState_TransmitDone;
-            txDone->execute();
+            radioState_ = RadioState_TransmitDone;
+            txDone_->execute();
         }
         else
         {

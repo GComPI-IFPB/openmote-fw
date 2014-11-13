@@ -29,37 +29,37 @@
 
 /*================================= public ==================================*/
 
-I2c::I2c(uint32_t peripheral_, GpioI2c& scl_, GpioI2c& sda_):
-    peripheral(peripheral_), scl(scl_), sda(sda_)
+I2c::I2c(uint32_t peripheral, GpioI2c& scl, GpioI2c& sda):
+    peripheral_(peripheral), scl_(scl), sda_(sda)
 {
 }
 
-void I2c::enable(uint32_t clock_)
+void I2c::enable(uint32_t clock)
 {
     bool status;
 
-    clock = clock_;
+    clock_ = clock;
 
     // Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3)
-    SysCtrlPeripheralEnable(peripheral);
-    SysCtrlPeripheralSleepEnable(peripheral);
-    SysCtrlPeripheralDeepSleepDisable(peripheral);
+    SysCtrlPeripheralEnable(peripheral_);
+    SysCtrlPeripheralSleepEnable(peripheral_);
+    SysCtrlPeripheralDeepSleepDisable(peripheral_);
 
     // Reset peripheral previous to configuring it
-    SysCtrlPeripheralReset(peripheral);
+    SysCtrlPeripheralReset(peripheral_);
 
     // Configure the SCL pin
-    GPIOPinTypeI2C(scl.getPort(), scl.getPin());
-    IOCPinConfigPeriphInput(scl.getPort(), scl.getPin(), IOC_I2CMSSCL);
-    IOCPinConfigPeriphOutput(scl.getPort(), scl.getPin(), IOC_MUX_OUT_SEL_I2C_CMSSCL);
+    GPIOPinTypeI2C(scl_.getPort(), scl_.getPin());
+    IOCPinConfigPeriphInput(scl_.getPort(), scl_.getPin(), IOC_I2CMSSCL);
+    IOCPinConfigPeriphOutput(scl_.getPort(), scl_.getPin(), IOC_MUX_OUT_SEL_I2C_CMSSCL);
 
     // Configure the SDA pin
-    GPIOPinTypeI2C(sda.getPort(), sda.getPin());
-    IOCPinConfigPeriphInput(sda.getPort(), sda.getPin(), IOC_I2CMSSDA);
-    IOCPinConfigPeriphOutput(sda.getPort(), sda.getPin(), IOC_MUX_OUT_SEL_I2C_CMSSDA);
+    GPIOPinTypeI2C(sda_.getPort(), sda_.getPin());
+    IOCPinConfigPeriphInput(sda_.getPort(), sda_.getPin(), IOC_I2CMSSDA);
+    IOCPinConfigPeriphOutput(sda_.getPort(), sda_.getPin(), IOC_MUX_OUT_SEL_I2C_CMSSDA);
 
     // Configure the I2C clock
-    status = (clock == 400000 ? true : false);
+    status = (clock_ == 400000 ? true : false);
     I2CMasterInitExpClk(SysCtrlClockGet(), status);
 
     // Enable the I2C module as master
@@ -70,23 +70,23 @@ void I2c::sleep(void)
 {
     I2CMasterDisable();
 
-    GPIOPinTypeGPIOOutput(scl.getPort(), scl.getPin());
-    GPIOPinTypeGPIOOutput(sda.getPort(), sda.getPin());
+    GPIOPinTypeGPIOOutput(scl_.getPort(), scl_.getPin());
+    GPIOPinTypeGPIOOutput(sda_.getPort(), sda_.getPin());
 
-    GPIOPinWrite(scl.getPort(), scl.getPin(), 0);
-    GPIOPinWrite(sda.getPort(), sda.getPin(), 0);
+    GPIOPinWrite(scl_.getPort(), scl_.getPin(), 0);
+    GPIOPinWrite(sda_.getPort(), sda_.getPin(), 0);
 }
 
 void I2c::wakeup(void)
 {
-    enable(clock);
+    enable(clock_);
 }
 
-bool I2c::readByte(uint8_t address_, uint8_t * buffer)
+bool I2c::readByte(uint8_t address, uint8_t* buffer)
 {
     uint32_t delayTicks;
 
-    I2CMasterSlaveAddrSet(address_, true); // read
+    I2CMasterSlaveAddrSet(address, true); // read
 
     I2CMasterControl(I2C_MASTER_CMD_SINGLE_RECEIVE);
 
@@ -102,11 +102,11 @@ bool I2c::readByte(uint8_t address_, uint8_t * buffer)
     return true;
 }
 
-bool I2c::readByte(uint8_t address_, uint8_t * buffer, uint8_t size)
+bool I2c::readByte(uint8_t address, uint8_t* buffer, uint8_t size)
 {
     uint32_t delayTicks;
 
-    I2CMasterSlaveAddrSet(address_, true); // read
+    I2CMasterSlaveAddrSet(address, true); // read
 
     I2CMasterControl(I2C_MASTER_CMD_BURST_RECEIVE_START);
 
@@ -131,13 +131,13 @@ bool I2c::readByte(uint8_t address_, uint8_t * buffer, uint8_t size)
     return true;
 }
 
-bool I2c::writeByte(uint8_t address_, uint8_t register_)
+bool I2c::writeByte(uint8_t address, uint8_t byte)
 {
     uint32_t delayTicks;
 
-    I2CMasterSlaveAddrSet(address_, false); // write
+    I2CMasterSlaveAddrSet(address, false); // write
 
-    I2CMasterDataPut(register_);
+    I2CMasterDataPut(byte);
 
     I2CMasterControl(I2C_MASTER_CMD_SINGLE_SEND);
 
@@ -151,11 +151,11 @@ bool I2c::writeByte(uint8_t address_, uint8_t register_)
     return true;
 }
 
-bool I2c::writeByte(uint8_t address_, uint8_t * buffer, uint8_t size)
+bool I2c::writeByte(uint8_t address, uint8_t* buffer, uint8_t size)
 {
     uint32_t delayTicks;
 
-    I2CMasterSlaveAddrSet(address_, false); // write
+    I2CMasterSlaveAddrSet(address, false); // write
 
     I2CMasterDataPut(*buffer++);
     size--;

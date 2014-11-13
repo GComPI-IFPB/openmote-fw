@@ -27,24 +27,24 @@
 
 /*================================= public ==================================*/
 
-SpiDriver::SpiDriver(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
-         GpioSpi& miso_, GpioSpi& mosi_, GpioSpi& clk_, GpioSpi& ncs_):
-    Spi(peripheral_, base_, clock_, miso_, mosi_, clk_, ncs_)
+SpiDriver::SpiDriver(uint32_t peripheral, uint32_t base, uint32_t clock, \
+         GpioSpi& miso, GpioSpi& mosi, GpioSpi& clk, GpioSpi& ncs):
+    Spi(peripheral, base, clock, miso, mosi, clk, ncs)
 {
-    xMutex = xSemaphoreCreateMutex();
-    if (xMutex == NULL) {
+    xMutex_ = xSemaphoreCreateMutex();
+    if (xMutex_ == NULL) {
         while(true);
     }
 }
 
 void SpiDriver::lock(void)
 {
-    xSemaphoreTake(xMutex, portMAX_DELAY);
+    xSemaphoreTake(xMutex_, portMAX_DELAY);
 }
 
 void SpiDriver::unlock(void)
 {
-    xSemaphoreGive(xMutex);
+    xSemaphoreGive(xMutex_);
 }
 
 /*=============================== protected =================================*/

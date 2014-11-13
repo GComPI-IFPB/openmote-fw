@@ -30,27 +30,27 @@
 
 /*================================= public ==================================*/
 
-GpioIn::GpioIn(uint32_t port_, uint8_t pin_, uint32_t edge_):
-    Gpio(port_, pin_), edge(edge_)
+GpioIn::GpioIn(uint32_t port, uint8_t pin, uint32_t edge):
+    Gpio(port, pin), edge_(edge)
 {
     // Set the pin as input
-    GPIOPinTypeGPIOInput(port, pin);
+    GPIOPinTypeGPIOInput(port_, pin_);
 
     // Set the edge of the interrupt
-    GPIOIntTypeSet(port, pin, edge);
+    GPIOIntTypeSet(port_, pin_, edge_);
 }
 
 bool GpioIn::read(void)
 {
     uint32_t state;
-    state = GPIOPinRead(port, pin);
-    return (bool) state;
+    state = GPIOPinRead(port_, pin_);
+    return (bool)state;
 }
 
-void GpioIn::setCallback(Callback* callback_)
+void GpioIn::setCallback(Callback* callback)
 {
     // Save the pointer to the callback function
-    callback = callback_;
+    callback_ = callback;
 
     // Get a reference to the interruptHandler object
     InterruptHandler& interruptHandler = InterruptHandler::getInstance();
@@ -62,29 +62,29 @@ void GpioIn::setCallback(Callback* callback_)
 void GpioIn::clearCallback(void)
 {
     // Clear the pointer to the callback function
-    callback = nullptr;
+    callback_ = nullptr;
 }
 
-void GpioIn::enableInterrupt(void)
+void GpioIn::enableInterrupts(void)
 {
     // Clear the interrupt
-    GPIOPinIntClear(port, pin);
+    GPIOPinIntClear(port_, pin_);
 
     // Enable the interrupt
-    GPIOPinIntEnable(port, pin);
+    GPIOPinIntEnable(port_, pin_);
 }
 
-void GpioIn::disableInterrupt(void)
+void GpioIn::disableInterrupts(void)
 {
     // Disable the interrupt
-    GPIOPinIntDisable(port, pin);
+    GPIOPinIntDisable(port_, pin_);
 }
 
 void GpioIn::interruptHandler(void)
 {
     // Call the interrupt handler if it is NOT null
-    if (callback != nullptr) {
-        callback->execute();
+    if (callback_ != nullptr) {
+        callback_->execute();
     }
 }
 

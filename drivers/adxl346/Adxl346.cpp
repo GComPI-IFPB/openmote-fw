@@ -179,13 +179,13 @@ bool Adxl346::isPresent(void)
 void Adxl346::setCallback(Callback* callback_)
 {
     gpio.setCallback(callback_);
-    gpio.enableInterrupt();
+    gpio.enableInterrupts();
 }
 
 void Adxl346::clearCallback(void)
 {
     gpio.clearCallback();
-    gpio.disableInterrupt();
+    gpio.disableInterrupts();
 }
 
 bool Adxl346::readAcceleration(void)

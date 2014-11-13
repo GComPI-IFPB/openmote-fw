@@ -24,7 +24,7 @@ class GpioOut : public Gpio
 {
 
 public:
-    GpioOut(uint32_t port_, uint8_t pin_);
+    GpioOut(uint32_t port, uint8_t pin);
     void on(void);
     void off(void);
     void toggle(void);

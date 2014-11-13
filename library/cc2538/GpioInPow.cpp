@@ -30,14 +30,14 @@
 /*================================= public ==================================*/
 
 
-GpioInPow::GpioInPow(uint32_t port_, uint8_t pin_, uint32_t edge_):
-    GpioIn(port_, pin_, edge_)
+GpioInPow::GpioInPow(uint32_t port, uint8_t pin, uint32_t edge):
+    GpioIn(port, pin, edge)
 {
     // Set the pin as input
-    GPIOPinTypeGPIOInput(port, pin);
+    GPIOPinTypeGPIOInput(port_, pin_);
 
     // Set the edge of the interrupt
-    GPIOPowIntTypeSet(port, pin, edge);
+    GPIOPowIntTypeSet(port_, pin_, edge_);
 
     // Enable the interrupt wakeup capability of the port
     if(port_ == GPIO_A_BASE)
@@ -58,19 +58,19 @@ GpioInPow::GpioInPow(uint32_t port_, uint8_t pin_, uint32_t edge_):
     }
 }
 
-void GpioInPow::enableInterrupt(void)
+void GpioInPow::enableInterrupts(void)
 {
     // Clear the power interrupt
-    GPIOPowIntClear(port, pin);
+    GPIOPowIntClear(port_, pin_);
 
     // Enable the power intrrupt
-    GPIOPowIntEnable(port, pin);
+    GPIOPowIntEnable(port_, pin_);
 }
 
-void GpioInPow::disableInterrupt(void)
+void GpioInPow::disableInterrupts(void)
 {
     // Enable the power intrrupt
-    GPIOPowIntDisable(port, pin);
+    GPIOPowIntDisable(port_, pin_);
 }
 
 /*=============================== protected =================================*/

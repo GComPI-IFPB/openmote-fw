@@ -23,11 +23,11 @@
 class GpioAdc : public Gpio
 {
 public:
-    GpioAdc(uint32_t port_, uint8_t pin_, uint32_t adc_);
-    void init(uint32_t resolution_, uint32_t reference_);
+    GpioAdc(uint32_t port, uint8_t pin, uint32_t adc);
+    void init(uint32_t resolution, uint32_t reference);
     uint32_t read(void);
 private:
-    uint32_t adc;
+    uint32_t adc_;
 };
 
 #endif /* GPIO_ADC_H_ */

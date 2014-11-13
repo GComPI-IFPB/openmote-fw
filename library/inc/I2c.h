@@ -29,22 +29,22 @@ class I2c
 friend class InterruptHandler;
 
 public:
-    I2c(uint32_t peripheral_, GpioI2c& scl_, GpioI2c& sda_);
-    void enable(uint32_t clock_);
+    I2c(uint32_t peripheral, GpioI2c& scl, GpioI2c& sda);
+    void enable(uint32_t clock);
     void sleep(void);
     void wakeup(void);
-    bool readByte(uint8_t address_, uint8_t * buffer);
-    bool readByte(uint8_t address_, uint8_t * buffer, uint8_t size);
-    bool writeByte(uint8_t address_, uint8_t register_);
-    bool writeByte(uint8_t address_, uint8_t * buffer, uint8_t size);
+    bool readByte(uint8_t address, uint8_t* buffer);
+    bool readByte(uint8_t address, uint8_t* buffer, uint8_t size);
+    bool writeByte(uint8_t address, uint8_t byte);
+    bool writeByte(uint8_t address, uint8_t* buffer, uint8_t size);
 protected:
     void interruptHandler(void);
 private:
-    uint32_t peripheral;
-    uint32_t clock;
+    uint32_t peripheral_;
+    uint32_t clock_;
 
-    GpioI2c& scl;
-    GpioI2c& sda;
+    GpioI2c& scl_;
+    GpioI2c& sda_;
 };
 
 #endif /* I2C_H_ */

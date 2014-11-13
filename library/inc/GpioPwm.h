@@ -23,7 +23,7 @@
 class GpioPwm : public Gpio
 {
 public:
-    GpioPwm(uint32_t port_, uint8_t pin_);
+    GpioPwm(uint32_t port, uint8_t pin);
 };
 
 #endif /* GPIO_PWM_H_ */

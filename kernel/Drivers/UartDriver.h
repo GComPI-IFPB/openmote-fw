@@ -25,8 +25,8 @@
 class UartDriver : public Uart
 {
 public:
-    UartDriver(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
-               uint32_t interrupt_, GpioUart& rx_, GpioUart& tx_);
+    UartDriver(uint32_t peripheral, uint32_t base, uint32_t clock, \
+               uint32_t interrupt, GpioUart& rx, GpioUart& tx);
     void rxLock(void);
     void rxUnlock(void);
     void rxUnlockFromInterrupt(void);
@@ -34,10 +34,10 @@ public:
     void txUnlock(void);
     void txUnlockFromInterrupt(void);
 private:
-    SemaphoreHandle_t rxMutex;
-    BaseType_t rxHigherPriorityTaskWoken;
-    SemaphoreHandle_t txMutex;
-    BaseType_t txHigherPriorityTaskWoken;
+    SemaphoreHandle_t rxMutex_;
+    BaseType_t rxHigherPriorityTaskWoken_;
+    SemaphoreHandle_t txMutex_;
+    BaseType_t txHigherPriorityTaskWoken_;
 };
 
 #endif /* UART_DRIVER_H_ */

@@ -29,16 +29,16 @@ class Spi
 friend class InterruptHandler;
 
 public:
-    Spi(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
-        GpioSpi& miso_, GpioSpi& mosi_, GpioSpi& clk_, GpioSpi& ncs_);
+    Spi(uint32_t peripheral, uint32_t base, uint32_t clock, \
+        GpioSpi& miso, GpioSpi& mosi, GpioSpi& clk, GpioSpi& ncs);
     uint32_t getBase(void);
-    void enable(uint32_t mode_, uint32_t protocol_, uint32_t datawidth_, uint32_t baudrate_);
+    void enable(uint32_t mode, uint32_t protocol, uint32_t datawidth, uint32_t baudrate);
     void sleep(void);
     void wakeup(void);
-    void setRxCallback(Callback* callback_);
-    void setTxCallback(Callback* callback_);
-    void enableInterrupt(void);
-    void disableInterrupt(void);
+    void setRxCallback(Callback* callback);
+    void setTxCallback(Callback* callback);
+    void enableInterrupts(void);
+    void disableInterrupts(void);
     void select(void);
     void deselect(void);
     uint8_t readByte(void);
@@ -51,22 +51,22 @@ private:
     void interruptHandlerRx();
     void interruptHandlerTx();
 private:
-    uint32_t peripheral;
-    uint32_t base;
-    uint32_t clock;
-    uint32_t interrupt;
-    uint32_t mode;
-    uint32_t protocol;
-    uint32_t baudrate;
-    uint32_t datawidth;
+    uint32_t peripheral_;
+    uint32_t base_;
+    uint32_t clock_;
+    uint32_t interrupt_;
+    uint32_t mode_;
+    uint32_t protocol_;
+    uint32_t baudrate_;
+    uint32_t datawidth_;
 
-    GpioSpi& miso;
-    GpioSpi& mosi;
-    GpioSpi& clk;
-    GpioSpi& ncs;
+    GpioSpi& miso_;
+    GpioSpi& mosi_;
+    GpioSpi& clk_;
+    GpioSpi& ncs_;
 
-    Callback* rx_callback;
-    Callback* tx_callback;
+    Callback* rx_callback_;
+    Callback* tx_callback_;
 };
 
 #endif /* SPI_H_ */

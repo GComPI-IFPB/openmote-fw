@@ -27,53 +27,53 @@
 
 /*================================= public ==================================*/
 
-UartDriver::UartDriver(uint32_t peripheral_, uint32_t base_, uint32_t clock_, \
-                       uint32_t interrupt_, GpioUart& rx_, GpioUart& tx_):
-    Uart(peripheral_, base_, clock_, interrupt_, rx_, tx_)
+UartDriver::UartDriver(uint32_t peripheral, uint32_t base, uint32_t clock, \
+                       uint32_t interrupt, GpioUart& rx, GpioUart& tx):
+    Uart(peripheral, base, clock, interrupt, rx, tx)
 {
-    rxMutex = xSemaphoreCreateMutex();
-    if (rxMutex == NULL) {
+    rxMutex_ = xSemaphoreCreateMutex();
+    if (rxMutex_ == NULL) {
         while(true);
     }
 
-    txMutex = xSemaphoreCreateMutex();
-    if (txMutex == NULL) {
+    txMutex_ = xSemaphoreCreateMutex();
+    if (txMutex_ == NULL) {
         while(true);
     }
 }
 
 void UartDriver::rxLock(void)
 {
-    xSemaphoreTake(rxMutex, portMAX_DELAY);
+    xSemaphoreTake(rxMutex_, portMAX_DELAY);
 }
 
 void UartDriver::rxUnlock(void)
 {
-    xSemaphoreGive(rxMutex);
+    xSemaphoreGive(rxMutex_);
 }
 
 void UartDriver::txLock(void)
 {
-    xSemaphoreTake(txMutex, portMAX_DELAY);
+    xSemaphoreTake(txMutex_, portMAX_DELAY);
 }
 
 void UartDriver::txUnlock(void)
 {
-    xSemaphoreGive(txMutex);
+    xSemaphoreGive(txMutex_);
 }
 
 void UartDriver::rxUnlockFromInterrupt(void)
 {
-    rxHigherPriorityTaskWoken = pdFALSE;
-    xSemaphoreGiveFromISR(rxMutex, &rxHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(rxHigherPriorityTaskWoken);
+    rxHigherPriorityTaskWoken_ = pdFALSE;
+    xSemaphoreGiveFromISR(rxMutex_, &rxHigherPriorityTaskWoken_);
+    portYIELD_FROM_ISR(rxHigherPriorityTaskWoken_);
 }
 
 void UartDriver::txUnlockFromInterrupt(void)
 {
-    txHigherPriorityTaskWoken = pdFALSE;
-    xSemaphoreGiveFromISR(txMutex, &txHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(txHigherPriorityTaskWoken);
+    txHigherPriorityTaskWoken_ = pdFALSE;
+    xSemaphoreGiveFromISR(txMutex_, &txHigherPriorityTaskWoken_);
+    portYIELD_FROM_ISR(txHigherPriorityTaskWoken_);
 }
 
 /*=============================== protected =================================*/

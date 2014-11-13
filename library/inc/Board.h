@@ -30,7 +30,7 @@ class Board {
 public:
     Board();
     void reset(void);
-    void setSleepMode(SleepMode sleepMode_);
+    void setSleepMode(SleepMode sleepMode);
     void sleep(void);
     void wakeup(void);
     void enableInterrupts(void);
@@ -39,10 +39,10 @@ public:
     void getEUI48(uint8_t* address);
     void getEUI64(uint8_t* address);
 private:
-    void flashEraseCallback_(void);
+    void flashEraseCallback(void);
 private:
-    SleepMode sleepMode;
-    BoardCallback flashEraseCallback;
+    SleepMode sleepMode_;
+    BoardCallback flashEraseCallback_;
 };
 
 #endif /* BOARD_H_ */

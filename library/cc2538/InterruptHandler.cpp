@@ -24,7 +24,8 @@
 #include "I2c.h"
 #include "Spi.h"
 #include "Radio.h"
-#include "Rtc.h"
+#include "SleepTimer.h"
+#include "RadioTimer.h"
 #include "SysTick.h"
 
 #include "cc2538_include.h"
@@ -35,31 +36,32 @@
 
 /*=============================== variables =================================*/
 
-InterruptHandler InterruptHandler::instance;
+InterruptHandler InterruptHandler::instance_;
 
-GpioIn* InterruptHandler::GPIOA_interruptVector[8];
-GpioIn* InterruptHandler::GPIOB_interruptVector[8];
-GpioIn* InterruptHandler::GPIOC_interruptVector[8];
-GpioIn* InterruptHandler::GPIOD_interruptVector[8];
+GpioIn* InterruptHandler::GPIOA_interruptVector_[8];
+GpioIn* InterruptHandler::GPIOB_interruptVector_[8];
+GpioIn* InterruptHandler::GPIOC_interruptVector_[8];
+GpioIn* InterruptHandler::GPIOD_interruptVector_[8];
 
-Timer* InterruptHandler::TIMER0_interruptVector[2];
-Timer* InterruptHandler::TIMER1_interruptVector[2];
-Timer* InterruptHandler::TIMER2_interruptVector[2];
-Timer* InterruptHandler::TIMER3_interruptVector[2];
+Timer* InterruptHandler::TIMER0_interruptVector_[2];
+Timer* InterruptHandler::TIMER1_interruptVector_[2];
+Timer* InterruptHandler::TIMER2_interruptVector_[2];
+Timer* InterruptHandler::TIMER3_interruptVector_[2];
 
-Rtc* InterruptHandler::RTC_interruptVector;
+SleepTimer* InterruptHandler::SleepTimer_interruptVector_;
+RadioTimer* InterruptHandler::RadioTimer_interruptVector_;
 
-Uart* InterruptHandler::UART0_interruptVector;
-Uart* InterruptHandler::UART1_interruptVector;
+Uart* InterruptHandler::UART0_interruptVector_;
+Uart* InterruptHandler::UART1_interruptVector_;
 
-I2c* InterruptHandler::I2C_interruptVector;
+I2c* InterruptHandler::I2C_interruptVector_;
 
-Spi* InterruptHandler::SPI0_interruptVector;
-Spi* InterruptHandler::SPI1_interruptVector;
+Spi* InterruptHandler::SPI0_interruptVector_;
+Spi* InterruptHandler::SPI1_interruptVector_;
 
-SysTick* InterruptHandler::SysTick_interruptVector;
+SysTick* InterruptHandler::SysTick_interruptVector_;
 
-Radio* InterruptHandler::Radio_interruptVector;
+Radio* InterruptHandler::Radio_interruptVector_;
 
 /*=============================== prototypes ================================*/
 
@@ -68,128 +70,128 @@ Radio* InterruptHandler::Radio_interruptVector;
 InterruptHandler &InterruptHandler::getInstance(void)
 {
     // Returns the only instance of the InterruptHandler
-    return instance;
+    return instance_;
 }
 
-void InterruptHandler::setInterruptHandler(GpioIn * gpio_)
+void InterruptHandler::setInterruptHandler(GpioIn * gpio)
 {
     // Get the GPIO port and pin
-    uint32_t port_ = gpio_->getPort();
-    uint8_t pin_   = gpio_->getPin();
+    uint32_t port = gpio->getPort();
+    uint8_t pin   = gpio->getPin();
 
     // Select the pin number
-    if (pin_ == GPIO_PIN_0)
+    if (pin == GPIO_PIN_0)
     {
-        pin_ = 0;
+        pin = 0;
     }
-    else if (pin_ == GPIO_PIN_1)
+    else if (pin == GPIO_PIN_1)
     {
-        pin_ = 1;
+        pin = 1;
     }
-    else if (pin_ == GPIO_PIN_2)
+    else if (pin == GPIO_PIN_2)
     {
-        pin_ = 2;
+        pin = 2;
     }
-    else if (pin_ == GPIO_PIN_3)
+    else if (pin == GPIO_PIN_3)
     {
-        pin_ = 3;
+        pin = 3;
     }
-    else if (pin_ == GPIO_PIN_4)
+    else if (pin == GPIO_PIN_4)
     {
-        pin_ = 4;
+        pin = 4;
     }
-    else if (pin_ == GPIO_PIN_5)
+    else if (pin == GPIO_PIN_5)
     {
-        pin_ = 5;
+        pin = 5;
     }
-    else if (pin_ == GPIO_PIN_6)
+    else if (pin == GPIO_PIN_6)
     {
-        pin_ = 6;
+        pin = 6;
     }
-    else if (pin_ == GPIO_PIN_7)
+    else if (pin == GPIO_PIN_7)
     {
-        pin_ = 7;
+        pin = 7;
     }
 
     // Store a pointer to the GPIO object in the interrupt vector
-    if (port_ == GPIO_A_BASE)
+    if (port == GPIO_A_BASE)
     {
-        GPIOA_interruptVector[pin_] = gpio_;
+        GPIOA_interruptVector_[pin] = gpio;
         IntPrioritySet(INT_GPIOA, (7 << 5));
     }
-    else if (port_ == GPIO_B_BASE)
+    else if (port == GPIO_B_BASE)
     {
-        GPIOB_interruptVector[pin_] = gpio_;
+        GPIOB_interruptVector_[pin] = gpio;
         IntPrioritySet(INT_GPIOB, (7 << 5));
     }
-    else if (port_ == GPIO_C_BASE)
+    else if (port == GPIO_C_BASE)
     {
-        GPIOC_interruptVector[pin_] = gpio_;
+        GPIOC_interruptVector_[pin] = gpio;
         IntPrioritySet(INT_GPIOC, (7 << 5));
     }
-    else if (port_ == GPIO_D_BASE)
+    else if (port == GPIO_D_BASE)
     {
-        GPIOD_interruptVector[pin_] = gpio_;
+        GPIOD_interruptVector_[pin] = gpio;
         IntPrioritySet(INT_GPIOD, (7 << 5));
     }
 }
 
-void InterruptHandler::clearInterruptHandler(GpioIn * gpio_)
+void InterruptHandler::clearInterruptHandler(GpioIn* gpio)
 {
     // Get the GPIO port and pin
-    uint32_t port_ = gpio_->getPort();
-    uint8_t pin_   = gpio_->getPin();
+    uint32_t port = gpio->getPort();
+    uint8_t pin   = gpio->getPin();
 
     // Select the pin number
-    if (pin_ == GPIO_PIN_0)
+    if (pin == GPIO_PIN_0)
     {
-        pin_ = 0;
+        pin = 0;
     }
-    else if (pin_ == GPIO_PIN_1)
+    else if (pin == GPIO_PIN_1)
     {
-        pin_ = 1;
+        pin = 1;
     }
-    else if (pin_ == GPIO_PIN_2)
+    else if (pin == GPIO_PIN_2)
     {
-        pin_ = 2;
+        pin = 2;
     }
-    else if (pin_ == GPIO_PIN_3)
+    else if (pin == GPIO_PIN_3)
     {
-        pin_ = 3;
+        pin = 3;
     }
-    else if (pin_ == GPIO_PIN_4)
+    else if (pin == GPIO_PIN_4)
     {
-        pin_ = 4;
+        pin = 4;
     }
-    else if (pin_ == GPIO_PIN_5)
+    else if (pin == GPIO_PIN_5)
     {
-        pin_ = 5;
+        pin = 5;
     }
-    else if (pin_ == GPIO_PIN_6)
+    else if (pin == GPIO_PIN_6)
     {
-        pin_ = 6;
+        pin = 6;
     }
-    else if (pin_ == GPIO_PIN_7)
+    else if (pin == GPIO_PIN_7)
     {
-        pin_ = 7;
+        pin = 7;
     }
 
     // Remove the pointer to the GPIO object in the interrupt vector
-    if (port_ == GPIO_A_BASE)
+    if (port == GPIO_A_BASE)
     {
-        GPIOA_interruptVector[pin_] = nullptr;
+        GPIOA_interruptVector_[pin] = nullptr;
     }
-    else if (port_ == GPIO_B_BASE)
+    else if (port == GPIO_B_BASE)
     {
-        GPIOB_interruptVector[pin_] = nullptr;
+        GPIOB_interruptVector_[pin] = nullptr;
     }
-    else if (port_ == GPIO_C_BASE)
+    else if (port == GPIO_C_BASE)
     {
-        GPIOC_interruptVector[pin_] = nullptr;
+        GPIOC_interruptVector_[pin] = nullptr;
     }
-    else if (port_ == GPIO_D_BASE)
+    else if (port == GPIO_D_BASE)
     {
-        GPIOD_interruptVector[pin_] = nullptr;
+        GPIOD_interruptVector_[pin] = nullptr;
     }
 }
 
@@ -204,11 +206,11 @@ void InterruptHandler::setInterruptHandler(Timer* timer_)
         if ( (source == GPTIMER_A) || \
              (source == GPTIMER_BOTH) )
         {
-            TIMER0_interruptVector[0] = timer_;
+            TIMER0_interruptVector_[0] = timer_;
         }
         else if (source == GPTIMER_B)
         {
-            TIMER0_interruptVector[1] = timer_;
+            TIMER0_interruptVector_[1] = timer_;
         }
     }
     else if (base == GPTIMER1_BASE)
@@ -216,11 +218,11 @@ void InterruptHandler::setInterruptHandler(Timer* timer_)
         if ( (source == GPTIMER_A) || \
              (source == GPTIMER_BOTH) )
         {
-            TIMER1_interruptVector[0] = timer_;
+            TIMER1_interruptVector_[0] = timer_;
         }
         else if (source == GPTIMER_B)
         {
-            TIMER1_interruptVector[1] = timer_;
+            TIMER1_interruptVector_[1] = timer_;
         }
     }
     else if (base == GPTIMER2_BASE)
@@ -228,11 +230,11 @@ void InterruptHandler::setInterruptHandler(Timer* timer_)
         if ( (source == GPTIMER_A) || \
              (source == GPTIMER_BOTH) )
         {
-            TIMER2_interruptVector[0] = timer_;
+            TIMER2_interruptVector_[0] = timer_;
         }
         else if (source == GPTIMER_B)
         {
-            TIMER2_interruptVector[1] = timer_;
+            TIMER2_interruptVector_[1] = timer_;
         }
     }
     else if (base == GPTIMER3_BASE)
@@ -240,11 +242,11 @@ void InterruptHandler::setInterruptHandler(Timer* timer_)
         if ( (source == GPTIMER_A) || \
              (source == GPTIMER_BOTH) )
         {
-            TIMER3_interruptVector[0] = timer_;
+            TIMER3_interruptVector_[0] = timer_;
         }
         else if (source == GPTIMER_B)
         {
-            TIMER3_interruptVector[1] = timer_;
+            TIMER3_interruptVector_[1] = timer_;
         }
     }
 }
@@ -260,11 +262,11 @@ void InterruptHandler::clearInterruptHandler(Timer* timer_)
         if ( (source == GPTIMER_A) || \
              (source == GPTIMER_BOTH) )
         {
-            TIMER0_interruptVector[0] = nullptr;
+            TIMER0_interruptVector_[0] = nullptr;
         }
         else if (source == GPTIMER_B)
         {
-            TIMER0_interruptVector[1] = nullptr;
+            TIMER0_interruptVector_[1] = nullptr;
         }
     }
     else if (base == GPTIMER1_BASE)
@@ -272,11 +274,11 @@ void InterruptHandler::clearInterruptHandler(Timer* timer_)
         if ( (source == GPTIMER_A) || \
              (source == GPTIMER_BOTH) )
         {
-            TIMER1_interruptVector[0] = nullptr;
+            TIMER1_interruptVector_[0] = nullptr;
         }
         else if (source == GPTIMER_B)
         {
-            TIMER1_interruptVector[1] = nullptr;
+            TIMER1_interruptVector_[1] = nullptr;
         }
     }
     else if (base == GPTIMER2_BASE)
@@ -284,11 +286,11 @@ void InterruptHandler::clearInterruptHandler(Timer* timer_)
         if ( (source == GPTIMER_A) || \
              (source == GPTIMER_BOTH) )
         {
-            TIMER2_interruptVector[0] = nullptr;
+            TIMER2_interruptVector_[0] = nullptr;
         }
         else if (source == GPTIMER_B)
         {
-            TIMER2_interruptVector[1] = nullptr;
+            TIMER2_interruptVector_[1] = nullptr;
         }
     }
     else if (base == GPTIMER3_BASE)
@@ -296,11 +298,11 @@ void InterruptHandler::clearInterruptHandler(Timer* timer_)
         if ( (source == GPTIMER_A) || \
              (source == GPTIMER_BOTH) )
         {
-            TIMER3_interruptVector[0] = nullptr;
+            TIMER3_interruptVector_[0] = nullptr;
         }
         else if (source == GPTIMER_B)
         {
-            TIMER3_interruptVector[1] = nullptr;
+            TIMER3_interruptVector_[1] = nullptr;
         }
     }
 }
@@ -313,11 +315,11 @@ void InterruptHandler::setInterruptHandler(Uart * uart_)
     // Store a pointer to the UART object in the interrupt vector
     if (base == UART0_BASE)
     {
-        UART0_interruptVector = uart_;
+        UART0_interruptVector_ = uart_;
     }
     else if (base == UART1_BASE)
     {
-        UART1_interruptVector = uart_;
+        UART1_interruptVector_ = uart_;
     }
 }
 
@@ -329,24 +331,24 @@ void InterruptHandler::clearInterruptHandler(Uart * uart_)
     // Remove the pointer to the UART object in the interrupt vector
     if (base == UART0_BASE)
     {
-        UART0_interruptVector = nullptr;
+        UART0_interruptVector_ = nullptr;
     }
     else if (base == UART1_BASE)
     {
-        UART1_interruptVector = nullptr;
+        UART1_interruptVector_ = nullptr;
     }
 }
 
 void InterruptHandler::setInterruptHandler(I2c * i2c_)
 {
     // Store a pointer to the I2C object in the interrupt vector
-    I2C_interruptVector = i2c_;
+    I2C_interruptVector_ = i2c_;
 }
 
 void InterruptHandler::clearInterruptHandler(I2c * i2c_)
 {
     // Remvoe the pointer to the I2C object in the interrupt vector
-    I2C_interruptVector = nullptr;
+    I2C_interruptVector_ = nullptr;
 }
 
 void InterruptHandler::setInterruptHandler(Spi * spi_)
@@ -357,11 +359,11 @@ void InterruptHandler::setInterruptHandler(Spi * spi_)
     // Store a pointer to the UART object in the interrupt vector
     if (base == SSI0_BASE)
     {
-        SPI0_interruptVector = spi_;
+        SPI0_interruptVector_ = spi_;
     }
     else if (base == SSI1_BASE)
     {
-        SPI1_interruptVector = spi_;
+        SPI1_interruptVector_ = spi_;
     }
 }
 
@@ -373,34 +375,44 @@ void InterruptHandler::clearInterruptHandler(Spi * spi_)
     // Remove the pointer to the UART object in the interrupt vector
     if (base == SSI0_BASE)
     {
-        SPI0_interruptVector = nullptr;
+        SPI0_interruptVector_ = nullptr;
     }
     else if (base == SSI1_BASE)
     {
-        SPI1_interruptVector = nullptr;
+        SPI1_interruptVector_ = nullptr;
     }
 }
 
 void InterruptHandler::setInterruptHandler(Radio * radio_)
 {
     // Store a pointer to the RADIO object in the interrupt vector
-    Radio_interruptVector = radio_;
+    Radio_interruptVector_ = radio_;
 }
 
 void InterruptHandler::clearInterruptHandler(Radio * radio_)
 {
     // Remove the pointer to the RADIO object in the interrupt vector
-    Radio_interruptVector = nullptr;
+    Radio_interruptVector_ = nullptr;
 }
 
-void InterruptHandler::setInterruptHandler(Rtc *rtc_)
+void InterruptHandler::setInterruptHandler(SleepTimer * sleepTimer_)
 {
-    RTC_interruptVector = rtc_;
+    SleepTimer_interruptVector_ = sleepTimer_;
 }
 
-void InterruptHandler::clearInterruptHandler(Rtc *rtc_)
+void InterruptHandler::clearInterruptHandler(SleepTimer * sleepTimer_)
 {
-    RTC_interruptVector = nullptr;
+    SleepTimer_interruptVector_ = nullptr;
+}
+
+void InterruptHandler::setInterruptHandler(RadioTimer * radioTimer_)
+{
+    RadioTimer_interruptVector_ = radioTimer_;
+}
+
+void InterruptHandler::clearInterruptHandler(RadioTimer * radioimer_)
+{
+    RadioTimer_interruptVector_ = nullptr;
 }
 
 /*=============================== protected =================================*/
@@ -447,8 +459,11 @@ InterruptHandler::InterruptHandler()
     IntRegister(INT_RFCORERTX, RFCore_InterruptHandler);
     IntRegister(INT_RFCOREERR, RFError_InterruptHandler);
 
-    // Register the RTC interrupt handler
-    SleepModeIntRegister(RTC_InterruptHandler);
+    // Register the SleepTimer interrupt handler
+    SleepModeIntRegister(SleepTimer_InterruptHandler);
+
+    // Register the RadioTimer interrupt handler
+    IntRegister(INT_MACTIMR, RadioTimer_InterruptHandler);
 }
 
 inline void InterruptHandler::GPIOA_InterruptHandler(void)
@@ -477,35 +492,35 @@ inline void InterruptHandler::GPIOA_InterruptHandler(void)
     // Call all the GPIO interrupt handlers
     if (status & GPIO_PIN_0)
     {
-        GPIOA_interruptVector[0]->interruptHandler();
+        GPIOA_interruptVector_[0]->interruptHandler();
     }
     if (status & GPIO_PIN_1)
     {
-        GPIOA_interruptVector[1]->interruptHandler();
+        GPIOA_interruptVector_[1]->interruptHandler();
     }
     if (status & GPIO_PIN_2)
     {
-        GPIOA_interruptVector[2]->interruptHandler();
+        GPIOA_interruptVector_[2]->interruptHandler();
     }
     if (status & GPIO_PIN_3)
     {
-        GPIOA_interruptVector[3]->interruptHandler();
+        GPIOA_interruptVector_[3]->interruptHandler();
     }
     if (status & GPIO_PIN_4)
     {
-        GPIOA_interruptVector[4]->interruptHandler();
+        GPIOA_interruptVector_[4]->interruptHandler();
     }
     if (status & GPIO_PIN_5)
     {
-        GPIOA_interruptVector[5]->interruptHandler();
+        GPIOA_interruptVector_[5]->interruptHandler();
     }
     if (status & GPIO_PIN_6)
     {
-        GPIOA_interruptVector[6]->interruptHandler();
+        GPIOA_interruptVector_[6]->interruptHandler();
     }
     if (status & GPIO_PIN_7)
     {
-        GPIOA_interruptVector[7]->interruptHandler();
+        GPIOA_interruptVector_[7]->interruptHandler();
     }
 }
 
@@ -535,35 +550,35 @@ inline void InterruptHandler::GPIOB_InterruptHandler(void)
     // Call all the GPIO interrupt handlers
     if (status & GPIO_PIN_0)
     {
-        GPIOB_interruptVector[0]->interruptHandler();
+        GPIOB_interruptVector_[0]->interruptHandler();
     }
     if (status & GPIO_PIN_1)
     {
-        GPIOB_interruptVector[1]->interruptHandler();
+        GPIOB_interruptVector_[1]->interruptHandler();
     }
     if (status & GPIO_PIN_2)
     {
-        GPIOB_interruptVector[2]->interruptHandler();
+        GPIOB_interruptVector_[2]->interruptHandler();
     }
     if (status & GPIO_PIN_3)
     {
-        GPIOB_interruptVector[3]->interruptHandler();
+        GPIOB_interruptVector_[3]->interruptHandler();
     }
     if (status & GPIO_PIN_4)
     {
-        GPIOB_interruptVector[4]->interruptHandler();
+        GPIOB_interruptVector_[4]->interruptHandler();
     }
     if (status & GPIO_PIN_5)
     {
-        GPIOB_interruptVector[5]->interruptHandler();
+        GPIOB_interruptVector_[5]->interruptHandler();
     }
     if (status & GPIO_PIN_6)
     {
-        GPIOB_interruptVector[6]->interruptHandler();
+        GPIOB_interruptVector_[6]->interruptHandler();
     }
     if (status & GPIO_PIN_7)
     {
-        GPIOB_interruptVector[7]->interruptHandler();
+        GPIOB_interruptVector_[7]->interruptHandler();
     }
 }
 
@@ -593,35 +608,35 @@ inline void InterruptHandler::GPIOC_InterruptHandler(void)
     // Call all the GPIO interrupt handlers
     if (status & GPIO_PIN_0)
     {
-        GPIOC_interruptVector[0]->interruptHandler();
+        GPIOC_interruptVector_[0]->interruptHandler();
     }
     if (status & GPIO_PIN_1)
     {
-        GPIOC_interruptVector[1]->interruptHandler();
+        GPIOC_interruptVector_[1]->interruptHandler();
     }
     if (status & GPIO_PIN_2)
     {
-        GPIOC_interruptVector[2]->interruptHandler();
+        GPIOC_interruptVector_[2]->interruptHandler();
     }
     if (status & GPIO_PIN_3)
     {
-        GPIOC_interruptVector[3]->interruptHandler();
+        GPIOC_interruptVector_[3]->interruptHandler();
     }
     if (status & GPIO_PIN_4)
     {
-        GPIOC_interruptVector[4]->interruptHandler();
+        GPIOC_interruptVector_[4]->interruptHandler();
     }
     if (status & GPIO_PIN_5)
     {
-        GPIOC_interruptVector[5]->interruptHandler();
+        GPIOC_interruptVector_[5]->interruptHandler();
     }
     if (status & GPIO_PIN_6)
     {
-        GPIOC_interruptVector[6]->interruptHandler();
+        GPIOC_interruptVector_[6]->interruptHandler();
     }
     if (status & GPIO_PIN_7)
     {
-        GPIOC_interruptVector[7]->interruptHandler();
+        GPIOC_interruptVector_[7]->interruptHandler();
     }
 }
 
@@ -651,35 +666,35 @@ inline void InterruptHandler::GPIOD_InterruptHandler(void)
     // Call all the GPIO interrupt handlers
     if (status & GPIO_PIN_0)
     {
-        GPIOD_interruptVector[0]->interruptHandler();
+        GPIOD_interruptVector_[0]->interruptHandler();
     }
     if (status & GPIO_PIN_1)
     {
-        GPIOD_interruptVector[1]->interruptHandler();
+        GPIOD_interruptVector_[1]->interruptHandler();
     }
     if (status & GPIO_PIN_2)
     {
-        GPIOD_interruptVector[2]->interruptHandler();
+        GPIOD_interruptVector_[2]->interruptHandler();
     }
     if (status & GPIO_PIN_3)
     {
-        GPIOD_interruptVector[3]->interruptHandler();
+        GPIOD_interruptVector_[3]->interruptHandler();
     }
     if (status & GPIO_PIN_4)
     {
-        GPIOD_interruptVector[4]->interruptHandler();
+        GPIOD_interruptVector_[4]->interruptHandler();
     }
     if (status & GPIO_PIN_5)
     {
-        GPIOD_interruptVector[5]->interruptHandler();
+        GPIOD_interruptVector_[5]->interruptHandler();
     }
     if (status & GPIO_PIN_6)
     {
-        GPIOD_interruptVector[6]->interruptHandler();
+        GPIOD_interruptVector_[6]->interruptHandler();
     }
     if (status & GPIO_PIN_7)
     {
-        GPIOD_interruptVector[7]->interruptHandler();
+        GPIOD_interruptVector_[7]->interruptHandler();
     }
 }
 
@@ -695,7 +710,7 @@ inline void InterruptHandler::TIMER0_InterruptHandler(void)
          (status & GPTIMER_TIMA_TIMEOUT) || \
          (status & GPTIMER_CAPA_MATCH) )
     {
-        TIMER0_interruptVector[0]->interruptHandler();
+        TIMER0_interruptVector_[0]->interruptHandler();
     }
 
     if ( (status & GPTIMER_TIMB_MATCH) || \
@@ -703,7 +718,7 @@ inline void InterruptHandler::TIMER0_InterruptHandler(void)
          (status & GPTIMER_TIMB_TIMEOUT) || \
          (status & GPTIMER_CAPB_MATCH) )
     {
-        TIMER0_interruptVector[1]->interruptHandler();
+        TIMER0_interruptVector_[1]->interruptHandler();
     }
 }
 
@@ -719,7 +734,7 @@ inline void InterruptHandler::TIMER1_InterruptHandler(void)
          (status & GPTIMER_TIMA_TIMEOUT) || \
          (status & GPTIMER_CAPA_MATCH) )
     {
-        TIMER1_interruptVector[0]->interruptHandler();
+        TIMER1_interruptVector_[0]->interruptHandler();
     }
 
     if ( (status & GPTIMER_TIMB_MATCH) || \
@@ -727,7 +742,7 @@ inline void InterruptHandler::TIMER1_InterruptHandler(void)
          (status & GPTIMER_TIMB_TIMEOUT) || \
          (status & GPTIMER_CAPB_MATCH) )
     {
-        TIMER1_interruptVector[1]->interruptHandler();
+        TIMER1_interruptVector_[1]->interruptHandler();
     }
 }
 
@@ -743,7 +758,7 @@ inline void InterruptHandler::TIMER2_InterruptHandler(void)
          (status & GPTIMER_TIMA_TIMEOUT) || \
          (status & GPTIMER_CAPA_MATCH) )
     {
-        TIMER2_interruptVector[0]->interruptHandler();
+        TIMER2_interruptVector_[0]->interruptHandler();
     }
 
     if ( (status & GPTIMER_TIMB_MATCH) || \
@@ -751,7 +766,7 @@ inline void InterruptHandler::TIMER2_InterruptHandler(void)
          (status & GPTIMER_TIMB_TIMEOUT) || \
          (status & GPTIMER_CAPB_MATCH) )
     {
-        TIMER2_interruptVector[1]->interruptHandler();
+        TIMER2_interruptVector_[1]->interruptHandler();
     }
 }
 
@@ -767,7 +782,7 @@ inline void InterruptHandler::TIMER3_InterruptHandler(void)
          (status & GPTIMER_TIMA_TIMEOUT) || \
          (status & GPTIMER_CAPA_MATCH) )
     {
-        TIMER3_interruptVector[0]->interruptHandler();
+        TIMER3_interruptVector_[0]->interruptHandler();
     }
 
     if ( (status & GPTIMER_TIMB_MATCH) || \
@@ -775,60 +790,66 @@ inline void InterruptHandler::TIMER3_InterruptHandler(void)
          (status & GPTIMER_TIMB_TIMEOUT) || \
          (status & GPTIMER_CAPB_MATCH) )
     {
-        TIMER3_interruptVector[1]->interruptHandler();
+        TIMER3_interruptVector_[1]->interruptHandler();
     }
 }
 
 inline void InterruptHandler::UART0_InterruptHandler(void)
 {
     // Call the UART interrupt handler
-    UART0_interruptVector->interruptHandler();
+    UART0_interruptVector_->interruptHandler();
 }
 
 inline void InterruptHandler::UART1_InterruptHandler(void)
 {
     // Call the UART interrupt handler
-    UART1_interruptVector->interruptHandler();
+    UART1_interruptVector_->interruptHandler();
 }
 
 inline void InterruptHandler::I2C_InterruptHandler(void)
 {
     // Call the I2C interrupt handler
-    I2C_interruptVector->interruptHandler();
+    I2C_interruptVector_->interruptHandler();
 }
 
 inline void InterruptHandler::SPI0_InterruptHandler(void)
 {
     // Call the SPI interrupt handler
-    SPI0_interruptVector->interruptHandler();
+    SPI0_interruptVector_->interruptHandler();
 }
 
 inline void InterruptHandler::SPI1_InterruptHandler(void)
 {
     // Call the SPI interrupt handler
-    SPI1_interruptVector->interruptHandler();
+    SPI1_interruptVector_->interruptHandler();
 }
 
 inline void InterruptHandler::SysTick_InterruptHandler(void)
 {
     // Call the SPI interrupt handler
-    SysTick_interruptVector->interruptHandler();
+    SysTick_interruptVector_->interruptHandler();
 }
 
 inline void InterruptHandler::RFCore_InterruptHandler(void)
 {
     // Call the RF CORE interrupt handler
-    Radio_interruptVector->interruptHandler();
+    Radio_interruptVector_->interruptHandler();
 }
 
 inline void InterruptHandler::RFError_InterruptHandler(void)
 {
     // Call the RF ERROR interrupt handler
-    Radio_interruptVector->errorHandler();
+    Radio_interruptVector_->errorHandler();
 }
 
-inline void InterruptHandler::RTC_InterruptHandler(void)
+inline void InterruptHandler::SleepTimer_InterruptHandler(void)
 {
-    // Call the RTC interrupt handler
-    RTC_interruptVector->interruptHandler();
+    // Call the SleepTimer interrupt handler
+    SleepTimer_interruptVector_->interruptHandler();
+}
+
+inline void InterruptHandler::RadioTimer_InterruptHandler(void)
+{
+    // Call the RadioTimer interrupt handler
+    RadioTimer_interruptVector_->interruptHandler();
 }

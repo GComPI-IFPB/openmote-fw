@@ -29,55 +29,55 @@
 
 /*================================= public ==================================*/
 
-Gpio::Gpio(uint32_t port_, uint8_t pin_):
-    port(port_), pin(pin_)
+Gpio::Gpio(uint32_t port, uint8_t pin):
+    port_(port), pin_(pin)
 {
 }
 
 uint32_t Gpio::getPort(void)
 {
-    return port;
+    return port_;
 }
 
 uint8_t Gpio::getPin(void)
 {
-    return pin;
+    return pin_;
 }
 
-GpioI2c::GpioI2c(uint32_t port_, uint8_t pin_):
-    Gpio(port_, pin_)
+GpioI2c::GpioI2c(uint32_t port, uint8_t pin):
+    Gpio(port, pin)
 {
 }
 
-GpioSpi::GpioSpi(uint32_t port_, uint8_t pin_, uint32_t ioc_):
-    Gpio(port_, pin_), ioc(ioc_)
+GpioSpi::GpioSpi(uint32_t port, uint8_t pin, uint32_t ioc):
+    Gpio(port, pin), ioc_(ioc)
 {
-    GPIOPinTypeGPIOOutput(port, pin);
+    GPIOPinTypeGPIOOutput(port_, pin_);
 }
 
 uint32_t GpioSpi::getIoc(void)
 {
-    return ioc;
+    return ioc_;
 }
 
 void GpioSpi::high(void)
 {
-    GPIOPinWrite(port, pin, pin);
+    GPIOPinWrite(port_, pin_, pin_);
 }
 
 void GpioSpi::low(void)
 {
-    GPIOPinWrite(port, pin, 0);
+    GPIOPinWrite(port_, pin_, 0);
 }
 
-GpioUart::GpioUart(uint32_t port_, uint8_t pin_, uint32_t ioc_):
-    Gpio(port_, pin_), ioc(ioc_)
+GpioUart::GpioUart(uint32_t port, uint8_t pin, uint32_t ioc):
+    Gpio(port, pin), ioc_(ioc)
 {
 }
 
 uint32_t GpioUart::getIoc(void)
 {
-    return ioc;
+    return ioc_;
 }
 
 /*=============================== protected =================================*/

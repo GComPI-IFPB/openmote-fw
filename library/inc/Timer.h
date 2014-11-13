@@ -26,28 +26,29 @@ class Timer
 friend class InterruptHandler;
 
 public:
-    Timer(uint32_t peripheral_, uint32_t base_, uint32_t source_, uint32_t config_, uint32_t interrupt_, uint32_t interrupt_mode_);
+    Timer(uint32_t peripheral, uint32_t base, uint32_t source, uint32_t config, uint32_t interrupt, uint32_t interrupt_mode);
     uint32_t getBase(void);
     uint32_t getSource(void);
-    void init(uint32_t frequency_);
+    void init(uint32_t frequency);
     void start(void);
     void stop(void);
-    void setCallback(Callback* callback_);
+    uint32_t read(void);
+    void setCallback(Callback* callback);
     void clearCallback(void);
-    void enableInterrupt(void);
-    void disableInterrupt(void);
+    void enableInterrupts(void);
+    void disableInterrupts(void);
 protected:
     void interruptHandler(void);
 private:
-    uint32_t peripheral;
-    uint32_t base;
-    uint32_t source;
-    uint32_t config;
-    uint32_t interrupt;
-    uint32_t interrupt_mode;
-    uint32_t frequency;
+    uint32_t peripheral_;
+    uint32_t base_;
+    uint32_t source_;
+    uint32_t config_;
+    uint32_t interrupt_;
+    uint32_t interrupt_mode_;
+    uint32_t frequency_;
 
-    Callback* callback;
+    Callback* callback_;
 };
 
 #endif /* TIMER_H_ */

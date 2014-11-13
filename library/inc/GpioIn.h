@@ -27,18 +27,18 @@ class GpioIn : public Gpio
 friend class InterruptHandler;
 
 public:
-    GpioIn(uint32_t port_, uint8_t pin_, uint32_t edge_);
+    GpioIn(uint32_t port, uint8_t pin, uint32_t edge);
     bool read(void);
-    void setCallback(Callback* callback_);
+    void setCallback(Callback* callback);
     void clearCallback(void);
-    void enableInterrupt(void);
-    void disableInterrupt(void);
+    void enableInterrupts(void);
+    void disableInterrupts(void);
 protected:
     void interruptHandler(void);
 protected:
-    uint32_t edge;
-    
-    Callback* callback;
+    uint32_t edge_;
+
+    Callback* callback_;
 };
 
 #endif /* GPIO_IN_H_ */

@@ -29,15 +29,15 @@ class Uart
 friend class InterruptHandler;
 
 public:
-    Uart(uint32_t peripheral_, uint32_t base_, uint32_t clock_, uint32_t interrupt_, GpioUart& rx_, GpioUart& tx_);
+    Uart(uint32_t peripheral, uint32_t base, uint32_t clock, uint32_t interrupt, GpioUart& rx, GpioUart& tx);
     uint32_t getBase(void);
-    void enable(uint32_t baudrate_, uint32_t config_, uint32_t mode_);
+    void enable(uint32_t baudrate, uint32_t config, uint32_t mode);
     void sleep(void);
     void wakeup(void);
-    void setRxCallback(Callback* callback_);
-    void setTxCallback(Callback* callback_);
-    void enableInterrupt(void);
-    void disableInterrupt(void);
+    void setRxCallback(Callback* callback);
+    void setTxCallback(Callback* callback);
+    void enableInterrupts(void);
+    void disableInterrupts(void);
     uint8_t readByte(void);
     uint32_t readByte(uint8_t* buffer, uint32_t length);
     void writeByte(uint8_t byte);
@@ -48,19 +48,19 @@ private:
     void interruptHandlerRx(void);
     void interruptHandlerTx(void);
 private:
-    uint32_t peripheral;
-    uint32_t base;
-    uint32_t clock;
-    uint32_t interrupt;
-    uint32_t mode;
-    uint32_t config;
-    uint32_t baudrate;
+    uint32_t peripheral_;
+    uint32_t base_;
+    uint32_t clock_;
+    uint32_t interrupt_;
+    uint32_t mode_;
+    uint32_t config_;
+    uint32_t baudrate_;
 
-    GpioUart& rx;
-    GpioUart& tx;
+    GpioUart& rx_;
+    GpioUart& tx_;
 
-    Callback* rx_callback;
-    Callback* tx_callback;
+    Callback* rx_callback_;
+    Callback* tx_callback_;
 };
 
 #endif /* UART_H_ */
