@@ -93,7 +93,7 @@ static void prvButtonTask(void *pvParameters)
 
     // Set the button callback and enable interrupts
     button_user.setCallback(&userCallback);
-    button_user.enableInterrupt();
+    button_user.enableInterrupts();
 
     // Forever
     while(true)

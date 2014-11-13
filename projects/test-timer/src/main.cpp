@@ -47,22 +47,22 @@ int main (void)
     // Initialize Timer0
     timer0.init(800000);
     timer0.setCallback(&timerCallback0);
-    timer0.enableInterrupt();
+    timer0.enableInterrupts();
 
     // Initialize Timer1
     timer1.init(1600000);
     timer1.setCallback(&timerCallback1);
-    timer1.enableInterrupt();
+    timer1.enableInterrupts();
 
     // Initialize Timer2
     timer2.init(3200000);
     timer2.setCallback(&timerCallback2);
-    timer2.enableInterrupt();
+    timer2.enableInterrupts();
 
     // Initialize Timer3
     timer3.init(6400000);
     timer3.setCallback(&timerCallback3);
-    timer3.enableInterrupt();
+    timer3.enableInterrupts();
 
     // Start Timer0, 1, 2 and 3
     timer0.start();
