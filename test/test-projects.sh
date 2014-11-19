@@ -1,31 +1,47 @@
 #!/bin/bash
 
+HOME=".."
 PROJECTS="projects"
+TEST="test"
 SRC="src"
+
 MAKE_COMMAND="make TARGET=cc2538"
 CLEAN_COMMAND="make TARGET=cc2538 clean"
+
+cd $HOME
+HOME=$(pwd)
 
 cd $PROJECTS
 for PROJECT in *; do
     if [[ -d $PROJECT ]]; then
+        
         cd $PROJECT/$SRC
         
         echo -ne "Cleaning $PROJECT..."
-        OUTPUT=$(eval $CLEAN_COMMAND 2>&1)
+        OUTPUT=$($CLEAN_COMMAND 2>&1)
         echo -e "ok!"
         
         echo -ne "Building $PROJECT..."
-        OUTPUT=$(eval $MAKE_COMMAND 2>&1)
+        OUTPUT=$($MAKE_COMMAND 2>&1) 
         
         if [[ $OUTPUT == *rror* ]]; then
+            echo -e "$OUTPUT" > $HOME/$TEST/$PROJECT.log
             echo -e "error!"
-            exit 1
+            ERROR=true
         else
             echo -e "ok!"
         fi
         
-        cd ../..
+        cd $HOME/$PROJECTS
+        
     fi
 done
 
-exit 0
+if [[ "$ERROR" == true ]]; then
+    echo "Tests finished with errors!"
+    exit 1
+else
+    echo "Tests finished successfully!"
+    exit 0
+fi
+
