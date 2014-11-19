@@ -27,7 +27,7 @@ friend class InterruptHandler;
 
 public:
     SleepTimer(uint32_t interrupt);
-    void init(void);
+    void enable(void);
     void start(uint32_t counts);
     void stop(void);
     uint32_t read(void);

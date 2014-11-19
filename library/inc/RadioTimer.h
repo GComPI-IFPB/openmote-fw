@@ -27,7 +27,7 @@ friend class InterruptHandler;
 
 public:
     RadioTimer(uint32_t interrupt);
-    void init(void);
+    void enable(void);
     void start(void);
     void stop(void);
     uint32_t getCounter(void);

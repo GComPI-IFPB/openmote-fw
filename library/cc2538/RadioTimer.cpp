@@ -35,7 +35,7 @@ RadioTimer::RadioTimer(uint32_t interrupt):
 {
 }
 
-void RadioTimer::init(void)
+void RadioTimer::enable(void)
 {
 
 }

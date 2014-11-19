@@ -35,7 +35,7 @@ SleepTimer::SleepTimer(uint32_t interrupt):
 {
 }
 
-void SleepTimer::init(void)
+void SleepTimer::enable(void)
 {
     // Nothing to do here, SleepTimer starts counting
     // automatically when the CC2538 boots!
