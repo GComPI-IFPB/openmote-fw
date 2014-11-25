@@ -123,6 +123,7 @@ void Board::disableInterrupts(void)
 
 void Board::enableFlashErase(void)
 {
+    for(volatile uint32_t i = 0xFFFF; i != 0; i--);
     button_user.setCallback(&flashEraseCallback_);
     button_user.enableInterrupts();
 }
