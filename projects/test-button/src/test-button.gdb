@@ -1,11 +1,11 @@
 target remote localhost:2331
-file test-button.elf
-monitor speed 5000
+monitor interface JTAG
 monitor endian little
+monitor speed auto
+monitor flash device = CC2538SF53
 monitor flash breakpoints = 1
 monitor flash download = 1
-monitor halt
-load
 monitor reset
-set breakpoint pending on
+load
 break main
+continue
