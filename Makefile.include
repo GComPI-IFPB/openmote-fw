@@ -1,5 +1,6 @@
 ###############################################################################
 
+# Toolchain executables
 CC = arm-none-eabi-gcc
 CPP = arm-none-eabi-g++
 AS = arm-none-eabi-as
@@ -11,10 +12,9 @@ OBJSIZE = arm-none-eabi-size
 ###############################################################################
 
 # C compiling flags
-CFLAGS += -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd -mlittle-endian
-CFLAGS += -ffunction-sections -fdata-sections
+CFLAGS += -mthumb -mcpu=cortex-m3 -mlittle-endian
+CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fshort-enums -fomit-frame-pointer
-CFLAGS += -Wl,--gc-sections
 CFLAGS += -std=c99
 CFLAGS += -Wall -Wstrict-prototypes
 CFLAGS += -O0
@@ -22,10 +22,9 @@ CFLAGS += -g3 -ggdb
 CFLAGS += $(DOPTIONS)
 
 # C++ compiling flags
-CPPFLAGS += -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd -mlittle-endian
-CPPFLAGS += -ffunction-sections -fdata-sections
+CPPFLAGS += -mthumb -mcpu=cortex-m3 -mlittle-endian
+CPPFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CPPFLAGS += -fshort-enums -fomit-frame-pointer
-CPPFLAGS += -Wl,--gc-sections
 CPPFLAGS += -fno-unwind-tables
 CPPFLAGS += -fno-exceptions
 CPPFLAGS += -fno-builtin
@@ -37,7 +36,7 @@ CPPFLAGS += -g3 -ggdb
 CPPFLAGS += $(DOPTIONS)
 
 # Linker flags
-LDFLAGS += -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd -mlittle-endian
+LDFLAGS += -mthumb -mcpu=cortex-m3 -mlittle-endian
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,--defsym -Wl,__cxa_pure_virtual=0
 
@@ -46,7 +45,7 @@ OBJCOPY_FLAGS += -O binary --gap-fill 0xFF
 OBJDUMP_FLAGS += --disassemble --source --disassembler-options=force-thumb
 
 # Makefile flags
-MAKEFLAGS = -j4
+MAKEFLAGS = -j1
 
 ###############################################################################
 

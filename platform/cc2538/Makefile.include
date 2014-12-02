@@ -60,11 +60,14 @@ jlink:
 
 load:
 	@echo "Loading $(PROJECT_NAME) into target..."
-	@$(GDB) $(GDB_BATCH) $(GDB_CMD)=$(PROJECT_NAME).$(GDB_EXT)
+	@$(GDB) $(GDB_BATCH) $(GDB_CMD)=$(PROJECT_NAME).$(GDB_EXT)  $(PROJECT_NAME).elf
 
-debug: load
+debug:
+	@echo "Debugging $(PROJECT_NAME) into target..."
+	@$(GDB) $(GDB_CMD)=$(PROJECT_NAME).$(GDB_EXT) $(PROJECT_NAME).elf
+
+nemiver: load
 	@echo "Launching debugger..."
-	@sleep 1
 	@$(NEMIVER_NAME) --remote=$(NEMIVER_IP) --gdb-binary=$(NEMIVER_GDB) $(PROJECT_NAME).$(NEMIVER_EXT)
 
 bsl:
