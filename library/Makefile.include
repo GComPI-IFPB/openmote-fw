@@ -1,14 +1,30 @@
-# Define the Library path
-LIBRARY_SRC = $(LIBRARY_PATH)/$(TARGET)
-LIBRARY_INC = $(LIBRARY_PATH)/inc
+###############################################################################
+
+# Define the networking name and path
+NETWORKING_NAME = networking
+NETWORKING_PATH = $(LIBRARY_PATH)/$(NETWORKING_NAME)
+
+# Define the utils name and path
+UTILS_NAME = utils
+UTILS_PATH = $(LIBRARY_PATH)/$(UTILS_NAME)
+
+###############################################################################
 
 # Append to the source and include paths
-SRC_PATH += -I $(LIBRARY_SRC)
-INC_PATH += -I $(LIBRARY_INC)
+INC_PATH += -I $(NETWORKING_PATH)
+INC_PATH += -I $(UTILS_PATH)
+
+###############################################################################
 
 # Extend the virtual path
-VPATH += $(LIBRARY_SRC) $(LIBRARY_INC)
+VPATH += $(NETWORKING_PATH)
+VPATH += $(UTILS_PATH)
+
+###############################################################################
 
 # Include the Makefiles in the various subdirectories in the current folder
-include $(LIBRARY_SRC)/Makefile.include
+include $(NETWORKING_PATH)/Makefile.include
+include $(UTILS_PATH)/Makefile.include
+
+###############################################################################
 
