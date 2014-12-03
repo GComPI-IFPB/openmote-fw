@@ -32,26 +32,27 @@ LINKER_SCRIPT = $(PLATFORM_SRC)/cc2538_linker.lds
 # Configure the Segger J-Link
 JLINK_NAME = JLinkGDBServer
 JLINK_PATH = /opt/segger/JLink
-JLINK_OPT = -device
-JLINK_DEV = CC2538SF53
+JLINK_OPT  = -device
+JLINK_DEV  = CC2538SF53
 
 # Configure the GDB client
+GDB_NAME  = cc2538_gdb
+GDB_EXT   = gdb
 GDB_BATCH = --batch 
-GDB_CMD = --command
-GDB_EXT = gdb
+GDB_CMD   = --command
 
 # Configure the GDB
 NEMIVER_NAME = nemiver
-NEMIVER_IP = localhost:2331
-NEMIVER_GDB = `which arm-none-eabi-gdb`
-NEMIVER_EXT = elf
+NEMIVER_IP   = localhost:2331
+NEMIVER_GDB  = `which arm-none-eabi-gdb`
+NEMIVER_EXT  = elf
 
 # Configure the BSL client
 BSL_PYTHON = python
-BSL_NAME = cc2538-bsl.py
-BSL_PATH = $(PROJECT_HOME)/tools/cc2538-bsl
-BSL_OPT = -e -w -b 115200
-BSL_EXT = hex
+BSL_NAME   = cc2538-bsl.py
+BSL_PATH   = $(PROJECT_HOME)/tools/cc2538-bsl
+BSL_OPT    = -e -w -b 115200
+BSL_EXT    = hex
 
 ###############################################################################
 
@@ -63,7 +64,7 @@ jlink:
 
 load:
 	@echo "Loading $(PROJECT_NAME) into target..."
-	@$(GDB) $(GDB_BATCH) $(GDB_CMD)=$(PROJECT_NAME).$(GDB_EXT)  $(PROJECT_NAME).elf
+	@$(GDB) $(GDB_BATCH) $(GDB_CMD)=$(PLATFORM_SRC)/$(GDB_NAME).$(GDB_EXT) $(PROJECT_NAME).elf
 
 debug:
 	@echo "Debugging $(PROJECT_NAME) into target..."
