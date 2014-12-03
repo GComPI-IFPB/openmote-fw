@@ -53,21 +53,22 @@ MAKEFLAGS = -j1
 BOARD_NAME = board
 BOARD_PATH = $(PROJECT_HOME)/$(BOARD_NAME)
 
-# Define the platform subdirectory
-PLATFORM_NAME = platform
-PLATFORM_PATH = $(PROJECT_HOME)/$(PLATFORM_NAME)
-
-# Define the library subdirectory
-LIBRARY_NAME = library
-LIBRARY_PATH = $(PROJECT_HOME)/$(LIBRARY_NAME)
+# Define the drivers subdirectory
+DRIVERS_NAME = drivers
+DRIVERS_PATH = $(PROJECT_HOME)/$(DRIVERS_NAME)
 
 # Define the kernel subdirectory
 KERNEL_NAME = kernel
 KERNEL_PATH = $(PROJECT_HOME)/$(KERNEL_NAME)
 
-# Define the drivers subdirectory
-DRIVERS_NAME = drivers
-DRIVERS_PATH = $(PROJECT_HOME)/$(DRIVERS_NAME)
+
+# Define the library subdirectory
+LIBRARY_NAME = library
+LIBRARY_PATH = $(PROJECT_HOME)/$(LIBRARY_NAME)
+
+# Define the platform subdirectory
+PLATFORM_NAME = platform
+PLATFORM_PATH = $(PROJECT_HOME)/$(PLATFORM_NAME)
 
 ###############################################################################
 
@@ -89,22 +90,37 @@ BIN_TARGET = $(addprefix $(BIN_PATH)/, $(BIN_FILES))
 
 ###############################################################################
 
-# Add the various directories in the project home to the virtual path
-VPATH += $(PLATFORM_PATH) $(LIBRARY_PATH)
+# Include the board makefiles
+ifeq ($(USE_BOARD), TRUE)
+    include $(BOARD_PATH)/Makefile.include
+    INC_PATH += -I $(BOARD_PATH)
+    VPATH += $(BOARD_PATH)
+endif
 
-# Include the platform and library makefiles
-include $(BOARD_PATH)/Makefile.include
-include $(PLATFORM_PATH)/Makefile.include
-
-# Decide if we need to include the kernel makefile
-ifeq ($(USE_LIBRARY), TRUE)
-	include $(LIBRARY_PATH)/Makefile.include
-	include $(DRIVERS_PATH)/Makefile.include
+# Include the drivers makefiles
+ifeq ($(USE_DRIVERS), TRUE)
+    include $(DRIVERS_PATH)/Makefile.include
+    INC_PATH += -I $(DRIVERS_PATH)
+    VPATH += $(DRIVERS_PATH)
 endif
 
 # Decide if we need to include the kernel makefile
 ifeq ($(USE_KERNEL), TRUE)
-	include $(KERNEL_PATH)/Makefile.include
+    include $(KERNEL_PATH)/Makefile.include
+    INC_PATH += -I $(KERNEL_PATH)
+    VPATH += $(KERNEL_PATH)
+endif
+
+# Decide if we need to include the kernel makefile
+ifeq ($(USE_LIBRARY), TRUE)
+    include $(LIBRARY_PATH)/Makefile.include
+    INC_PATH += -I $(LIBRARY_PATH)
+    VPATH += $(LIBRARY_PATH)
+endif
+
+# Include the platform and library makefiles
+ifeq ($(USE_PLATFORM), TRUE)
+    include $(PLATFORM_PATH)/Makefile.include
 endif
 
 ###############################################################################
@@ -117,7 +133,7 @@ all: pre build post stats
 pre:
 	@echo "Building '$(PROJECT_NAME)' project..."
 	@mkdir -p $(BIN_PATH)
-
+	
 build: $(BIN_TARGET)
 
 post: $(PROJECT_NAME).hex $(PROJECT_NAME).bin
@@ -154,4 +170,6 @@ $(BIN_PATH)/%.o: %.c
 $(BIN_PATH)/%.o: %.cpp
 	@echo "Compiling $<..."
 	@-$(CPP) $(CPPFLAGS) $(INC_PATH) -c $< -o $@
+
+###############################################################################
 
