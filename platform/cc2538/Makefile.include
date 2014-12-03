@@ -1,28 +1,31 @@
 ###############################################################################
 
 # Define the Platform path
-PLATFORM_CC2538 = $(PLATFORM_PATH)
-PLATFORM_SRC = $(PLATFORM_PATH)/src
-PLATFORM_INC = $(PLATFORM_PATH)/inc
-
-# Append to the files to compile
-SRC_FILES += cc2538_startup.c
+LIBCC2538_SRC = $(PLATFORM_SRC)/src
+LIBCC2538_INC = $(PLATFORM_SRC)/inc
 
 # Append to the include path
-SRC_PATH += -I $(PLATFORM_CC2538)
-SRC_PATH += -I $(PLATFORM_SRC)
-INC_PATH += -I $(PLATFORM_CC2538)
-INC_PATH += -I $(PLATFORM_INC)
-INC_PATH += -I $(PLATFORM_SRC)
-
-# Linker script
-LINKER_SCRIPT = $(PLATFORM_PATH)/cc2538_linker.lds
+INC_PATH += -I $(LIBCC2538_SRC)
+INC_PATH += -I $(LIBCC2538_INC)
 
 # Extend the virtual path
-VPATH += $(PLATFORM_CC2538) $(PLATFORM_SRC) $(PLATFORM_INC)
+VPATH += $(LIBCC2538_SRC) $(LIBCC2538_INC)
 
 # Include the Makefiles in the various subdirectories in the current folder
-include $(PLATFORM_SRC)/Makefile.include
+include $(LIBCC2538_SRC)/Makefile.include
+
+###############################################################################
+
+# Append to the files to compile
+SRC_FILES += Board.cpp InterruptHandler.cpp GpioAdc.cpp GpioIn.cpp GpioInPow.cpp \
+             GpioOut.cpp Uart.cpp I2c.cpp Spi.cpp Timer.cpp GpioPwm.cpp Radio.cpp \
+             Watchdog.cpp SysTick.cpp Gpio.cpp SleepTimer.cpp RadioTimer.cpp
+
+# Append the startup code to the files to compile
+SRC_FILES += cc2538_startup.c
+
+# Linker script
+LINKER_SCRIPT = $(PLATFORM_SRC)/cc2538_linker.lds
 
 ###############################################################################
 
@@ -73,3 +76,6 @@ nemiver: load
 bsl:
 	@echo "Loading $(PROJECT_NAME) into target..."
 	@$(BSL_PYTHON) $(BSL_PATH)/$(BSL_NAME) $(BSL_OPT) $(PROJECT_NAME).$(BSL_EXT)
+
+###############################################################################
+

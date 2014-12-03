@@ -12,10 +12,21 @@ endif
 
 ###############################################################################
 
-# Reset the PLATFORM_PATH variable to point to the target
-PLATFORM_PATH := $(PLATFORM_PATH)/$(TARGET)
+# Define the Library path
+PLATFORM_SRC = $(PLATFORM_PATH)/$(TARGET)
+PLATFORM_INC = $(PLATFORM_PATH)/inc
+
+# Append to the source and include paths
+INC_PATH += -I $(PLATFORM_SRC)
+INC_PATH += -I $(PLATFORM_INC)
+
+# Extend the virtual path
+VPATH += $(PLATFORM_SRC) $(PLATFORM_INC)
 
 ###############################################################################
 
 # Include the Makefiles in the various subdirectories in the current folder
-include $(PLATFORM_PATH)/Makefile.include
+include $(PLATFORM_SRC)/Makefile.include
+
+###############################################################################
+
