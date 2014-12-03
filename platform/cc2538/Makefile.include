@@ -36,10 +36,10 @@ JLINK_OPT  = -device
 JLINK_DEV  = CC2538SF53
 
 # Configure the GDB client
-GDB_NAME  = cc2538_gdb
-GDB_EXT   = gdb
+GDB_FILE  = cc2538_gdb.gdb
 GDB_BATCH = --batch 
 GDB_CMD   = --command
+GDB_EXT   = elf
 
 # Configure the GDB
 NEMIVER_NAME = nemiver
@@ -64,11 +64,11 @@ jlink:
 
 load:
 	@echo "Loading $(PROJECT_NAME) into target..."
-	@$(GDB) $(GDB_BATCH) $(GDB_CMD)=$(PLATFORM_SRC)/$(GDB_NAME).$(GDB_EXT) $(PROJECT_NAME).elf
+	@$(GDB) $(GDB_BATCH) $(GDB_CMD)=$(PLATFORM_SRC)/$(GDB_FILE) $(PROJECT_NAME).$(GDB_EXT)
 
 debug:
 	@echo "Debugging $(PROJECT_NAME) into target..."
-	@$(GDB) $(GDB_CMD)=$(PROJECT_NAME).$(GDB_EXT) $(PROJECT_NAME).elf
+	@$(GDB) $(GDB_CMD)=$(PLATFORM_SRC)/$(GDB_FILE) $(PROJECT_NAME).$(GDB_EXT)
 
 nemiver: load
 	@echo "Launching debugger..."
