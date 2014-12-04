@@ -31,7 +31,7 @@ MEMORY
 
 SECTIONS
 {
-    /* Holds the Stored in FLASH and copied to SRAM */
+    /* Holds the code in FLASH */
     .text :
     {
         _text = .;
@@ -78,7 +78,7 @@ SECTIONS
         KEEP (*crtend.o(.dtors))
         
         _etext = .;
-    } > FLASH= 0
+    } > FLASH = 0
 
     /* Holds variables stored in FLASH and copied to SRAM upon initialization */
     .data :
@@ -100,7 +100,7 @@ SECTIONS
         _ebss = .;
     } > SRAM
 
-    /* Hods the CCA section of the CC2538*/
+    /* Hods the CCA section of the CC2538 */
     .flashcca :
     {
         . = ALIGN(4);
