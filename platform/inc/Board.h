@@ -22,10 +22,6 @@
 
 enum SleepMode : uint8_t;
 
-class Board;
-
-typedef GenericCallback<Board> BoardCallback;
-
 class Board {
 public:
     Board();
@@ -39,10 +35,8 @@ public:
     void getEUI48(uint8_t* address);
     void getEUI64(uint8_t* address);
 private:
-    void flashEraseCallback(void);
-private:
     SleepMode sleepMode_;
-    BoardCallback flashEraseCallback_;
+    PlainCallback flashEraseCallback_;
 };
 
 #endif /* BOARD_H_ */
