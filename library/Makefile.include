@@ -1,30 +1,44 @@
 ###############################################################################
 
+# Define the drivers name and path
+BUS_NAME = bus
+BUS_PATH = $(LIBRARY_PATH)/$(BUS_NAME)
+
 # Define the networking name and path
-NETWORKING_NAME = networking
-NETWORKING_PATH = $(LIBRARY_PATH)/$(NETWORKING_NAME)
+ETHERNET_NAME = ethernet
+ETHERNET_PATH = $(LIBRARY_PATH)/$(ETHERNET_NAME)
 
 # Define the utils name and path
 UTILS_NAME = utils
 UTILS_PATH = $(LIBRARY_PATH)/$(UTILS_NAME)
 
+# Define the utils name and path
+WIRELESS_NAME = wireless
+WIRELESS_PATH = $(LIBRARY_PATH)/$(WIRELESS_NAME)
+
 ###############################################################################
 
 # Append to the source and include paths
-INC_PATH += -I $(NETWORKING_PATH)
+INC_PATH += -I $(BUS_PATH)
+INC_PATH += -I $(ETHERNET_PATH)
 INC_PATH += -I $(UTILS_PATH)
+INC_PATH += -I $(WIRELESS_PATH)
 
 ###############################################################################
 
 # Extend the virtual path
-VPATH += $(NETWORKING_PATH)
+VPATH += $(BUS_PATH)
+VPATH += $(ETHERNET_PATH)
 VPATH += $(UTILS_PATH)
+VPATH += $(WIRELESS_PATH)
 
 ###############################################################################
 
 # Include the Makefiles in the various subdirectories in the current folder
-include $(NETWORKING_PATH)/Makefile.include
+include $(BUS_PATH)/Makefile.include
+include $(ETHERNET_PATH)/Makefile.include
 include $(UTILS_PATH)/Makefile.include
+include $(WIRELESS_PATH)/Makefile.include
 
 ###############################################################################
 
