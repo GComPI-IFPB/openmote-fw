@@ -42,8 +42,6 @@ extern GpioInPow button_user;
 
 /*=============================== prototypes ================================*/
 
-static void gpioInit(void);
-static void clockInit(void);
 static void flashEraseCallback(void);
 
 /*================================= public ==================================*/
@@ -52,8 +50,6 @@ Board::Board():
     sleepMode_(SleepMode_None), \
     flashEraseCallback_(&flashEraseCallback)
 {
-    gpioInit();
-    clockInit();
 }
 
 void Board::reset(void)
@@ -99,7 +95,7 @@ void Board::disableInterrupts(void)
 
 void Board::enableFlashErase(void)
 {
-    for(volatile uint32_t i = 0xFFFF; i != 0; i--);
+    for (volatile uint32_t i = 0xFFFF; i != 0; i--);
     button_user.setCallback(&flashEraseCallback_);
     button_user.enableInterrupts();
 }
@@ -134,54 +130,6 @@ void Board::getEUI64(uint8_t* address)
 /*=============================== protected =================================*/
 
 /*================================ private ==================================*/
-
-static void gpioInit(void)
-{
-    /**
-     * Configure all pins as outputs
-     */
-    GPIOPinTypeGPIOOutput(GPIO_A_BASE, 0xFF);
-    GPIOPinTypeGPIOOutput(GPIO_B_BASE, 0xFF);
-    GPIOPinTypeGPIOOutput(GPIO_C_BASE, 0xFF);
-    GPIOPinTypeGPIOOutput(GPIO_D_BASE, 0xFF);
-
-    /**
-     * Set all pins to low
-     */
-    GPIOPinWrite(GPIO_A_BASE, 0xFF, 0x00);
-    GPIOPinWrite(GPIO_B_BASE, 0xFF, 0x00);
-    GPIOPinWrite(GPIO_C_BASE, 0xFF, 0x00);
-    GPIOPinWrite(GPIO_D_BASE, 0xFF, 0x00);
-}
-
-static void clockInit(void)
-{
-    /**
-     * Configure the 32 kHz pins, PD6 and PD7, for crystal operation
-     * By default they are configured as GPIOs
-     */
-    GPIODirModeSet(GPIO_D_BASE, 0x40, GPIO_DIR_MODE_IN);
-    GPIODirModeSet(GPIO_D_BASE, 0x80, GPIO_DIR_MODE_IN);
-    IOCPadConfigSet(GPIO_D_BASE, 0x40, IOC_OVERRIDE_ANA);
-    IOCPadConfigSet(GPIO_D_BASE, 0x80, IOC_OVERRIDE_ANA);
-
-    /**
-     * Set the real-time clock to use the 32.768 kHz external crystal
-     * Set the system clock to use the 32 MHz external crystal
-     */
-    SysCtrlClockSet(true, false, SYS_CTRL_SYSDIV_32MHZ);
-
-    /**
-     * Set the IO clock to operate at 16 MHz
-     * This way peripherals can run while the system clock is gated
-     */
-    SysCtrlIOClockSet(SYS_CTRL_SYSDIV_16MHZ);
-
-    /**
-     * Wait until the 32 MHz oscillator becomes stable
-     */
-    while (!((HWREG(SYS_CTRL_CLOCK_STA)) & (SYS_CTRL_CLOCK_STA_XOSC_STB)));
-}
 
 static void flashEraseCallback(void)
 {

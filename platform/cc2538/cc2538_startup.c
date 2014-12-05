@@ -17,7 +17,7 @@
 
 #include <stdint.h>
 
-#include "inc/hw_nvic.h"
+#include "cc2538_include.h"
 
 /*================================ define ===================================*/
 
@@ -42,6 +42,8 @@ typedef struct
 } lockPageCCA_t;
 
 /*=============================== prototypes ================================*/
+
+static void board_init(void);
 
 extern int main (void);
 extern void __libc_init_array(void);
@@ -215,6 +217,9 @@ Reset_Handler (void)
     HWREG(SYS_CTRL_I_MAP) |= 1;
 #endif
 
+    /* Initialize the board */
+    board_init();
+
    /* Call the application's entry point */
    main();
 
@@ -226,4 +231,33 @@ Reset_Handler (void)
 }
 
 /*================================ private ==================================*/
+
+static void board_init(void)
+{
+    /**
+     * Configure the 32 kHz pins, PD6 and PD7, for crystal operation
+     * By default they are configured as GPIOs
+     */
+    GPIODirModeSet(GPIO_D_BASE, 0x40, GPIO_DIR_MODE_IN);
+    GPIODirModeSet(GPIO_D_BASE, 0x80, GPIO_DIR_MODE_IN);
+    IOCPadConfigSet(GPIO_D_BASE, 0x40, IOC_OVERRIDE_ANA);
+    IOCPadConfigSet(GPIO_D_BASE, 0x80, IOC_OVERRIDE_ANA);
+
+    /**
+     * Set the real-time clock to use the 32.768 kHz external crystal
+     * Set the system clock to use the 32 MHz external crystal
+     */
+    SysCtrlClockSet(true, false, SYS_CTRL_SYSDIV_32MHZ);
+
+    /**
+     * Set the IO clock to operate at 16 MHz
+     * This way peripherals can run while the system clock is gated
+     */
+    SysCtrlIOClockSet(SYS_CTRL_SYSDIV_16MHZ);
+
+    /**
+     * Wait until the 32 MHz oscillator becomes stable
+     */
+    while (!((HWREG(SYS_CTRL_CLOCK_STA)) & (SYS_CTRL_CLOCK_STA_XOSC_STB)));
+}
 

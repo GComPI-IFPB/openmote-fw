@@ -18,7 +18,7 @@ CFLAGS += -fshort-enums -fomit-frame-pointer
 CFLAGS += -std=c99
 CFLAGS += -Wall -Wstrict-prototypes
 CFLAGS += -O0
-CFLAGS += -g3 -ggdb
+CFLAGS += -g -ggdb
 CFLAGS += $(DOPTIONS)
 
 # C++ compiling flags
@@ -32,7 +32,7 @@ CPPFLAGS += -fno-rtti
 CPPFLAGS += -std=c++11
 CPPFLAGS += -Wall
 CPPFLAGS += -O0
-CPPFLAGS += -g3 -ggdb
+CPPFLAGS += -g -ggdb
 CPPFLAGS += $(DOPTIONS)
 
 # Linker flags
@@ -60,7 +60,6 @@ DRIVERS_PATH = $(PROJECT_HOME)/$(DRIVERS_NAME)
 # Define the kernel subdirectory
 KERNEL_NAME = kernel
 KERNEL_PATH = $(PROJECT_HOME)/$(KERNEL_NAME)
-
 
 # Define the library subdirectory
 LIBRARY_NAME = library
