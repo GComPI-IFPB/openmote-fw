@@ -13,8 +13,8 @@ UTILS_NAME = utils
 UTILS_PATH = $(LIBRARY_PATH)/$(UTILS_NAME)
 
 # Define the utils name and path
-WIRELESS_NAME = wireless
-WIRELESS_PATH = $(LIBRARY_PATH)/$(WIRELESS_NAME)
+IEEE802154_NAME = ieee802154
+IEEE802154_PATH = $(LIBRARY_PATH)/$(IEEE802154_NAME)
 
 ###############################################################################
 
@@ -22,7 +22,7 @@ WIRELESS_PATH = $(LIBRARY_PATH)/$(WIRELESS_NAME)
 INC_PATH += -I $(BUS_PATH)
 INC_PATH += -I $(ETHERNET_PATH)
 INC_PATH += -I $(UTILS_PATH)
-INC_PATH += -I $(WIRELESS_PATH)
+INC_PATH += -I $(IEEE802154_PATH)
 
 ###############################################################################
 
@@ -30,7 +30,7 @@ INC_PATH += -I $(WIRELESS_PATH)
 VPATH += $(BUS_PATH)
 VPATH += $(ETHERNET_PATH)
 VPATH += $(UTILS_PATH)
-VPATH += $(WIRELESS_PATH)
+VPATH += $(IEEE802154_PATH)
 
 ###############################################################################
 
@@ -38,7 +38,7 @@ VPATH += $(WIRELESS_PATH)
 include $(BUS_PATH)/Makefile.include
 include $(ETHERNET_PATH)/Makefile.include
 include $(UTILS_PATH)/Makefile.include
-include $(WIRELESS_PATH)/Makefile.include
+include $(IEEE802154_PATH)/Makefile.include
 
 ###############################################################################
 
