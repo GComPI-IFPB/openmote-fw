@@ -17,16 +17,15 @@ ENTRY(Reset_Handler)
  * Linker script for Texas Instruments CC2538SF53 (32K RAM, 512K Flash)
  * FLASH stores the program code
  * FLASH_CCA stores the backdoor bootloader configuration
- * SRAM is 16K RETENTION and 16K NON-RETENTION
- * NON-RETENTION RAM starts at 0x20000000 with length 16K
- * RETENTION RAM starts at 0x20004000 with length 16K
- * Currently we are only using 16K with RETENTION
+ * SRAM1 is 16K NO-RETENTION and SRAM2 is 16K RETENTION
+ * Currently we are only using SRAM2 with RETENTION
  */
 MEMORY
 {
-    FLASH (RX) : ORIGIN = 0x00200000, LENGTH = 512K
-    FLASH_CCA (RX) : ORIGIN = 0x0027FFD4, LENGTH = 12
-    SRAM (RWX) : ORIGIN = 0x20004000, LENGTH = 16K
+    FLASH     (RX)  : ORIGIN = 0x00200000, LENGTH = 512K
+    FLASH_CCA (RX)  : ORIGIN = 0x0027FFD4, LENGTH = 12
+    SRAM1     (RWX) : ORIGIN = 0x20000000, LENGTH = 16K
+    SRAM2     (RWX) : ORIGIN = 0x20004000, LENGTH = 16K
 }
 
 SECTIONS
@@ -34,7 +33,8 @@ SECTIONS
     /* Holds the code in FLASH */
     .text :
     {
-        _text = .;
+        _text_start = .;
+         /* Interrupt vector in Flash */
         . = ALIGN(4);
         KEEP(*(.vectors))
         
@@ -77,28 +77,35 @@ SECTIONS
         KEEP (*(SORT(.dtors.*)))
         KEEP (*crtend.o(.dtors))
         
-        _etext = .;
+        _text_end = .;
     } > FLASH = 0
+
+    /* Holds the stack at the start of SRAM */
+    .stack : {
+        . = ALIGN(4);
+        KEEP(*(.stack))
+    } > SRAM2
 
     /* Holds variables stored in FLASH and copied to SRAM upon initialization */
     .data :
     {
         . = ALIGN(4);
-        _data = .;
+        _data_start = .;
+        /* Interrupt vector in SRAM */
         *(vtable)
         *(.data*)
-        _edata = .;
-    } > SRAM AT > FLASH
+        _data_end = .;
+    } > SRAM2 AT > FLASH
 
     /* Holds unitialized variables stored in RAM */
     .bss :
     {
         . = ALIGN(4);
-        _bss = .;
+        _bss_start = .;
         *(.bss*)
         *(COMMON)
-        _ebss = .;
-    } > SRAM
+        _bss_end = .;
+    } > SRAM2
 
     /* Hods the CCA section of the CC2538 */
     .flashcca :
