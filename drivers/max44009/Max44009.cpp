@@ -82,22 +82,19 @@ bool Max44009::enable(void)
     uint8_t max44009_address[5] = {MAX44009_INT_ENABLE_ADDR, MAX44009_CONFIG_ADDR, \
                                    MAX44009_THR_HIGH_ADDR, MAX44009_THR_LOW_ADDR, \
                                    MAX44009_THR_TIMER_ADDR};
-    uint8_t max44009_value[5];
+    uint8_t max44009_value[5]   = {MAX44009_INT_STATUS_ON, \
+                                   MAX44009_DEFAULT_CONFIGURATION, \
+                                   0xFF, 0x00, 0xFF
+                                  };
     uint8_t max44009_data[2];
     bool status;
-
-    max44009_value[0] = (MAX44009_INT_STATUS_ON);
-    max44009_value[1] = (MAX44009_DEFAULT_CONFIGURATION);
-    max44009_value[2] = (0xFF);
-    max44009_value[3] = (0x00);
-    max44009_value[4] = (0xFF);
 
     i2c.lock();
 
     for(uint8_t i = 0; i < sizeof(max44009_address); i++)
     {
-        max44009_data[0] = max44009_value[i];
-        max44009_data[1] = max44009_data[i];
+        max44009_data[0] = max44009_address[i];
+        max44009_data[1] = max44009_value[i];
         status = i2c.writeByte(MAX44009_ADDRESS, max44009_data, 2);
         if (status == false)
         {
@@ -116,7 +113,7 @@ bool Max44009::reset(void)
     uint8_t max44009_address[5] = {MAX44009_INT_ENABLE_ADDR, MAX44009_CONFIG_ADDR, \
                                    MAX44009_THR_HIGH_ADDR, MAX44009_THR_LOW_ADDR, \
                                    MAX44009_THR_TIMER_ADDR};
-    uint8_t max44009_value[5] = {0x00, 0x03, 0xFF, 0x00, 0xFF};
+    uint8_t max44009_value[5]   = {0x00, 0x03, 0xFF, 0x00, 0xFF};
     uint8_t max44009_data[2];
     bool status;
 
@@ -124,8 +121,8 @@ bool Max44009::reset(void)
 
     for(uint8_t i = 0; i < sizeof(max44009_address); i++)
     {
-        max44009_data[0] = max44009_value[i];
-        max44009_data[1] = max44009_data[i];
+        max44009_data[0] = max44009_address[i];
+        max44009_data[1] = max44009_value[i];
         status = i2c.writeByte(MAX44009_ADDRESS, max44009_data, 2);
         if (status == false)
         {
