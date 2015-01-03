@@ -16,8 +16,8 @@ CFLAGS += -mthumb -mcpu=cortex-m3 -mlittle-endian
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fshort-enums -fomit-frame-pointer
 CFLAGS += -std=c99
-CFLAGS += -Wall -Wstrict-prototypes
-CFLAGS += -O0
+CFLAGS += -Wall -pedantic -Wstrict-prototypes
+CFLAGS += -O2
 CFLAGS += -g -ggdb
 CFLAGS += $(DOPTIONS)
 
@@ -30,8 +30,8 @@ CPPFLAGS += -fno-exceptions
 CPPFLAGS += -fno-builtin
 CPPFLAGS += -fno-rtti
 CPPFLAGS += -std=c++11
-CPPFLAGS += -Wall
-CPPFLAGS += -O0
+CPPFLAGS += -Wall -pedantic
+CPPFLAGS += -O2
 CPPFLAGS += -g -ggdb
 CPPFLAGS += $(DOPTIONS)
 
