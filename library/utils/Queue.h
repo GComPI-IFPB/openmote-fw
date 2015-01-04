@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       CircularBuffer.h
+ * @file       Queue.h
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -13,35 +13,36 @@
  *
  */
 
-#ifndef CIRCULAR_BUFFER_H_
-#define CIRCULAR_BUFFER_H_
+#ifndef QUEUE_H_
+#define QUEUE_H_
 
 #include <stdint.h>
 
 #include "FreeRTOS.h"
 #include "semphr.h"
 
-class CircularBuffer
+class Queue
 {
 public:
-    CircularBuffer(uint8_t* buffer, int32_t length);
+    Queue(uint8_t* buffer, uint32_t length);
     void reset(void);
     int32_t getSize(void);
+    int32_t getOccupied(void);
+    int32_t getRemaining(void);
     int32_t isEmpty(void);
     int32_t isFull(void);
     int32_t read(uint8_t* data);
-    int32_t read(uint8_t* buffer, int32_t length);
+    int32_t read(uint8_t* buffer, uint32_t length);
     int32_t write(uint8_t data);
-    int32_t write(const uint8_t* data, int32_t length);
+    int32_t write(const uint8_t* data, uint32_t length);
 private:
     void empty(void);
 private:
     SemaphoreHandle_t mutex_;
     uint8_t* buffer_;
     int32_t  length_;
-    int32_t count_;
-    uint8_t* head_;
-    uint8_t* tail_;
+    uint8_t* read_;
+    uint8_t* write_;
 };
 
 #endif /* CIRCULAR_BUFFER_H_ */

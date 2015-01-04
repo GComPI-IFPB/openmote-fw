@@ -4,7 +4,7 @@
 
 /**
  *
- * @file       CircularBuffer.cpp
+ * @file       Queue.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2014
@@ -15,7 +15,7 @@
 
 /*================================ include ==================================*/
 
-#include "CircularBuffer.h"
+#include "Queue.h"
 
 /*================================ define ===================================*/
 
@@ -27,8 +27,9 @@
 
 /*================================= public ==================================*/
 
-CircularBuffer::CircularBuffer(uint8_t* buffer, int32_t length):
-    buffer_(buffer), length_(length), count_(0), head_(buffer), tail_(buffer)
+Queue::Queue(uint8_t* buffer, uint32_t length):
+    buffer_(buffer), length_(length), 
+    read_(buffer), write_(buffer)
 {
     mutex_ = xSemaphoreCreateMutex();
     if (mutex_ == NULL) {
@@ -36,29 +37,28 @@ CircularBuffer::CircularBuffer(uint8_t* buffer, int32_t length):
     }
 }
 
-void CircularBuffer::reset(void)
+void Queue::reset(void)
 {
     // Try to acquire the mutex
     if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
     {
         empty();
         
-        head_ = buffer_;
-        tail_ = buffer_;
-        count_ = 0;
+        read_  = buffer_;
+        write_ = buffer_;
         
         xSemaphoreGive(mutex_);
     }
 }
 
-int32_t CircularBuffer::isEmpty(void)
+int32_t Queue::isEmpty(void)
 {
     int32_t scratch;
     
     // Try to acquire the mutex
     if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
     {
-        scratch = count_;
+        scratch = (read_ == write_);
         
         xSemaphoreGive(mutex_);
         
@@ -70,14 +70,14 @@ int32_t CircularBuffer::isEmpty(void)
     }
 }
 
-int32_t CircularBuffer::isFull(void)
+int32_t Queue::isFull(void)
 {
     int32_t scratch;
     
     // Try to acquire the mutex
     if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
     {
-        scratch = (count_ == length_);
+        scratch = (write_ == (buffer_ + length_));
         
         xSemaphoreGive(mutex_);
         
@@ -89,117 +89,99 @@ int32_t CircularBuffer::isFull(void)
     }
 }
 
-int32_t CircularBuffer::getSize(void)
+int32_t Queue::getSize(void)
 {
     int32_t scratch;
     
     // Try to acquire the mutex
     if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
     {
-        scratch = count_;
+        scratch = length_;
         
         xSemaphoreGive(mutex_);
         
         return scratch;
-    } 
+    }
     else
     {
         return -1;
     }
 }
 
-int32_t CircularBuffer::read(uint8_t* data)
+int32_t Queue::getOccupied(void)
 {
+    int32_t scratch;
+    
     // Try to acquire the mutex
-    if (xSemaphoreTake(mutex_, portMAX_DELAY) != pdTRUE)
+    if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
+    {
+        scratch = (write_ - buffer_);
+        
+        xSemaphoreGive(mutex_);
+        
+        return scratch;
+    }
+    else
     {
         return -1;
     }
+}
+
+int32_t Queue::getRemaining(void)
+{
+    int32_t scratch;
     
-    // Check if buffer is empty
+    // Try to acquire the mutex
+    if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
+    {
+        scratch = (buffer_ + length_ - write_);
+        
+        xSemaphoreGive(mutex_);
+        
+        return scratch;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+int32_t Queue::read(uint8_t* data)
+{
     if (!isEmpty())
     {
-        // Read data in and count it
-        *data = *tail_++;
-        count_--;
-
-        // Check for tail pointer wrap around
-        if (tail_ == (buffer_ + length_))
-        {
-            tail_ = buffer_;
-        }
-
-        // Free the mutex
-        xSemaphoreGive(mutex_);
-
-        // Return success
+        *data = *read_++;
         return 0;
     }
-    else
-    {
-        // Free the mutex
-        xSemaphoreGive(mutex_);
-        
-        // Return error
-        return -1;
-    }
+    
+    return -1;
 }
 
-int32_t CircularBuffer::read(uint8_t* buffer, int32_t length)
+int32_t Queue::read(uint8_t* buffer, uint32_t length)
 {
-    // For each byte
     while (length--)
     {
-        // Try to read the byte
         if (read(buffer++) != 0)
         {
-            // Return error
             return -1;
         }
     }
-
-    // Return success
+    
     return 0;
 }
 
-int32_t CircularBuffer::write(uint8_t data)
+int32_t Queue::write(uint8_t data) 
 {
-    // Try to acquire the mutex
-    if (xSemaphoreTake(mutex_, portMAX_DELAY) != pdTRUE)
-    {
-        return -1;
-    }
-
-    // Check if buffer is full
     if (!isFull())
     {
-        // Write data in and count it
-        *head_++ = data;
-        count_ += 1;
-
-        // Check for head pointer wrap around
-        if (head_ == (buffer_ + length_))
-        {
-            head_ = buffer_;
-        }
-
-        // Free the mutex
-        xSemaphoreGive(mutex_);
-
-        // Return success
+        *write_++ = data;
         return 0;
     }
-    else
-    {
-        // Free the mutex
-        xSemaphoreGive(mutex_);
-        
-        // Return error
-        return -1;
-    }
+    
+    return -1;
 }
 
-int32_t CircularBuffer::write(const uint8_t *data, int32_t length)
+int32_t Queue::write(const uint8_t *data, uint32_t length)
 {
     // For each byte
     while (length--)
@@ -220,11 +202,10 @@ int32_t CircularBuffer::write(const uint8_t *data, int32_t length)
 
 /*================================ private ==================================*/
 
-void CircularBuffer::empty(void)
+void Queue::empty(void)
 {
     uint8_t* tmp = buffer_;
-    while(tmp != (buffer_ + length_))
-    {
+    while(tmp != (buffer_ + length_)) {
         *tmp++ = 0;
     }
 }
