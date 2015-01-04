@@ -1,3 +1,2 @@
 # Append to the files to compile
-SRC_FILES += CircularBuffer.cpp Crc16.cpp Hdlc.cpp PacketBuffer.cpp Queue.cpp \
-             Serial.cpp
+SRC_FILES += CircularBuffer.cpp Crc16.cpp Hdlc.cpp Queue.cpp Serial.cpp
