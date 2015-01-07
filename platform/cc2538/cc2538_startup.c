@@ -26,8 +26,6 @@
 #define FLASH_START_ADDR                ( 0x00200000 )
 #define BOOTLOADER_BACKDOOR_ENABLED     ( 0xF5FFFFFF ) // ENABLED: PORT A, PIN 5, LOW
 #define BOOTLOADER_BACKDOOR_DISABLED    ( 0xEFFFFFFF ) // DISABLED
-#define SYS_CTRL_EMUOVR                 ( 0x400D20B4 )
-#define SYS_CTRL_I_MAP                  ( 0x400D2098 )
 
 #ifndef HWREG
 #define HWREG(x)                                                              \
