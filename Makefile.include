@@ -41,7 +41,7 @@ LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,--defsym -Wl,__cxa_pure_virtual=0
 
 # Binary flags
-OBJCOPY_FLAGS += -O binary --gap-fill 0xFF
+OBJCOPY_FLAGS += --gap-fill 0xFF
 OBJDUMP_FLAGS += --disassemble --source --disassembler-options=force-thumb
 
 # Makefile flags
@@ -145,7 +145,7 @@ $(PROJECT_NAME).bin: $(PROJECT_NAME).elf
 	@-$(OBJCOPY) -O ihex $< $@
 
 $(PROJECT_NAME).hex: $(PROJECT_NAME).elf
-	@-$(OBJCOPY) $(OBJCOPY_FLAGS) $< $@
+	@-$(OBJCOPY) -O binary $(OBJCOPY_FLAGS) $< $@
 
 $(PROJECT_NAME).elf: $(BIN_TARGET)
 	@echo "Linking '$(PROJECT_NAME)'..."

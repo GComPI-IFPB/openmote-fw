@@ -81,7 +81,7 @@ SECTIONS
     } > FLASH = 0
 
     /* Holds the stack at the start of SRAM */
-    .stack : {
+    .stack (NOLOAD) : {
         . = ALIGN(4);
         KEEP(*(.stack))
     } > SRAM2
