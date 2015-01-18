@@ -21,6 +21,7 @@
 /*================================ define ===================================*/
 
 #define SHT21_ADDRESS                   ( 0x40 )
+#define SHT21_DELAY_MS                  ( 20 )
 
 #define SHT21_USER_REG_READ             ( 0xE7 )
 #define SHT21_USER_REG_WRITE            ( 0xE6 )
@@ -71,6 +72,9 @@ bool Sht21::enable(void)
     bool status;
     uint8_t config[2];
 
+    // Check if the sensor has been initialized
+    isInitialized();
+
     // Setup the configuration vector, the first position holds address
     // and the second position holds the actual configuration
     config[0] = SHT21_USER_REG_WRITE;
@@ -118,6 +122,9 @@ bool Sht21::isPresent(void)
     bool status;
     uint8_t isPresent;
 
+    // Check if the sensor has been initialized
+    isInitialized();
+
     // Obtain the mutex of the I2C driver
     i2c.lock();
 
@@ -131,7 +138,8 @@ bool Sht21::isPresent(void)
     // Release the mutex of the I2C driver
     i2c.unlock();
 
-    return (status && isPresent == SHT21_DEFAULT_CONFIG);
+    return (status && (isPresent == SHT21_DEFAULT_CONFIG ||
+                       isPresent == SHT21_USER_CONFIG));
 }
 
 bool Sht21::readTemperature(void)
@@ -211,3 +219,17 @@ float Sht21::getHumidity(void)
 /*=============================== protected =================================*/
 
 /*================================ private ==================================*/
+
+void Sht21::isInitialized(void)
+{
+    static bool isInitialized = false;
+
+    if (!isInitialized)
+    {
+        // Wait until sensor is available
+        vTaskDelay(SHT21_DELAY_MS / portTICK_RATE_MS);
+
+        // The sensor is now initialized
+        isInitialized = true;
+    }
+}

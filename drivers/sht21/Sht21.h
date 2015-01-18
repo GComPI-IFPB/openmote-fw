@@ -36,6 +36,8 @@ public:
     float getHumidity(void);
     uint16_t getHumidityRaw(void);
 private:
+    void isInitialized(void);
+private:
     I2cDriver& i2c;
     uint16_t temperature;
     uint16_t humidity;

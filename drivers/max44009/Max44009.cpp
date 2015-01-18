@@ -24,7 +24,6 @@
 
 /* ADDRESS AND NOT_FOUND VALUE */
 #define MAX44009_ADDRESS                    ( 0x4A )
-#define MAX44009_NOT_FOUND                  ( 0x00 )
 
 /* REGISTER ADDRESSES */
 #define MAX44009_INT_STATUS_ADDR            ( 0x00 )    // R
@@ -47,8 +46,8 @@
 #define MAX44009_CONFIG_CONTINUOUS          ( 1 << 7 )
 #define MAX44009_CONFIG_AUTO                ( 0 << 6 )
 #define MAX44009_CONFIG_MANUAL              ( 1 << 6 )
-#define MAX44009_CONFIG_CDR_NORMAL          ( 0 << 5 )
-#define MAX44009_CONFIG_CDR_DIVIDED         ( 1 << 5 )
+#define MAX44009_CONFIG_CDR_NORMAL          ( 0 << 3 )
+#define MAX44009_CONFIG_CDR_DIVIDED         ( 1 << 3 )
 #define MAX44009_CONFIG_INTEGRATION_800ms   ( 0 << 0 )
 #define MAX44009_CONFIG_INTEGRATION_400ms   ( 1 << 0 )
 #define MAX44009_CONFIG_INTEGRATION_200ms   ( 2 << 0 )
@@ -61,6 +60,12 @@
 /* DEFAULT CONFIGURATION */
 #define MAX44009_DEFAULT_CONFIGURATION      ( MAX44009_CONFIG_DEFAULT | \
                                               MAX44009_CONFIG_AUTO | \
+                                              MAX44009_CONFIG_CDR_NORMAL | \
+                                              MAX44009_CONFIG_INTEGRATION_100ms )
+
+/* USER CONFIGURATION */
+#define MAX44009_USER_CONFIGURATION         ( MAX44009_CONFIG_DEFAULT | \
+                                              MAX44009_CONFIG_MANUAL | \
                                               MAX44009_CONFIG_CDR_NORMAL | \
                                               MAX44009_CONFIG_INTEGRATION_100ms )
 
@@ -82,20 +87,18 @@ bool Max44009::enable(void)
     uint8_t max44009_address[5] = {MAX44009_INT_ENABLE_ADDR, MAX44009_CONFIG_ADDR, \
                                    MAX44009_THR_HIGH_ADDR, MAX44009_THR_LOW_ADDR, \
                                    MAX44009_THR_TIMER_ADDR};
-    uint8_t max44009_value[5]   = {MAX44009_INT_STATUS_ON, \
-                                   MAX44009_DEFAULT_CONFIGURATION, \
-                                   0xFF, 0x00, 0xFF
-                                  };
+    uint8_t max44009_value[5]   = {MAX44009_INT_STATUS_ON, MAX44009_USER_CONFIGURATION, \
+                                   0xFF, 0x00, 0xFF};
     uint8_t max44009_data[2];
     bool status;
 
     i2c.lock();
 
-    for(uint8_t i = 0; i < sizeof(max44009_address); i++)
+    for (uint8_t i = 0; i < sizeof(max44009_address); i++)
     {
         max44009_data[0] = max44009_address[i];
         max44009_data[1] = max44009_value[i];
-        status = i2c.writeByte(MAX44009_ADDRESS, max44009_data, 2);
+        status = i2c.writeByte(MAX44009_ADDRESS, max44009_data, sizeof(max44009_data));
         if (status == false)
         {
             i2c.unlock();
@@ -113,17 +116,18 @@ bool Max44009::reset(void)
     uint8_t max44009_address[5] = {MAX44009_INT_ENABLE_ADDR, MAX44009_CONFIG_ADDR, \
                                    MAX44009_THR_HIGH_ADDR, MAX44009_THR_LOW_ADDR, \
                                    MAX44009_THR_TIMER_ADDR};
-    uint8_t max44009_value[5]   = {0x00, 0x03, 0xFF, 0x00, 0xFF};
+    uint8_t max44009_value[5]   = {MAX44009_INT_STATUS_OFF, MAX44009_DEFAULT_CONFIGURATION, \
+                                   0xFF, 0x00, 0xFF};
     uint8_t max44009_data[2];
     bool status;
 
     i2c.lock();
 
-    for(uint8_t i = 0; i < sizeof(max44009_address); i++)
+    for (uint8_t i = 0; i < sizeof(max44009_address); i++)
     {
         max44009_data[0] = max44009_address[i];
         max44009_data[1] = max44009_value[i];
-        status = i2c.writeByte(MAX44009_ADDRESS, max44009_data, 2);
+        status = i2c.writeByte(MAX44009_ADDRESS, max44009_data, sizeof(max44009_data));
         if (status == false)
         {
             i2c.unlock();
@@ -157,7 +161,8 @@ bool Max44009::isPresent(void)
     status = i2c.readByte(MAX44009_ADDRESS, &isPresent);
     i2c.unlock();
 
-    return (status && isPresent != MAX44009_NOT_FOUND);
+    return (status && (isPresent == MAX44009_DEFAULT_CONFIGURATION ||
+                       isPresent == MAX44009_USER_CONFIGURATION));
 }
 
 bool Max44009::readLux(void)
@@ -174,8 +179,8 @@ bool Max44009::readLux(void)
 
     if (status)
     {
-        exponent = (( max44009_data[0] >> 4 )  & 0x0E);
-        mantissa = (( max44009_data[0] & 0x0F) << 4) | (max44009_data[1] & 0x0F);
+        exponent = ((max44009_data[0] >> 4) & 0x0E);
+        mantissa = ((max44009_data[0] & 0x0F) << 4) | (max44009_data[1] & 0x0F);
     }
 
     return status;
@@ -191,7 +196,7 @@ float Max44009::getLux(void)
 uint16_t Max44009::getLuxRaw(void)
 {
     uint16_t lux;
-    lux = ( (uint16_t)exponent << 8 ) | ( (uint16_t) mantissa );
+    lux = ((uint16_t)exponent << 8) | ((uint16_t) mantissa);
     return lux;
 }
 

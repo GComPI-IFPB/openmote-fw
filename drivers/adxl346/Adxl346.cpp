@@ -143,18 +143,28 @@ bool Adxl346::enable(void)
     config[1] = (ADXL346_BW_RATE_RATE(11));
     status = i2c.writeByte(ADXL346_ADDRESS, config, sizeof(config));
 
+    if (!status) goto error;
+
     config[0] = ADXL346_DATA_FORMAT_ADDR;
     config[1] = (ADXL346_DATA_FORMAT_SELF_TEST |
                  ADXL346_DATA_FORMAT_FULL_RES  |
                  ADXL346_DATA_FORMAT_RANGE_PM_16g);
     status = i2c.writeByte(ADXL346_ADDRESS, config, sizeof(config));
 
+    if (!status) goto error;
+
     config[0] = ADXL346_POWER_CTL_ADDR;
-    config[1] = (ADXL346_POWER_CTL_MEASURE);
+    config[1] = ADXL346_POWER_CTL_MEASURE;
     status = i2c.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+
+    if (!status) goto error;
 
     i2c.unlock();
 
+    return status;
+
+error:
+    i2c.unlock();
     return status;
 }
 
@@ -202,6 +212,8 @@ bool Adxl346::readAcceleration(void)
 
     if (status) {
         x = (acceleration[0] << 8) | acceleration[1];
+    } else {
+        goto error;
     }
 
     status = i2c.writeByte(ADXL346_ADDRESS, ADXL346_DATAY0_ADDR);
@@ -211,6 +223,8 @@ bool Adxl346::readAcceleration(void)
 
     if (status) {
         y = (acceleration[0] << 8) | acceleration[1];
+    } else {
+        goto error;
     }
 
     status = i2c.writeByte(ADXL346_ADDRESS, ADXL346_DATAZ0_ADDR);
@@ -220,10 +234,17 @@ bool Adxl346::readAcceleration(void)
 
     if (status) {
         z = (acceleration[0] << 8) | acceleration[1];
+    } else {
+        goto error;
     }
 
     i2c.unlock();
 
+    return status;
+
+error:
+    x = 0; y = 0; z = 0;
+    i2c.unlock();
     return status;
 }
 
