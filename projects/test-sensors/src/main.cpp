@@ -50,7 +50,7 @@ int main (void)
 {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
-    
+
     // Enable erasing the Flash with the user button
     board.enableFlashErase();
 
@@ -86,8 +86,6 @@ static void prvTemperatureTask(void *pvParameters)
     uint16_t temperature;
     uint16_t humidity;
 
-    vTaskDelay(500 / portTICK_RATE_MS);
-
     if (sht21.isPresent() == true)
     {
         sht21.enable();
@@ -109,7 +107,7 @@ static void prvTemperatureTask(void *pvParameters)
     }
     else
     {
-        led_red.on();
+        led_orange.on();
         vTaskDelete(NULL);
     }
 }
@@ -118,28 +116,25 @@ static void prvLightTask(void *pvParameters)
 {
     uint16_t light;
 
-    vTaskDelay(500 / portTICK_RATE_MS);
-
     if (max44009.isPresent() == true)
     {
-
         max44009.enable();
 
         while(true)
         {
-            led_orange.on();
+            led_yellow.on();
 
             max44009.readLux();
             light = max44009.getLuxRaw();
 
-            led_orange.off();
+            led_yellow.off();
 
             vTaskDelay(2000 / portTICK_RATE_MS);
         }
     }
     else
     {
-        led_red.on();
+        led_yellow.on();
         vTaskDelete(NULL);
     }
 }
@@ -147,22 +142,20 @@ static void prvLightTask(void *pvParameters)
 static void prvAccelerationTask(void *pvParameters) {
     uint16_t x, y, z;
 
-    vTaskDelay(500 / portTICK_RATE_MS);
-
     if (adxl346.isPresent() == true)
     {
         adxl346.enable();
 
         while(true)
         {
-            led_orange.on();
+            led_red.on();
 
             adxl346.readAcceleration();
             x = adxl346.getX();
             y = adxl346.getY();
             z = adxl346.getZ();
 
-            led_orange.off();
+            led_red.off();
 
             vTaskDelay(2000 / portTICK_RATE_MS);
         }
