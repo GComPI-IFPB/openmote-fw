@@ -32,6 +32,8 @@ public:
     void enableInterrupts(void);
     void disableInterrupts(void);
     void enableFlashErase(void);
+    uint32_t getCurrentTime(void);
+    bool isExpiredTime(uint32_t futureTime);
     void getEUI48(uint8_t* address);
     void getEUI64(uint8_t* address);
 private:

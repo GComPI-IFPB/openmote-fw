@@ -69,8 +69,8 @@ Sht21::Sht21(I2cDriver& i2c):
 
 bool Sht21::enable(void)
 {
-    bool status;
     uint8_t config[2];
+    bool status;
 
     // Check if the sensor has been initialized
     isInitialized();
@@ -83,9 +83,13 @@ bool Sht21::enable(void)
     // Obtain the mutex of the I2C driver
     i2c_.lock();
 
-    // Read the current configuration according to the datasheet (pag. 9, fig. 18)
+    // Write the configuration register address
     status = i2c_.writeByte(SHT21_ADDRESS, SHT21_USER_REG_READ);
+    if (status == false) goto error;
+
+    // Read the current configuration (see datasheet pag. 9, fig. 18)
     status = i2c_.readByte(SHT21_ADDRESS, &config[1]);
+    if (status == false) goto error;
 
     // Clean all the configuration bits except those reserved
     config[1] &= SHT21_USER_REG_RESERVED_BITS;
@@ -93,12 +97,19 @@ bool Sht21::enable(void)
     // Set the configuration bits without changing those reserved
     config[1] |= SHT21_USER_CONFIG;
 
+    // Write the user configuration
     status = i2c_.writeByte(SHT21_ADDRESS, config, sizeof(config));
+    if (status == false) goto error;
 
     // Release the mutex of the I2C driver
     i2c_.unlock();
 
-    return status;
+    return true;
+
+error:
+    // Release the mutex of the I2C driver
+    i2c_.unlock();
+    return false;
 }
 
 bool Sht21::reset(void)
@@ -108,19 +119,25 @@ bool Sht21::reset(void)
     // Obtain the mutex of the I2C driver
     i2c_.lock();
 
-    // Send a soft-reset command according to the datasheet (pag. 9, fig. 17)
+    // Send a soft-reset command (see datasheet pag. 9, fig. 17)
     status = i2c_.writeByte(SHT21_ADDRESS, SHT21_RESET_CMD);
+    if (status == false) goto error;
 
     // Release the mutex of the I2C driver
     i2c_.unlock();
 
-    return status;
+    return true;
+
+error:
+    // Release the mutex of the I2C driver
+    i2c_.unlock();
+    return false;
 }
 
 bool Sht21::isPresent(void)
 {
-    bool status;
     uint8_t isPresent;
+    bool status;
 
     // Check if the sensor has been initialized
     isInitialized();
@@ -128,66 +145,88 @@ bool Sht21::isPresent(void)
     // Obtain the mutex of the I2C driver
     i2c_.lock();
 
-    // Read the current configuration according to the datasheet (pag. 9, fig. 18)
+    //  Write the configuration register address
     status = i2c_.writeByte(SHT21_ADDRESS, SHT21_USER_REG_READ);
-    status = i2c_.readByte(SHT21_ADDRESS, &isPresent);
+    if (status == false) goto error;
 
-    // Clear the reserved bits according to the datasheet (pag. 9, tab. 8)
+    // Read the current configuration
+    status = i2c_.readByte(SHT21_ADDRESS, &isPresent);
+    if (status == false) goto error;
+
+    // Clear the reserved bits (see datasheet pag. 9, tab. 8)
     isPresent &= ~SHT21_USER_REG_RESERVED_BITS;
 
     // Release the mutex of the I2C driver
     i2c_.unlock();
 
-    return (status && (isPresent == SHT21_DEFAULT_CONFIG ||
-                       isPresent == SHT21_USER_CONFIG));
+    // Return true if sensor is present
+    return (isPresent == SHT21_DEFAULT_CONFIG ||
+            isPresent == SHT21_USER_CONFIG);
+
+error:
+    // Release the mutex of the I2C driver
+    i2c_.unlock();
+    return false;
 }
 
 bool Sht21::readTemperature(void)
 {
-    bool status;
     uint8_t sht21_temperature[2];
+    bool status;
 
     // Obtain the mutex of the I2C driver
     i2c_.lock();
 
-    // Read the current temperature according to the datasheet (pag. 8, fig. 15)
+    // Write the read temperature command
     status = i2c_.writeByte(SHT21_ADDRESS, SHT21_TEMPERATURE_HM_CMD);
+    if (status == false) goto error;
+
+    // Read the current temperature (see datasheet pag. 8, fig. 15)
     status = i2c_.readByte(SHT21_ADDRESS, sht21_temperature, sizeof(sht21_temperature));
+    if (status == false) goto error;
 
     // Release the mutex of the I2C driver
     i2c_.unlock();
 
-    // If the read succeeded, update the temperature
-    if (status)
-    {
-        temperature = (sht21_temperature[1] << 8) | sht21_temperature[0];
-    }
+    // Update the temperature
+    temperature = (sht21_temperature[1] << 8) | sht21_temperature[0];
 
-    return status;
+    return true;
+
+error:
+    // Release the mutex of the I2C driver
+    i2c_.unlock();
+    return false;
 }
 
 bool Sht21::readHumidity(void)
 {
-    bool status;
     uint8_t sht21_humidity[2];
+    bool status;
 
     // Obtain the mutex of the I2C driver
     i2c_.lock();
 
-    // Read the current humidity according to the datasheet (pag. 8, fig. 15)
+    // Write the read humidity command
     status = i2c_.writeByte(SHT21_ADDRESS, SHT21_HUMIDITY_HM_CMD);
+    if (status == false) goto error;
+
+    // Read the current humidity (see datasheet  pag. 8, fig. 15)
     status = i2c_.readByte(SHT21_ADDRESS, sht21_humidity, sizeof(sht21_humidity));
+    if (status == false) goto error;
 
     // Release the mutex of the I2C driver
     i2c_.unlock();
 
-    // If the read succeeded, update the humidity
-    if (status)
-    {
-        humidity = (sht21_humidity[1] << 8) | sht21_humidity[0];
-    }
+    // Update the humidity
+    humidity = (sht21_humidity[1] << 8) | (sht21_humidity[0] << 0);
 
-    return status;
+    return true;
+
+error:
+    // Release the mutex of the I2C driver
+    i2c_.unlock();
+    return false;
 }
 
 float Sht21::getTemperature(void)
@@ -224,6 +263,7 @@ void Sht21::isInitialized(void)
 {
     static bool isInitialized = false;
 
+    // If sensor is not initialized
     if (!isInitialized)
     {
         // Wait until sensor is available

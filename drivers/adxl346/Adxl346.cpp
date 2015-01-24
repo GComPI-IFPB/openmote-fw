@@ -134,38 +134,41 @@ Adxl346::Adxl346(I2cDriver& i2c, GpioIn& gpio):
 
 bool Adxl346::enable(void)
 {
-    bool status;
     uint8_t config[2];
+    bool status;
 
+    // Lock access to I2C
     i2c_.lock();
 
+    // Write the bandwidth register
     config[0] = ADXL346_BW_RATE_ADDR;
     config[1] = (ADXL346_BW_RATE_RATE(11));
     status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    if (status == false) goto error;
 
-    if (!status) goto error;
-
+    // Write the format register
     config[0] = ADXL346_DATA_FORMAT_ADDR;
     config[1] = (ADXL346_DATA_FORMAT_SELF_TEST |
                  ADXL346_DATA_FORMAT_FULL_RES  |
                  ADXL346_DATA_FORMAT_RANGE_PM_16g);
     status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    if (status == false) goto error;
 
-    if (!status) goto error;
-
+    // Write the power register
     config[0] = ADXL346_POWER_CTL_ADDR;
     config[1] = ADXL346_POWER_CTL_MEASURE;
     status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    if (status == false) goto error;
 
-    if (!status) goto error;
-
+    // Release access to I2C
     i2c_.unlock();
 
-    return status;
+    return true;
 
 error:
+    // Release access to I2C
     i2c_.unlock();
-    return status;
+    return false;
 }
 
 bool Adxl346::reset(void)
@@ -175,15 +178,30 @@ bool Adxl346::reset(void)
 
 bool Adxl346::isPresent(void)
 {
-    bool status;
     uint8_t isPresent;
+    bool status;
 
+    // Lock access to I2C
     i2c_.lock();
+
+    // Write the device identification address
     status = i2c_.writeByte(ADXL346_ADDRESS, ADXL346_DEVID_ADDR);
+    if (status == false) goto error;
+
+    // Read the device identification value
     status = i2c_.readByte(ADXL346_ADDRESS, &isPresent);
+    if (status == false) goto error;
+
+    // Release access to I2C
     i2c_.unlock();
 
-    return (status && isPresent == ADXL346_DEVID_VALUE);
+    // Return true if sensor is present
+    return (isPresent == ADXL346_DEVID_VALUE);
+
+error:
+    // Release access to I2C
+    i2c_.unlock();
+    return false;
 }
 
 void Adxl346::setCallback(Callback* callback)
@@ -200,67 +218,70 @@ void Adxl346::clearCallback(void)
 
 bool Adxl346::readAcceleration(void)
 {
+    uint16_t acceleration[3];
+    uint8_t  address[6] = {ADXL346_DATAX0_ADDR, ADXL346_DATAX1_ADDR,
+                           ADXL346_DATAY0_ADDR, ADXL346_DATAY1_ADDR,
+                           ADXL346_DATAZ0_ADDR, ADXL346_DATAZ1_ADDR};
+    uint8_t scratch[2];
     bool status;
-    uint8_t acceleration[2];
 
+    // Lock access to I2C
     i2c_.lock();
 
-    status = i2c_.writeByte(ADXL346_ADDRESS, ADXL346_DATAX0_ADDR);
-    status = i2c_.readByte(ADXL346_ADDRESS, &acceleration[0]);
-    status = i2c_.writeByte(ADXL346_ADDRESS, ADXL346_DATAX1_ADDR);
-    status = i2c_.readByte(ADXL346_ADDRESS, &acceleration[1]);
+    // Iterate for all addresses, each direction has two addresses
+    for (uint8_t i = 0; i < sizeof(address); i += 2)
+    {
+        // I2C write operation
+        status = i2c_.writeByte(ADXL346_ADDRESS, address[i + 0]);
+        if (status == false) goto error;
 
-    if (status) {
-        x = (acceleration[0] << 8) | acceleration[1];
-    } else {
-        goto error;
+        // I2C read operation
+        status = i2c_.readByte(ADXL346_ADDRESS, &scratch[0]);
+        if (status == false) goto error;
+
+        // I2C write operation
+        status = i2c_.writeByte(ADXL346_ADDRESS, address[i + 1]);
+        if (status == false) goto error;
+
+        // I2C read operation
+        status = i2c_.readByte(ADXL346_ADDRESS, &scratch[1]);
+        if (status == false) goto error;
+
+        // Convert ADXL346 data
+        acceleration[i>>1] = (scratch[0] << 8) | scratch[1];
     }
 
-    status = i2c_.writeByte(ADXL346_ADDRESS, ADXL346_DATAY0_ADDR);
-    status = i2c_.readByte(ADXL346_ADDRESS, &acceleration[0]);
-    status = i2c_.writeByte(ADXL346_ADDRESS, ADXL346_DATAY1_ADDR);
-    status = i2c_.readByte(ADXL346_ADDRESS, &acceleration[1]);
+    // Update acceleration variables
+    x_ = acceleration[0];
+    y_ = acceleration[1];
+    z_ = acceleration[2];
 
-    if (status) {
-        y = (acceleration[0] << 8) | acceleration[1];
-    } else {
-        goto error;
-    }
-
-    status = i2c_.writeByte(ADXL346_ADDRESS, ADXL346_DATAZ0_ADDR);
-    status = i2c_.readByte(ADXL346_ADDRESS, &acceleration[0]);
-    status = i2c_.writeByte(ADXL346_ADDRESS, ADXL346_DATAZ1_ADDR);
-    status = i2c_.readByte(ADXL346_ADDRESS, &acceleration[1]);
-
-    if (status) {
-        z = (acceleration[0] << 8) | acceleration[1];
-    } else {
-        goto error;
-    }
-
+    // Release access to I2C
     i2c_.unlock();
 
-    return status;
+    return true;
 
 error:
-    x = 0; y = 0; z = 0;
+    // Reset acceleration variables
+    x_ = 0; y_ = 0; z_ = 0;
+    // Release access to I2C
     i2c_.unlock();
-    return status;
+    return false;
 }
 
 uint16_t Adxl346::getX(void)
 {
-    return x;
+    return x_;
 }
 
 uint16_t Adxl346::getY(void)
 {
-    return y;
+    return y_;
 }
 
 uint16_t Adxl346::getZ(void)
 {
-    return z;
+    return z_;
 }
 
 /*=============================== protected =================================*/

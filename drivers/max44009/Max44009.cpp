@@ -92,23 +92,30 @@ bool Max44009::enable(void)
     uint8_t max44009_data[2];
     bool status;
 
+    // Lock access to I2C
     i2c_.lock();
 
+    // Iterate for all addresses and value
     for (uint8_t i = 0; i < sizeof(max44009_address); i++)
     {
+        // Prepare the data vector
         max44009_data[0] = max44009_address[i];
         max44009_data[1] = max44009_value[i];
+
+        // Write the configuration value in each register
         status = i2c_.writeByte(MAX44009_ADDRESS, max44009_data, sizeof(max44009_data));
-        if (status == false)
-        {
-            i2c_.unlock();
-            return status;
-        }
+        if (status == false) goto error;
     }
 
+    // Release access to I2C
     i2c_.unlock();
 
     return true;
+
+error:
+    // Free access to I2C
+    i2c_.unlock();
+    return false;
 }
 
 bool Max44009::reset(void)
@@ -121,22 +128,30 @@ bool Max44009::reset(void)
     uint8_t max44009_data[2];
     bool status;
 
+    // Lock access to I2C
     i2c_.lock();
 
+    // Iterate for all addresses and value
     for (uint8_t i = 0; i < sizeof(max44009_address); i++)
     {
+        // Prepare the data vector
         max44009_data[0] = max44009_address[i];
         max44009_data[1] = max44009_value[i];
+
+        // Write the configuration value in each register
         status = i2c_.writeByte(MAX44009_ADDRESS, max44009_data, sizeof(max44009_data));
-        if (status == false)
-        {
-            i2c_.unlock();
-            return status;
-        }
+        if (status == false) goto error;
     }
 
+    // Release access to I2C
     i2c_.unlock();
+
     return true;
+
+error:
+    // Release access to I2C
+    i2c_.unlock();
+    return false;
 }
 
 void Max44009::setCallback(Callback* callback)
@@ -153,37 +168,69 @@ void Max44009::clearCallback(void)
 
 bool Max44009::isPresent(void)
 {
-    bool status;
     uint8_t isPresent;
+    bool status;
 
+    // Lock access to I2C
     i2c_.lock();
+
+    // Write the configuration address
     status = i2c_.writeByte(MAX44009_ADDRESS, MAX44009_CONFIG_ADDR);
+    if (status == false) goto error;
+
+    // Read the configuration register
     status = i2c_.readByte(MAX44009_ADDRESS, &isPresent);
+    if (status == false) goto error;
+
+    // Release access to I2C
     i2c_.unlock();
 
-    return (status && (isPresent == MAX44009_DEFAULT_CONFIGURATION ||
-                       isPresent == MAX44009_USER_CONFIGURATION));
+    // Return true if sensor is present
+    return (isPresent == MAX44009_DEFAULT_CONFIGURATION ||
+            isPresent == MAX44009_USER_CONFIGURATION);
+error:
+    // Release access to I2C
+    i2c_.unlock();
+    return false;
 }
 
 bool Max44009::readLux(void)
 {
-    bool status;
     uint8_t max44009_data[2];
+    bool status;
 
+    // Lock access to I2C
     i2c_.lock();
+
+    // Write the high data register address
     status = i2c_.writeByte(MAX44009_ADDRESS, MAX44009_LUX_HIGH_ADDR);
+    if (status == false) goto error;
+
+    // Read the high data register value
     status = i2c_.readByte(MAX44009_ADDRESS, &max44009_data[0]);
+    if (status == false) goto error;
+
+    // Write the low data register address
     status = i2c_.writeByte(MAX44009_ADDRESS, MAX44009_LUX_LOW_ADDR);
+    if (status == false) goto error;
+
+    // Read the low data register address
     status = i2c_.readByte(MAX44009_ADDRESS, &max44009_data[1]);
+    if (status == false) goto error;
+
+    // Release access to I2C
     i2c_.unlock();
 
-    if (status)
-    {
-        exponent = ((max44009_data[0] >> 4) & 0x0E);
-        mantissa = ((max44009_data[0] & 0x0F) << 4) | (max44009_data[1] & 0x0F);
-    }
+    // Convert MAX44009 data
+    exponent = ((max44009_data[0] >> 4) & 0x0E);
+    mantissa = ((max44009_data[0] & 0x0F) << 4) | (max44009_data[1] & 0x0F);
 
-    return status;
+    return true;
+
+error:
+    // Release access to I2C
+    i2c_.unlock();
+    return false;
 }
 
 float Max44009::getLux(void)

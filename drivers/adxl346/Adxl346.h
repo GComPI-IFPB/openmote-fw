@@ -41,9 +41,9 @@ private:
     I2cDriver& i2c_;
     GpioIn& gpio_;
 
-    uint16_t x;
-    uint16_t y;
-    uint16_t z;
+    uint16_t x_;
+    uint16_t y_;
+    uint16_t z_;
 };
 
 #endif /* ADXL346_H_ */
