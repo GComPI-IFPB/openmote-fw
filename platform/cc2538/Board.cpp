@@ -25,14 +25,14 @@
 
 /*================================ define ===================================*/
 
-// Defines for the EUI64 address
+// Defines for the EUI64 addresses
 #define CC2538_EUI64_ADDRESS_HI_H               ( 0x0028002F )
 #define CC2538_EUI64_ADDRESS_HI_L               ( 0x0028002C )
 #define CC2538_EUI64_ADDRESS_LO_H               ( 0x0028002B )
 #define CC2538_EUI64_ADDRESS_LO_L               ( 0x00280028 )
 
-// Defines the Flash address
-#define CC2538_FLASH_ADDRESS                    ( 0x0027F800 )
+// Defines the Flash CCA address
+#define CC2538_FLASH_CCA_ADDRESS                ( 0x0027F800 )
 
 /*================================ typedef ==================================*/
 
@@ -59,6 +59,7 @@ Board::Board():
 
 void Board::reset(void)
 {
+    // Reset the board
     SysCtrlReset();
 }
 
@@ -90,20 +91,24 @@ void Board::wakeup(void)
 
 void Board::enableInterrupts(void)
 {
+    // Enable global interrupts
     IntMasterEnable();
 }
 
 void Board::disableInterrupts(void)
 {
+    // Disable global interrupts
     IntMasterDisable();
 }
 
-uint32_t Board::getCurrentTicks(void) {
+uint32_t Board::getCurrentTicks(void)
+{
     // Get the current number of ticks
     return SleepModeTimerCountGet();
 }
 
-bool Board::isExpiredTicks(uint32_t futureTicks) {
+bool Board::isExpiredTicks(uint32_t futureTicks)
+{
     uint32_t currentTicks;
     int32_t remainingTicks;
 
@@ -165,7 +170,12 @@ void Board::getEUI64(uint8_t* address)
 
 static void flashEraseCallback(void)
 {
+    // Disable global interrupts
     IntMasterDisable();
-    FlashMainPageErase(CC2538_FLASH_ADDRESS);
+
+    // Erase Flash CCA page
+    FlashMainPageErase(CC2538_FLASH_CCA_ADDRESS);
+
+    // Reset the board
     SysCtrlReset();
 }
