@@ -27,26 +27,26 @@
 
 /*================================= public ==================================*/
 
-Tps62730::Tps62730(GpioOut& bypass_, GpioIn& status_):
-    bypass(bypass_), status(status_)
+Tps62730::Tps62730(GpioOut& bypass, GpioIn& status):
+    bypass_(bypass), status_(status)
 {
 }
 
 void Tps62730::setOn(void)
 {
-    bypass.on();
+    bypass_.on();
 }
 
 void Tps62730::setBypass(void)
 {
-    bypass.off();
+    bypass_.off();
 }
 
 bool Tps62730::getStatus(void)
 {
-    bool state;
-    state = status.read();
-    return state;
+    bool status;
+    status = status_.read();
+    return status;
 }
 
 /*=============================== protected =================================*/

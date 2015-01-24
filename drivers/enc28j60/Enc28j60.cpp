@@ -264,10 +264,10 @@
 
 /*================================= public ==================================*/
 
-Enc28j60::Enc28j60(SpiDriver& spi_, GpioIn& gpio_):
-    spi(spi_), gpio(gpio_), \
-    interrupt(this, &Enc28j60::interruptHandler), \
-    callback(nullptr), \
+Enc28j60::Enc28j60(SpiDriver& spi, GpioIn& gpio):
+    spi_(spi), gpio_(gpio), \
+    interrupt_(this, &Enc28j60::interruptHandler), \
+    callback_(nullptr), \
     nextPacketPtr(0)
 {
 }
@@ -281,8 +281,8 @@ void Enc28j60::init(uint8_t* mac_address)
     reset();
 
     // Set and enable ENC268J60 interrupt
-    gpio.setCallback(&interrupt);
-    gpio.enableInterrupts();
+    gpio_.setCallback(&interrupt_);
+    gpio_.enableInterrupts();
 }
 
 void Enc28j60::reset(void)
@@ -346,14 +346,14 @@ void Enc28j60::reset(void)
     writeOperation(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN);
 }
 
-void Enc28j60::setCallback(Callback* callback_)
+void Enc28j60::setCallback(Callback* callback)
 {
-    callback = callback_;
+    callback_ = callback;
 }
 
 void Enc28j60::clearCallback(void)
 {
-    callback = nullptr;
+    callback_ = nullptr;
 }
 
 OperationResult Enc28j60::transmitFrame(uint8_t* data, uint32_t length)
@@ -448,9 +448,9 @@ OperationResult Enc28j60::receiveFrame(uint8_t* buffer, uint32_t* length)
 
 void Enc28j60::interruptHandler(void)
 {
-    if (callback != nullptr)
+    if (callback_ != nullptr)
     {
-        callback->execute();
+        callback_->execute();
     }
 }
 
@@ -460,29 +460,29 @@ uint8_t Enc28j60::readOperation(uint8_t op, uint8_t address)
 {
     uint8_t result;
 
-    spi.select();
+    spi_.select();
 
-    spi.writeByte(op | (address & ADDR_MASK));
+    spi_.writeByte(op | (address & ADDR_MASK));
 
-    result = spi.readByte();
+    result = spi_.readByte();
     if (address & 0x80)
     {
-        result = spi.readByte();
+        result = spi_.readByte();
     }
 
-    spi.deselect();
+    spi_.deselect();
 
     return result;
 }
 
 void Enc28j60::writeOperation(uint8_t op, uint8_t address, uint8_t data)
 {
-    spi.select();
+    spi_.select();
 
-    spi.writeByte(op | (address & ADDR_MASK));
-    spi.writeByte(data);
+    spi_.writeByte(op | (address & ADDR_MASK));
+    spi_.writeByte(data);
 
-    spi.deselect();
+    spi_.deselect();
 }
 
 void Enc28j60::setBank(uint8_t address)
@@ -541,28 +541,28 @@ void Enc28j60::writePhy(uint8_t address, uint16_t data)
 }
 void Enc28j60::writeBuffer(const uint8_t* data, uint16_t length)
 {
-    spi.select();
+    spi_.select();
 
-    spi.writeByte(ENC28J60_WRITE_BUF_MEM);
+    spi_.writeByte(ENC28J60_WRITE_BUF_MEM);
     while (length--)
     {
-        spi.writeByte(*data++);
+        spi_.writeByte(*data++);
     }
 
-    spi.deselect();
+    spi_.deselect();
 }
 
 void Enc28j60::readBuffer(uint8_t* data, uint16_t length)
 {
-    spi.select();
+    spi_.select();
 
-    spi.writeByte(ENC28J60_READ_BUF_MEM);
+    spi_.writeByte(ENC28J60_READ_BUF_MEM);
     while (length--)
     {
-        *data++ = spi.readByte();
+        *data++ = spi_.readByte();
     }
 
-    spi.deselect();
+    spi_.deselect();
 }
 
 bool Enc28j60::isLinkUp(void)

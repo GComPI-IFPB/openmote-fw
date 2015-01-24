@@ -27,18 +27,19 @@ class GpioIn;
 class Max44009: public Sensor
 {
 public:
-    Max44009(I2cDriver& i2c_, GpioIn& gpio_);
+    Max44009(I2cDriver& i2c, GpioIn& gpio);
     bool enable(void);
     bool reset(void);
-    void setCallback(Callback* callback_);
+    void setCallback(Callback* callback);
     void clearCallback(void);
     bool isPresent(void);
     bool readLux(void);
     float getLux(void);
     uint16_t getLuxRaw(void);
 private:
-    I2cDriver& i2c;
-    GpioIn& gpio;
+    I2cDriver& i2c_;
+    GpioIn& gpio_;
+
     uint8_t exponent;
     uint8_t mantissa;
 };

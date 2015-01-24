@@ -32,10 +32,10 @@ typedef GenericCallback<Enc28j60> Enc28j60Callback;
 class Enc28j60 : public EthernetDevice
 {
 public:
-    Enc28j60(SpiDriver& spi_, GpioIn& gpio_);
+    Enc28j60(SpiDriver& spi, GpioIn& gpio);
     void init(uint8_t* mac_address);
     void reset(void);
-    void setCallback(Callback* callback_);
+    void setCallback(Callback* callback);
     void clearCallback(void);
     OperationResult transmitFrame(uint8_t* data, uint32_t length);
     OperationResult receiveFrame(uint8_t* buffer, uint32_t* length);
@@ -51,16 +51,15 @@ private:
     void writeRegister(uint8_t address, uint16_t data);
     uint16_t readPhyByte(uint8_t address);
     void writePhy(uint8_t address, uint16_t data);
-    void writeBuffer(const uint8_t* data, uint16_t len);
-    void readBuffer(uint8_t* data, uint16_t len);
+    void writeBuffer(const uint8_t* data, uint16_t length);
+    void readBuffer(uint8_t* data, uint16_t length);
     bool isLinkUp(void);
 private:
-    SpiDriver& spi;
-    GpioIn& gpio;
+    SpiDriver& spi_;
+    GpioIn& gpio_;
 
-    Enc28j60Callback interrupt;
-
-    Callback* callback;
+    Enc28j60Callback interrupt_;
+    Callback* callback_;
 
     uint8_t  currentBank;
     uint32_t nextPacketPtr;
