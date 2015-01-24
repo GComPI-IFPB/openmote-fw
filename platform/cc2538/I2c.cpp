@@ -22,13 +22,14 @@
 
 /*================================ define ===================================*/
 
-#define I2C_MAX_DELAY_US        ( 100000 )
-
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
 
 extern Board board;
+
+const uint32_t I2C_MAX_DELAY_US    = 100000;
+const uint32_t I2C_MAX_DELAY_TICKS = I2C_MAX_DELAY_US / Board::BOARD_TICKS_PER_US;
 
 /*=============================== prototypes ================================*/
 
@@ -65,7 +66,7 @@ void I2c::enable(uint32_t clock)
     IOCPinConfigPeriphOutput(sda_.getPort(), sda_.getPin(), IOC_MUX_OUT_SEL_I2C_CMSSDA);
 
     // Configure the I2C clock
-    status = (clock_ == 400000 ? true : false);
+    status = ((clock_ == 100000) ? false : true);
     I2CMasterInitExpClk(SysCtrlClockGet(), status);
 
     // Enable the I2C module as master
@@ -94,7 +95,7 @@ void I2c::wakeup(void)
 
 bool I2c::readByte(uint8_t address, uint8_t* buffer)
 {
-    uint32_t delayTicks = I2C_MAX_DELAY_US;
+    uint32_t delayTicks = I2C_MAX_DELAY_TICKS;
 
     // Read operation
     I2CMasterSlaveAddrSet(address, true);
@@ -103,13 +104,13 @@ bool I2c::readByte(uint8_t address, uint8_t* buffer)
     I2CMasterControl(I2C_MASTER_CMD_SINGLE_RECEIVE);
 
     // Calculate timeout
-    delayTicks += board.getCurrentTime();
+    delayTicks += board.getCurrentTicks();
 
     // Wait until complete or timeout
     while (I2CMasterBusy())
     {
         // Check timeout status and return if expired
-        if (board.isExpiredTime(delayTicks)) return false;
+        if (board.isExpiredTicks(delayTicks)) return false;
     }
 
     // Read data from I2C
@@ -120,7 +121,7 @@ bool I2c::readByte(uint8_t address, uint8_t* buffer)
 
 bool I2c::readByte(uint8_t address, uint8_t* buffer, uint8_t size)
 {
-    uint32_t delayTicks = I2C_MAX_DELAY_US;
+    uint32_t delayTicks = I2C_MAX_DELAY_TICKS;
 
     // Read operation
     I2CMasterSlaveAddrSet(address, true);
@@ -129,7 +130,7 @@ bool I2c::readByte(uint8_t address, uint8_t* buffer, uint8_t size)
     I2CMasterControl(I2C_MASTER_CMD_BURST_RECEIVE_START);
 
     // Calculate timeout
-    delayTicks += board.getCurrentTime();
+    delayTicks += board.getCurrentTicks();
 
     // Iterate overall all bytes
     while (size)
@@ -138,7 +139,7 @@ bool I2c::readByte(uint8_t address, uint8_t* buffer, uint8_t size)
         while (I2CMasterBusy())
         {
             // Check timeout status and return if expired
-            if (board.isExpiredTime(delayTicks)) return false;
+            if (board.isExpiredTicks(delayTicks)) return false;
         }
 
         // Read data from I2C
@@ -155,7 +156,7 @@ bool I2c::readByte(uint8_t address, uint8_t* buffer, uint8_t size)
 
 bool I2c::writeByte(uint8_t address, uint8_t byte)
 {
-    uint32_t delayTicks = I2C_MAX_DELAY_US;
+    uint32_t delayTicks = I2C_MAX_DELAY_TICKS;
 
     // Write operation
     I2CMasterSlaveAddrSet(address, false);
@@ -167,13 +168,13 @@ bool I2c::writeByte(uint8_t address, uint8_t byte)
     I2CMasterControl(I2C_MASTER_CMD_SINGLE_SEND);
 
     // Calculate timeout
-    delayTicks += board.getCurrentTime();
+    delayTicks += board.getCurrentTicks();
 
     // Wait until complete or timeout
     while (I2CMasterBusy())
     {
         // Check timeout status and return if expired
-        if (board.isExpiredTime(delayTicks)) return false;
+        if (board.isExpiredTicks(delayTicks)) return false;
     }
 
     return true;
@@ -181,7 +182,7 @@ bool I2c::writeByte(uint8_t address, uint8_t byte)
 
 bool I2c::writeByte(uint8_t address, uint8_t* buffer, uint8_t size)
 {
-    uint32_t delayTicks = I2C_MAX_DELAY_US;
+    uint32_t delayTicks = I2C_MAX_DELAY_TICKS;
 
     // Write operation
     I2CMasterSlaveAddrSet(address, false);
@@ -194,13 +195,13 @@ bool I2c::writeByte(uint8_t address, uint8_t* buffer, uint8_t size)
     I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_START);
 
     // Calculate timeout
-    delayTicks += board.getCurrentTime();
+    delayTicks += board.getCurrentTicks();
 
     // Wait until complete or timeout
     while (I2CMasterBusy())
     {
         // Check timeout status and return if expired
-        if (board.isExpiredTime(delayTicks)) return false;
+        if (board.isExpiredTicks(delayTicks)) return false;
     }
 
     while (size)
@@ -217,7 +218,7 @@ bool I2c::writeByte(uint8_t address, uint8_t* buffer, uint8_t size)
         while (I2CMasterBusy())
         {
             // Check timeout status and return if expired
-            if (board.isExpiredTime(delayTicks)) return false;
+            if (board.isExpiredTicks(delayTicks)) return false;
         }
     }
 

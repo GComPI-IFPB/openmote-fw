@@ -30,7 +30,7 @@ friend class InterruptHandler;
 
 public:
     I2c(uint32_t peripheral, GpioI2c& scl, GpioI2c& sda);
-    void enable(uint32_t clock);
+    void enable(uint32_t clock = 100000);
     void sleep(void);
     void wakeup(void);
     bool readByte(uint8_t address, uint8_t* buffer);
