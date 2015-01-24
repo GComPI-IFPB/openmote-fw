@@ -32,10 +32,12 @@ public:
     void enableInterrupts(void);
     void disableInterrupts(void);
     void enableFlashErase(void);
-    uint32_t getCurrentTime(void);
-    bool isExpiredTime(uint32_t futureTime);
+    uint32_t getCurrentTicks(void);
+    bool isExpiredTicks(uint32_t futureTicks);
     void getEUI48(uint8_t* address);
     void getEUI64(uint8_t* address);
+public:
+    static const uint32_t BOARD_TICKS_PER_US;
 private:
     SleepMode sleepMode_;
     PlainCallback flashEraseCallback_;

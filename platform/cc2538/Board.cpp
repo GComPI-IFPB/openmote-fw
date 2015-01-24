@@ -34,13 +34,16 @@
 // Defines the Flash address
 #define CC2538_FLASH_ADDRESS                    ( 0x0027F800 )
 
-#define CC2538_BUTTON_DELAY_US                  ( 100000 )
-
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
 
 extern GpioInPow button_user;
+
+const uint32_t Board::BOARD_TICKS_PER_US = 31;
+
+const uint32_t BOARD_BUTTON_DELAY_US    = 100000;
+const uint32_t BOARD_BUTTON_DELAY_TICKS = (BOARD_BUTTON_DELAY_US / Board::BOARD_TICKS_PER_US);
 
 /*=============================== prototypes ================================*/
 
@@ -52,16 +55,6 @@ Board::Board():
     sleepMode_(SleepMode_None), \
     flashEraseCallback_(&flashEraseCallback)
 {
-    // Enable the timer
-    SysCtrlPeripheralEnable(SYS_CTRL_PERIPH_GPT2);
-    SysCtrlPeripheralSleepEnable(SYS_CTRL_PERIPH_GPT2);
-    SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_GPT2);
-
-    // Configure the timer
-    TimerConfigure(GPTIMER2_BASE, GPTIMER_CFG_PERIODIC_UP);
-
-    // Enable the timer
-    TimerEnable(GPTIMER2_BASE, GPTIMER_BOTH);
 }
 
 void Board::reset(void)
@@ -105,36 +98,36 @@ void Board::disableInterrupts(void)
     IntMasterDisable();
 }
 
-uint32_t Board::getCurrentTime(void) {
-    uint32_t currentTime;
-
-    currentTime = TimerValueGet(GPTIMER2_BASE, GPTIMER_A) >> 5;
-
-    return currentTime;
+uint32_t Board::getCurrentTicks(void) {
+    // Get the current number of ticks
+    return SleepModeTimerCountGet();
 }
 
-bool Board::isExpiredTime(uint32_t futureTime) {
-    uint32_t currentTime;
-    int32_t remainingTime;
+bool Board::isExpiredTicks(uint32_t futureTicks) {
+    uint32_t currentTicks;
+    int32_t remainingTicks;
 
-    currentTime = TimerValueGet(GPTIMER2_BASE, GPTIMER_A) >> 5;
+    // Get the current number of ticks
+    currentTicks = SleepModeTimerCountGet();
 
-    remainingTime = (int32_t) (futureTime - currentTime);
+    // Calculte the number of remaining ticks
+    remainingTicks = (int32_t) (futureTicks - currentTicks);
 
-    if (remainingTime > 0) {
-        return false;
-    } else {
-        return true;
-    }
+    // Returns true if it has expired
+    return (remainingTicks < 0);
 }
 
 void Board::enableFlashErase(void)
 {
-    uint32_t buttonDelay = CC2538_BUTTON_DELAY_US;
+    uint32_t delayTicks = BOARD_BUTTON_DELAY_TICKS;
 
-    buttonDelay += getCurrentTime();
-    while(!isExpiredTime(buttonDelay));
+    // Calculate timeout
+    delayTicks += getCurrentTicks();
 
+    // Wait until timeout
+    while (!isExpiredTicks(delayTicks));
+
+    // Set the callback and enable interrupt
     button_user.setCallback(&flashEraseCallback_);
     button_user.enableInterrupts();
 }
