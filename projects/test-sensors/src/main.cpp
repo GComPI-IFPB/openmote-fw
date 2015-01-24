@@ -55,7 +55,7 @@ int main (void)
     board.enableFlashErase();
 
     // Enable the I2C interface
-    i2c.enable(I2C_BAUDRATE);
+    i2c.enable();
 
     // Create the FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "GreenLed", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
