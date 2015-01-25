@@ -27,10 +27,10 @@ friend class InterruptHandler;
 
 public:
     SleepTimer(uint32_t interrupt);
-    void enable(void);
     void start(uint32_t counts);
     void stop(void);
-    uint32_t read(void);
+    uint32_t getCounter(void);
+    bool isExpired(uint32_t future);
     void setCallback(Callback* callback);
     void clearCallback(void);
     void enableInterrupts(void);

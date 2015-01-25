@@ -35,16 +35,14 @@ SleepTimer::SleepTimer(uint32_t interrupt):
 {
 }
 
-void SleepTimer::enable(void)
-{
-    // Nothing to do here, SleepTimer starts counting
-    // automatically when the CC2538 boots!
-}
-
 void SleepTimer::start(uint32_t counts)
 {
     uint32_t current;
+
+    // Get current counter
     current = SleepModeTimerCountGet();
+
+    // Set future timeout
     SleepModeTimerCompareSet(current + counts);
 }
 
@@ -53,9 +51,25 @@ void SleepTimer::stop(void)
     // Nothing to do here, SleepTimer cannot be stopped
 }
 
-uint32_t SleepTimer::read(void)
+uint32_t SleepTimer::getCounter(void)
 {
+    // Get current counter
     return SleepModeTimerCountGet();
+}
+
+bool SleepTimer::isExpired(uint32_t future)
+{
+    uint32_t current;
+    int32_t delta;
+
+    // Get current counter
+    current = SleepModeTimerCountGet();
+
+    // Calculate delta
+    delta = (int32_t) (current - future);
+
+    // Return true if expired
+    return (delta < 0);
 }
 
 void SleepTimer::setCallback(Callback* callback)

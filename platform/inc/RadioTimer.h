@@ -29,6 +29,8 @@ public:
     RadioTimer(uint32_t interrupt);
     void start(void);
     void stop(void);
+    uint32_t sleep(void);
+    void wakeup(uint32_t ticks);
     uint32_t getCounter(void);
     void setCounter(uint32_t counter);
     uint32_t getPeriod(void);
@@ -36,7 +38,9 @@ public:
     uint32_t getCompare(void);
     void setCompare(uint32_t compare);
     void setPeriodCallback(Callback* period);
+    void clearPeriodCallback(void);
     void setCompareCallback(Callback* compare);
+    void clearCompareCallback();
     void enableInterrupts(void);
     void disableInterrupts(void);
 protected:

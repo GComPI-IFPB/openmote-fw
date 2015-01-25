@@ -55,8 +55,8 @@ void RadioTimer::start(void)
 {
     // Set timer period to 976 ticks to have a 32786 kHz clock from a 32 MHz source
     HWREG(RFCORE_SFR_MTMSEL) = MTMSEL_PERIOD;
-    HWREG(RFCORE_SFR_MTM0)   = ((RADIOTIMER_32MHZ_TICS_PER_32KHZ_TIC >> 0) << RFCORE_SFR_MTM0_MTM0_S) & RFCORE_SFR_MTM0_MTM0_M;
-    HWREG(RFCORE_SFR_MTM1)   = ((RADIOTIMER_32MHZ_TICS_PER_32KHZ_TIC >> 8) << RFCORE_SFR_MTM1_MTM1_S) & RFCORE_SFR_MTM1_MTM1_M;
+    HWREG(RFCORE_SFR_MTM0)   = ((RADIOTIMER_32MHZ_TO_32KHZ_TICKS >> 0) << RFCORE_SFR_MTM0_MTM0_S) & RFCORE_SFR_MTM0_MTM0_M;
+    HWREG(RFCORE_SFR_MTM1)   = ((RADIOTIMER_32MHZ_TO_32KHZ_TICKS >> 8) << RFCORE_SFR_MTM1_MTM1_S) & RFCORE_SFR_MTM1_MTM1_M;
 
     // Set timer counter to 0 ticks
     HWREG(RFCORE_SFR_MTMSEL) = MTMSEL_TIMER;
@@ -77,6 +77,15 @@ void RadioTimer::stop(void)
 {
     // Stop the timer
     HWREG(RFCORE_SFR_MTCTRL) &= ~RFCORE_SFR_MTCTRL_RUN;
+}
+
+uint32_t RadioTimer::sleep(void)
+{
+    return 0;
+}
+
+void RadioTimer::wakeup(uint32_t ticks)
+{
 }
 
 uint32_t RadioTimer::getCounter(void)
@@ -161,8 +170,6 @@ void RadioTimer::setCompare(uint32_t compare)
     HWREG(RFCORE_SFR_MTMOVF0) = (compare << 0) & 0xFF;
     HWREG(RFCORE_SFR_MTMOVF1) = (compare << 8) & 0xFF;
     HWREG(RFCORE_SFR_MTMOVF2) = (compare << 16) & 0xFF;
-
-    return counter;
 }
 
 void RadioTimer::setPeriodCallback(Callback* period)
@@ -170,11 +177,20 @@ void RadioTimer::setPeriodCallback(Callback* period)
     period_ = period;
 }
 
+void RadioTimer::clearPeriodCallback(void)
+{
+    period_ = nullptr;
+}
+
 void RadioTimer::setCompareCallback(Callback* compare)
 {
     compare_ = compare;
 }
 
+void RadioTimer::clearCompareCallback(void)
+{
+    compare_ = nullptr;
+}
 
 void RadioTimer::enableInterrupts(void)
 {
