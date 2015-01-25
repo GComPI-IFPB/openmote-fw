@@ -27,25 +27,22 @@ friend class InterruptHandler;
 
 public:
     RadioTimer(uint32_t interrupt);
-    void enable(void);
     void start(void);
     void stop(void);
     uint32_t getCounter(void);
     void setCounter(uint32_t counter);
     uint32_t getPeriod(void);
     void setPeriod(uint32_t period);
-    uint32_t getCapture(void);
-    void setCapture(uint32_t capture_);
-    void setCaptureCallback(Callback* capture);
+    uint32_t getCompare(void);
+    void setCompare(uint32_t compare);
+    void setPeriodCallback(Callback* period);
     void setCompareCallback(Callback* compare);
-    void setOverflowCallback(Callback* overflow);
     void enableInterrupts(void);
     void disableInterrupts(void);
 protected:
     void interruptHandler(void);
 private:
-    Callback* overflow_;
-    Callback* capture_;
+    Callback* period_;
     Callback* compare_;
 
     uint32_t interrupt_;
