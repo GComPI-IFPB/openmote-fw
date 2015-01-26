@@ -46,10 +46,10 @@ public:
 protected:
     void interruptHandler(void);
 private:
+    uint32_t interrupt_;
+
     Callback* period_;
     Callback* compare_;
-
-    uint32_t interrupt_;
 };
 
 #endif /* RADIO_H_ */

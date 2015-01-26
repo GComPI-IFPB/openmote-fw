@@ -51,6 +51,16 @@ void SleepTimer::stop(void)
     // Nothing to do here, SleepTimer cannot be stopped
 }
 
+uint32_t SleepTimer::sleep(void)
+{
+    return 0;
+}
+
+void SleepTimer::wakeup(uint32_t ticks)
+{
+
+}
+
 uint32_t SleepTimer::getCounter(void)
 {
     // Get current counter

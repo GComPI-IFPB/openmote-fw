@@ -29,6 +29,8 @@ public:
     SleepTimer(uint32_t interrupt);
     void start(uint32_t counts);
     void stop(void);
+    uint32_t sleep(void);
+    void wakeup(uint32_t ticks);
     uint32_t getCounter(void);
     bool isExpired(uint32_t future);
     void setCallback(Callback* callback);
