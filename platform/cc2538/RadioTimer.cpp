@@ -53,6 +53,11 @@ RadioTimer::RadioTimer(uint32_t interrupt):
 
 void RadioTimer::start(void)
 {
+    // Enable the peripheral
+    SysCtrlPeripheralEnable(SYS_CTRL_PERIPH_RFC);
+    SysCtrlPeripheralSleepEnable(SYS_CTRL_PERIPH_RFC);
+    SysCtrlPeripheralDeepSleepEnable(SYS_CTRL_PERIPH_RFC);
+
     // Set timer period to 976 ticks to have a 32786 kHz clock from a 32 MHz source
     HWREG(RFCORE_SFR_MTMSEL) = MTMSEL_PERIOD;
     HWREG(RFCORE_SFR_MTM0)   = ((RADIOTIMER_32MHZ_TO_32KHZ_TICKS >> 0) << RFCORE_SFR_MTM0_MTM0_S) & RFCORE_SFR_MTM0_MTM0_M;
@@ -63,11 +68,8 @@ void RadioTimer::start(void)
     HWREG(RFCORE_SFR_MTM0)   = (0x00 << RFCORE_SFR_MTM0_MTM0_S) & RFCORE_SFR_MTM0_MTM0_M;
     HWREG(RFCORE_SFR_MTM1)   = (0x00 << RFCORE_SFR_MTM1_MTM1_S) & RFCORE_SFR_MTM1_MTM1_M;
 
-    // Clear the interrupt flags
-    HWREG(RFCORE_SFR_MTIRQF) = 0x00;
-
-    // Start the timer, no 32 kHz synchronization and no latch
-    HWREG(RFCORE_SFR_MTCTRL) = (RFCORE_SFR_MTCTRL_RUN);
+    // Start the timer with 32 kHz synchronization and no regiser latch
+    HWREG(RFCORE_SFR_MTCTRL) = (RFCORE_SFR_MTCTRL_RUN | RFCORE_SFR_MTCTRL_SYNC);
 
     // Wait until the timer is stable
     while(!(HWREG(RFCORE_SFR_MTCTRL) & RFCORE_SFR_MTCTRL_STATE));
@@ -79,13 +81,58 @@ void RadioTimer::stop(void)
     HWREG(RFCORE_SFR_MTCTRL) &= ~RFCORE_SFR_MTCTRL_RUN;
 }
 
+void RadioTimer::restart(void)
+{
+    // Start the timer with 32 kHz synchronization and no regiser latch
+    HWREG(RFCORE_SFR_MTCTRL) = (RFCORE_SFR_MTCTRL_RUN | RFCORE_SFR_MTCTRL_SYNC);
+
+    // Wait until the timer is stable
+    while(!(HWREG(RFCORE_SFR_MTCTRL) & RFCORE_SFR_MTCTRL_STATE));
+}
+
 uint32_t RadioTimer::sleep(void)
 {
-    return 0;
+    uint32_t current, period, remaining;
+
+    period = getPeriod();
+    current = getCounter();
+
+    remaining = period - current;
+
+    stop();
+
+    return remaining;
 }
 
 void RadioTimer::wakeup(uint32_t ticks)
 {
+    uint32_t current_before, current_after, period, counter;
+    int32_t delta;
+
+    period = getPeriod();
+    counter = getCounter();
+
+    current_before = getCounter();
+
+    setCounter(counter + ticks);
+
+    current_after = getCounter();
+
+    delta = current_after - period;
+
+    if (delta < 10)
+    {
+        // Enable the overflow compare interrupt
+        HWREG(RFCORE_SFR_MTIRQM) |= RFCORE_SFR_MTIRQM_MACTIMER_OVF_PERM;
+
+        // Set the overflow compare interrupt
+        HWREG(RFCORE_SFR_MTIRQF) |= RFCORE_SFR_MTIRQM_MACTIMER_OVF_PERM;
+
+        IntPendSet(interrupt_);
+        IntEnable(interrupt_);
+    }
+
+    restart();
 }
 
 uint32_t RadioTimer::getCounter(void)
@@ -143,7 +190,7 @@ void RadioTimer::setPeriod(uint32_t period)
     HWREG(RFCORE_SFR_MTMOVF2) = ((period >> 16) << RFCORE_SFR_MTMOVF2_MTMOVF2_S) & RFCORE_SFR_MTMOVF2_MTMOVF2_M;
 
     // Enable the overflow interrupt
-    HWREG(RFCORE_SFR_MTIRQM) = RFCORE_SFR_MTIRQM_MACTIMER_OVF_PERM;
+    HWREG(RFCORE_SFR_MTIRQM) |= RFCORE_SFR_MTIRQM_MACTIMER_OVF_PERM;
 }
 
 uint32_t RadioTimer::getCompare(void)
@@ -170,6 +217,9 @@ void RadioTimer::setCompare(uint32_t compare)
     HWREG(RFCORE_SFR_MTMOVF0) = (compare << 0) & 0xFF;
     HWREG(RFCORE_SFR_MTMOVF1) = (compare << 8) & 0xFF;
     HWREG(RFCORE_SFR_MTMOVF2) = (compare << 16) & 0xFF;
+
+    // Enable the overflow compare interrupt
+    HWREG(RFCORE_SFR_MTIRQM) |= RFCORE_SFR_MTIRQM_MACTIMER_OVF_COMPARE1M;
 }
 
 void RadioTimer::setPeriodCallback(Callback* period)
@@ -194,13 +244,22 @@ void RadioTimer::clearCompareCallback(void)
 
 void RadioTimer::enableInterrupts(void)
 {
+    // Register the interrupt handler
     InterruptHandler::getInstance().setInterruptHandler(this);
+
+    // Clear pending interrupt flags
+    HWREG(RFCORE_SFR_MTIRQF) = 0x00;
+
+    // Enable the global interrupt
     IntEnable(interrupt_);
 }
 
 void RadioTimer::disableInterrupts(void)
 {
+    // Disable the global interrupt
     IntDisable(interrupt_);
+
+    // Unregister the interrupt handler
     InterruptHandler::getInstance().clearInterruptHandler(this);
 }
 
@@ -215,14 +274,16 @@ void RadioTimer::interruptHandler(void)
     t2irqm = HWREG(RFCORE_SFR_MTIRQM);
     t2irqf = HWREG(RFCORE_SFR_MTIRQF);
 
-    // Clear pending interrupt
+    // Clear global interrupt
     IntPendClear(INT_MACTIMR);
+
+    HWREG(RFCORE_SFR_MTIRQF) = 0;
 
     // Timer Compare 1 interrupt
     if ((t2irqf & RFCORE_SFR_MTIRQM_MACTIMER_OVF_COMPARE1M) & t2irqm)
     {
-        // Clear interrupt
-        HWREG(RFCORE_SFR_MTIRQF) &= ~RFCORE_SFR_MTIRQM_MACTIMER_OVF_COMPARE1M;
+        // Clear the overflow compare interrupt
+        // HWREG(RFCORE_SFR_MTIRQF) &= ~RFCORE_SFR_MTIRQM_MACTIMER_OVF_COMPARE1M;
 
         // Execute interrupt
         if (compare_ != nullptr) compare_->execute();
@@ -231,8 +292,8 @@ void RadioTimer::interruptHandler(void)
     // Timer overflow interrupt
     else if ((t2irqf & RFCORE_SFR_MTIRQM_MACTIMER_OVF_PERM) & t2irqm)
     {
-        // Clear interrupt
-        HWREG(RFCORE_SFR_MTIRQF) &= ~RFCORE_SFR_MTIRQM_MACTIMER_OVF_PERM;
+        // Clear the overflow compare interrupt
+        // HWREG(RFCORE_SFR_MTIRQF) &= ~RFCORE_SFR_MTIRQM_MACTIMER_OVF_PERM;
 
         // Execute interrupt
         if (period_ != nullptr) period_->execute();

@@ -29,6 +29,7 @@ public:
     RadioTimer(uint32_t interrupt);
     void start(void);
     void stop(void);
+    void restart(void);
     uint32_t sleep(void);
     void wakeup(uint32_t ticks);
     uint32_t getCounter(void);
