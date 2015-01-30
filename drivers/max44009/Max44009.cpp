@@ -221,8 +221,11 @@ bool Max44009::readLux(void)
     // Release access to I2C
     i2c_.unlock();
 
-    // Convert MAX44009 data
-    exponent = ((max44009_data[0] >> 4) & 0x0E);
+    // Convert MAX44009 exponent
+    exponent = ((max44009_data[0] >> 4) & 0x0F);
+    exponent = (exponent == 0x0F ? exponent & 0x0E : exponent);
+
+    // Convert MAX44009 mantissa
     mantissa = ((max44009_data[0] & 0x0F) << 4) | (max44009_data[1] & 0x0F);
 
     return true;
