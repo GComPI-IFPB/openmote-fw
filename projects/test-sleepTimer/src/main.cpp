@@ -39,7 +39,6 @@ int main (void)
     board.enableFlashErase();
 
     // Initialize Rtc
-    sleepTimer.enable();
     sleepTimer.setCallback(&sleepTimerCallback);
     sleepTimer.enableInterrupts();
 

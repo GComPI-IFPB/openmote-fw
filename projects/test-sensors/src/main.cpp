@@ -150,10 +150,9 @@ static void prvAccelerationTask(void *pvParameters) {
         {
             led_red.on();
 
-            adxl346.readAcceleration();
-            x = adxl346.getX();
-            y = adxl346.getY();
-            z = adxl346.getZ();
+            adxl346.wakeup();
+            adxl346.readSample(&x, &y, &z);
+            adxl346.suspend();
 
             led_red.off();
 
