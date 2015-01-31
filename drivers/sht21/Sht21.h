@@ -27,6 +27,8 @@ class Sht21: public Sensor
 public:
     Sht21(I2cDriver& i2c);
     bool enable(void);
+    bool suspend(void){return false;}
+    bool wakeup(void){return false;}
     bool reset(void);
     bool isPresent(void);
     bool readTemperature(void);

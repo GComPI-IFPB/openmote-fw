@@ -29,10 +29,12 @@ class Max44009: public Sensor
 public:
     Max44009(I2cDriver& i2c, GpioIn& gpio);
     bool enable(void);
+    bool suspend(void){return false;}
+    bool wakeup(void){return false;}
     bool reset(void);
+    bool isPresent(void);
     void setCallback(Callback* callback);
     void clearCallback(void);
-    bool isPresent(void);
     bool readLux(void);
     float getLux(void);
     uint16_t getLuxRaw(void);

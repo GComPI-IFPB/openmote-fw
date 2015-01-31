@@ -97,7 +97,7 @@
 #define ADXL346_ACT_TAP_STATUS_TAP_Z_SRC    ( 1 << 0 )
 
 /* BW_RATE */
-#define ADXL346_BW_RATE_POWER               ( 1 << 4 )
+#define ADXL346_BW_RATE_LOW_POWER           ( 1 << 4 )
 #define ADXL346_BW_RATE_RATE(x)             ( (x) & 0x0F)
 
 /* POWER CONTROL */
@@ -113,7 +113,6 @@
 #define ADXL346_DATA_FORMAT_INT_INVERT      ( 1 << 5 )
 #define ADXL346_DATA_FORMAT_FULL_RES        ( 1 << 3 )
 #define ADXL346_DATA_FORMAT_JUSTIFY         ( 1 << 2 )
-#define ADXL346_DATA_FORMAT_RANGE(x)        ( (x) & 0x03 )
 #define ADXL346_DATA_FORMAT_RANGE_PM_2g     ( 0 )
 #define ADXL346_DATA_FORMAT_RANGE_PM_4g     ( 1 )
 #define ADXL346_DATA_FORMAT_RANGE_PM_8g     ( 2 )
@@ -141,22 +140,88 @@ bool Adxl346::enable(void)
     i2c_.lock();
 
     // Write the bandwidth register
+    // Low-power mode, 25 Hz, 27 uA
     config[0] = ADXL346_BW_RATE_ADDR;
-    config[1] = (ADXL346_BW_RATE_RATE(11));
+    config[1] = (ADXL346_BW_RATE_LOW_POWER | ADXL346_BW_RATE_RATE(8));
     status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
     if (status == false) goto error;
 
     // Write the format register
+    // 16g range, 4 mg/LSB, left-aligned
     config[0] = ADXL346_DATA_FORMAT_ADDR;
-    config[1] = (ADXL346_DATA_FORMAT_SELF_TEST |
-                 ADXL346_DATA_FORMAT_FULL_RES  |
+    config[1] = (ADXL346_DATA_FORMAT_FULL_RES | ADXL346_DATA_FORMAT_JUSTIFY |
                  ADXL346_DATA_FORMAT_RANGE_PM_16g);
     status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
     if (status == false) goto error;
 
     // Write the power register
     config[0] = ADXL346_POWER_CTL_ADDR;
-    config[1] = ADXL346_POWER_CTL_MEASURE;
+    config[1] |= ADXL346_POWER_CTL_MEASURE;
+    status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    if (status == false) goto error;
+
+    // Release access to I2C
+    i2c_.unlock();
+
+    return true;
+
+error:
+    // Release access to I2C
+    i2c_.unlock();
+    return false;
+}
+
+bool Adxl346::suspend(void)
+{
+    uint8_t config[2];
+    bool status;
+
+    // Lock access to I2C
+    i2c_.lock();
+
+    // Read the power control register
+    status = i2c_.readByte(ADXL346_POWER_CTL_ADDR, &config[1]);
+    if (status == false) goto error;
+
+    // Write the power control register (clear measure bit and set sleep bit)
+    config[0]  = ADXL346_POWER_CTL_ADDR;
+    config[1] &= ~ADXL346_POWER_CTL_MEASURE;
+    config[1] |= ADXL346_POWER_CTL_SLEEP;
+    status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    if (status == false) goto error;
+
+    // Release access to I2C
+    i2c_.unlock();
+
+    return true;
+
+error:
+    // Release access to I2C
+    i2c_.unlock();
+    return false;
+}
+
+bool Adxl346::wakeup(void)
+{
+    uint8_t config[2];
+    bool status;
+
+    // Lock access to I2C
+    i2c_.lock();
+
+    // Read the power control register
+    status = i2c_.readByte(ADXL346_POWER_CTL_ADDR, &config[1]);
+    if (status == false) goto error;
+
+    // Write the power control register (clear sleep bit)
+    config[0]  = ADXL346_POWER_CTL_ADDR;
+    config[1] &= ~ADXL346_POWER_CTL_SLEEP;
+    status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    if (status == false) goto error;
+
+    // Write the power control register (set measure bit)
+    config[0]  = ADXL346_POWER_CTL_ADDR;
+    config[1] |= ADXL346_POWER_CTL_MEASURE;
     status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
     if (status == false) goto error;
 
@@ -204,6 +269,34 @@ error:
     return false;
 }
 
+bool Adxl346::selfTest(bool test)
+{
+    uint8_t config[2];
+    bool status;
+
+    // Lock access to I2C
+    i2c_.lock();
+
+    // Read the data format register
+    status = i2c_.readByte(ADXL346_DATA_FORMAT_ADDR, &config[1]);
+    if (status == false) goto error;
+
+    // Write the data format register
+    config[0]  = ADXL346_DATA_FORMAT_ADDR;
+    if (test) config[1] |= ADXL346_DATA_FORMAT_SELF_TEST;
+    else      config[1] &= ~ADXL346_DATA_FORMAT_SELF_TEST;
+
+    status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    if (status == false) goto error;
+
+    return true;
+
+error:
+    // Release access to I2C
+    i2c_.unlock();
+    return false;
+}
+
 void Adxl346::setCallback(Callback* callback)
 {
     gpio_.setCallback(callback);
@@ -216,7 +309,7 @@ void Adxl346::clearCallback(void)
     gpio_.disableInterrupts();
 }
 
-bool Adxl346::readAcceleration(void)
+bool Adxl346::readSample(uint16_t* x, uint16_t* y, uint16_t* z)
 {
     uint16_t acceleration[3];
     uint8_t  address[6] = {ADXL346_DATAX0_ADDR, ADXL346_DATAX1_ADDR,
@@ -231,19 +324,19 @@ bool Adxl346::readAcceleration(void)
     // Iterate for all addresses, each direction has two addresses
     for (uint8_t i = 0; i < sizeof(address); i += 2)
     {
-        // I2C write operation
+        // I2C write register address
         status = i2c_.writeByte(ADXL346_ADDRESS, address[i + 0]);
         if (status == false) goto error;
 
-        // I2C read operation
+        // I2C read acceleration value
         status = i2c_.readByte(ADXL346_ADDRESS, &scratch[0]);
         if (status == false) goto error;
 
-        // I2C write operation
+        // I2C write register address
         status = i2c_.writeByte(ADXL346_ADDRESS, address[i + 1]);
         if (status == false) goto error;
 
-        // I2C read operation
+        // I2C read acceleration value
         status = i2c_.readByte(ADXL346_ADDRESS, &scratch[1]);
         if (status == false) goto error;
 
@@ -252,9 +345,9 @@ bool Adxl346::readAcceleration(void)
     }
 
     // Update acceleration variables
-    x_ = acceleration[0];
-    y_ = acceleration[1];
-    z_ = acceleration[2];
+    *x = acceleration[0];
+    *y = acceleration[1];
+    *z = acceleration[2];
 
     // Release access to I2C
     i2c_.unlock();
@@ -262,26 +355,19 @@ bool Adxl346::readAcceleration(void)
     return true;
 
 error:
-    // Reset acceleration variables
-    x_ = 0; y_ = 0; z_ = 0;
     // Release access to I2C
     i2c_.unlock();
     return false;
 }
 
-uint16_t Adxl346::getX(void)
+uint8_t Adxl346::queryBufferedSamples(void)
 {
-    return x_;
+    return 0;
 }
 
-uint16_t Adxl346::getY(void)
+bool Adxl346::readSamples(Adxl346Axis axis, uint16_t* buffer, uint32_t length)
 {
-    return y_;
-}
-
-uint16_t Adxl346::getZ(void)
-{
-    return z_;
+    return false;
 }
 
 /*=============================== protected =================================*/

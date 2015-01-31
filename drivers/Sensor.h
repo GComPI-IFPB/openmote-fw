@@ -19,6 +19,8 @@
 class Sensor {
 public:
     virtual bool enable(void) = 0;
+    virtual bool suspend(void) = 0;
+    virtual bool wakeup(void) = 0;
     virtual bool reset(void) = 0;
     virtual bool isPresent(void) = 0;
 };
