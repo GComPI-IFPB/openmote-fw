@@ -102,7 +102,7 @@ int main (void)
 #if (RADIO_MODE == RADIO_MODE_RX)
     // Enable the UART driver and Serial device
     uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
-    serial.enable();
+    serial.init();
 
     // Create the radio receive task
     xTaskCreate(prvRadioRxTask, (const char *) "RadioRx", 128, NULL, RADIO_RX_TASK_PRIORITY, NULL);
