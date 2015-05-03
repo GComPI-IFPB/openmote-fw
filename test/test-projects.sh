@@ -1,9 +1,8 @@
 #!/bin/bash
 
 HOME=".."
-PROJECTS="projects"
+PROJECTS="test"
 TEST="test"
-SRC="src"
 
 MAKE_COMMAND="make TARGET=cc2538"
 CLEAN_COMMAND="make TARGET=cc2538 clean"
@@ -15,7 +14,7 @@ cd $PROJECTS
 for PROJECT in *; do
     if [[ -d $PROJECT ]]; then
         
-        cd $PROJECT/$SRC
+        cd $PROJECT
         
         echo -ne "Cleaning $PROJECT..."
         OUTPUT=$($CLEAN_COMMAND 2>&1)
