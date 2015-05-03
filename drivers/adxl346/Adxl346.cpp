@@ -147,10 +147,9 @@ bool Adxl346::enable(void)
     if (status == false) goto error;
 
     // Write the format register
-    // 16g range, 4 mg/LSB, left-aligned
+    // +/-16g range, 4 mg/LSB
     config[0] = ADXL346_DATA_FORMAT_ADDR;
-    config[1] = (ADXL346_DATA_FORMAT_FULL_RES | ADXL346_DATA_FORMAT_JUSTIFY |
-                 ADXL346_DATA_FORMAT_RANGE_PM_16g);
+    config[1] = (ADXL346_DATA_FORMAT_FULL_RES | ADXL346_DATA_FORMAT_RANGE_PM_16g);
     status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
     if (status == false) goto error;
 
@@ -318,12 +317,13 @@ bool Adxl346::readSample(uint16_t* x, uint16_t* y, uint16_t* z)
     uint8_t scratch[2];
     bool status;
 
-    // Lock access to I2C
-    i2c_.lock();
-
     // Iterate for all addresses, each direction has two addresses
     for (uint8_t i = 0; i < sizeof(address); i += 2)
     {
+    
+        // Lock access to I2C
+        i2c_.lock();
+        
         // I2C write register address
         status = i2c_.writeByte(ADXL346_ADDRESS, address[i + 0]);
         if (status == false) goto error;
@@ -331,6 +331,12 @@ bool Adxl346::readSample(uint16_t* x, uint16_t* y, uint16_t* z)
         // I2C read acceleration value
         status = i2c_.readByte(ADXL346_ADDRESS, &scratch[0]);
         if (status == false) goto error;
+        
+        // Release access to I2C
+        i2c_.unlock();
+        
+        // Lock access to I2C
+        i2c_.lock();
 
         // I2C write register address
         status = i2c_.writeByte(ADXL346_ADDRESS, address[i + 1]);
@@ -339,18 +345,18 @@ bool Adxl346::readSample(uint16_t* x, uint16_t* y, uint16_t* z)
         // I2C read acceleration value
         status = i2c_.readByte(ADXL346_ADDRESS, &scratch[1]);
         if (status == false) goto error;
+        
+        // Release access to I2C
+        i2c_.unlock();
 
         // Convert ADXL346 data
-        acceleration[i>>1] = (scratch[0] << 8) | scratch[1];
+        acceleration[i>>1] = (scratch[1] << 8) | scratch[0];
     }
 
     // Update acceleration variables
     *x = acceleration[0];
     *y = acceleration[1];
     *z = acceleration[2];
-
-    // Release access to I2C
-    i2c_.unlock();
 
     return true;
 
@@ -360,14 +366,11 @@ error:
     return false;
 }
 
-uint8_t Adxl346::queryBufferedSamples(void)
+float Adxl346::convertAcceleration(int16_t acceleration)
 {
-    return 0;
-}
-
-bool Adxl346::readSamples(Adxl346Axis axis, uint16_t* buffer, uint32_t length)
-{
-    return false;
+    float result = 4.0;
+    result *= (acceleration & 0x9FFF);
+    return result;
 }
 
 /*=============================== protected =================================*/

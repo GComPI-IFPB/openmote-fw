@@ -24,11 +24,6 @@
 class I2cDriver;
 class GpioIn;
 
-enum Adxl346Axis
-{
-    x, y, z
-};
-
 class Adxl346: public Sensor
 {
 public:
@@ -42,9 +37,7 @@ public:
     void setCallback(Callback* callback);
     void clearCallback(void);
     bool readSample(uint16_t* x, uint16_t* y, uint16_t* z);
-    uint8_t queryBufferedSamples(void);
-    bool readSamples(Adxl346Axis axis, uint16_t* buffer, uint32_t length);
-    void interrupt(void);
+    float convertAcceleration(int16_t acceleration);
 private:
     I2cDriver& i2c_;
     GpioIn& gpio_;
