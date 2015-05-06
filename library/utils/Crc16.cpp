@@ -73,6 +73,7 @@ void Crc16::init(void)
 {
     crc = crc_seed;
 }
+
 uint16_t Crc16::get(void)
 {
     return crc;

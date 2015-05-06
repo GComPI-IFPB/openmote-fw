@@ -51,61 +51,19 @@ void CircularBuffer::reset(void)
     }
 }
 
-int32_t CircularBuffer::isEmpty(void)
+bool CircularBuffer::isEmpty(void)
 {
-    int32_t scratch;
-    
-    // Try to acquire the mutex
-    if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
-    {
-        scratch = count_;
-        
-        xSemaphoreGive(mutex_);
-        
-        return scratch;
-    }
-    else
-    {
-        return -1;
-    }
+    return (length_ == 0);
 }
 
-int32_t CircularBuffer::isFull(void)
+bool CircularBuffer::isFull(void)
 {
-    int32_t scratch;
-    
-    // Try to acquire the mutex
-    if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
-    {
-        scratch = (count_ == length_);
-        
-        xSemaphoreGive(mutex_);
-        
-        return scratch;
-    }
-    else
-    {
-        return -1;
-    }
+    return (count_ == length_);
 }
 
-int32_t CircularBuffer::getSize(void)
+uint32_t CircularBuffer::getSize(void)
 {
-    int32_t scratch;
-    
-    // Try to acquire the mutex
-    if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
-    {
-        scratch = count_;
-        
-        xSemaphoreGive(mutex_);
-        
-        return scratch;
-    } 
-    else
-    {
-        return -1;
-    }
+    return count_;
 }
 
 int32_t CircularBuffer::read(uint8_t* data)

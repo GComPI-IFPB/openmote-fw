@@ -33,7 +33,7 @@
 #define SNIFFER_TASK_PRIORITY               ( tskIDLE_PRIORITY + 2 )
 #define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 
-#define SNIFFER_DEFAULT_CHANNEL             ( 26 )
+#define SNIFFER_DEFAULT_CHANNEL             ( 20 )
 #define SERIAL_CHANGE_CHANNEL_CMD           ( 0xCC )
 
 /*================================ typedef ==================================*/
@@ -128,7 +128,7 @@ static void prvSerialTask(void *pvParamters)
         if (sniffer_command == SERIAL_CHANGE_CHANNEL_CMD) {
             // Stop the sniffer prior to updating the channel
             sniffer.stop();
-
+        
             // Change the sniffer channel
             sniffer.setChannel(sniffer_channel);
 

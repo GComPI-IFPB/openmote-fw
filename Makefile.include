@@ -17,7 +17,7 @@ CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fshort-enums -fomit-frame-pointer
 CFLAGS += -std=c99
 CFLAGS += -Wall -pedantic -Wstrict-prototypes
-CFLAGS += -O2
+CFLAGS += -O0
 CFLAGS += -g -ggdb
 CFLAGS += $(DOPTIONS)
 
@@ -31,7 +31,7 @@ CPPFLAGS += -fno-builtin
 CPPFLAGS += -fno-rtti
 CPPFLAGS += -std=c++11
 CPPFLAGS += -Wall -pedantic
-CPPFLAGS += -O2
+CPPFLAGS += -O0
 CPPFLAGS += -g -ggdb
 CPPFLAGS += $(DOPTIONS)
 

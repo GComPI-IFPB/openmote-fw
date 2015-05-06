@@ -26,9 +26,9 @@ class CircularBuffer
 public:
     CircularBuffer(uint8_t* buffer, int32_t length);
     void reset(void);
-    int32_t getSize(void);
-    int32_t isEmpty(void);
-    int32_t isFull(void);
+    uint32_t getSize(void);
+    bool isEmpty(void);
+    bool isFull(void);
     int32_t read(uint8_t* data);
     int32_t read(uint8_t* buffer, int32_t length);
     int32_t write(uint8_t data);

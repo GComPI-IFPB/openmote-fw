@@ -109,6 +109,9 @@ uint32_t Serial::scanf(uint8_t* buffer, uint32_t size)
     {
         length = 0;
     }
+    
+    // Reset the receive buffer
+    rxBuffer_.reset();
 
     // Open the HDLC receive buffer
     hdlc_.rxOpen();
