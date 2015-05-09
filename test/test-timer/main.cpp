@@ -89,27 +89,23 @@ static void timer0_callback(void)
 {
     // Toggle green LED and AD0 debug pin
     led_green.toggle();
-    debug_ad0.toggle();
 }
 
 static void timer1_callback(void)
 {
     // Toggle yellow LED and AD1 debug pin
     led_yellow.toggle();
-    debug_ad1.toggle();
 }
 
 static void timer2_callback(void)
 {
     // Toggle orange LED and AD2 debug pin
     led_orange.toggle();
-    debug_ad2.toggle();
 }
 
 static void timer3_callback(void)
 {
     // Toggle red LED and AD3 debug pin
     led_red.toggle();
-    debug_ad6.toggle();
 }
 
