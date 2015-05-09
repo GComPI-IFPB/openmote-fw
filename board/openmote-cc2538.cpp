@@ -36,7 +36,6 @@ Tps62730 tps62730(bypass, status);
 GpioOut debug_ad0(GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN);
 GpioOut debug_ad1(GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN);
 GpioOut debug_ad2(GPIO_DEBUG_AD2_PORT, GPIO_DEBUG_AD2_PIN);
-GpioOut debug_ad6(GPIO_DEBUG_AD6_PORT, GPIO_DEBUG_AD6_PIN);
 
 // Leds
 GpioOut led_green(LED_GREEN_PORT, LED_GREEN_PIN);
