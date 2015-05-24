@@ -2,7 +2,7 @@
 @file       Crc16.py
 @author     Pere Tuset-Peiro  (peretuset@openmote.com)
 @version    v0.1
-@date       May, 2014
+@date       May, 2015
 @brief      
 
 @copyright  Copyright 2015, OpenMote Technologies, S.L.
