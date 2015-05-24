@@ -4,8 +4,8 @@ HOME=".."
 PROJECTS="test"
 TEST="test"
 
-MAKE_COMMAND="make TARGET=cc2538"
-CLEAN_COMMAND="make TARGET=cc2538 clean"
+MAKE_COMMAND="make TARGET=cc2538 BOARD=openmote-cc2538"
+CLEAN_COMMAND="make TARGET=cc2538 BOARD=openmote-cc2538 clean"
 
 cd $HOME
 HOME=$(pwd)
