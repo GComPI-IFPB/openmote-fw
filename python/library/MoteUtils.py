@@ -12,29 +12,54 @@ import sys as sys
 import glob as glob
 
 PLATFORM_WINDOWS = 'WINDOWS'
-PLATFORM_MAC = 'MACINTOSH'
-PLATFORM_LINUX = 'LINUX'
+PLATFORM_MAC     = 'MACINTOSH'
+PLATFORM_LINUX   = 'LINUX'
 
-BAUD_RATE = 115200
-
+# Enumerates all the serial ports in the computer
 def find_serial_ports():
     # Enumerate the serial ports
     serial_ports = None
-    while(not serial_ports):
+    while (not serial_ports):
         serial_ports = enumerate_serial_ports()
         if (not serial_ports):
-            out = raw_input("No serial port found! Retry (Y/N)? ")
+            out = raw_input("No serial port found! Retry (y/n)? ")
             if (out == 'N' or out == 'n'):
-                return
+                return None
             else:
                 continue
-    return serial_ports
+    return sorted(serial_ports)
+
+# Returns the serial port selected by the user
+def select_serial_port(serial_ports = None):
+    if (not serial_ports):
+        print("No serial ports found!")
+        return None
+    
+    serial_ports.append("Exit")
+    while (True):
+        try:
+            print("Please, select your serial port from the list: ")
+            r = range(len(serial_ports))
+            for i in r:
+                print "- [" + str(i) + "] " + str(serial_ports[i])
+            n = int(input("Choose your serial port: "))
+        except:
+            print("Input parameter is not a number!")
+            continue
+        else:
+            if (n not in r):
+                print("Input number is outside bounds!")
+                continue
+            if (n == len(serial_ports) - 1):
+                return None
+            else:
+                return serial_ports[n]
 
 def enumerate_serial_ports():
     serial_ports = []
     
     # Find the current operating system
-    platform = _find_operating_system()
+    platform = find_operating_system()
     
     # Find serial ports based on current operating system
     if (platform == PLATFORM_WINDOWS):
@@ -48,15 +73,15 @@ def enumerate_serial_ports():
                 pass
             else:
                 if   val[0].find('VCP') > -1:
-                    serial_ports.append((str(val[1]),BAUD_RATE))
+                    serial_ports.append(str(val[1]))
     elif (platform == PLATFORM_MAC):
-        serial_ports = [(s, BAUD_RATE) for s in glob.glob('/dev/tty.usbserial*')]
+        serial_ports = [s for s in glob.glob('/dev/tty.usbserial*')]
     elif(platform == PLATFORM_LINUX):
-        serial_ports = [(s, BAUD_RATE) for s in glob.glob('/dev/ttyUSB*')]
+        serial_ports = [s for s in glob.glob('/dev/ttyUSB*')]
                          
     return serial_ports
 
-def _find_operating_system():
+def find_operating_system():
     import platform
     platform = platform.system()
     
