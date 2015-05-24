@@ -1,11 +1,12 @@
-# -*- encoding: utf-8 -*-
-
 '''
 @file       MoteConnector.py
 @author     Pere Tuset-Peiro  (peretuset@openmote.com)
 @version    v0.1
 @date       May, 2014
 @brief      
+
+@copyright  Copyright 2015, OpenMote Technologies, S.L.
+            This file is licensed under the GNU General Public License v2.
 '''
 
 import MoteProbe as MoteProbe
