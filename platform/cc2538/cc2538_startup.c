@@ -1,16 +1,12 @@
-/*
- * Copyright 2013 OpenMote Technologies, S.L.
- */
-
 /**
- *
- * @file       startup_cc2538.c
+ * @file       cc2538_startup.c
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2014
+ * @date       May, 2015
  * @brief
- * @ingroup
  *
+ * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ *             This file is licensed under the GNU General Public License v2.
  */
 
 /*================================ include ==================================*/
@@ -191,7 +187,7 @@ Reset_Handler(void)
 
     /* Workaround for J-Link debug issue */
     HWREG(NVIC_VTABLE) = (uint32_t)gVectors;
-    
+
 #ifdef CC2538_USE_ALTERNATE_INTERRUPT_MAP
     /* Enable alternate interrupt mapping */
     HWREG(SYS_CTRL_I_MAP) |= 1;
@@ -228,7 +224,7 @@ Reset_Handler(void)
 /*================================ private ==================================*/
 
 static void system_init(void)
-{   
+{
     /**
      * Configure the 32 kHz pins, PD6 and PD7, for crystal operation
      * By default they are configured as GPIOs

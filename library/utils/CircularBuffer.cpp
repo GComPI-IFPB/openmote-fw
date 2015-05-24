@@ -1,16 +1,12 @@
-/*
- * Copyright 2013 OpenMote Technologies, S.L.
- */
-
 /**
- *
  * @file       CircularBuffer.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2014
+ * @date       May, 2015
  * @brief
- * @ingroup
  *
+ * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ *             This file is licensed under the GNU General Public License v2.
  */
 
 /*================================ include ==================================*/
@@ -42,11 +38,11 @@ void CircularBuffer::reset(void)
     if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
     {
         empty();
-        
+
         head_ = buffer_;
         tail_ = buffer_;
         count_ = 0;
-        
+
         xSemaphoreGive(mutex_);
     }
 }
@@ -73,7 +69,7 @@ int32_t CircularBuffer::read(uint8_t* data)
     {
         return -1;
     }
-    
+
     // Check if buffer is empty
     if (!isEmpty())
     {
@@ -97,7 +93,7 @@ int32_t CircularBuffer::read(uint8_t* data)
     {
         // Free the mutex
         xSemaphoreGive(mutex_);
-        
+
         // Return error
         return -1;
     }
@@ -151,7 +147,7 @@ int32_t CircularBuffer::write(uint8_t data)
     {
         // Free the mutex
         xSemaphoreGive(mutex_);
-        
+
         // Return error
         return -1;
     }

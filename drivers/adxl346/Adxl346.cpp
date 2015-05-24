@@ -1,16 +1,12 @@
-/*
- * Copyright 2013 OpenMote Technologies, S.L.
- */
-
 /**
- *
  * @file       Adxl346.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2014
+ * @date       May, 2015
  * @brief
- * @ingroup
  *
+ * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ *             This file is licensed under the GNU General Public License v2.
  */
 
 /*================================ include ==================================*/
@@ -320,10 +316,10 @@ bool Adxl346::readSample(uint16_t* x, uint16_t* y, uint16_t* z)
     // Iterate for all addresses, each direction has two addresses
     for (uint8_t i = 0; i < sizeof(address); i += 2)
     {
-    
+
         // Lock access to I2C
         i2c_.lock();
-        
+
         // I2C write register address
         status = i2c_.writeByte(ADXL346_ADDRESS, address[i + 0]);
         if (status == false) goto error;
@@ -331,10 +327,10 @@ bool Adxl346::readSample(uint16_t* x, uint16_t* y, uint16_t* z)
         // I2C read acceleration value
         status = i2c_.readByte(ADXL346_ADDRESS, &scratch[0]);
         if (status == false) goto error;
-        
+
         // Release access to I2C
         i2c_.unlock();
-        
+
         // Lock access to I2C
         i2c_.lock();
 
@@ -345,7 +341,7 @@ bool Adxl346::readSample(uint16_t* x, uint16_t* y, uint16_t* z)
         // I2C read acceleration value
         status = i2c_.readByte(ADXL346_ADDRESS, &scratch[1]);
         if (status == false) goto error;
-        
+
         // Release access to I2C
         i2c_.unlock();
 

@@ -1,16 +1,12 @@
-/*
- * Copyright 2013 OpenMote Technologies, S.L.
- */
-
 /**
- *
  * @file       EthernetDevice.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2014
+ * @date       May, 2015
  * @brief
- * @ingroup
  *
+ * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ *             This file is licensed under the GNU General Public License v2.
  */
 
 /*================================ include ==================================*/

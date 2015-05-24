@@ -1,16 +1,12 @@
-/*
- * Copyright 2013 OpenMote Technologies, S.L.
- */
-
 /**
- *
  * @file       EthernetFrame.h
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2014
+ * @date       May, 2015
  * @brief
- * @ingroup
  *
+ * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ *             This file is licensed under the GNU General Public License v2.
  */
 
 #ifndef ETHERNET_FRAME_H_
@@ -30,7 +26,7 @@ public:
 private:
     uint8_t* buffer_ptr;
     uint32_t buffer_len;
-    
+
     uint8_t* destination;
     uint8_t* source;
     uint16_t* type;

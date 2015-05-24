@@ -1,16 +1,12 @@
-/*
- * Copyright 2013 OpenMote Technologies, S.L.
- */
-
 /**
- *
  * @file       Queue.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2014
+ * @date       May, 2015
  * @brief
- * @ingroup
  *
+ * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ *             This file is licensed under the GNU General Public License v2.
  */
 
 /*================================ include ==================================*/
@@ -28,7 +24,7 @@
 /*================================= public ==================================*/
 
 Queue::Queue(uint8_t* buffer, uint32_t length):
-    buffer_(buffer), length_(length), 
+    buffer_(buffer), length_(length),
     read_(buffer), write_(buffer)
 {
     mutex_ = xSemaphoreCreateMutex();
@@ -43,10 +39,10 @@ void Queue::reset(void)
     if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
     {
         empty();
-        
+
         read_  = buffer_;
         write_ = buffer_;
-        
+
         xSemaphoreGive(mutex_);
     }
 }
@@ -54,14 +50,14 @@ void Queue::reset(void)
 int32_t Queue::isEmpty(void)
 {
     int32_t scratch;
-    
+
     // Try to acquire the mutex
     if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
     {
         scratch = (read_ == write_);
-        
+
         xSemaphoreGive(mutex_);
-        
+
         return scratch;
     }
     else
@@ -73,14 +69,14 @@ int32_t Queue::isEmpty(void)
 int32_t Queue::isFull(void)
 {
     int32_t scratch;
-    
+
     // Try to acquire the mutex
     if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
     {
         scratch = (write_ == (buffer_ + length_));
-        
+
         xSemaphoreGive(mutex_);
-        
+
         return scratch;
     }
     else
@@ -92,14 +88,14 @@ int32_t Queue::isFull(void)
 int32_t Queue::getSize(void)
 {
     int32_t scratch;
-    
+
     // Try to acquire the mutex
     if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
     {
         scratch = length_;
-        
+
         xSemaphoreGive(mutex_);
-        
+
         return scratch;
     }
     else
@@ -111,14 +107,14 @@ int32_t Queue::getSize(void)
 int32_t Queue::getOccupied(void)
 {
     int32_t scratch;
-    
+
     // Try to acquire the mutex
     if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
     {
         scratch = (write_ - buffer_);
-        
+
         xSemaphoreGive(mutex_);
-        
+
         return scratch;
     }
     else
@@ -130,14 +126,14 @@ int32_t Queue::getOccupied(void)
 int32_t Queue::getRemaining(void)
 {
     int32_t scratch;
-    
+
     // Try to acquire the mutex
     if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
     {
         scratch = (buffer_ + length_ - write_);
-        
+
         xSemaphoreGive(mutex_);
-        
+
         return scratch;
     }
     else
@@ -153,7 +149,7 @@ int32_t Queue::read(uint8_t* data)
         *data = *read_++;
         return 0;
     }
-    
+
     return -1;
 }
 
@@ -166,18 +162,18 @@ int32_t Queue::read(uint8_t* buffer, uint32_t length)
             return -1;
         }
     }
-    
+
     return 0;
 }
 
-int32_t Queue::write(uint8_t data) 
+int32_t Queue::write(uint8_t data)
 {
     if (!isFull())
     {
         *write_++ = data;
         return 0;
     }
-    
+
     return -1;
 }
 
