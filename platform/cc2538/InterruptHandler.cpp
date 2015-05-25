@@ -13,8 +13,7 @@
 
 #include "InterruptHandler.h"
 
-#include "GpioIn.h"
-#include "GpioInPow.h"
+#include "Gpio.h"
 #include "Timer.h"
 #include "Uart.h"
 #include "I2c.h"

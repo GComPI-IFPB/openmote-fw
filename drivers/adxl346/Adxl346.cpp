@@ -14,7 +14,7 @@
 #include "Adxl346.h"
 
 #include "I2cDriver.h"
-#include "GpioIn.h"
+#include "Gpio.h"
 
 /*================================ define ===================================*/
 

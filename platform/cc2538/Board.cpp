@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "Board.h"
-#include "GpioInPow.h"
+#include "Gpio.h"
 
 #include "cc2538_include.h"
 #include "cc2538_types.h"

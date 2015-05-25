@@ -11,7 +11,7 @@
 
 /*================================ include ==================================*/
 
-#include "GpioIn.h"
+#include "Gpio.h"
 #include "InterruptHandler.h"
 
 #include "cc2538_include.h"

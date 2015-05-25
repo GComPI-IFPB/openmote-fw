@@ -14,7 +14,7 @@
 #include <stdint.h>
 
 #include "SpiDriver.h"
-#include "GpioIn.h"
+#include "Gpio.h"
 
 #include "Ethernet.h"
 

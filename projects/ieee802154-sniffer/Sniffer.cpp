@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "Sniffer.h"
-#include "GpioOut.h"
+#include "Gpio.h"
 
 #include "FreeRTOS.h"
 #include "task.h"

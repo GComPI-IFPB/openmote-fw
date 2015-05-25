@@ -15,9 +15,7 @@
 /*================================ include ==================================*/
 
 #include "Board.h"
-#include "GpioIn.h"
-#include "GpioInPow.h"
-#include "GpioOut.h"
+#include "Gpio.h"
 #include "Timer.h"
 #include "Radio.h"
 #include "SleepTimer.h"

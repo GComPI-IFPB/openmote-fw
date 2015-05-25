@@ -14,8 +14,7 @@
 
 #include <stdint.h>
 
-#include "GpioIn.h"
-#include "GpioOut.h"
+#include "Gpio.h"
 
 class Tps62730
 {
