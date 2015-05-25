@@ -33,6 +33,15 @@ LINKER_LIBS += -lcc2538
 
 ###############################################################################
 
+LIBCC2538     = libcc2538.a
+
+# Check if TARGET points to a valid target
+ifeq "$(wildcard $(PLATFORM_SRC)/$(LIBCC2538))" ""
+$(error Error! $(LIBCC2538) does not exist.)
+endif
+
+###############################################################################
+
 # Configure the Segger J-Link
 JLINK_NAME = JLinkGDBServer
 JLINK_PATH = /opt/segger/JLink
