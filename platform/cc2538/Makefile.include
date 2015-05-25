@@ -1,8 +1,8 @@
 ###############################################################################
 
 # Define the Platform path
-LIBCC2538_SRC = $(PLATFORM_SRC)/src
-LIBCC2538_INC = $(PLATFORM_SRC)/inc
+LIBCC2538_SRC = $(PLATFORM_SRC)/libcc2538/src
+LIBCC2538_INC = $(PLATFORM_SRC)/libcc2538/inc
 
 # Append to the include path
 INC_PATH += -I $(LIBCC2538_SRC)
@@ -12,7 +12,7 @@ INC_PATH += -I $(LIBCC2538_INC)
 VPATH += $(LIBCC2538_SRC) $(LIBCC2538_INC)
 
 # Include the Makefiles in the various subdirectories in the current folder
-include $(LIBCC2538_SRC)/Makefile.include
+# include $(LIBCC2538_SRC)/Makefile.include
 
 ###############################################################################
 
@@ -26,6 +26,10 @@ SRC_FILES += cc2538_startup.c
 
 # Linker script
 LINKER_SCRIPT = $(PLATFORM_SRC)/cc2538_linker.lds
+
+# Linker directories and libraries
+LINKER_DIRS += -L$(PLATFORM_SRC)
+LINKER_LIBS += -lcc2538
 
 ###############################################################################
 

@@ -149,7 +149,7 @@ $(PROJECT_NAME).hex: $(PROJECT_NAME).elf
 
 $(PROJECT_NAME).elf: $(BIN_TARGET)
 	@echo "Linking '$(PROJECT_NAME)'..."
-	@-$(CPP) $(LDFLAGS) -T$(LINKER_SCRIPT) -o $@ $^
+	@-$(CPP) $(LDFLAGS) -T$(LINKER_SCRIPT) -o $@ $^ $(LINKER_DIRS) $(LINKER_LIBS)
 
 .PHONY: clean
 clean:

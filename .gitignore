@@ -4,3 +4,4 @@ bin/
 *.hex
 *.bin
 *.pyc
+*.a
