@@ -11,7 +11,7 @@ OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 /**
  * Indicate the entry point to the linker.
  */
-ENTRY(Reset_Handler)
+ENTRY(reset_handler)
 
 /**
  * Linker script for Texas Instruments CC2538SF53 (32K RAM, 512K Flash)
@@ -23,7 +23,7 @@ ENTRY(Reset_Handler)
 MEMORY
 {
     FLASH     (RX)  : ORIGIN = 0x00200000, LENGTH = 512K
-    FLASH_CCA (RX)  : ORIGIN = 0x0027FFD4, LENGTH = 12
+    FLASH_CCA (RX)  : ORIGIN = 0x0027FFD4, LENGTH = 44
     SRAM1     (RWX) : ORIGIN = 0x20000000, LENGTH = 16K
     SRAM2     (RWX) : ORIGIN = 0x20004000, LENGTH = 16K
 }
@@ -81,7 +81,8 @@ SECTIONS
     } > FLASH = 0
 
     /* Holds the stack at the start of SRAM */
-    .stack (NOLOAD) : {
+    .stack (NOLOAD) :
+    {
         . = ALIGN(4);
         KEEP(*(.stack))
     } > SRAM2

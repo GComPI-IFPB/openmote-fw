@@ -19,13 +19,15 @@
 class Gpio
 {
 public:
-    Gpio(uint32_t port, uint8_t pin);
-    uint32_t getPort(void);
-    uint8_t getPin(void);
+    Gpio(uint32_t port, uint8_t pin) : port_(port), pin_(pin) {};
+    uint32_t getPort(void) {return port_;}
+    uint8_t getPin(void) {return pin_;}
 protected:
     uint32_t port_;
     uint8_t pin_;
 };
+
+/*****************************************************************************/
 
 class GpioIn : public Gpio
 {
@@ -47,6 +49,8 @@ protected:
     Callback* callback_;
 };
 
+/*****************************************************************************/
+
 class GpioOut : public Gpio
 {
 
@@ -58,6 +62,8 @@ public:
     uint32_t status(void);
 };
 
+/*****************************************************************************/
+
 class GpioInPow : public GpioIn
 {
 
@@ -66,6 +72,8 @@ public:
     void enableInterrupts(void);
     void disableInterrupts(void);
 };
+
+/*****************************************************************************/
 
 class GpioAdc : public Gpio
 {
@@ -77,11 +85,15 @@ private:
     uint32_t adc_;
 };
 
+/*****************************************************************************/
+
 class GpioI2c : public Gpio
 {
 public:
     GpioI2c(uint32_t port, uint8_t pin);
 };
+
+/*****************************************************************************/
 
 class GpioSpi : public Gpio
 {
@@ -94,11 +106,15 @@ private:
     uint32_t ioc_;
 };
 
+/*****************************************************************************/
+
 class GpioPwm : public Gpio
 {
 public:
     GpioPwm(uint32_t port, uint8_t pin);
 };
+
+/*****************************************************************************/
 
 class GpioUart : public Gpio
 {
@@ -108,5 +124,7 @@ public:
 private:
     uint32_t ioc_;
 };
+
+/*****************************************************************************/
 
 #endif /* GPIO_H_ */

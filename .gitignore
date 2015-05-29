@@ -1,7 +1,8 @@
 bin/
 *~
+*.a
+*.bin
 *.elf
 *.hex
-*.bin
+*.log
 *.pyc
-*.a

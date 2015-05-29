@@ -25,7 +25,6 @@
 
 /*================================= public ==================================*/
 
-
 GpioInPow::GpioInPow(uint32_t port, uint8_t pin, uint32_t edge):
     GpioIn(port, pin, edge)
 {
