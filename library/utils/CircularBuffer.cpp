@@ -13,6 +13,8 @@
 
 #include "CircularBuffer.h"
 
+#include <string.h>
+
 /*================================ define ===================================*/
 
 /*================================ typedef ==================================*/
@@ -23,51 +25,90 @@
 
 /*================================= public ==================================*/
 
-CircularBuffer::CircularBuffer(uint8_t* buffer, int32_t length):
+CircularBuffer::CircularBuffer(uint8_t* buffer, uint32_t length):
     buffer_(buffer), length_(length), count_(0), head_(buffer), tail_(buffer)
 {
-    mutex_ = xSemaphoreCreateMutex();
+    mutex_ = xSemaphoreCreateRecursiveMutex();
     if (mutex_ == NULL) {
-        while(true);
+        while (true);
     }
 }
 
 void CircularBuffer::reset(void)
 {
     // Try to acquire the mutex
-    if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
+    if (xSemaphoreTakeRecursive(mutex_, portMAX_DELAY) == pdTRUE)
     {
-        empty();
+        memset(buffer_, 0, length_);
 
         head_ = buffer_;
         tail_ = buffer_;
         count_ = 0;
 
-        xSemaphoreGive(mutex_);
+        xSemaphoreGiveRecursive(mutex_);
     }
 }
 
 bool CircularBuffer::isEmpty(void)
 {
-    return (length_ == 0);
+    bool status;
+
+    if (xSemaphoreTakeRecursive(mutex_, portMAX_DELAY) != pdTRUE)
+    {
+        while (true);
+    }
+
+    // Get the status
+    status = (count_ == 0);
+
+    // Free the mutex
+    xSemaphoreGiveRecursive(mutex_);
+
+    return status;
 }
 
 bool CircularBuffer::isFull(void)
 {
-    return (count_ == length_);
+    bool status;
+
+    if (xSemaphoreTakeRecursive(mutex_, portMAX_DELAY) != pdTRUE)
+    {
+        while (true);
+    }
+
+    // Get the status
+    status = (count_ == length_);
+
+    // Free the mutex
+    xSemaphoreGiveRecursive(mutex_);
+
+    return status;
 }
 
 uint32_t CircularBuffer::getSize(void)
 {
-    return count_;
+    uint32_t count;
+
+    if (xSemaphoreTakeRecursive(mutex_, portMAX_DELAY) != pdTRUE)
+    {
+        while (true);
+    }
+
+    // Copy the value
+    count = count_;
+
+    // Free the mutex
+    xSemaphoreGiveRecursive(mutex_);
+
+    return count;
 }
 
-int32_t CircularBuffer::read(uint8_t* data)
+bool CircularBuffer::read(uint8_t* data)
 {
     // Try to acquire the mutex
-    if (xSemaphoreTake(mutex_, portMAX_DELAY) != pdTRUE)
+    if (xSemaphoreTakeRecursive(mutex_, portMAX_DELAY) != pdTRUE)
     {
-        return -1;
+        while (true);
     }
 
     // Check if buffer is empty
@@ -75,19 +116,13 @@ int32_t CircularBuffer::read(uint8_t* data)
     {
         // Read data in and count it
         *data = *tail_++;
-        count_--;
-
-        // Check for tail pointer wrap around
-        if (tail_ == (buffer_ + length_))
-        {
-            tail_ = buffer_;
-        }
+        count_ -= 1;
 
         // Free the mutex
-        xSemaphoreGive(mutex_);
+        xSemaphoreGiveRecursive(mutex_);
 
         // Return success
-        return 0;
+        return true;
     }
     else
     {
@@ -95,33 +130,36 @@ int32_t CircularBuffer::read(uint8_t* data)
         xSemaphoreGive(mutex_);
 
         // Return error
-        return -1;
+        return false;
     }
 }
 
-int32_t CircularBuffer::read(uint8_t* buffer, int32_t length)
+bool CircularBuffer::read(uint8_t* buffer, int32_t length)
 {
+    bool status;
+
     // For each byte
     while (length--)
     {
         // Try to read the byte
-        if (read(buffer++) != 0)
+        status = read(buffer++);
+        if (!status)
         {
             // Return error
-            return -1;
+            return false;
         }
     }
 
     // Return success
-    return 0;
+    return true;
 }
 
-int32_t CircularBuffer::write(uint8_t data)
+bool CircularBuffer::write(uint8_t data)
 {
     // Try to acquire the mutex
-    if (xSemaphoreTake(mutex_, portMAX_DELAY) != pdTRUE)
+    if (xSemaphoreTakeRecursive(mutex_, portMAX_DELAY) != pdTRUE)
     {
-        return -1;
+        while (true);
     }
 
     // Check if buffer is full
@@ -131,54 +169,42 @@ int32_t CircularBuffer::write(uint8_t data)
         *head_++ = data;
         count_ += 1;
 
-        // Check for head pointer wrap around
-        if (head_ == (buffer_ + length_))
-        {
-            head_ = buffer_;
-        }
-
         // Free the mutex
-        xSemaphoreGive(mutex_);
+        xSemaphoreGiveRecursive(mutex_);
 
         // Return success
-        return 0;
+        return true;
     }
     else
     {
         // Free the mutex
-        xSemaphoreGive(mutex_);
+        xSemaphoreGiveRecursive(mutex_);
 
         // Return error
-        return -1;
+        return false;
     }
 }
 
-int32_t CircularBuffer::write(const uint8_t *data, int32_t length)
+bool CircularBuffer::write(const uint8_t *data, int32_t length)
 {
+    bool status;
+
     // For each byte
     while (length--)
     {
         // Try to write the byte
-        if (write(*data++) != 0)
+        status = write(*data++);
+        if (!status)
         {
             // Return error
-            return -1;
+            return false;
         }
     }
 
     // Return success
-    return 0;
+    return true;
 }
 
 /*=============================== protected =================================*/
 
 /*================================ private ==================================*/
-
-void CircularBuffer::empty(void)
-{
-    uint8_t* tmp = buffer_;
-    while(tmp != (buffer_ + length_))
-    {
-        *tmp++ = 0;
-    }
-}

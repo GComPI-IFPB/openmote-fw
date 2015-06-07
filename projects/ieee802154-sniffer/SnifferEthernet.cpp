@@ -1,5 +1,5 @@
 /**
- * @file       Sniffer.cpp
+ * @file       SnifferEthernet.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -13,12 +13,9 @@
 
 #include <string.h>
 
-#include "Sniffer.h"
-#include "Gpio.h"
+#include "SnifferEthernet.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
+#include "openmote-cc2538.h"
 
 /*================================ define ===================================*/
 
@@ -28,70 +25,32 @@
 
 /*=============================== variables =================================*/
 
-extern GpioOut led_red;
-extern GpioOut led_orange;
-
-const uint8_t Sniffer::broadcastAddress[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-const uint8_t Sniffer::ethernetType[2]     = {0x80, 0x9A};
+const uint8_t SnifferEthernet::broadcastAddress[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+const uint8_t SnifferEthernet::ethernetType[2]     = {0x80, 0x9A};
 
 /*================================= public ==================================*/
 
-Sniffer::Sniffer(Board& board, Ethernet& ethernet, Radio& radio):
-    board_(board), ethernet_(ethernet), radio_(radio), \
-    snifferRadioRxInitCallback_(this, &Sniffer::radioRxInitCallback), \
-    snifferRadioRxDoneCallback_(this, &Sniffer::radioRxDoneCallback), \
-    ethernetBuffer_ptr(ethernetBuffer), ethernetBuffer_len(sizeof(ethernetBuffer)), \
-    radioBuffer_ptr(radioBuffer), radioBuffer_len(sizeof(radioBuffer))
+SnifferEthernet::SnifferEthernet(Board& board, Radio& radio, Ethernet& ethernet):
+    SnifferCommon(board, radio), ethernet_(ethernet), \
+    ethernetBuffer_ptr(ethernetBuffer), ethernetBuffer_len(sizeof(ethernetBuffer))
 {
 }
 
-void Sniffer::init(void)
+void SnifferEthernet::init(void)
 {
-    // Create the receive semaphore
-    radioRxSemaphore = xSemaphoreCreateMutex();
-
-    // Take the receive semaphore so that we block until a packet is received
-    xSemaphoreTake(radioRxSemaphore, (TickType_t) portMAX_DELAY);
-
     // Get the EUI48
     board_.getEUI48(macAddress);
 
     // Initialize the Ethernet with EUI48
     ethernet_.init(macAddress);
 
-    // Set Radio receive callbacks
-    radio_.setRxCallbacks(&snifferRadioRxInitCallback_, \
-                          &snifferRadioRxDoneCallback_);
-
-    // Enable Radio module
-    radio_.enable();
-    radio_.enableInterrupts();
+    // Call common class
+    SnifferCommon::init();
 }
 
-void Sniffer::start(void)
+void SnifferEthernet::processRadioFrame(void)
 {
-    // Start receiving
-    radio_.on();
-    radio_.receive();
-    led_orange.on();
-}
-
-void Sniffer::stop(void)
-{
-    // Stop receiving
-    radio_.off();
-    led_orange.off();
-}
-
-void Sniffer::setChannel(uint8_t channel)
-{
-    // Set the radio channel
-    radio_.setChannel(channel);
-}
-
-void Sniffer::processRadioFrame(void)
-{
-    static RadioResult result;
+    RadioResult result;
 
     // This call blocks until a radio frame is received
     if (xSemaphoreTake(radioRxSemaphore, portMAX_DELAY) == pdTRUE)
@@ -105,6 +64,7 @@ void Sniffer::processRadioFrame(void)
         {
             // Turn off the radio
             radio_.off();
+            led_orange.off();
 
             // Initialize Ethernet frame
             ethernetBuffer_ptr = ethernetBuffer;
@@ -119,7 +79,7 @@ void Sniffer::processRadioFrame(void)
 
 /*================================ private ==================================*/
 
-void Sniffer::initEthernetFrame(uint8_t* buffer, uint8_t length, int8_t rssi, uint8_t lqi, uint8_t crc)
+void SnifferEthernet::initEthernetFrame(uint8_t* buffer, uint8_t length, int8_t rssi, uint8_t lqi, uint8_t crc)
 {
     // Pre-calculate the frame length
     uint32_t frameLength = 6 + 2 + 6 + length + 2;
@@ -134,7 +94,7 @@ void Sniffer::initEthernetFrame(uint8_t* buffer, uint8_t length, int8_t rssi, ui
     ethernetBuffer_len = 0;
 
     // Set MAC destination address
-    memcpy(&ethernetBuffer[0], Sniffer::broadcastAddress, 6);
+    memcpy(&ethernetBuffer[0], SnifferEthernet::broadcastAddress, 6);
     ethernetBuffer_len += 6;
 
     // Set MAC source address
@@ -142,7 +102,7 @@ void Sniffer::initEthernetFrame(uint8_t* buffer, uint8_t length, int8_t rssi, ui
     ethernetBuffer_len += 6;
 
     // Set MAC type
-    memcpy(&ethernetBuffer[12], Sniffer::ethernetType, 2);
+    memcpy(&ethernetBuffer[12], SnifferEthernet::ethernetType, 2);
     ethernetBuffer_len += 2;
 
     // Need to set the PHR field?
@@ -171,23 +131,4 @@ void Sniffer::initEthernetFrame(uint8_t* buffer, uint8_t length, int8_t rssi, ui
     // Copy the IEEE 802.15.4 CRC and LQI
     ethernetBuffer[ethernetBuffer_len] = crc | lqi;
     ethernetBuffer_len += 1;
-}
-
-void Sniffer::radioRxInitCallback(void)
-{
-    led_red.on();
-}
-
-void Sniffer::radioRxDoneCallback(void)
-{
-    // Determines if the interrupt triggers a context switch
-    xHigherPriorityTaskWoken = pdFALSE;
-
-    led_red.off();
-
-    // Give the receive semaphore as the packet has been received
-    xSemaphoreGiveFromISR(radioRxSemaphore, &xHigherPriorityTaskWoken);
-
-    // Force a context switch after the interrupt if required
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

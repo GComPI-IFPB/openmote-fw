@@ -1,6 +1,6 @@
 # Project name and files to compile
 PROJECT_NAME  = test-sniffer
-PROJECT_FILES = main.cpp Sniffer.cpp
+PROJECT_FILES = main.cpp SnifferCommon.cpp SnifferEthernet.cpp SnifferSerial.cpp
 PROJECT_DIR   = .
 
 # Location of the root directory

@@ -19,9 +19,9 @@
 class Gpio
 {
 public:
-    Gpio(uint32_t port, uint8_t pin) : port_(port), pin_(pin) {};
-    uint32_t getPort(void) {return port_;}
-    uint8_t getPin(void) {return pin_;}
+    Gpio(uint32_t port, uint8_t pin);
+    uint32_t getPort(void);
+    uint8_t getPin(void);
 protected:
     uint32_t port_;
     uint8_t pin_;

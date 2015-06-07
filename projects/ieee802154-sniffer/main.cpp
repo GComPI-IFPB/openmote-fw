@@ -15,7 +15,9 @@
 
 #include "Callback.h"
 #include "Serial.h"
-#include "Sniffer.h"
+
+#include "SnifferEthernet.h"
+#include "SnifferSerial.h"
 
 #include "openmote-cc2538.h"
 
@@ -32,6 +34,11 @@
 #define SNIFFER_DEFAULT_CHANNEL             ( 20 )
 #define SERIAL_CHANGE_CHANNEL_CMD           ( 0xCC )
 
+#define SNIFFER_ETHERNET                    ( 0 )
+#define SNIFFER_SERIAL                      ( 1 )
+
+#define SNIFFER_TYPE                        ( SNIFFER_SERIAL )
+
 /*================================ typedef ==================================*/
 
 /*=============================== prototypes ================================*/
@@ -44,11 +51,18 @@ static void prvSerialTask(void *pvParamters);
 
 static Serial serial(uart);
 static Ethernet ethernet(enc28j60);
-static Sniffer sniffer(board, ethernet, radio);
+
+#if (SNIFFER_TYPE == SNIFFER_SERIAL)
+static SnifferSerial   sniffer(board, radio, serial);
+#elif  (SNIFFER_TYPE == SNIFFER_ETHERNET)
+static SnifferEthernet sniffer(board, radio, ethernet);
+#else
+#error
+#endif
 
 static uint8_t serial_buffer[32];
 static uint8_t* serial_buffer_ptr;
-static uint8_t serial_buffer_len;
+static int32_t serial_buffer_len;
 
 static uint8_t sniffer_command;
 static uint8_t sniffer_channel;
@@ -68,6 +82,9 @@ int main (void)
 
     // Enable the UART peripheral
     uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
+
+    // Init the serial
+    serial.init();
 
     // Create the blink task
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
@@ -101,9 +118,6 @@ static void prvGreenLedTask(void *pvParameters)
 
 static void prvSerialTask(void *pvParamters)
 {
-    // Init the serial
-    serial.init();
-
     while (true)
     {
         // Reset the buffer pointer and length
@@ -111,7 +125,7 @@ static void prvSerialTask(void *pvParamters)
         serial_buffer_len = sizeof(serial_buffer);
 
         // Wait until we receive a command
-        serial_buffer_len = serial.scanf(serial_buffer_ptr, serial_buffer_len);
+        serial_buffer_len = serial.read(serial_buffer_ptr, serial_buffer_len);
 
         // Check the length of the buffer and update variables
         if (serial_buffer_len == 2)
@@ -124,7 +138,7 @@ static void prvSerialTask(void *pvParamters)
         if (sniffer_command == SERIAL_CHANGE_CHANNEL_CMD) {
             // Stop the sniffer prior to updating the channel
             sniffer.stop();
-        
+
             // Change the sniffer channel
             sniffer.setChannel(sniffer_channel);
 

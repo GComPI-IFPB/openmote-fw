@@ -43,41 +43,55 @@ void Serial::init(void)
     // Enable UART interrupts
     uart_.enableInterrupts();
 
-    // Open the HDLC receive buffer
-    hdlc_.rxOpen();
-
     // Lock the UART receive
     uart_.rxLock();
+
+    // Open the HDLC receive buffer
+    hdlc_.rxOpen();
 }
 
-void Serial::printf(uint8_t* data, uint32_t size)
+void Serial::write(uint8_t* data, uint32_t size)
 {
+    HdlcResult result = HdlcResult_Ok;
     uint8_t byte;
 
     // Take the UART lock
     uart_.txLock();
 
+    // Reset the UART buffer
+    txBuffer_.reset();
+
     // Open the HDLC transmit buffer
     hdlc_.txOpen();
+    if (result != HdlcResult_Ok) goto error;
 
     // For each byte in the buffer
-    while(size--)
-    {
-        // Put the byte in the HDLC transmit buffer
-        hdlc_.txPut(*data++);
-    }
+    result = hdlc_.txPut(data, size);
+    if (result != HdlcResult_Ok) goto error;
 
     // Close the HDLC buffer
-    hdlc_.txClose();
+    result = hdlc_.txClose();
+    if (result != HdlcResult_Ok) goto error;
 
     // Read byte from the UART transmit buffer
     txBuffer_.read(&byte);
 
     // Write byte to the UART
     uart_.writeByte(byte);
+
+    return;
+
+error:
+    // Reset the UART buffer
+    txBuffer_.reset();
+
+    // Release the UART lock
+    uart_.txUnlock();
+
+    return;
 }
 
-uint32_t Serial::scanf(uint8_t* buffer, uint32_t size)
+uint32_t Serial::read(uint8_t* buffer, uint32_t size)
 {
     uint8_t data;
     uint32_t length;
@@ -121,34 +135,41 @@ uint32_t Serial::scanf(uint8_t* buffer, uint32_t size)
 
 void Serial::rxCallback(void)
 {
+    HdlcStatus status;
+    HdlcResult result;
     uint8_t byte;
-    HdlcStatus hdlcStatus;
-    bool status;
 
     // Read byte from the UART
     byte = uart_.readByte();
 
     // Put the byte in the HDLC receive buffer
-    hdlcStatus = hdlc_.rxPut(byte);
+    result = hdlc_.rxPut(byte);
+    if (result == HdlcResult_Error) goto error;
 
-    if (hdlcStatus == HdlcStatus_Done) // If HDLC frame is completed
+    // Get the HDLC status
+    status = hdlc_.getRxStatus();
+
+     // If HDLC frame is completed
+    if (status == HdlcStatus_Done)
     {
         // Close the HDLC frame
-        status = hdlc_.rxClose();
+        result = hdlc_.rxClose();
+        if (result == HdlcResult_Error) goto error;
 
-        if (status) // CRC valid
-        {
-            uart_.rxUnlockFromInterrupt();
-        }
-        else // CRC NOT valid
-        {
-            // Reset the receive buffer
-            rxBuffer_.reset();
-
-            // Open the HDLC receive buffer
-            hdlc_.rxOpen();
-        }
+        // Once done, free the UART lock
+        uart_.rxUnlockFromInterrupt();
     }
+
+    return;
+
+error:
+    // Reset the receive buffer
+    rxBuffer_.reset();
+
+    // Open the HDLC receive buffer
+    hdlc_.rxOpen();
+
+    return;
 }
 
 void Serial::txCallback(void)

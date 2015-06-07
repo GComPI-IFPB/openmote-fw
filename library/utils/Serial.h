@@ -27,18 +27,18 @@ class Serial
 public:
     Serial(UartDriver& uart);
     void init(void);
-    void printf(uint8_t* data, uint32_t size);
-    uint32_t scanf(uint8_t* buffer, uint32_t size);
+    void write(uint8_t* data, uint32_t size);
+    uint32_t read(uint8_t* buffer, uint32_t size);
 private:
     void rxCallback(void);
     void txCallback(void);
 private:
     UartDriver& uart_;
 
-    uint8_t receive_buffer_[128];
+    uint8_t receive_buffer_[256];
     CircularBuffer rxBuffer_;
 
-    uint8_t transmit_buffer_[128];
+    uint8_t transmit_buffer_[256];
     CircularBuffer txBuffer_;
 
     Hdlc hdlc_;

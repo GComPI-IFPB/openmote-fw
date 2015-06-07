@@ -17,9 +17,9 @@ VPATH += $(LIBCC2538_SRC) $(LIBCC2538_INC)
 ###############################################################################
 
 # Append to the files to compile
-SRC_FILES += Board.cpp InterruptHandler.cpp GpioAdc.cpp GpioIn.cpp GpioInPow.cpp \
-             GpioOut.cpp GpioUart.cpp GpioI2c.cpp GpioSpi.cpp Uart.cpp \
-             I2c.cpp Spi.cpp Timer.cpp GpioPwm.cpp Radio.cpp Watchdog.cpp \
+SRC_FILES += Board.cpp InterruptHandler.cpp Gpio.cpp GpioAdc.cpp GpioIn.cpp \
+             GpioInPow.cpp GpioOut.cpp GpioUart.cpp GpioI2c.cpp GpioSpi.cpp \
+             Uart.cpp I2c.cpp Spi.cpp Timer.cpp GpioPwm.cpp Radio.cpp Watchdog.cpp \
              SysTick.cpp SleepTimer.cpp RadioTimer.cpp
 
 # Append the startup code to the files to compile
@@ -65,7 +65,7 @@ NEMIVER_EXT  = elf
 BSL_PYTHON = python
 BSL_NAME   = cc2538-bsl.py
 BSL_PATH   = $(PROJECT_HOME)/tools/cc2538-bsl
-BSL_OPT    = -e -w -b 115200
+BSL_OPT    = -e -v -w -b 115200
 BSL_EXT    = hex
 
 ###############################################################################

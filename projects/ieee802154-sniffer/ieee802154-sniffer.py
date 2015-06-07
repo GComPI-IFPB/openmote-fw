@@ -38,19 +38,20 @@ class TestSniffer():
         assert serial_baudrate != None, "Serial baudrate not defined."
         
         self.serial_port = serial_port
-        self.serial_rate = serial_rate
+        self.serial_baudrate = serial_baudrate
         
-        print("- Serial: Listening to port " + self.serial_name + " at " + str(self.serial_rate) + " bps.")
+        print("- Serial: Listening to port " + self.serial_port + " at " + str(self.serial_baudrate) + " bps.")
     
     def run(self):    
         serial_port = None
         hdlc = Hdlc()
         
         # Open the serial port
-        self.serial_port = serial.Serial(port = self.serial_name, 
-                                         baudrate = self.serial_rate)
+        self.serial_port = serial.Serial(port = self.serial_port, 
+                                         baudrate = self.serial_baudrate,
+                                         timeout = 1)
         
-        print("- Radio: Listening to IEEE 802.15.4 default channel (" + str(self.ieee802154_default_channel) + ").")
+        print("- Radio: Listening to IEEE 802.15.4 default channel (" + str(self.default_channel) + ").")
         
         while(True):
             # Empty buffer
@@ -66,7 +67,7 @@ class TestSniffer():
                 print("- Changing to IEEE 802.15.4 channel " + str(channel) + ".")
                 
                 # Append the command to the buffer
-                buffer.append(self.command_change_channel)
+                buffer.append(self.cmd_change_channel)
                 
                 # Append the channel to the buffer
                 buffer.append(chr(channel))
@@ -76,6 +77,11 @@ class TestSniffer():
                 
                 # Write to the serial port
                 self.serial_port.write(data)
+                
+                while(True):
+                    bytes = self.serial_port.read(size = 255)
+                    if (bytes != None):
+                        print("Read " + str(len(bytes)) + " bytes.")
 
 def parse_config(config = None, arguments = None):
     assert config != None, "Config not defined."

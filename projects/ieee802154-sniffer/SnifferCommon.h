@@ -9,36 +9,35 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef SNIFFER_H_
-#define SNIFFER_H_
+#ifndef SNIFFER_COMMON_H_
+#define SNIFFER_COMMON_H_
 
 #include "Board.h"
 #include "Callback.h"
-#include "Ethernet.h"
 #include "Radio.h"
-#include "Serial.h"
 
-class Sniffer;
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
 
-typedef GenericCallback<Sniffer> SnifferCallback;
+class SnifferCommon;
 
-class Sniffer
+typedef GenericCallback<SnifferCommon> SnifferCallback;
+
+class SnifferCommon
 {
 public:
-    Sniffer(Board& board, Ethernet& ethernet, Radio& radio);
-    void init(void);
+    SnifferCommon(Board& board, Radio& radio);
+    virtual void init(void);
     void start(void);
     void stop(void);
     void setChannel(uint8_t channel);
-    void processRadioFrame(void);
-private:
-    void initEthernetFrame(uint8_t* buffer, uint8_t length, int8_t rssi, uint8_t lqi, uint8_t crc);
-private:
+    virtual void processRadioFrame(void) = 0;
+protected:
     void radioRxInitCallback(void);
     void radioRxDoneCallback(void);
-private:
+protected:
     Board board_;
-    Ethernet ethernet_;
     Radio radio_;
 
     SnifferCallback snifferRadioRxInitCallback_;
@@ -46,14 +45,6 @@ private:
 
     xSemaphoreHandle radioRxSemaphore;
     BaseType_t xHigherPriorityTaskWoken;
-
-    uint8_t macAddress[6];
-    static const uint8_t broadcastAddress[6];
-    static const uint8_t ethernetType[2];
-
-    uint8_t  ethernetBuffer[255];
-    uint8_t* ethernetBuffer_ptr;
-    uint32_t ethernetBuffer_len;
 
     uint8_t  radioBuffer[128];
     uint8_t* radioBuffer_ptr;
@@ -64,4 +55,4 @@ private:
     uint8_t crc;
 };
 
-#endif /* SNIFFER_H_ */
+#endif /* SNIFFER_COMMON_H_ */

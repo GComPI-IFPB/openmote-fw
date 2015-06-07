@@ -17,12 +17,17 @@
 #include "CircularBuffer.h"
 #include "Crc16.h"
 
-enum HdlcStatus : uint8_t
+enum HdlcResult : int32_t
 {
-    HdlcStatus_Idle = 0x00,
-    HdlcStatus_Busy = 0x01,
-    HdlcStatus_Done = 0x02,
-    HdlcStatus_Error = 0x03,
+    HdlcResult_Error = -1,
+    HdlcResult_Ok    =  0,
+};
+
+enum HdlcStatus : int32_t
+{
+    HdlcStatus_Idle  =  1,
+    HdlcStatus_Busy  =  2,
+    HdlcStatus_Done  =  3,
 };
 
 class Hdlc
@@ -30,16 +35,18 @@ class Hdlc
 public:
     Hdlc(CircularBuffer& rxCircularBuffer_, CircularBuffer& txCircularBuffer_);
 
-    void rxOpen(void);
-    HdlcStatus rxPut(uint8_t byte);
-    bool rxClose(void);
+    HdlcResult rxOpen(void);
+    HdlcResult rxPut(uint8_t byte);
+    HdlcResult rxClose(void);
+    HdlcStatus getRxStatus(void);
 
-    void txOpen(void);
-    void txPut(uint8_t byte);
-    void txClose(void);
+    HdlcResult txOpen(void);
+    HdlcResult txPut(uint8_t byte);
+    HdlcResult txPut(uint8_t* buffer, int32_t size);
+    HdlcResult txClose(void);
 
 private:
-    void rxParse(uint8_t byte);
+    HdlcResult rxParse(uint8_t byte);
 
 private:
     CircularBuffer& rxCircularBuffer;

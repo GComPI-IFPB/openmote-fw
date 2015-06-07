@@ -20,22 +20,20 @@
 class CircularBuffer
 {
 public:
-    CircularBuffer(uint8_t* buffer, int32_t length);
+    CircularBuffer(uint8_t* buffer, uint32_t length);
     void reset(void);
     uint32_t getSize(void);
     bool isEmpty(void);
     bool isFull(void);
-    int32_t read(uint8_t* data);
-    int32_t read(uint8_t* buffer, int32_t length);
-    int32_t write(uint8_t data);
-    int32_t write(const uint8_t* data, int32_t length);
-private:
-    void empty(void);
+    bool read(uint8_t* data);
+    bool read(uint8_t* buffer, int32_t length);
+    bool write(uint8_t data);
+    bool write(const uint8_t* data, int32_t length);
 private:
     SemaphoreHandle_t mutex_;
     uint8_t* buffer_;
-    int32_t  length_;
-    int32_t count_;
+    uint32_t  length_;
+    uint32_t  count_;
     uint8_t* head_;
     uint8_t* tail_;
 };
