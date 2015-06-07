@@ -54,15 +54,16 @@ void Serial::write(uint8_t* data, uint32_t size)
 {
     HdlcResult result = HdlcResult_Ok;
     uint8_t byte;
+    bool status;
 
     // Take the UART lock
     uart_.txLock();
 
-    // Reset the UART buffer
+    // Reset the UART transmit buffer
     txBuffer_.reset();
 
     // Open the HDLC transmit buffer
-    hdlc_.txOpen();
+    result = hdlc_.txOpen();
     if (result != HdlcResult_Ok) goto error;
 
     // For each byte in the buffer
@@ -73,10 +74,11 @@ void Serial::write(uint8_t* data, uint32_t size)
     result = hdlc_.txClose();
     if (result != HdlcResult_Ok) goto error;
 
-    // Read byte from the UART transmit buffer
-    txBuffer_.read(&byte);
+    // Read first byte from the UART transmit buffer
+    status = txBuffer_.read(&byte);
+    if (status != true) goto error;
 
-    // Write byte to the UART
+    // Write first byte to the UART
     uart_.writeByte(byte);
 
     return;
@@ -177,7 +179,7 @@ void Serial::txCallback(void)
     uint8_t byte;
 
     // Read byte from the UART transmit buffer
-    if (txBuffer_.read(&byte) == 0)
+    if (txBuffer_.read(&byte) == true)
     {
         // Write byte to the UART
         uart_.writeByte(byte);

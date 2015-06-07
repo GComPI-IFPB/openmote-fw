@@ -57,6 +57,7 @@ void SnifferSerial::processRadioFrame(void)
             radio_.off();
             led_orange.off();
 
+            // Initialize Serial frame
             initSerialFrame(radioBuffer_ptr, radioBuffer_len);
 
             // Transmit the radio frame over Serial

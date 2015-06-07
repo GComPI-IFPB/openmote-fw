@@ -28,8 +28,8 @@
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
-#define SNIFFER_TASK_PRIORITY               ( tskIDLE_PRIORITY + 2 )
 #define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
+#define SNIFFER_TASK_PRIORITY               ( tskIDLE_PRIORITY + 2 )
 
 #define SNIFFER_DEFAULT_CHANNEL             ( 20 )
 #define SERIAL_CHANGE_CHANNEL_CMD           ( 0xCC )
@@ -87,13 +87,13 @@ int main (void)
     serial.init();
 
     // Create the blink task
-    xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
+    xTaskCreate(prvGreenLedTask, (const char *) "LedTask", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
 
     // Create the sniffer task to process packets
-    xTaskCreate(prvSnifferTask, (const char *) "Sniffer", 128, NULL, SNIFFER_TASK_PRIORITY, NULL);
+    xTaskCreate(prvSnifferTask, (const char *) "SnifferTask", 128, NULL, SNIFFER_TASK_PRIORITY, NULL);
 
     // Create the serial task to receive commands
-    xTaskCreate(prvSerialTask, (const char *) "Serial", 128, NULL, SERIAL_TASK_PRIORITY, NULL);
+    xTaskCreate(prvSerialTask, (const char *) "SerialTask", 128, NULL, SERIAL_TASK_PRIORITY, NULL);
 
     // Kick the FreeRTOS scheduler
     vTaskStartScheduler();

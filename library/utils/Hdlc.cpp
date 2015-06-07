@@ -27,8 +27,8 @@ static const uint8_t HDLC_ESCAPE_MASK = 0x20;
 
 /*================================= public ==================================*/
 
-Hdlc::Hdlc(CircularBuffer& rxCircularBuffer_, CircularBuffer& txCircularBuffer_):
-    rxCircularBuffer(rxCircularBuffer_), txCircularBuffer(txCircularBuffer_)
+Hdlc::Hdlc(CircularBuffer& rxCircularBuffer, CircularBuffer& txCircularBuffer):
+    rxCircularBuffer_(rxCircularBuffer), txCircularBuffer_(txCircularBuffer)
 {
 }
 
@@ -98,7 +98,7 @@ HdlcResult Hdlc::txOpen(void)
     txCrc.init();
 
     // Write the opening HDLC flag to the transmit buffer
-    status = txCircularBuffer.write(HDLC_FLAG);
+    status = txCircularBuffer_.write(HDLC_FLAG);
     if (!status) return HdlcResult_Error;
 
     return HdlcResult_Ok;
@@ -115,7 +115,7 @@ HdlcResult Hdlc::txPut(uint8_t byte)
     if (byte == HDLC_FLAG || byte == HDLC_ESCAPE)
     {
         // If so, write an HDLC escape symbol to the transmit buffer
-        status = txCircularBuffer.write(HDLC_ESCAPE);
+        status = txCircularBuffer_.write(HDLC_ESCAPE);
         if (!status) return HdlcResult_Error;
 
         // Transform the current byte
@@ -123,7 +123,7 @@ HdlcResult Hdlc::txPut(uint8_t byte)
     }
 
     // Write the current byte to the transmit buffer
-    status = txCircularBuffer.write(byte);
+    status = txCircularBuffer_.write(byte);
     if (!status) return HdlcResult_Error;
 
     return HdlcResult_Ok;
@@ -150,14 +150,14 @@ HdlcResult Hdlc::txClose(void)
     crc = txCrc.get();
 
     // Write the CRC value to the transmit buffer
-    status = txCircularBuffer.write((crc >> 8) & 0xFF);
+    status = txCircularBuffer_.write((crc >> 8) & 0xFF);
     if (!status) return HdlcResult_Error;
 
-    status = txCircularBuffer.write((crc >> 0) & 0xFF);
+    status = txCircularBuffer_.write((crc >> 0) & 0xFF);
     if (!status) return HdlcResult_Error;
 
     // Write the closing HDLC flag to the transmit buffer
-    status = txCircularBuffer.write(HDLC_FLAG);
+    status = txCircularBuffer_.write(HDLC_FLAG);
     if (!status) return HdlcResult_Error;
 
     return HdlcResult_Ok;
@@ -189,7 +189,7 @@ HdlcResult Hdlc::rxParse(uint8_t byte)
         }
 
         // Write a byte to the receive buffer
-        status = rxCircularBuffer.write(byte);
+        status = rxCircularBuffer_.write(byte);
         if (status == -1) return HdlcResult_Error;
 
         // Push the byte to the CRC module

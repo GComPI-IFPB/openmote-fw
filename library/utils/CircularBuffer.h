@@ -26,9 +26,9 @@ public:
     bool isEmpty(void);
     bool isFull(void);
     bool read(uint8_t* data);
-    bool read(uint8_t* buffer, int32_t length);
+    bool read(uint8_t* buffer, uint32_t length);
     bool write(uint8_t data);
-    bool write(const uint8_t* data, int32_t length);
+    bool write(const uint8_t* data, uint32_t length);
 private:
     SemaphoreHandle_t mutex_;
     uint8_t* buffer_;

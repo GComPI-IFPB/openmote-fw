@@ -24,7 +24,7 @@ public:
 private:
     void initSerialFrame(uint8_t* buffer, uint8_t length);
 private:
-    Serial serial_;
+    Serial& serial_;
 
     uint8_t  serialBuffer[255];
     uint8_t* serialBuffer_ptr;

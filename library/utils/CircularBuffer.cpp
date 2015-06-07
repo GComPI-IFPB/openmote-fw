@@ -39,8 +39,6 @@ void CircularBuffer::reset(void)
     // Try to acquire the mutex
     if (xSemaphoreTakeRecursive(mutex_, portMAX_DELAY) == pdTRUE)
     {
-        memset(buffer_, 0, length_);
-
         head_ = buffer_;
         tail_ = buffer_;
         count_ = 0;
@@ -127,14 +125,14 @@ bool CircularBuffer::read(uint8_t* data)
     else
     {
         // Free the mutex
-        xSemaphoreGive(mutex_);
+        xSemaphoreGiveRecursive(mutex_);
 
         // Return error
         return false;
     }
 }
 
-bool CircularBuffer::read(uint8_t* buffer, int32_t length)
+bool CircularBuffer::read(uint8_t* buffer, uint32_t length)
 {
     bool status;
 
@@ -185,7 +183,7 @@ bool CircularBuffer::write(uint8_t data)
     }
 }
 
-bool CircularBuffer::write(const uint8_t *data, int32_t length)
+bool CircularBuffer::write(const uint8_t *data, uint32_t length)
 {
     bool status;
 

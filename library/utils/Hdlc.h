@@ -33,7 +33,7 @@ enum HdlcStatus : int32_t
 class Hdlc
 {
 public:
-    Hdlc(CircularBuffer& rxCircularBuffer_, CircularBuffer& txCircularBuffer_);
+    Hdlc(CircularBuffer& rxCircularBuffer, CircularBuffer& txCircularBuffer);
 
     HdlcResult rxOpen(void);
     HdlcResult rxPut(uint8_t byte);
@@ -49,8 +49,8 @@ private:
     HdlcResult rxParse(uint8_t byte);
 
 private:
-    CircularBuffer& rxCircularBuffer;
-    CircularBuffer& txCircularBuffer;
+    CircularBuffer& rxCircularBuffer_;
+    CircularBuffer& txCircularBuffer_;
 
     HdlcStatus rxStatus;
     uint8_t rxLastByte;
