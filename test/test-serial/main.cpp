@@ -75,7 +75,7 @@ static void prvSerialTask(void *pvParameters)
     led_red.on();
 
     // Print buffer via Serial/UART
-    serial.printf(serial_tx_ptr, serial_tx_len);
+    serial.write(serial_tx_ptr, serial_tx_len);
 
     // Turn off red LED
     led_red.off();
@@ -87,7 +87,7 @@ static void prvSerialTask(void *pvParameters)
         serial_rx_len = sizeof(serial_rx_buffer);
 
         // Read buffer via Serial/UART
-        serial_rx_len = serial.scanf(serial_rx_ptr, serial_rx_len);
+        serial_rx_len = serial.read(serial_rx_ptr, serial_rx_len);
 
         // Delay for 250 ms
         vTaskDelay(250 / portTICK_RATE_MS);
@@ -96,7 +96,7 @@ static void prvSerialTask(void *pvParameters)
         led_red.on();
 
         // Write buffer via Serial/UART
-        serial.printf(serial_rx_ptr, serial_rx_len);
+        serial.write(serial_rx_ptr, serial_rx_len);
 
         // Turn off red LED
         led_red.off();

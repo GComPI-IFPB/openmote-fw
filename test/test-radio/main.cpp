@@ -180,7 +180,7 @@ static void prvRadioRxTask(void *pvParameters)
                 uart_len += 1;
 
                 // Transmit the buffer over the UART
-                serial.printf(uart_buffer, uart_len);
+                serial.write(uart_buffer, uart_len);
             }
             
             // Turn off the radio until the next packet
