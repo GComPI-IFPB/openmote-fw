@@ -39,7 +39,6 @@ typedef struct
     uint32_t image_is_valid;
     uint32_t image_vector_address;
     uint8_t  lock_page[32];
-    
 } lock_page_cca_t;
 
 /*=============================== prototypes ================================*/
@@ -258,4 +257,11 @@ static void system_init(void)
 
 static void system_exit(void)
 {
+    while(true)
+    {
+        /**
+         * Put the board in deep sleep
+         */
+        SysCtrlDeepSleep();
+    }
 }
