@@ -14,16 +14,19 @@
 
 #include <stdint.h>
 
-#include "Sensor.h"
-#include "Callback.h"
+#include "I2c.h"
+#include "Gpio.h"
 
-class I2cDriver;
+#include "Callback.h"
+#include "Sensor.h"
+
+class I2c;
 class GpioIn;
 
 class Max44009: public Sensor
 {
 public:
-    Max44009(I2cDriver& i2c, GpioIn& gpio);
+    Max44009(I2c& i2c, GpioIn& gpio);
     bool enable(void);
     bool suspend(void){return false;}
     bool wakeup(void){return false;}
@@ -35,7 +38,7 @@ public:
     float getLux(void);
     uint16_t getLuxRaw(void);
 private:
-    I2cDriver& i2c_;
+    I2c& i2c_;
     GpioIn& gpio_;
 
     uint8_t exponent;

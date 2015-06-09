@@ -16,15 +16,14 @@
 
 #include "Board.h"
 #include "Gpio.h"
-#include "Timer.h"
+#include "I2c.h"
 #include "Radio.h"
-#include "SleepTimer.h"
 #include "RadioTimer.h"
+#include "SleepTimer.h"
+#include "Spi.h"
+#include "Timer.h"
+#include "Uart.h"
 #include "Watchdog.h"
-
-#include "I2cDriver.h"
-#include "SpiDriver.h"
-#include "UartDriver.h"
 
 #include "Adxl346.h"
 #include "Max44009.h"
@@ -208,13 +207,13 @@ extern SleepTimer sleepTimer;
 extern RadioTimer radioTimer;
 
 // I2C peripheral
-extern I2cDriver i2c;
+extern I2c i2c;
 
 // SPI peripheral
-extern SpiDriver spi;
+extern Spi spi;
 
 // UART peripheral
-extern UartDriver uart;
+extern Uart uart;
 
 // IEEE 802.15.4 radio
 extern Radio radio;

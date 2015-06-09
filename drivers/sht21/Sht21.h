@@ -14,14 +14,16 @@
 
 #include <stdint.h>
 
+#include "I2c.h"
+
 #include "Sensor.h"
 
-class I2cDriver;
+class I2c;
 
 class Sht21: public Sensor
 {
 public:
-    Sht21(I2cDriver& i2c);
+    Sht21(I2c& i2c);
     bool enable(void);
     bool suspend(void){return false;}
     bool wakeup(void){return false;}
@@ -36,7 +38,7 @@ public:
 private:
     void isInitialized(void);
 private:
-    I2cDriver& i2c_;
+    I2c& i2c_;
 
     uint16_t temperature;
     uint16_t humidity;

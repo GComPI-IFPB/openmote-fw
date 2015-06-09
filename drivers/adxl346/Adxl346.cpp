@@ -13,9 +13,6 @@
 
 #include "Adxl346.h"
 
-#include "I2cDriver.h"
-#include "Gpio.h"
-
 /*================================ define ===================================*/
 
 /* ADDRESS AND IDENTIFIER */
@@ -122,7 +119,7 @@
 
 /*================================= public ==================================*/
 
-Adxl346::Adxl346(I2cDriver& i2c, GpioIn& gpio):
+Adxl346::Adxl346(I2c& i2c, GpioIn& gpio):
     i2c_(i2c), gpio_(gpio)
 {
 }

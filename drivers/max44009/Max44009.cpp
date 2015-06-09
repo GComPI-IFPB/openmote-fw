@@ -13,9 +13,6 @@
 
 #include "Max44009.h"
 
-#include "I2cDriver.h"
-#include "Gpio.h"
-
 /*================================ define ===================================*/
 
 /* ADDRESS AND NOT_FOUND VALUE */
@@ -73,7 +70,7 @@
 
 /*================================= public ==================================*/
 
-Max44009::Max44009(I2cDriver& i2c, GpioIn& gpio):
+Max44009::Max44009(I2c& i2c, GpioIn& gpio):
     i2c_(i2c), gpio_(gpio)
 {
 }

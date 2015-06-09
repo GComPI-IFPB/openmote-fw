@@ -14,7 +14,8 @@
 
 #include <stdint.h>
 
-#include "UartDriver.h"
+#include "Uart.h"
+
 #include "CircularBuffer.h"
 #include "Hdlc.h"
 
@@ -25,7 +26,7 @@ typedef GenericCallback<Serial> SerialCallback;
 class Serial
 {
 public:
-    Serial(UartDriver& uart);
+    Serial(Uart& uart);
     void init(void);
     void write(uint8_t* data, uint32_t size);
     uint32_t read(uint8_t* buffer, uint32_t size);
@@ -33,7 +34,7 @@ private:
     void rxCallback(void);
     void txCallback(void);
 private:
-    UartDriver& uart_;
+    Uart& uart_;
 
     uint8_t receive_buffer_[256];
     CircularBuffer rxBuffer_;

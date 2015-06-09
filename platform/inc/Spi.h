@@ -16,6 +16,7 @@
 
 #include "Gpio.h"
 #include "Callback.h"
+#include "Mutex.h"
 
 class Gpio;
 

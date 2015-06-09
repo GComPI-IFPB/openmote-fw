@@ -25,7 +25,7 @@ static const uint8_t CRC_LENGTH = 2;    // Length of the CRC
 
 /*================================= public ==================================*/
 
-Serial::Serial(UartDriver& uart):
+Serial::Serial(Uart& uart):
     uart_(uart), \
     rxBuffer_(receive_buffer_, sizeof(receive_buffer_)), \
     txBuffer_(transmit_buffer_, sizeof(transmit_buffer_)), \

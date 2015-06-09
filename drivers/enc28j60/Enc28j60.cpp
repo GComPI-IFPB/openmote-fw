@@ -260,7 +260,7 @@
 
 /*================================= public ==================================*/
 
-Enc28j60::Enc28j60(SpiDriver& spi, GpioIn& gpio):
+Enc28j60::Enc28j60(Spi& spi, GpioIn& gpio):
     spi_(spi), gpio_(gpio), \
     interrupt_(this, &Enc28j60::interruptHandler), \
     callback_(nullptr), \

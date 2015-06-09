@@ -1,5 +1,5 @@
 /**
- * @file       SpiDriver.cpp
+ * @file       SemaphoreBinary.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -11,7 +11,7 @@
 
 /*================================ include ==================================*/
 
-#include "SpiDriver.h"
+#include "Semaphore.h"
 
 /*================================ define ===================================*/
 
@@ -23,24 +23,36 @@
 
 /*================================= public ==================================*/
 
-SpiDriver::SpiDriver(uint32_t peripheral, uint32_t base, uint32_t clock, \
-         GpioSpi& miso, GpioSpi& mosi, GpioSpi& clk, GpioSpi& ncs):
-    Spi(peripheral, base, clock, miso, mosi, clk, ncs)
+SemaphoreBinary::SemaphoreBinary(void)
 {
-    xMutex_ = xSemaphoreCreateMutex();
-    if (xMutex_ == NULL) {
-        while(true);
-    }
+    semaphore_ = xSemaphoreCreateBinary();
 }
 
-void SpiDriver::lock(void)
+SemaphoreBinary::~SemaphoreBinary(void)
 {
-    xSemaphoreTake(xMutex_, portMAX_DELAY);
 }
 
-void SpiDriver::unlock(void)
+void SemaphoreBinary::take(void)
 {
-    xSemaphoreGive(xMutex_);
+    xSemaphoreTake(semaphore_, portMAX_DELAY);
+}
+
+void SemaphoreBinary::take(uint32_t milliseconds)
+{
+    TickType_t timeout = milliseconds / portTICK_RATE_MS;
+    xSemaphoreTake(semaphore_, timeout);
+}
+
+void SemaphoreBinary::give(void)
+{
+    xSemaphoreGive(semaphore_);
+}
+
+void SemaphoreBinary::giveFromInterrupt(void)
+{
+    priorityTaskWoken_ = pdFALSE;
+    xSemaphoreGiveFromISR(semaphore_, &priorityTaskWoken_);
+    portYIELD_FROM_ISR(priorityTaskWoken_);
 }
 
 /*=============================== protected =================================*/

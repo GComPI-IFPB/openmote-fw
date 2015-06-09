@@ -61,19 +61,19 @@ RadioTimer radioTimer(RADIO_TIMER_INTERRUPT);
 // I2C peripheral
 GpioI2c i2c_scl(I2C_BASE, I2C_SCL);
 GpioI2c i2c_sda(I2C_BASE, I2C_SDA);
-I2cDriver i2c(I2C_PERIPHERAL, i2c_scl, i2c_sda);
+I2c i2c(I2C_PERIPHERAL, i2c_scl, i2c_sda);
 
 // SPI peripheral
 GpioSpi spi_miso(SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC);
 GpioSpi spi_mosi(SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC);
 GpioSpi spi_clk(SPI_CLK_BASE, SPI_CLK_PIN, SPI_CLK_IOC);
 GpioSpi spi_ncs(SPI_nCS_BASE, SPI_nCS_PIN, SPI_nCS_IOC);
-SpiDriver spi(SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, spi_miso, spi_mosi, spi_clk, spi_ncs);
+Spi spi(SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, spi_miso, spi_mosi, spi_clk, spi_ncs);
 
 // UART peripheral
 GpioUart uart_rx(UART_RX_PORT, UART_RX_PIN, UART_RX_IOC);
 GpioUart uart_tx(UART_TX_PORT, UART_TX_PIN, UART_TX_IOC);
-UartDriver uart(UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INTERRUPT, uart_rx, uart_tx);
+Uart uart(UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INTERRUPT, uart_rx, uart_tx);
 
 // IEEE 802.15.4 radio
 Radio radio;

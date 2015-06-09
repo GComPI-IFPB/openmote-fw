@@ -16,6 +16,7 @@
 
 #include "Gpio.h"
 #include "Callback.h"
+#include "Mutex.h"
 
 class Gpio;
 
@@ -29,6 +30,9 @@ public:
     void enable(uint32_t clock = 100000);
     void sleep(void);
     void wakeup(void);
+    void lock(void) {mutex_.take();}
+    void unlock(void) {mutex_.give();}
+    void unlockFromInterrupt(void) {mutex_.giveFromInterrupt();}
     bool readByte(uint8_t address, uint8_t* buffer);
     bool readByte(uint8_t address, uint8_t* buffer, uint8_t size);
     bool writeByte(uint8_t address, uint8_t byte);
@@ -38,6 +42,8 @@ protected:
 private:
     uint32_t peripheral_;
     uint32_t clock_;
+
+    Mutex mutex_;
 
     GpioI2c& scl_;
     GpioI2c& sda_;

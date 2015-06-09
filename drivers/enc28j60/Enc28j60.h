@@ -13,12 +13,11 @@
 
 #include <stdint.h>
 
-#include "SpiDriver.h"
 #include "Gpio.h"
-
-#include "Ethernet.h"
+#include "Spi.h"
 
 #include "Callback.h"
+#include "Ethernet.h"
 
 class Enc28j60;
 
@@ -27,7 +26,7 @@ typedef GenericCallback<Enc28j60> Enc28j60Callback;
 class Enc28j60 : public EthernetDevice
 {
 public:
-    Enc28j60(SpiDriver& spi, GpioIn& gpio);
+    Enc28j60(Spi& spi, GpioIn& gpio);
     void init(uint8_t* mac_address);
     void reset(void);
     void setCallback(Callback* callback);
@@ -50,7 +49,7 @@ private:
     void readBuffer(uint8_t* data, uint16_t length);
     bool isLinkUp(void);
 private:
-    SpiDriver& spi_;
+    Spi& spi_;
     GpioIn& gpio_;
 
     Enc28j60Callback interrupt_;

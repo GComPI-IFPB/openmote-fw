@@ -1,5 +1,5 @@
 /**
- * @file       I2cDriver.cpp
+ * @file       Mutex.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -11,7 +11,7 @@
 
 /*================================ include ==================================*/
 
-#include "I2cDriver.h"
+#include "Mutex.h"
 
 /*================================ define ===================================*/
 
@@ -23,23 +23,37 @@
 
 /*================================= public ==================================*/
 
-I2cDriver::I2cDriver(uint32_t peripheral, GpioI2c& scl, GpioI2c& sda):
-    I2c(peripheral, scl, sda)
+Mutex::Mutex()
 {
-    xMutex_ = xSemaphoreCreateMutex();
-    if (xMutex_ == NULL) {
-        while(true);
-    }
+    mutex_ = xSemaphoreCreateMutex();
 }
 
-void I2cDriver::lock(void)
+Mutex::~Mutex()
 {
-    xSemaphoreTake(xMutex_, portMAX_DELAY);
+    vSemaphoreDelete(mutex_);
 }
 
-void I2cDriver::unlock(void)
+void Mutex::take(void)
 {
-    xSemaphoreGive(xMutex_);
+    xSemaphoreTake(mutex_, portMAX_DELAY);
+}
+
+void Mutex::take(uint32_t milliseconds)
+{
+    TickType_t timeout = milliseconds / portTICK_RATE_MS;
+    xSemaphoreTake(mutex_, timeout);
+}
+
+void Mutex::give(void)
+{
+    xSemaphoreGive(mutex_);
+}
+
+void Mutex::giveFromInterrupt(void)
+{
+    priorityTaskWoken_ = pdFALSE;
+    xSemaphoreGiveFromISR(mutex_, &priorityTaskWoken_);
+    portYIELD_FROM_ISR(priorityTaskWoken_);
 }
 
 /*=============================== protected =================================*/

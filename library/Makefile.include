@@ -1,9 +1,5 @@
 ###############################################################################
 
-# Define the drivers name and path
-BUS_NAME = bus
-BUS_PATH = $(LIBRARY_PATH)/$(BUS_NAME)
-
 # Define the networking name and path
 ETHERNET_NAME = ethernet
 ETHERNET_PATH = $(LIBRARY_PATH)/$(ETHERNET_NAME)
@@ -19,7 +15,6 @@ IEEE802154_PATH = $(LIBRARY_PATH)/$(IEEE802154_NAME)
 ###############################################################################
 
 # Append to the source and include paths
-INC_PATH += -I $(BUS_PATH)
 INC_PATH += -I $(ETHERNET_PATH)
 INC_PATH += -I $(UTILS_PATH)
 INC_PATH += -I $(IEEE802154_PATH)
@@ -27,7 +22,6 @@ INC_PATH += -I $(IEEE802154_PATH)
 ###############################################################################
 
 # Extend the virtual path
-VPATH += $(BUS_PATH)
 VPATH += $(ETHERNET_PATH)
 VPATH += $(UTILS_PATH)
 VPATH += $(IEEE802154_PATH)
@@ -35,7 +29,6 @@ VPATH += $(IEEE802154_PATH)
 ###############################################################################
 
 # Include the Makefiles in the various subdirectories in the current folder
-include $(BUS_PATH)/Makefile.include
 include $(ETHERNET_PATH)/Makefile.include
 include $(UTILS_PATH)/Makefile.include
 include $(IEEE802154_PATH)/Makefile.include
