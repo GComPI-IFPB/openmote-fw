@@ -1,2 +1,2 @@
 # Append to the files to compile
-SRC_FILES += 
+SRC_FILES += SnifferCommon.cpp SnifferEthernet.cpp SnifferSerial.cpp
