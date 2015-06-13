@@ -14,11 +14,8 @@
 
 #include "Board.h"
 #include "Callback.h"
+#include "Mutex.h"
 #include "Radio.h"
-
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
 
 class SnifferCommon;
 
@@ -28,11 +25,12 @@ class SnifferCommon
 {
 public:
     SnifferCommon(Board& board, Radio& radio);
-    virtual void init(void);
+    void init(void);
     void start(void);
     void stop(void);
     void setChannel(uint8_t channel);
     virtual void processRadioFrame(void) = 0;
+    void initFrame(uint8_t* buffer, uint8_t length, int8_t rssi, uint8_t lqi, uint8_t crc);
 protected:
     void radioRxInitCallback(void);
     void radioRxDoneCallback(void);
@@ -43,12 +41,19 @@ protected:
     SnifferCallback snifferRadioRxInitCallback_;
     SnifferCallback snifferRadioRxDoneCallback_;
 
-    xSemaphoreHandle radioRxSemaphore;
-    BaseType_t xHigherPriorityTaskWoken;
+    Mutex mutex;
+
+    uint8_t macAddress[6];
+    static const uint8_t broadcastAddress[6];
+    static const uint8_t ethernetType[2];
 
     uint8_t  radioBuffer[128];
     uint8_t* radioBuffer_ptr;
     uint8_t  radioBuffer_len;
+
+    uint8_t  outputBuffer[255];
+    uint8_t* outputBuffer_ptr;
+    uint32_t outputBuffer_len;
 
     int8_t  rssi;
     uint8_t lqi;

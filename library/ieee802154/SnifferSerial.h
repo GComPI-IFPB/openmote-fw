@@ -19,16 +19,11 @@ class SnifferSerial : public SnifferCommon
 {
 public:
     SnifferSerial(Board& board, Radio& radio, Serial& serial);
-    void init(void);
     void processRadioFrame(void);
 private:
     void initSerialFrame(uint8_t* buffer, uint8_t length);
 private:
     Serial& serial_;
-
-    uint8_t  serialBuffer[255];
-    uint8_t* serialBuffer_ptr;
-    uint32_t serialBuffer_len;
 };
 
 #endif /* SNIFFER_SERIAL_H_ */

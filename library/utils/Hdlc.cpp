@@ -143,18 +143,22 @@ HdlcResult Hdlc::txPut(uint8_t* buffer, int32_t size)
 
 HdlcResult Hdlc::txClose(void)
 {
-    int32_t status;
+    HdlcResult result;
+    uint32_t status;
     uint16_t crc;
+    uint8_t byte;
 
     // Get the CRC value
     crc = txCrc.get();
 
     // Write the CRC value to the transmit buffer
-    status = txCircularBuffer_.write((crc >> 8) & 0xFF);
-    if (!status) return HdlcResult_Error;
+    byte = (crc >> 8) & 0xFF;
+    result = txPut(byte);
+    if (result != HdlcResult_Ok) return HdlcResult_Error;
 
-    status = txCircularBuffer_.write((crc >> 0) & 0xFF);
-    if (!status) return HdlcResult_Error;
+    byte = (crc >> 0) & 0xFF;
+    result = txPut(byte);
+    if (result != HdlcResult_Ok) return HdlcResult_Error;
 
     // Write the closing HDLC flag to the transmit buffer
     status = txCircularBuffer_.write(HDLC_FLAG);

@@ -15,8 +15,6 @@
 
 #include "SnifferSerial.h"
 
-#include "openmote-cc2538.h"
-
 /*================================ define ===================================*/
 
 /*================================ typedef ==================================*/
@@ -28,15 +26,8 @@
 /*================================= public ==================================*/
 
 SnifferSerial::SnifferSerial(Board& board, Radio& radio, Serial& serial):
-    SnifferCommon(board, radio), serial_(serial), \
-    serialBuffer_ptr(serialBuffer), serialBuffer_len(sizeof(serialBuffer))
+    SnifferCommon(board, radio), serial_(serial)
 {
-}
-
-void SnifferSerial::init(void)
-{
-    // Call common class
-    SnifferCommon::init();
 }
 
 void SnifferSerial::processRadioFrame(void)
@@ -44,7 +35,7 @@ void SnifferSerial::processRadioFrame(void)
     RadioResult result;
 
     // This call blocks until a radio frame is received
-    if (xSemaphoreTake(radioRxSemaphore, portMAX_DELAY) == pdTRUE)
+    if (mutex.take())
     {
         // Get packet from the radio
         radioBuffer_ptr = radioBuffer;
@@ -55,25 +46,16 @@ void SnifferSerial::processRadioFrame(void)
         {
             // Turn off the radio
             radio_.off();
-            led_orange.off();
 
             // Initialize Serial frame
-            initSerialFrame(radioBuffer_ptr, radioBuffer_len);
+            outputBuffer_ptr = outputBuffer;
+            outputBuffer_len = sizeof(outputBuffer);
+            initFrame(radioBuffer_ptr, radioBuffer_len, rssi, lqi, crc);
 
             // Transmit the radio frame over Serial
-            serial_.write(serialBuffer_ptr, serialBuffer_len);
+            serial_.write(outputBuffer_ptr, outputBuffer_len);
         }
     }
 }
 
 /*================================ private ==================================*/
-
-void SnifferSerial::initSerialFrame(uint8_t* buffer, uint8_t length)
-{
-    serialBuffer_ptr = serialBuffer;
-    serialBuffer_len = sizeof(serialBuffer);
-
-    memcpy(serialBuffer_ptr, buffer, length);
-
-    serialBuffer_len = length;
-}
