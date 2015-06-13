@@ -1,5 +1,5 @@
 /**
- * @file       Mutex.cpp
+ * @file       SemaphoreBinary.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -11,9 +11,26 @@
 
 /*================================ include ==================================*/
 
-#include "Mutex.h"
+#include "CriticalSection.h"
 
 /*================================ define ===================================*/
+
+#define enterCriticalSection()              \
+  do {                                      \
+    asm (                                   \
+        "MRS   R0, PRIMASK\n\t"             \
+        "CPSID I\n\t"                       \
+        "STRB R0, %[output]"                \
+        : [output] "=m" (lock) :: "r0");   \
+  } while(0)
+
+#define exitCriticalSection()               \
+  do{                                       \
+    asm (                                   \
+        "ldrb r0, %[input]\n\t"             \
+        "msr PRIMASK,r0;\n\t"               \
+        ::[input] "m" (lock) : "r0");      \
+  } while(0)
 
 /*================================ typedef ==================================*/
 
@@ -23,39 +40,14 @@
 
 /*================================= public ==================================*/
 
-Mutex::Mutex()
+CriticalSection::CriticalSection(void)
 {
-    mutex_ = xSemaphoreCreateMutex();
+    enterCriticalSection();
 }
 
-Mutex::~Mutex()
+CriticalSection::~CriticalSection(void)
 {
-    vSemaphoreDelete(mutex_);
-}
-
-bool Mutex::take(void)
-{
-    bool status = (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE);
-    return status;
-}
-
-bool Mutex::take(uint32_t milliseconds)
-{
-    TickType_t timeout = milliseconds / portTICK_RATE_MS;
-    bool status = (xSemaphoreTake(mutex_, timeout) == pdTRUE);
-    return status;
-}
-
-void Mutex::give(void)
-{
-    xSemaphoreGive(mutex_);
-}
-
-void Mutex::giveFromInterrupt(void)
-{
-    priorityTaskWoken_ = pdFALSE;
-    xSemaphoreGiveFromISR(mutex_, &priorityTaskWoken_);
-    portYIELD_FROM_ISR(priorityTaskWoken_);
+    exitCriticalSection();
 }
 
 /*=============================== protected =================================*/

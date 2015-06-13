@@ -56,21 +56,3 @@ class Crc16(object):
     
     def check(self):
         return (self.crc == 0)
-    
-def test1():
-    string = b"123456789"
-    
-    result = 0x0000
-    check = hex(0xe7a1)
-    
-    crc_engine = Crc16()
-    
-    for s in string:
-        crc_engine.push(s)
-    result = hex(crc_engine.get())
-    
-    assert (check == result)
-    
-if __name__ == "__main__":
-    test1()
-    

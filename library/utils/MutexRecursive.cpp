@@ -34,12 +34,14 @@ MutexRecursive::~MutexRecursive()
     vSemaphoreDelete(mutex_);
 }
 
-void MutexRecursive::take(void)
+bool MutexRecursive::take(void)
 {
+    return false;
 }
 
-void MutexRecursive::take(uint32_t milliseconds)
+bool MutexRecursive::take(uint32_t milliseconds)
 {
+    return false;
 }
 
 void MutexRecursive::give(void)

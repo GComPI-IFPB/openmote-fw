@@ -1,5 +1,5 @@
 '''
-@file       MoteUtils.py
+@file       Utils.py
 @author     Pere Tuset-Peiro  (peretuset@openmote.com)
 @version    v0.1
 @date       May, 2015
@@ -9,8 +9,9 @@
             This file is licensed under the GNU General Public License v2.
 '''
 
-import sys as sys
-import glob as glob
+# Import Python libraries
+import sys
+import glob
 
 PLATFORM_WINDOWS = 'WINDOWS'
 PLATFORM_MAC     = 'MACINTOSH'

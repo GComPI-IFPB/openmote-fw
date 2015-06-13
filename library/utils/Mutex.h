@@ -21,8 +21,8 @@ class Mutex
 public:
     Mutex();
     ~Mutex();
-    void take(void);
-    void take(uint32_t milliseconds);
+    bool take(void);
+    bool take(uint32_t milliseconds);
     void give(void);
     void giveFromInterrupt(void);
 protected:
@@ -35,8 +35,8 @@ class MutexRecursive : public Mutex
 public:
     MutexRecursive();
     ~MutexRecursive();
-    void take(void);
-    void take(uint32_t milliseconds);
+    bool take(void);
+    bool take(uint32_t milliseconds);
     void give(void);
     void giveFromInterrupt(void);
 };
