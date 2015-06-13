@@ -15,21 +15,21 @@
 
 /*================================ define ===================================*/
 
-#define enterCriticalSection()              \
+#define enterCriticalSection(lock)          \
   do {                                      \
     asm (                                   \
-        "MRS   R0, PRIMASK\n\t"             \
-        "CPSID I\n\t"                       \
-        "STRB R0, %[output]"                \
-        : [output] "=m" (lock) :: "r0");   \
+        "mrs r0, PRIMASK\n\t"               \
+        "cpsid I\n\t"                       \
+        "strb r0, %[output]"                \
+        : [output] "=m" (lock) :: "r0");    \
   } while(0)
 
-#define exitCriticalSection()               \
-  do{                                       \
+#define exitCriticalSection(lock)           \
+  do {                                      \
     asm (                                   \
         "ldrb r0, %[input]\n\t"             \
         "msr PRIMASK,r0;\n\t"               \
-        ::[input] "m" (lock) : "r0");      \
+        ::[input] "m" (lock) : "r0");       \
   } while(0)
 
 /*================================ typedef ==================================*/
@@ -42,14 +42,15 @@
 
 CriticalSection::CriticalSection(void)
 {
-    enterCriticalSection();
+    enterCriticalSection(lock);
 }
 
 CriticalSection::~CriticalSection(void)
 {
-    exitCriticalSection();
+    exitCriticalSection(lock);
 }
 
 /*=============================== protected =================================*/
 
 /*================================ private ==================================*/
+

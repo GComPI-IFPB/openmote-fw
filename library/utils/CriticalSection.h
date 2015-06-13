@@ -14,12 +14,14 @@
 
 #include <stdint.h>
 
+typedef uint32_t lock_t;
+
 class CriticalSection
 {
     CriticalSection(void);
     ~CriticalSection(void);
 private:
-    uint32_t lock;
+    lock_t lock;
 };
 
 #endif /* CRITICAL_SECTION_H_ */
