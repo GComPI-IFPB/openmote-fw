@@ -1,0 +1,3 @@
+[submodule "tools/openmote-bsl"]
+	path = tools/openmote-bsl
+	url = https://github.com/OpenMote/openmmote-bsl.git
