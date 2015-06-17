@@ -43,6 +43,15 @@ endif
 
 ###############################################################################
 
+# Check if BSL has been defined, if not give it a default value
+ifndef BSL
+BSL_BOARD = openbase
+else
+BSL_BOARD = $(BSL)
+endif
+
+###############################################################################
+
 # Configure the Segger J-Link
 JLINK_NAME = JLinkGDBServer
 JLINK_PATH = /opt/segger/JLink
@@ -63,9 +72,9 @@ NEMIVER_EXT  = elf
 
 # Configure the BSL client
 BSL_PYTHON = python
-BSL_NAME   = cc2538-bsl.py
-BSL_PATH   = $(PROJECT_HOME)/tools/cc2538-bsl
-BSL_OPT    = -e -v -w -b 115200
+BSL_NAME   = openmote-bsl.py
+BSL_PATH   = $(PROJECT_HOME)/tools/openmote-bsl
+BSL_OPT    = --board $(BSL_BOARD)
 BSL_EXT    = hex
 
 ###############################################################################
@@ -90,7 +99,7 @@ nemiver: load
 
 bsl:
 	@echo "Loading $(PROJECT_NAME) into target..."
-	@$(BSL_PYTHON) $(BSL_PATH)/$(BSL_NAME) $(BSL_OPT) $(PROJECT_NAME).$(BSL_EXT)
+	@$(BSL_PYTHON) $(BSL_PATH)/$(BSL_NAME) $(PROJECT_NAME).$(BSL_EXT) $(BSL_OPT)
 
 ###############################################################################
 

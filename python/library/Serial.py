@@ -21,9 +21,16 @@ from Hdlc import Hdlc
 # Import logging configuration
 logger = logging.getLogger(__name__)
 
+High = True
+Low  = False
+
 class Serial(threading.Thread):
     
-    def __init__(self, serial_name = None, baud_rate = None):
+    def __init__(self, serial_name = None, baud_rate = None, bsl_mode = None):
+        assert serial_name != None, logger.error("Serial port not defined.")
+        assert baud_rate   != None, logger.error("Serial baudrate not defined.")
+        assert bsl_mode    != None, logger.error("Bootloader mode not defined.")
+        
         logger.info('init: Creating the Serial object.')
         
         # Call constructor
@@ -40,6 +47,7 @@ class Serial(threading.Thread):
         self.serial_name = serial_name
         self.baud_rate   = baud_rate
         self.time_out    = 1.0
+        self.bsl_mode    = bsl_mode
                 
         # HDLC driver
         self.hdlc = Hdlc()
@@ -67,6 +75,8 @@ class Serial(threading.Thread):
             return None
         else:
             logger.info('init: Serial object created.')
+            if (self.bsl_mode == "true"):
+                self.bsl_start()
     
     # Runs the MoteProbe thread
     def run(self):
@@ -164,6 +174,9 @@ class Serial(threading.Thread):
 
         # Terminates the thread
         self.stop_event.set()
+        
+        if (self.bsl_mode == "true"):
+            self.bsl_stop()
     
     # Receive a message
     def receive(self):
@@ -208,4 +221,18 @@ class Serial(threading.Thread):
 
         # Release the transmit condition
         self.transmit_condition.release()
+        
+    def bsl_start(self):
+        self.serial_port.setDTR(High)
+        time.sleep(0.1)
+        self.serial_port.setRTS(Low)
+        time.sleep(0.1)
+        self.serial_port.setDTR(Low)
+    
+    def bsl_stop(self):
+        self.serial_port.setDTR(High)
+        time.sleep(0.1)
+        self.serial_port.setRTS(Low)
+        time.sleep(0.1)
+        self.serial_port.setDTR(Low)
 
