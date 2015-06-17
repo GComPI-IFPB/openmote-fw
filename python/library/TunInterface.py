@@ -32,17 +32,23 @@ class TunInterface():
         # Save the TUN name
         self.tun_name = tun_name
         
-        # Open TUN device file
-        self.tun_if = open('/dev/net/tun', 'r+b')
+        try:
+            logger.info("init: Opening the TUN device file on /dev/net/tun.")
+            
+            # Open TUN device file
+            self.tun_if = open('/dev/net/tun', 'r+b')
 
-        # Tell it we want a TUN device
-        ifr = struct.pack('16sH', self.tun_name, self.IFF_TAP | self.IFF_NO_PI)
+            # Tell it we want a TUN device
+            ifr = struct.pack('16sH', self.tun_name, self.IFF_TAP | self.IFF_NO_PI)
 
-        # Create TUN interface
-        fcntl.ioctl(self.tun_if, self.TUNSETIFF, ifr)
+            # Create TUN interface
+            fcntl.ioctl(self.tun_if, self.TUNSETIFF, ifr)
 
-        # Make the TUN interface be accessed by regular users
-        fcntl.ioctl(self.tun_if, self.TUNSETOWNER, 1000)
+            # Make the TUN interface be accessed by regular users
+            fcntl.ioctl(self.tun_if, self.TUNSETOWNER, 1000)
+        except:
+            logger.error('init: Error while creating the TUN device file.')
+            raise Exception
         
         logger.info("init: TunInterface object created.")
     

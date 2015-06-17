@@ -64,22 +64,22 @@ class Sniffer():
         
         # Create the Serial port
         logging.info("run: Creating the Serial port.")
-        self.serial_port = Serial.Serial(serial_name = self.serial_name,
-                                         baud_rate = self.baud_rate,
-                                         bsl_mode = self.bsl_mode)
-                                         
-        # Check if the Serial port has been created
-        if (not self.serial_port):
+        try:
+            self.serial_port = Serial.Serial(serial_name = self.serial_name,
+                                             baud_rate = self.baud_rate,
+                                             bsl_mode = self.bsl_mode)
+        except:                                   
             return
 
         # If using the serial port to sniff
         if (self.sniffer_mode == "serial"):
             # Create the TUN interface
             logging.info("run: Creating the TUN interface.")
-            self.tun_interface = TunInterface.TunInterface(tun_name = self.tun_name)
-            
-            # Check if the TUN interface has been created
-            if (not self.tun_interface):
+            try:
+                self.tun_interface = TunInterface.TunInterface(tun_name = self.tun_name)
+            except:
+                # Stop the serial port 
+                self.serial_port.stop()
                 return
             
         # Start the Serial port

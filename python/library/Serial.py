@@ -65,14 +65,14 @@ class Serial(threading.Thread):
         self.transmit_condition = threading.Condition()
         
         try:
-            logger.info('init: Creating the serial port on %s at %s bps.', self.serial_name, self.baud_rate)
+            logger.info('init: Opening the serial port on %s at %s bps.', self.serial_name, self.baud_rate)
             # Open the serial port
             self.serial_port = serial.Serial(port = self.serial_name, 
                                              baudrate = self.baud_rate,
                                              timeout = self.time_out)
         except:
             logger.error('init: Error while opening the serial port on %s.', self.serial_name)
-            return None
+            raise Exception
         else:
             logger.info('init: Serial object created.')
             if (self.bsl_mode == "true"):
@@ -81,6 +81,10 @@ class Serial(threading.Thread):
     # Runs the MoteProbe thread
     def run(self):
         logger.info("run: Starting the Serial object.")
+        
+        if (self.serial_port == None):
+            return
+        
         # Flush the serial input/ouput               
         self.serial_port.flushInput()
         self.serial_port.flushOutput() 
@@ -175,7 +179,7 @@ class Serial(threading.Thread):
         # Terminates the thread
         self.stop_event.set()
         
-        if (self.bsl_mode == "true"):
+        if (self.serial_port != None and self.bsl_mode == "true"):
             self.bsl_stop()
     
     # Receive a message
