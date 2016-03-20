@@ -40,6 +40,7 @@ CPPFLAGS += $(DOPTIONS)
 LDFLAGS += -mthumb -mcpu=cortex-m3 -mlittle-endian
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,--defsym -Wl,__cxa_pure_virtual=0
+LDFLAGS += -nodefaultlibs
 
 # Binary flags
 OBJCOPY_FLAGS += -O binary --gap-fill 0xFF
