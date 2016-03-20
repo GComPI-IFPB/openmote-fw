@@ -24,6 +24,7 @@
 #include "Timer.h"
 #include "Uart.h"
 #include "Watchdog.h"
+#include "TemperatureSensor.h"
 
 #include "Adxl346.h"
 #include "Max44009.h"
@@ -217,6 +218,9 @@ extern Uart uart;
 
 // IEEE 802.15.4 radio
 extern Radio radio;
+
+// CC2538 Temperature sensor
+extern TemperatureSensor temp;
 
 // Acceleration sensor
 extern Adxl346 adxl346;

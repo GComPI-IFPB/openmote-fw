@@ -89,6 +89,9 @@ Max44009 max44009(i2c, max44009_int);
 // Temperature + Relative humidity sensor
 Sht21 sht21(i2c);
 
+// CC2538 Temperature sensor
+TemperatureSensor temp;
+
 // Ethernet PHY + MAC chip
 GpioIn enc28j60_int(ENC28J60_INT_PORT, ENC28J60_INT_PIN, ENC28J60_INT_EDGE);
 Enc28j60 enc28j60(spi, enc28j60_int);

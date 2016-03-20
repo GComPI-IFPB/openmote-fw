@@ -21,10 +21,11 @@
 
 /*================================ define ===================================*/
 
-#define GREEN_LED_TASK_PRIORITY         ( tskIDLE_PRIORITY + 0 )
-#define LIGHT_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
-#define TEMPERATURE_TASK_PRIORITY       ( tskIDLE_PRIORITY + 2 )
-#define ACCELERATION_TASK_PRIORITY      ( tskIDLE_PRIORITY + 3 )
+#define GREEN_LED_TASK_PRIORITY         	( tskIDLE_PRIORITY + 0 )
+#define LIGHT_TASK_PRIORITY             	( tskIDLE_PRIORITY + 1 )
+#define TEMPERATURE_TASK_PRIORITY       	( tskIDLE_PRIORITY + 2 )
+#define TEMPERATURE_INTERNAL_TASK_PRIORITY	( tskIDLE_PRIORITY + 0 )
+#define ACCELERATION_TASK_PRIORITY      	( tskIDLE_PRIORITY + 3 )
 
 /*================================ typedef ==================================*/
 
@@ -36,6 +37,7 @@ extern "C" TickType_t board_wakeup(TickType_t xModifiableIdleTime);
 static void prvGreenLedTask(void *pvParameters);
 static void prvLightTask(void *pvParameters);
 static void prvTemperatureTask(void *pvParameters);
+static void prvTemperatureInternalTask(void *pvParameters);
 static void prvAccelerationTask(void *pvParameters);
 
 /*=============================== variables =================================*/
@@ -58,6 +60,7 @@ int main (void)
     xTaskCreate(prvAccelerationTask, (const char *) "Acceleration", 128, NULL, ACCELERATION_TASK_PRIORITY, NULL);
     xTaskCreate(prvTemperatureTask, (const char *) "Temperature", 128, NULL, TEMPERATURE_TASK_PRIORITY, NULL);
     xTaskCreate(prvLightTask, (const char *) "Light", 128, NULL, LIGHT_TASK_PRIORITY, NULL);
+    xTaskCreate(prvTemperatureInternalTask, (const char *) "TemperatureInternal", 128, NULL, TEMPERATURE_INTERNAL_TASK_PRIORITY, NULL);
 
     // Kick the FreeRTOS scheduler
     vTaskStartScheduler();
@@ -105,6 +108,25 @@ static void prvTemperatureTask(void *pvParameters)
     {
         led_orange.on();
         vTaskDelete(NULL);
+    }
+}
+
+static void prvTemperatureInternalTask(void *pvParameters)
+{
+    uint16_t temperature;
+    
+    temp.enable();
+
+    while(true)
+    {
+        led_orange.on();
+
+        temp.readTemperature();
+        temperature = temp.getTemperatureRaw();
+
+        led_orange.off();
+
+        vTaskDelay(2000 / portTICK_RATE_MS);
     }
 }
 
