@@ -7,6 +7,7 @@ AS = arm-none-eabi-as
 LD = arm-none-eabi-ld
 GDB = arm-none-eabi-gdb
 OBJCOPY = arm-none-eabi-objcopy
+OBJDUMP = arm-none-eabi-objdump
 OBJSIZE = arm-none-eabi-size
 
 ###############################################################################
@@ -41,7 +42,7 @@ LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,--defsym -Wl,__cxa_pure_virtual=0
 
 # Binary flags
-OBJCOPY_FLAGS += --gap-fill 0xFF
+OBJCOPY_FLAGS += -O binary --gap-fill 0xFF
 OBJDUMP_FLAGS += --disassemble --source --disassembler-options=force-thumb
 
 # Makefile flags
@@ -145,7 +146,7 @@ $(PROJECT_NAME).bin: $(PROJECT_NAME).elf
 	@-$(OBJCOPY) -O ihex $< $@
 
 $(PROJECT_NAME).hex: $(PROJECT_NAME).elf
-	@-$(OBJCOPY) -O binary $(OBJCOPY_FLAGS) $< $@
+	@-$(OBJCOPY) $(OBJCOPY_FLAGS) $< $@
 
 $(PROJECT_NAME).elf: $(BIN_TARGET)
 	@echo "Linking '$(PROJECT_NAME)'..."
