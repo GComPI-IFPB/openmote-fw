@@ -133,16 +133,14 @@ bool Adxl346::enable(void)
     i2c_.lock();
 
     // Write the bandwidth register
-    // Low-power mode, 25 Hz, 27 uA
     config[0] = ADXL346_BW_RATE_ADDR;
-    config[1] = (ADXL346_BW_RATE_LOW_POWER | ADXL346_BW_RATE_RATE(8));
+    config[1] = (ADXL346_BW_RATE_RATE(12));
     status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
     if (status == false) goto error;
 
     // Write the format register
-    // +/-16g range, 4 mg/LSB
     config[0] = ADXL346_DATA_FORMAT_ADDR;
-    config[1] = (ADXL346_DATA_FORMAT_FULL_RES | ADXL346_DATA_FORMAT_RANGE_PM_16g);
+    config[1] = (ADXL346_DATA_FORMAT_RANGE_PM_2g);
     status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
     if (status == false) goto error;
 
@@ -289,6 +287,57 @@ error:
     return false;
 }
 
+void Adxl346::calibrate(void)
+{
+    int32_t accum_x = 0;
+    int32_t accum_y = 0;
+    int32_t accum_z = 0;
+    uint8_t config[2];
+    int8_t offset;
+
+    config[0] = ADXL346_OFSX_ADDR;
+    config[1] = 0;
+    i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+
+    config[0] = ADXL346_OFSY_ADDR;
+    config[1] = 0;
+    i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+
+    config[0] = ADXL346_OFSZ_ADDR;
+    config[1] = 0;
+    i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+
+    for (uint16_t i = 0; i < 100; i++) {
+        uint16_t x, y, z;
+
+        readSample(&x, &y, &z);
+        accum_x += x;
+        accum_y += y;
+        accum_z += z;
+    }
+
+    // Lock access to I2C
+    i2c_.lock();
+
+    offset    = (accum_x) / 100;
+    config[0] = ADXL346_OFSX_ADDR;
+    config[1] = -(64 * offset / 256);
+    i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+
+    offset    = (accum_y) / 100;
+    config[0] = ADXL346_OFSY_ADDR;
+    config[1] = -(64 * offset / 256);
+    i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+
+    offset    = (accum_z) / 100;
+    config[0] = ADXL346_OFSZ_ADDR;
+    config[1] = -(64 * offset / 256);
+    i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+
+    // Release access to I2C
+    i2c_.unlock();
+}
+
 void Adxl346::setCallback(Callback* callback)
 {
     gpio_.setCallback(callback);
@@ -313,7 +362,6 @@ bool Adxl346::readSample(uint16_t* x, uint16_t* y, uint16_t* z)
     // Iterate for all addresses, each direction has two addresses
     for (uint8_t i = 0; i < sizeof(address); i += 2)
     {
-
         // Lock access to I2C
         i2c_.lock();
 
@@ -324,12 +372,6 @@ bool Adxl346::readSample(uint16_t* x, uint16_t* y, uint16_t* z)
         // I2C read acceleration value
         status = i2c_.readByte(ADXL346_ADDRESS, &scratch[0]);
         if (status == false) goto error;
-
-        // Release access to I2C
-        i2c_.unlock();
-
-        // Lock access to I2C
-        i2c_.lock();
 
         // I2C write register address
         status = i2c_.writeByte(ADXL346_ADDRESS, address[i + 1]);

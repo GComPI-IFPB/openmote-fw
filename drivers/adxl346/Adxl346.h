@@ -32,6 +32,7 @@ public:
     bool wakeup(void);
     bool suspend(void);
     bool isPresent(void);
+    void calibrate(void);
     bool selfTest(bool test);
     void setCallback(Callback* callback);
     void clearCallback(void);

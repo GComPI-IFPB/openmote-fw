@@ -50,6 +50,12 @@ else
 BSL_BOARD = $(BSL)
 endif
 
+ifndef PORT
+BSL_PORT = /dev/ttyUSB0
+else
+BSL_PORT = $(PORT)
+endif
+
 ###############################################################################
 
 # Configure the Segger J-Link
@@ -72,9 +78,9 @@ NEMIVER_EXT  = elf
 
 # Configure the BSL client
 BSL_PYTHON = python
-BSL_NAME   = openmote-bsl.py
-BSL_PATH   = $(PROJECT_HOME)/tools/openmote-bsl
-BSL_OPT    = --board $(BSL_BOARD)
+BSL_NAME   = cc2538-bsl.py
+BSL_PATH   = $(PROJECT_HOME)/tools/openmote-bsl/cc2538-bsl
+BSL_OPT    = -e -w -b 450000 -p $(BSL_PORT)
 BSL_EXT    = hex
 
 ###############################################################################
@@ -99,7 +105,7 @@ nemiver: load
 
 bsl:
 	@echo "Loading $(PROJECT_NAME) into target..."
-	@$(BSL_PYTHON) $(BSL_PATH)/$(BSL_NAME) $(PROJECT_NAME).$(BSL_EXT) $(BSL_OPT)
+	@$(BSL_PYTHON) $(BSL_PATH)/$(BSL_NAME) $(BSL_OPT) $(PROJECT_NAME).$(BSL_EXT)
 
 ###############################################################################
 

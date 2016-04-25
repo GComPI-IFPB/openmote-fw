@@ -26,7 +26,7 @@ Low  = False
 
 class Serial(threading.Thread):
     
-    def __init__(self, serial_name = None, baud_rate = None, bsl_mode = None):
+    def __init__(self, serial_name = None, baud_rate = None, bsl_mode = False):
         assert serial_name != None, logger.error("Serial port not defined.")
         assert baud_rate   != None, logger.error("Serial baudrate not defined.")
         assert bsl_mode    != None, logger.error("Bootloader mode not defined.")

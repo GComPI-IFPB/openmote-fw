@@ -137,7 +137,7 @@ class OpenRPi():
         self.gpio.output(self.RESET, self.HIGH)
             
 class OpenUsb():
-    cc2538_bsl_params = ['-e', '-w', '-b', '115200', '--bsl']
+    cc2538_bsl_params = ['-e', '-w', '-b', '450000']
     
     High = True
     Low  = False
