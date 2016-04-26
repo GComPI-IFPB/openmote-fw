@@ -34,7 +34,7 @@ LINKER_LIBS += -lcc2538
 
 ###############################################################################
 
-LIBCC2538     = libcc2538.a
+LIBCC2538 = libcc2538.a
 
 # Check if TARGET points to a valid target
 ifeq "$(wildcard $(PLATFORM_SRC)/$(LIBCC2538))" ""
@@ -45,11 +45,12 @@ endif
 
 # Check if BSL has been defined, if not give it a default value
 ifndef BSL
-BSL_BOARD = openbase
+BSL_BOARD = openusb
 else
 BSL_BOARD = $(BSL)
 endif
 
+# Check if PORT has been defined, if not give it a default value
 ifndef PORT
 BSL_PORT = /dev/ttyUSB0
 else
@@ -76,12 +77,19 @@ NEMIVER_IP   = localhost:2331
 NEMIVER_GDB  = `which arm-none-eabi-gdb`
 NEMIVER_EXT  = elf
 
-# Configure the BSL client
-BSL_PYTHON = python
-BSL_NAME   = cc2538-bsl.py
-BSL_PATH   = $(PROJECT_HOME)/tools/openmote-bsl/cc2538-bsl
-BSL_OPT    = -e -w -b 450000 -p $(BSL_PORT)
-BSL_EXT    = hex
+# Configure the cc2538-bsl.py script
+CC2538_BSL_PYTHON = python
+CC2538_BSL_NAME   = cc2538-bsl.py
+CC2538_BSL_PATH   = $(PROJECT_HOME)/tools/openmote-bsl/cc2538-bsl
+CC2538_BSL_OPT    = -e -w -b 450000 -p $(BSL_PORT)
+CC2538_BSL_EXT    = hex
+
+# Configure the OpenMote bootloader
+OPENMOTE_BSL_PYTHON = python
+OPENMOTE_BSL_NAME   = openmote-bsl.py
+OPENMOTE_BSL_PATH   = $(PROJECT_HOME)/tools/openmote-bsl
+OPENMOTE_BSL_OPT    = --board $(BSL_BOARD)
+OPENMOTE_BSL_EXT    = hex
 
 ###############################################################################
 
@@ -105,7 +113,10 @@ nemiver: load
 
 bsl:
 	@echo "Loading $(PROJECT_NAME) into target..."
-	@$(BSL_PYTHON) $(BSL_PATH)/$(BSL_NAME) $(BSL_OPT) $(PROJECT_NAME).$(BSL_EXT)
+	@$(CC2538_BSL_PYTHON) $(CC2538_BSL_PATH)/$(CC2538_BSL_NAME) $(CC2538_BSL_OPT) $(PROJECT_NAME).$(CC2538_BSL_EXT)
+
+bsl-om:
+	@echo "Loading $(PROJECT_NAME) into target..."
+	@$(OPENMOTE_BSL_PYTHON) $(OPENMOTE_BSL_PATH)/$(OPENMOTE_BSL_NAME) $(PROJECT_NAME).$(OPENMOTE_BSL_EXT) $(OPENMOTE_BSL_OPT)
 
 ###############################################################################
-

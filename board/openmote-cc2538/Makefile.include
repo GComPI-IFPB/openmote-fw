@@ -9,5 +9,10 @@ INC_PATH += -I $(BOARD_PATH)
 # Extend the virtual path
 VPATH += $(BOARD_PATH)
 
+# Define the target for the board
+ifndef TARGET
+TARGET = cc2538
+endif
+
 ###############################################################################
 
