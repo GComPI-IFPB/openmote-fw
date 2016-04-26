@@ -58,10 +58,7 @@ static void radioTxDoneCallback(void);
 
 /*=============================== variables =================================*/
 
-extern Board board_;
-extern Radio radio_;
-
-static Serial serial(uart);
+Serial serial(uart);
 
 Mutex txMutex, rxMutex;
 
@@ -79,8 +76,7 @@ uint8_t crc;
 
 /*================================= public ==================================*/
 
-int main (void)
-{
+int main(void) {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
 
@@ -128,7 +124,6 @@ static void prvSensorTask(void *pvParameters) {
     // Set Radio receive callbacks
     radio.setTxCallbacks(&radioTxInitCallback_, &radioTxDoneCallback_);
     radio.enableInterrupts();
-    // txMutex.give();
 
     // Calibrate the ADXL346 sensor
     adxl346.calibrate();
@@ -200,22 +195,20 @@ static void prvConcentratorTask(void *pvParameters) {
     }
 }
 
-void radioTxInitCallback(void) {
-    debug_ad1.on();
+static void radioTxInitCallback(void) {
     led_red.on();
 }
 
-void radioTxDoneCallback(void) {
+static void radioTxDoneCallback(void) {
     led_red.off();
-    debug_ad1.off();
     txMutex.giveFromInterrupt();
 }
 
-void radioRxInitCallback(void) {
+static void radioRxInitCallback(void) {
     led_red.on();
 }
 
-void radioRxDoneCallback(void) {
+static void radioRxDoneCallback(void) {
     led_red.off();
     rxMutex.giveFromInterrupt();
 }
