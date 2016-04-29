@@ -23,6 +23,31 @@
 
 /*================================= public ==================================*/
 
+bool Semaphore::take(void)
+{
+    bool status = (xSemaphoreTake(semaphore_, portMAX_DELAY) == pdTRUE);
+    return status;
+}
+
+bool Semaphore::take(uint32_t milliseconds)
+{
+    TickType_t timeout = milliseconds / portTICK_RATE_MS;
+    bool status = (xSemaphoreTake(semaphore_, timeout) == pdTRUE);
+    return status;
+}
+
+void Semaphore::give(void)
+{
+    xSemaphoreGive(semaphore_);
+}
+
+void Semaphore::giveFromInterrupt(void)
+{
+    priorityTaskWoken_ = pdFALSE;
+    xSemaphoreGiveFromISR(semaphore_, &priorityTaskWoken_);
+    portYIELD_FROM_ISR(priorityTaskWoken_);
+}
+
 SemaphoreBinary::SemaphoreBinary(void)
 {
     semaphore_ = xSemaphoreCreateBinary();
@@ -30,29 +55,17 @@ SemaphoreBinary::SemaphoreBinary(void)
 
 SemaphoreBinary::~SemaphoreBinary(void)
 {
+	vSemaphoreDelete(semaphore_);
 }
 
-void SemaphoreBinary::take(void)
+SemaphoreCounting::SemaphoreCounting(uint32_t initialCount, uint32_t maxCount)
 {
-    xSemaphoreTake(semaphore_, portMAX_DELAY);
+    semaphore_ = xSemaphoreCreateCounting(maxCount, initialCount);
 }
 
-void SemaphoreBinary::take(uint32_t milliseconds)
+SemaphoreCounting::~SemaphoreCounting(void)
 {
-    TickType_t timeout = milliseconds / portTICK_RATE_MS;
-    xSemaphoreTake(semaphore_, timeout);
-}
-
-void SemaphoreBinary::give(void)
-{
-    xSemaphoreGive(semaphore_);
-}
-
-void SemaphoreBinary::giveFromInterrupt(void)
-{
-    priorityTaskWoken_ = pdFALSE;
-    xSemaphoreGiveFromISR(semaphore_, &priorityTaskWoken_);
-    portYIELD_FROM_ISR(priorityTaskWoken_);
+    vSemaphoreDelete(semaphore_);
 }
 
 /*=============================== protected =================================*/

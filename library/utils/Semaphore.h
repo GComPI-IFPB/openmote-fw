@@ -18,6 +18,11 @@
 
 class Semaphore
 {
+public:
+    bool take(void);
+    bool take(uint32_t milliseconds);
+    void give(void);
+    void giveFromInterrupt(void);
 protected:
     SemaphoreHandle_t semaphore_;
     BaseType_t priorityTaskWoken_;
@@ -28,10 +33,6 @@ class SemaphoreBinary : public Semaphore
 public:
     SemaphoreBinary();
     ~SemaphoreBinary();
-    void take(void);
-    void take(uint32_t milliseconds);
-    void give(void);
-    void giveFromInterrupt(void);
 };
 
 class SemaphoreCounting : public Semaphore
@@ -39,10 +40,6 @@ class SemaphoreCounting : public Semaphore
 public:
     SemaphoreCounting(uint32_t initialCount, uint32_t maxCount);
     ~SemaphoreCounting();
-    void take(void);
-    void take(uint32_t milliseconds);
-    void give(void);
-    void giveFromInterrupt(void);
 };
 
 #endif /* SEMAPHORE_H_ */

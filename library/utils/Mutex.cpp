@@ -58,6 +58,16 @@ void Mutex::giveFromInterrupt(void)
     portYIELD_FROM_ISR(priorityTaskWoken_);
 }
 
+MutexRecursive::MutexRecursive()
+{
+    mutex_ = xSemaphoreCreateRecursiveMutex();
+}
+
+MutexRecursive::~MutexRecursive()
+{
+    vSemaphoreDelete(mutex_);
+}
+
 /*=============================== protected =================================*/
 
 /*================================ private ==================================*/
