@@ -12,9 +12,11 @@
 /*================================ include ==================================*/
 
 #include "Board.h"
+#include "Gpio.h"
 #include "I2c.h"
 
 #include "cc2538_include.h"
+#include "platform_types.h"
 
 /*================================ define ===================================*/
 
@@ -31,38 +33,44 @@ const uint32_t I2C_MAX_DELAY_TICKS = I2C_MAX_DELAY_US / Board::BOARD_TICKS_PER_U
 
 /*================================= public ==================================*/
 
-I2c::I2c(uint32_t peripheral, GpioI2c& scl, GpioI2c& sda):
-    peripheral_(peripheral), scl_(scl), sda_(sda)
+I2c::I2c(Gpio& scl, Gpio& sda, I2cConfig config):
+    scl_(scl), sda_(sda), config_(config)
 {
 }
 
-void I2c::enable(uint32_t clock)
+void I2c::enable(uint32_t baudrate)
 {
     bool status;
 
-    // Update I2C clock
-    clock_ = clock;
+    // Store baudrate in configuration
+    if (baudrate != 0) {
+        config_.baudrate = baudrate;
+    }
+
+    GpioConfig& scl = scl_.getGpioConfig();
+    GpioConfig& sda = sda_.getGpioConfig();
+    
 
     // Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3)
-    SysCtrlPeripheralEnable(peripheral_);
-    SysCtrlPeripheralSleepEnable(peripheral_);
-    SysCtrlPeripheralDeepSleepDisable(peripheral_);
+    SysCtrlPeripheralEnable(config_.peripheral);
+    SysCtrlPeripheralSleepEnable(config_.peripheral);
+    SysCtrlPeripheralDeepSleepDisable(config_.peripheral);
 
     // Reset peripheral previous to configuring it
-    SysCtrlPeripheralReset(peripheral_);
+    SysCtrlPeripheralReset(config_.peripheral);
 
     // Configure the SCL pin
-    GPIOPinTypeI2C(scl_.getPort(), scl_.getPin());
-    IOCPinConfigPeriphInput(scl_.getPort(), scl_.getPin(), IOC_I2CMSSCL);
-    IOCPinConfigPeriphOutput(scl_.getPort(), scl_.getPin(), IOC_MUX_OUT_SEL_I2C_CMSSCL);
+    GPIOPinTypeI2C(scl.port, scl.pin);
+    IOCPinConfigPeriphInput(scl.port, scl.pin, IOC_I2CMSSCL);
+    IOCPinConfigPeriphOutput(scl.port, scl.pin, IOC_MUX_OUT_SEL_I2C_CMSSCL);
 
     // Configure the SDA pin
-    GPIOPinTypeI2C(sda_.getPort(), sda_.getPin());
-    IOCPinConfigPeriphInput(sda_.getPort(), sda_.getPin(), IOC_I2CMSSDA);
-    IOCPinConfigPeriphOutput(sda_.getPort(), sda_.getPin(), IOC_MUX_OUT_SEL_I2C_CMSSDA);
+    GPIOPinTypeI2C(sda.port, sda.pin);
+    IOCPinConfigPeriphInput(sda.port, sda.pin, IOC_I2CMSSDA);
+    IOCPinConfigPeriphOutput(sda.port, sda.pin, IOC_MUX_OUT_SEL_I2C_CMSSDA);
 
     // Configure the I2C clock
-    status = ((clock_ == 100000) ? false : true);
+    status = ((config_.baudrate == 100000) ? false : true);
     I2CMasterInitExpClk(SysCtrlClockGet(), status);
 
     // Enable the I2C module as master
@@ -71,22 +79,25 @@ void I2c::enable(uint32_t clock)
 
 void I2c::sleep(void)
 {
+    GpioConfig& scl = scl_.getGpioConfig();
+    GpioConfig& sda = sda_.getGpioConfig();
+
     // Disable the I2C module
     I2CMasterDisable();
 
     // Configure GPIOs as output
-    GPIOPinTypeGPIOOutput(scl_.getPort(), scl_.getPin());
-    GPIOPinTypeGPIOOutput(sda_.getPort(), sda_.getPin());
+    GPIOPinTypeGPIOOutput(scl.port, scl.pin);
+    GPIOPinTypeGPIOOutput(sda.port, sda.pin);
 
     // Set GPIOs to low
-    GPIOPinWrite(scl_.getPort(), scl_.getPin(), 0);
-    GPIOPinWrite(sda_.getPort(), sda_.getPin(), 0);
+    GPIOPinWrite(scl.port, scl.pin, 0);
+    GPIOPinWrite(sda.port, sda.pin, 0);
 }
 
 void I2c::wakeup(void)
 {
     // Reenable the I2C peripheral
-    enable(clock_);
+    enable();
 }
 
 bool I2c::readByte(uint8_t address, uint8_t* buffer)

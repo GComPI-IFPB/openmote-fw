@@ -11,7 +11,14 @@
 
 /*================================ include ==================================*/
 
+#include <stdint.h>
+
 #include "Enc28j60.h"
+
+#include "Gpio.h"
+#include "Spi.h"
+
+#include "platform_types.h"
 
 /*================================ define ===================================*/
 

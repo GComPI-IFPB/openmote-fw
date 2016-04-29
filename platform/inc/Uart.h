@@ -14,11 +14,11 @@
 
 #include <stdint.h>
 
-#include "Gpio.h"
 #include "Callback.h"
 #include "Mutex.h"
 
 class Gpio;
+struct UartConfig;
 
 class Uart
 {
@@ -26,44 +26,37 @@ class Uart
 friend class InterruptHandler;
 
 public:
-    Uart(uint32_t peripheral, uint32_t base, uint32_t clock, uint32_t interrupt, GpioUart& rx, GpioUart& tx);
-    uint32_t getBase(void);
-    void rxUnlockFromInterrupt(void) {rxMutex_.giveFromInterrupt();}
-    void txUnlockFromInterrupt(void) {txMutex_.giveFromInterrupt();}
-    void enable(uint32_t baudrate, uint32_t config, uint32_t mode);
+    Uart(Gpio& rx, Gpio& tx, UartConfig& config);
+    void enable(uint32_t baudrate = 0);
     void sleep(void);
     void wakeup(void);
     void setRxCallback(Callback* callback);
     void setTxCallback(Callback* callback);
     void enableInterrupts(void);
     void disableInterrupts(void);
-    void rxLock(void) {rxMutex_.take();}
-    void txLock(void) {txMutex_.take();}
-    void rxUnlock(void) {rxMutex_.give();}
-    void txUnlock(void) {txMutex_.give();}
+    void rxLock(void);
+    void txLock(void);
+    void rxUnlock(void);
+    void txUnlock(void);
+    void rxUnlockFromInterrupt(void);
+    void txUnlockFromInterrupt(void);
     uint8_t readByte(void);
     uint32_t readByte(uint8_t* buffer, uint32_t length);
     void writeByte(uint8_t byte);
     uint32_t writeByte(uint8_t* buffer, uint32_t length);
 protected:
+    uint32_t getBase(void);
     void interruptHandler(void);
 private:
     void interruptHandlerRx(void);
     void interruptHandlerTx(void);
 private:
-    uint32_t peripheral_;
-    uint32_t base_;
-    uint32_t clock_;
-    uint32_t interrupt_;
-    uint32_t mode_;
-    uint32_t config_;
-    uint32_t baudrate_;
+    Gpio& rx_;
+    Gpio& tx_;
+    UartConfig& config_;
 
     Mutex rxMutex_;
     Mutex txMutex_;
-
-    GpioUart& rx_;
-    GpioUart& tx_;
 
     Callback* rx_callback_;
     Callback* tx_callback_;

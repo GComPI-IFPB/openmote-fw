@@ -14,9 +14,7 @@
 
 #include <stdint.h>
 
-#include "Sensor.h"
-
-class TemperatureSensor : public Sensor
+class TemperatureSensor
 {
 public:
     TemperatureSensor();

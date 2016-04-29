@@ -12,13 +12,11 @@
 #ifndef TPS62730_H_
 #define TPS62730_H_
 
-#include <stdint.h>
-
-#include "Gpio.h"
+class GpioIn;
+class GpioOut;
 
 class Tps62730
 {
-
 public:
     Tps62730(GpioOut& bypass, GpioIn& status);
     void setOn(void);

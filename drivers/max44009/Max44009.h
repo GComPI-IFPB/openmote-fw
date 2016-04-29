@@ -14,16 +14,11 @@
 
 #include <stdint.h>
 
-#include "I2c.h"
-#include "Gpio.h"
-
-#include "Callback.h"
-#include "Sensor.h"
-
 class I2c;
 class GpioIn;
+class Callback;
 
-class Max44009: public Sensor
+class Max44009
 {
 public:
     Max44009(I2c& i2c, GpioIn& gpio);

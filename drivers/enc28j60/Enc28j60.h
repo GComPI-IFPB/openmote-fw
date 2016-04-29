@@ -13,13 +13,13 @@
 
 #include <stdint.h>
 
-#include "Gpio.h"
-#include "Spi.h"
-
 #include "Callback.h"
 #include "Ethernet.h"
 
 class Enc28j60;
+class GpioIn;
+class GpioOut;
+class Spi;
 
 typedef GenericCallback<Enc28j60> Enc28j60Callback;
 

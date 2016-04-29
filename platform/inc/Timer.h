@@ -16,13 +16,15 @@
 
 #include "Callback.h"
 
+struct TimerConfig;
+
 class Timer
 {
 
 friend class InterruptHandler;
 
 public:
-    Timer(uint32_t peripheral, uint32_t base, uint32_t source, uint32_t config, uint32_t interrupt, uint32_t interrupt_mode);
+    Timer(TimerConfig& config);
     uint32_t getBase(void);
     uint32_t getSource(void);
     void init(uint32_t frequency);
@@ -36,13 +38,7 @@ public:
 protected:
     void interruptHandler(void);
 private:
-    uint32_t peripheral_;
-    uint32_t base_;
-    uint32_t source_;
-    uint32_t config_;
-    uint32_t interrupt_;
-    uint32_t interrupt_mode_;
-    uint32_t frequency_;
+    TimerConfig& config_;
 
     Callback* callback_;
 };

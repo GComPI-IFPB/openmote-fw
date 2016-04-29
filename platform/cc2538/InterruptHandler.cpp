@@ -24,6 +24,7 @@
 #include "SysTick.h"
 
 #include "cc2538_include.h"
+#include "platform_types.h"
 
 /*================================ define ===================================*/
 
@@ -68,11 +69,13 @@ InterruptHandler &InterruptHandler::getInstance(void)
     return instance_;
 }
 
-void InterruptHandler::setInterruptHandler(GpioIn * gpio)
+void InterruptHandler::setInterruptHandler(GpioIn* gpio)
 {
+    GpioConfig& gc = gpio->getGpioConfig();
+
     // Get the GPIO port and pin
-    uint32_t port = gpio->getPort();
-    uint8_t pin   = gpio->getPin();
+    uint32_t port = gc.port;
+    uint8_t pin   = gc.pin;
 
     // Select the pin number
     if (pin == GPIO_PIN_0)
@@ -133,9 +136,11 @@ void InterruptHandler::setInterruptHandler(GpioIn * gpio)
 
 void InterruptHandler::clearInterruptHandler(GpioIn* gpio)
 {
+    GpioConfig& gc = gpio->getGpioConfig();
+
     // Get the GPIO port and pin
-    uint32_t port = gpio->getPort();
-    uint8_t pin   = gpio->getPin();
+    uint32_t port = gc.port;
+    uint8_t pin   = gc.pin;
 
     // Select the pin number
     if (pin == GPIO_PIN_0)

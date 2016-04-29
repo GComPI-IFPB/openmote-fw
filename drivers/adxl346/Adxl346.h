@@ -14,16 +14,11 @@
 
 #include <stdint.h>
 
-#include "Gpio.h"
-#include "I2c.h"
-
-#include "Callback.h"
-#include "Sensor.h"
-
 class I2c;
 class GpioIn;
+class Callback;
 
-class Adxl346: public Sensor
+class Adxl346
 {
 public:
     Adxl346(I2c& i2c, GpioIn& gpio);
@@ -37,7 +32,6 @@ public:
     void setCallback(Callback* callback);
     void clearCallback(void);
     bool readSample(uint16_t* x, uint16_t* y, uint16_t* z);
-    float convertAcceleration(int16_t acceleration);
 private:
     I2c& i2c_;
     GpioIn& gpio_;

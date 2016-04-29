@@ -15,6 +15,7 @@
 #include "InterruptHandler.h"
 
 #include "cc2538_include.h"
+#include "platform_types.h"
 
 /*================================ define ===================================*/
 
@@ -26,54 +27,51 @@
 
 /*================================= public ==================================*/
 
-Timer::Timer(uint32_t peripheral, uint32_t base, uint32_t source, uint32_t config, uint32_t interrupt, uint32_t interrupt_mode):
-    peripheral_(peripheral), base_(base), source_(source), config_(config), interrupt_(interrupt), interrupt_mode_(interrupt_mode)
+Timer::Timer(TimerConfig& config):
+    config_(config)    
 {
 }
 
 uint32_t Timer::getBase(void)
 {
-    return base_;
+    return config_.base;
 }
 
 uint32_t Timer::getSource(void)
 {
-    return source_;
+    return config_.source;
 }
 
 void Timer::init(uint32_t frequency)
 {
-    // Store the Timer frequency
-    frequency_ = frequency;
-
     // Disable peripheral previous to configuring it
-    TimerDisable(base_, source_);
+    TimerDisable(config_.base, config_.source);
 
     // Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3)
-    SysCtrlPeripheralEnable(peripheral_);
-    SysCtrlPeripheralSleepEnable(peripheral_);
-    SysCtrlPeripheralDeepSleepDisable(peripheral_);
+    SysCtrlPeripheralEnable(config_.peripheral);
+    SysCtrlPeripheralSleepEnable(config_.peripheral);
+    SysCtrlPeripheralDeepSleepDisable(config_.peripheral);
 
     // Configure the peripheral
-    TimerConfigure(base_, config_);
+    TimerConfigure(config_.base, config_.config);
 
     // Set the frequency
-    TimerLoadSet(base_, source_, frequency_);
+    TimerLoadSet(config_.base, config_.source, frequency);
 }
 
 void Timer::start(void)
 {
-    TimerEnable(base_, source_);
+    TimerEnable(config_.base, config_.source);
 }
 
 void Timer::stop(void)
 {
-    TimerDisable(base_, source_);
+    TimerDisable(config_.base, config_.source);
 }
 
 uint32_t Timer::read(void)
 {
-    return TimerValueGet(base_, source_);
+    return TimerValueGet(config_.base, config_.source);
 }
 
 void Timer::setCallback(Callback* callback)
@@ -91,22 +89,22 @@ void Timer::enableInterrupts(void)
     InterruptHandler::getInstance().setInterruptHandler(this);
 
     // Enable Timer interrupts
-    TimerIntEnable(base_, interrupt_mode_);
+    TimerIntEnable(config_.base, config_.interrupt_mode);
 
     // Set the Timer interrupt priority
     // IntPrioritySet(interrupt_, (7 << 5));
 
     // Enable the Timer interrupt
-    IntEnable(interrupt_);
+    IntEnable(config_.interrupt);
 }
 
 void Timer::disableInterrupts(void)
 {
     // Diisable Timer interrupts
-    TimerIntDisable(base_, interrupt_mode_);
+    TimerIntDisable(config_.base, config_.interrupt_mode);
 
     // Disable the Timer interrupt
-    IntDisable(interrupt_);
+    IntDisable(config_.interrupt);
 }
 
 /*=============================== protected =================================*/

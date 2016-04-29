@@ -14,6 +14,7 @@
 #include "Gpio.h"
 
 #include "cc2538_include.h"
+#include "platform_types.h"
 
 /*================================ define ===================================*/
 
@@ -25,8 +26,8 @@
 
 /*================================= public ==================================*/
 
-GpioAdc::GpioAdc(uint32_t port, uint8_t pin, uint32_t adc):
-    Gpio(port, pin), adc_(adc)
+GpioAdc::GpioAdc(GpioConfig& config):
+    Gpio(config)
 {
 }
 
@@ -41,7 +42,7 @@ uint32_t GpioAdc::read(void)
     uint32_t value;
 
     // Trigger single conversion on internal temp sensor
-    SOCADCSingleStart(adc_);
+    SOCADCSingleStart(config_.adc);
 
     // Wait until conversion is completed
     while(!SOCADCEndOfCOnversionGet())

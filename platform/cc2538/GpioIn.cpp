@@ -15,6 +15,7 @@
 #include "InterruptHandler.h"
 
 #include "cc2538_include.h"
+#include "platform_types.h"
 
 /*================================ define ===================================*/
 
@@ -26,20 +27,20 @@
 
 /*================================= public ==================================*/
 
-GpioIn::GpioIn(uint32_t port, uint8_t pin, uint32_t edge):
-    Gpio(port, pin), edge_(edge)
+GpioIn::GpioIn(GpioConfig& config):
+    Gpio(config)
 {
     // Set the pin as input
-    GPIOPinTypeGPIOInput(port_, pin_);
+    GPIOPinTypeGPIOInput(config_.port, config_.pin);
 
     // Set the edge of the interrupt
-    GPIOIntTypeSet(port_, pin_, edge_);
+    GPIOIntTypeSet(config_.port, config_.pin, config_.edge);
 }
 
 bool GpioIn::read(void)
 {
     uint32_t state;
-    state = GPIOPinRead(port_, pin_);
+    state = GPIOPinRead(config_.port, config_.pin);
     return (bool)state;
 }
 
@@ -64,16 +65,16 @@ void GpioIn::clearCallback(void)
 void GpioIn::enableInterrupts(void)
 {
     // Clear the interrupt
-    GPIOPinIntClear(port_, pin_);
+    GPIOPinIntClear(config_.port, config_.pin);
 
     // Enable the interrupt
-    GPIOPinIntEnable(port_, pin_);
+    GPIOPinIntEnable(config_.port, config_.pin);
 }
 
 void GpioIn::disableInterrupts(void)
 {
     // Disable the interrupt
-    GPIOPinIntDisable(port_, pin_);
+    GPIOPinIntDisable(config_.port, config_.pin);
 }
 
 void GpioIn::interruptHandler(void)

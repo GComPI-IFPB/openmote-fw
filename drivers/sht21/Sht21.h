@@ -14,13 +14,9 @@
 
 #include <stdint.h>
 
-#include "I2c.h"
-
-#include "Sensor.h"
-
 class I2c;
 
-class Sht21: public Sensor
+class Sht21
 {
 public:
     Sht21(I2c& i2c);

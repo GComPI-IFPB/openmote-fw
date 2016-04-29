@@ -13,6 +13,12 @@
 
 #include "Adxl346.h"
 
+#include "Callback.h"
+#include "I2c.h"
+#include "Gpio.h"
+
+#include "platform_types.h"
+
 /*================================ define ===================================*/
 
 /* ADDRESS AND IDENTIFIER */
@@ -295,6 +301,9 @@ void Adxl346::calibrate(void)
     uint8_t config[2];
     int8_t offset;
 
+	// Lock access to I2C
+    i2c_.lock();
+
     config[0] = ADXL346_OFSX_ADDR;
     config[1] = 0;
     i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
@@ -306,6 +315,9 @@ void Adxl346::calibrate(void)
     config[0] = ADXL346_OFSZ_ADDR;
     config[1] = 0;
     i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+
+	// Release access to I2C
+    i2c_.unlock();
 
     for (uint16_t i = 0; i < 100; i++) {
         uint16_t x, y, z;
@@ -399,13 +411,6 @@ error:
     // Release access to I2C
     i2c_.unlock();
     return false;
-}
-
-float Adxl346::convertAcceleration(int16_t acceleration)
-{
-    float result = 4.0;
-    result *= (acceleration & 0x9FFF);
-    return result;
 }
 
 /*=============================== protected =================================*/

@@ -1,5 +1,5 @@
 /**
- * @file       cc2538_types.h
+ * @file       platform_types.h
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,10 +9,12 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef CC2538_TYPES_H_
-#define CC2538_TYPES_H_
+#ifndef PLATFORM_TYPES_H_
+#define PLATFORM_TYPES_H_
 
 /*================================ include ==================================*/
+
+#include "cc2538_include.h"
 
 /*================================ define ===================================*/
 
@@ -31,6 +33,48 @@ enum SleepMode : uint8_t {
     SleepMode_3    = SYS_CTRL_PM_3
 };
 
+struct GpioConfig {
+	uint32_t port;
+	uint8_t pin;
+	uint32_t ioc;
+	uint32_t edge;
+	uint32_t adc;
+};
+
+struct TimerConfig {
+	uint32_t peripheral;
+	uint32_t base;
+	uint32_t source;
+	uint32_t config;
+	uint32_t interrupt;
+	uint32_t interrupt_mode;
+};
+
+struct I2cConfig {
+	uint32_t peripheral;
+	uint32_t baudrate;
+};
+
+struct SpiConfig {
+	uint32_t peripheral;
+	uint32_t base;
+	uint32_t clock;
+	uint32_t interrupt;
+	uint32_t mode;
+	uint32_t protocol;
+	uint32_t datawidth;
+	uint32_t baudrate;
+};
+
+struct UartConfig {
+	uint32_t peripheral;
+	uint32_t base;
+	uint32_t clock;
+	uint32_t interrupt;
+	uint32_t baudrate;
+	uint32_t mode;
+};
+
 /*=============================== variables =================================*/
 
 /*=============================== prototypes ================================*/
@@ -39,4 +83,4 @@ enum SleepMode : uint8_t {
 
 /*================================ private ==================================*/
 
-#endif  /* CC2538_TYPES_H_ */
+#endif  /* PLATFORM_TYPES_H_ */

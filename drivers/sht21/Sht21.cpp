@@ -13,6 +13,10 @@
 
 #include "Sht21.h"
 
+#include "I2c.h"
+
+#include "platform_types.h"
+
 /*================================ define ===================================*/
 
 #define SHT21_ADDRESS                   ( 0x40 )

@@ -11,10 +11,9 @@
 
 /*================================ include ==================================*/
 
-#include "Sensor.h"
-#include "TemperatureSensor.h"
-
 #include "cc2538_include.h"
+
+#include "TemperatureSensor.h"
 
 /*================================ define ===================================*/
 

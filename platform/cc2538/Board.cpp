@@ -17,7 +17,7 @@
 #include "Gpio.h"
 
 #include "cc2538_include.h"
-#include "cc2538_types.h"
+#include "platform_types.h"
 
 /*================================ define ===================================*/
 

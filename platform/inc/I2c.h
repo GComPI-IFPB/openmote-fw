@@ -14,11 +14,11 @@
 
 #include <stdint.h>
 
-#include "Gpio.h"
 #include "Callback.h"
 #include "Mutex.h"
 
 class Gpio;
+struct I2cConfig;
 
 class I2c
 {
@@ -26,8 +26,8 @@ class I2c
 friend class InterruptHandler;
 
 public:
-    I2c(uint32_t peripheral, GpioI2c& scl, GpioI2c& sda);
-    void enable(uint32_t clock = 100000);
+    I2c(Gpio& scl, Gpio& sda, I2cConfig config);
+    void enable(uint32_t baudrate = 100000);
     void sleep(void);
     void wakeup(void);
     void lock(void) {mutex_.take();}
@@ -40,13 +40,12 @@ public:
 protected:
     void interruptHandler(void);
 private:
-    uint32_t peripheral_;
-    uint32_t clock_;
+    Gpio& scl_;
+    Gpio& sda_;
+
+    I2cConfig& config_;
 
     Mutex mutex_;
-
-    GpioI2c& scl_;
-    GpioI2c& sda_;
 };
 
 #endif /* I2C_H_ */

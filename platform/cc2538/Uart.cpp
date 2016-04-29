@@ -11,10 +11,12 @@
 
 /*================================ include ==================================*/
 
+#include "Gpio.h"
 #include "Uart.h"
 #include "InterruptHandler.h"
 
 #include "cc2538_include.h"
+#include "platform_types.h"
 
 /*================================ define ===================================*/
 
@@ -26,77 +28,78 @@
 
 /*================================= public ==================================*/
 
-Uart::Uart(uint32_t peripheral, uint32_t base, uint32_t clock, uint32_t interrupt, GpioUart& rx, GpioUart& tx):
-    peripheral_(peripheral), base_(base), clock_(clock), interrupt_(interrupt), rx_(rx), tx_(tx)
+Uart::Uart(Gpio& rx, Gpio& tx, UartConfig& config):
+    rx_(rx), tx_(tx), config_(config)
 {
 }
 
-uint32_t Uart::getBase(void)
+void Uart::enable(uint32_t baudrate)
 {
-    return base_;
-}
+    GpioConfig& rx = rx_.getGpioConfig();
+    GpioConfig& tx = tx_.getGpioConfig();
 
-void Uart::enable(uint32_t baudrate, uint32_t config, uint32_t mode)
-{
-    // Store the UART baudrate, configuration and mode
-    baudrate_ = baudrate;
-    config_   = config;
-    mode_     = mode;
+    // Store baudrate in configuration
+    if (baudrate != 0) {
+        config_.baudrate = baudrate;
+    }
 
     // Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3)
-    SysCtrlPeripheralEnable(peripheral_);
-    SysCtrlPeripheralSleepEnable(peripheral_);
-    SysCtrlPeripheralDeepSleepDisable(peripheral_);
+    SysCtrlPeripheralEnable(config_.peripheral);
+    SysCtrlPeripheralSleepEnable(config_.peripheral);
+    SysCtrlPeripheralDeepSleepDisable(config_.peripheral);
 
     // Disable peripheral previous to configuring it
-    UARTDisable(peripheral_);
+    UARTDisable(config_.peripheral);
 
     // Set IO clock as UART clock source
-    UARTClockSourceSet(base_, clock_);
+    UARTClockSourceSet(config_.base, config_.clock);
 
     // Configure the UART RX and TX pins
-    IOCPinConfigPeriphInput(rx_.getPort(), rx_.getPin(), rx_.getIoc());
-    IOCPinConfigPeriphOutput(tx_.getPort(), tx_.getPin(), tx_.getIoc());
+    IOCPinConfigPeriphInput(rx.port, rx.pin, rx.ioc);
+    IOCPinConfigPeriphOutput(tx.port, tx.pin, tx.ioc);
 
     // Configure the UART GPIOs
-    GPIOPinTypeUARTInput(rx_.getPort(), rx_.getPin());
-    GPIOPinTypeUARTOutput(tx_.getPort(), tx_.getPin());
+    GPIOPinTypeUARTInput(rx.port, rx.pin);
+    GPIOPinTypeUARTOutput(tx.port, tx.pin);
 
     // Configure the UART
-    UARTConfigSetExpClk(base_, SysCtrlIOClockGet(), baudrate_, config_);
+    UARTConfigSetExpClk(config_.base, SysCtrlIOClockGet(), config_.baudrate, config_.mode);
 
     // Disable FIFO as we only use a one-byte buffer
-    UARTFIFODisable(base_);
+    UARTFIFODisable(config_.base);
 
     // Raise an interrupt at the end of transmission
-    UARTTxIntModeSet(base_, mode_);
+    UARTTxIntModeSet(config_.base, UART_TXINT_MODE_EOT);
 
     // Enable UART hardware
-    UARTEnable(base_);
+    UARTEnable(config_.base);
 }
 
 void Uart::sleep(void)
 {
+    GpioConfig& rx = rx_.getGpioConfig();
+    GpioConfig& tx = tx_.getGpioConfig();
+
     // Wait until UART is not busy
-    while(UARTBusy(base_))
+    while(UARTBusy(config_.base))
         ;
 
     // Disable UART hardware
-    UARTDisable(base_);
+    UARTDisable(config_.base);
 
     // Configure the pins as outputs
-    GPIOPinTypeGPIOOutput(rx_.getPort(), rx_.getPin());
-    GPIOPinTypeGPIOOutput(tx_.getPort(), tx_.getPin());
+    GPIOPinTypeGPIOOutput(rx.port, rx.pin);
+    GPIOPinTypeGPIOOutput(tx.port, tx.pin);
 
     // Pull the pins to ground
-    GPIOPinWrite(rx_.getPort(), rx_.getPin(), 0);
-    GPIOPinWrite(tx_.getPort(), tx_.getPin(), 0);
+    GPIOPinWrite(rx.port, rx.pin, 0);
+    GPIOPinWrite(tx.port, tx.pin, 0);
 }
 
 void Uart::wakeup(void)
 {
     // Re-enable the UART interface
-    enable(baudrate_, config_, mode_);
+    enable();
 }
 
 void Uart::setRxCallback(Callback* callback)
@@ -115,28 +118,58 @@ void Uart::enableInterrupts(void)
     InterruptHandler::getInstance().setInterruptHandler(this);
 
     // Enable the UART RX, TX and RX timeout interrupts
-    UARTIntEnable(base_, UART_INT_RX | UART_INT_TX | UART_INT_RT);
+    UARTIntEnable(config_.base, UART_INT_RX | UART_INT_TX | UART_INT_RT);
 
     // Set the UART interrupt priority
-    IntPrioritySet(interrupt_, (7 << 5));
+    IntPrioritySet(config_.interrupt, (7 << 5));
 
     // Enable the UART interrupt
-    IntEnable(interrupt_);
+    IntEnable(config_.interrupt);
 }
 
 void Uart::disableInterrupts(void)
 {
     // Disable the UART RX, TX and RX timeout interrupts
-    UARTIntDisable(base_, UART_INT_RX | UART_INT_TX | UART_INT_RT);
+    UARTIntDisable(config_.base, UART_INT_RX | UART_INT_TX | UART_INT_RT);
 
     // Disable the UART interrupt
-    IntDisable(interrupt_);
+    IntDisable(config_.interrupt);
+}
+
+void Uart::rxLock(void)
+{
+    rxMutex_.take();
+}
+
+void Uart::txLock(void)
+{
+    txMutex_.take();
+}
+
+void Uart::rxUnlock(void)
+{
+    rxMutex_.give();
+}
+
+void Uart::txUnlock(void)
+{
+    txMutex_.give();
+}
+
+void Uart::rxUnlockFromInterrupt(void)
+{
+    rxMutex_.giveFromInterrupt();
+}
+
+void Uart::txUnlockFromInterrupt(void)
+{
+    txMutex_.giveFromInterrupt();
 }
 
 uint8_t Uart::readByte(void)
 {
     int32_t byte;
-    byte = UARTCharGetNonBlocking(base_);
+    byte = UARTCharGetNonBlocking(config_.base);
     return (uint8_t)(byte & 0xFF);
 }
 
@@ -145,12 +178,12 @@ uint32_t Uart::readByte(uint8_t * buffer, uint32_t length)
     uint32_t data;
     for (uint32_t i = 0; i < length; i++)
     {
-        data = UARTCharGet(base_);
+        data = UARTCharGet(config_.base);
         *buffer++ = (uint8_t)data;
     }
 
     // Wait until it is complete
-    while(UARTBusy(base_))
+    while(UARTBusy(config_.base))
         ;
 
     return 0;
@@ -158,18 +191,18 @@ uint32_t Uart::readByte(uint8_t * buffer, uint32_t length)
 
 void Uart::writeByte(uint8_t byte)
 {
-    UARTCharPutNonBlocking(base_, byte);
+    UARTCharPutNonBlocking(config_.base, byte);
 }
 
 uint32_t Uart::writeByte(uint8_t * buffer, uint32_t length)
 {
     for (uint32_t i = 0; i < length; i++)
     {
-        UARTCharPut(base_, *buffer++);
+        UARTCharPut(config_.base, *buffer++);
     }
 
     // Wait until it is complete
-    while(UARTBusy(base_))
+    while(UARTBusy(config_.base))
         ;
 
     return 0;
@@ -177,20 +210,25 @@ uint32_t Uart::writeByte(uint8_t * buffer, uint32_t length)
 
 /*=============================== protected =================================*/
 
+uint32_t Uart::getBase(void)
+{
+    return config_.base;
+}
+
 void Uart::interruptHandler(void)
 {
     uint32_t status;
 
     // Read interrupt source
-    status = UARTIntStatus(base_, true);
+    status = UARTIntStatus(config_.base, true);
 
     // Clear UART interrupt in the NVIC
-    IntPendClear(interrupt_);
+    IntPendClear(config_.interrupt);
 
     // Process TX interrupt
     if (status & UART_INT_TX)
     {
-        UARTIntClear(base_, UART_INT_TX);
+        UARTIntClear(config_.base, UART_INT_TX);
         interruptHandlerTx();
     }
 
@@ -198,7 +236,7 @@ void Uart::interruptHandler(void)
     if (status & UART_INT_RX ||
         status & UART_INT_RT)
     {
-        UARTIntClear(base_, UART_INT_RX | UART_INT_RT);
+        UARTIntClear(config_.base, UART_INT_RX | UART_INT_RT);
         interruptHandlerRx();
     }
 }

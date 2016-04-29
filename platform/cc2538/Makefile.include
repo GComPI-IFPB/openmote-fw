@@ -17,9 +17,10 @@ VPATH += $(LIBCC2538_SRC) $(LIBCC2538_INC)
 ###############################################################################
 
 # Append to the files to compile
-SRC_FILES += Board.cpp InterruptHandler.cpp Gpio.cpp GpioAdc.cpp GpioIn.cpp \
-             GpioInPow.cpp GpioOut.cpp GpioUart.cpp GpioI2c.cpp GpioSpi.cpp \
-             Uart.cpp I2c.cpp Spi.cpp Timer.cpp GpioPwm.cpp Radio.cpp Watchdog.cpp \
+SRC_FILES += Board.cpp InterruptHandler.cpp Gpio.cpp \
+			 GpioAdc.cpp GpioIn.cpp \
+             GpioInPow.cpp GpioOut.cpp \
+             Uart.cpp I2c.cpp Spi.cpp Timer.cpp  Radio.cpp Watchdog.cpp \
              SysTick.cpp SleepTimer.cpp RadioTimer.cpp TemperatureSensor.cpp
 
 # Append the startup code to the files to compile
