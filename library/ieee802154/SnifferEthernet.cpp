@@ -41,7 +41,7 @@ void SnifferEthernet::processRadioFrame(void)
     RadioResult result;
 
     // This call blocks until a radio frame is received
-    if (mutex.take())
+    if (semaphore.take())
     {
         // Get packet from the radio
         radioBuffer_ptr = radioBuffer;

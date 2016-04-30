@@ -140,5 +140,5 @@ void SnifferCommon::radioRxInitCallback(void)
 void SnifferCommon::radioRxDoneCallback(void)
 {
     led_red.off();
-    mutex.giveFromInterrupt();
+    semaphore.giveFromInterrupt();
 }

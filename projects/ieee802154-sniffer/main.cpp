@@ -23,7 +23,12 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include "semphr.h"
+
+#include "Gpio.h"
+#include "Tps62730.h"
+#include "Spi.h"
+#include "Enc28j60.h"
+#include "Ethernet.h"
 
 /*================================ define ===================================*/
 
@@ -57,7 +62,7 @@ static SnifferSerial   sniffer(board, radio, serial);
 #elif  (SNIFFER_TYPE == SNIFFER_ETHERNET)
 static SnifferEthernet sniffer(board, radio, ethernet);
 #else
-#error
+#error "SNIFFER_TYPE not defined or not valid!"
 #endif
 
 static uint8_t serial_buffer[32];
@@ -74,14 +79,11 @@ int main (void)
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
 
-    // Enable erasing the Flash with the user button
-    board.enableFlashErase();
-
     // Enable the SPI peripheral
-    spi.enable(SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE);
+    spi.enable();
 
     // Enable the UART peripheral
-    uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
+    uart.enable();
 
     // Init the serial
     serial.init();

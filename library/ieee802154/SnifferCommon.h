@@ -14,7 +14,7 @@
 
 #include "Board.h"
 #include "Callback.h"
-#include "Mutex.h"
+#include "Semaphore.h"
 #include "Radio.h"
 
 class SnifferCommon;
@@ -41,7 +41,7 @@ protected:
     SnifferCallback snifferRadioRxInitCallback_;
     SnifferCallback snifferRadioRxDoneCallback_;
 
-    Mutex mutex;
+    SemaphoreBinary semaphore;
 
     uint8_t macAddress[6];
     static const uint8_t broadcastAddress[6];
