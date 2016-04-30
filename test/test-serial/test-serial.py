@@ -24,9 +24,6 @@ def program():
                         xonxoff  = False,
                         rtscts   = False,
                         dsrdtr   = False)
-                        
-    ser.setRTS(False) # Disable bootloader
-    ser.setDTR(False) # Disable reboot
     
     while(True):
         buff = ser.read(1)

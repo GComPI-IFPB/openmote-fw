@@ -17,12 +17,14 @@
 
 #include "openmote-cc2538.h"
 
+#include "Gpio.h"
+#include "Tps62730.h"
 #include "Serial.h"
 
 /*================================ define ===================================*/
 
-#define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
-#define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 0 )
+#define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
+#define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 
 /*================================ typedef ==================================*/
 
@@ -49,12 +51,9 @@ int main (void)
 {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
-    
-    // Enable erasing the Flash with the user button
-    board.enableFlashErase();
 
     // Enable the UART peripheral and the serial driver
-    uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
+    uart.enable();
     serial.init();
 
     // Create two FreeRTOS tasks
@@ -93,13 +92,13 @@ static void prvSerialTask(void *pvParameters)
         vTaskDelay(250 / portTICK_RATE_MS);
 
         // Turn on red LED
-        led_red.on();
+        led_yellow.on();
 
         // Write buffer via Serial/UART
         serial.write(serial_rx_ptr, serial_rx_len);
 
         // Turn off red LED
-        led_red.off();
+        led_yellow.off();
     }
 }
 

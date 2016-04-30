@@ -15,6 +15,10 @@
 #include "task.h"
 #include "semphr.h"
 
+#include "Gpio.h"
+#include "Tps62730.h"
+#include "Uart.h"
+
 #include "openmote-cc2538.h"
 
 /*================================ define ===================================*/
@@ -41,12 +45,9 @@ int main (void)
 {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
-    
-    // Enable erasing the Flash with the user button
-    board.enableFlashErase();
 
     // Enable the UART peripheral and the serial driver
-    uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
+    uart.enable();
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
