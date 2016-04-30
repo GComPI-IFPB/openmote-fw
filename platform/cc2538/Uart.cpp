@@ -138,32 +138,32 @@ void Uart::disableInterrupts(void)
 
 void Uart::rxLock(void)
 {
-    rxMutex_.take();
+    rxSemaphore_.take();
 }
 
 void Uart::txLock(void)
 {
-    txMutex_.take();
+    txSemaphore_.take();
 }
 
 void Uart::rxUnlock(void)
 {
-    rxMutex_.give();
+    rxSemaphore_.give();
 }
 
 void Uart::txUnlock(void)
 {
-    txMutex_.give();
+    txSemaphore_.give();
 }
 
 void Uart::rxUnlockFromInterrupt(void)
 {
-    rxMutex_.giveFromInterrupt();
+    rxSemaphore_.giveFromInterrupt();
 }
 
 void Uart::txUnlockFromInterrupt(void)
 {
-    txMutex_.giveFromInterrupt();
+    txSemaphore_.giveFromInterrupt();
 }
 
 uint8_t Uart::readByte(void)

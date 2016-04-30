@@ -100,6 +100,21 @@ void I2c::wakeup(void)
     enable();
 }
 
+void I2c::lock(void)
+{
+    semaphore_.take();
+}
+
+void I2c::unlock(void)
+{
+    semaphore_.give();
+}
+
+void I2c::unlockFromInterrupt(void)
+{
+    semaphore_.giveFromInterrupt();
+}
+
 bool I2c::readByte(uint8_t address, uint8_t* buffer)
 {
     uint32_t delayTicks = I2C_MAX_DELAY_TICKS;

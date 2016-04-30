@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 #include "Callback.h"
-#include "Mutex.h"
+#include "Semaphore.h"
 
 class Gpio;
 struct UartConfig;
@@ -55,8 +55,8 @@ private:
     Gpio& tx_;
     UartConfig& config_;
 
-    Mutex rxMutex_;
-    Mutex txMutex_;
+    SemaphoreBinary rxSemaphore_;
+    SemaphoreBinary txSemaphore_;
 
     Callback* rx_callback_;
     Callback* tx_callback_;

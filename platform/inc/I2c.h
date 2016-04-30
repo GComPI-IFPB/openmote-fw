@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 #include "Callback.h"
-#include "Mutex.h"
+#include "Semaphore.h"
 
 class Gpio;
 struct I2cConfig;
@@ -30,9 +30,9 @@ public:
     void enable(uint32_t baudrate = 100000);
     void sleep(void);
     void wakeup(void);
-    void lock(void) {mutex_.take();}
-    void unlock(void) {mutex_.give();}
-    void unlockFromInterrupt(void) {mutex_.giveFromInterrupt();}
+    void lock(void);
+    void unlock(void);
+    void unlockFromInterrupt(void);
     bool readByte(uint8_t address, uint8_t* buffer);
     bool readByte(uint8_t address, uint8_t* buffer, uint8_t size);
     bool writeByte(uint8_t address, uint8_t byte);
@@ -45,7 +45,7 @@ private:
 
     I2cConfig& config_;
 
-    Mutex mutex_;
+    SemaphoreBinary semaphore_;
 };
 
 #endif /* I2C_H_ */
