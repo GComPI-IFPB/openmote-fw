@@ -177,7 +177,7 @@ Watchdog watchdog(WATCHDOG_INTERVAL);
 GpioConfig bypass_cfg = {TPS62730_PORT, TPS62730_BYPASS_PIN};
 GpioConfig status_cfg = {TPS62730_PORT, TPS62730_STATUS_PIN, TPS62730_STATUS_EDGE};
 GpioOut bypass(bypass_cfg);
-GpioIn  status(status_cfg);
+GpioIn status(status_cfg);
 Tps62730 tps62730(bypass, status);
 
 // Debug pins
