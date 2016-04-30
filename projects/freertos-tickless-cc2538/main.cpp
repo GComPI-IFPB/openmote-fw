@@ -13,11 +13,14 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include "semphr.h"
 
 #include "openmote-cc2538.h"
 
+#include "Gpio.h"
+#include "Tps62730.h"
+
 #include "Callback.h"
+#include "Semaphore.h"
 
 /*================================ define ===================================*/
 
@@ -38,7 +41,8 @@ static void buttonCallback(void);
 
 /*=============================== variables =================================*/
 
-static SemaphoreHandle_t buttonSemaphore;
+static SemaphoreBinary buttonSemaphore;
+
 static PlainCallback userCallback(buttonCallback);
 
 /*================================= public ==================================*/
@@ -76,7 +80,7 @@ static void buttonCallback(void)
     xHigherPriorityTaskWoken = pdFALSE;
     
     // Give the buttonSemaphore from the interrupt
-    xSemaphoreGiveFromISR(buttonSemaphore, &xHigherPriorityTaskWoken);
+    buttonSemaphore.giveFromInterrupt();
     
     // Decide if we need to do a context switch
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -84,9 +88,6 @@ static void buttonCallback(void)
 
 static void prvButtonTask(void *pvParameters)
 {
-    // Create the buttonSemaphore
-    buttonSemaphore = xSemaphoreCreateMutex();
-
     // Set the button callback and enable interrupts
     button_user.setCallback(&userCallback);
     button_user.enableInterrupts();
@@ -94,10 +95,9 @@ static void prvButtonTask(void *pvParameters)
     // Forever
     while(true)
     {
-        // If we can take the buttonSemaphore
-        if (xSemaphoreTake(buttonSemaphore, (TickType_t) portMAX_DELAY) == pdTRUE)
-        {
-            // Toggle red LED
+        // Take the buttonSemaphore, block until available
+        if (buttonSemaphore.take()) {
+            // Toggle the red LED
             led_red.toggle();
         }
     }

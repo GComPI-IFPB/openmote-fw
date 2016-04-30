@@ -13,16 +13,20 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include "semphr.h"
 
 #include "openmote-cc2538.h"
 
 #include "Board.h"
-#include "Callback.h"
-#include "Mutex.h"
+#include "Gpio.h"
+#include "I2c.h"
 #include "Radio.h"
-#include "Adxl346.h"
 #include "Serial.h"
+
+#include "Adxl346.h"
+#include "Tps62730.h"
+
+#include "Callback.h"
+#include "Semaphore.h"
 
 /*================================ define ===================================*/
 
@@ -35,13 +39,13 @@
 
 #ifdef I2C_BAUDRATE
 #undef I2C_BAUDRATE
-#define I2C_BAUDRATE                        ( 400000 )
 #endif
+#define I2C_BAUDRATE                        ( 400000 )
 
 #ifdef UART_BAUDRATE
 #undef UART_BAUDRATE
-#define UART_BAUDRATE                       ( 576000 )
 #endif
+#define UART_BAUDRATE                       ( 576000 )
 
 /*================================ typedef ==================================*/
 
@@ -60,7 +64,7 @@ static void radioTxDoneCallback(void);
 
 Serial serial(uart);
 
-Mutex txMutex, rxMutex;
+SemaphoreBinary rxSemaphore, txSemaphore;
 
 PlainCallback radioRxInitCallback_{radioRxInitCallback};
 PlainCallback radioRxDoneCallback_{radioRxDoneCallback};
@@ -105,7 +109,7 @@ static void prvGreenLedTask(void *pvParameters) {
 }
 
 static void prvSensorTask(void *pvParameters) {
-    static uint16_t x, y, z;
+    uint16_t x, y, z = 0;
     uint8_t data[6];
 
     // Enable the I2C bus at 400 kHz
@@ -132,7 +136,7 @@ static void prvSensorTask(void *pvParameters) {
     while (true) { 
         // Read x, y and z samples from the ADXL346
         if (adxl346.readSample(&x, &y, &z)) {
-            if (txMutex.take()) {
+            if (txSemaphore.take()) {
                 // Copy samples to buffer
                 data[0] = (x >> 8) & 0xFF;
                 data[1] = (x >> 0) & 0xFF;
@@ -155,7 +159,7 @@ static void prvConcentratorTask(void *pvParameters) {
     RadioResult result;
 
     // Enable the UART peripheral
-    uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
+    uart.enable(UART_BAUDRATE);
 
     // Enable Radio module
     radio.enable();
@@ -177,7 +181,7 @@ static void prvConcentratorTask(void *pvParameters) {
         radio.receive();
 
         // This call blocks until a radio frame is received
-        if (rxMutex.take()) {
+        if (rxSemaphore.take()) {
             // Get packet from the radio
             radioBuffer_ptr = radioBuffer;
             radioBuffer_len = sizeof(radioBuffer);
@@ -201,7 +205,7 @@ static void radioTxInitCallback(void) {
 
 static void radioTxDoneCallback(void) {
     led_red.off();
-    txMutex.giveFromInterrupt();
+    txSemaphore.giveFromInterrupt();
 }
 
 static void radioRxInitCallback(void) {
@@ -210,5 +214,5 @@ static void radioRxInitCallback(void) {
 
 static void radioRxDoneCallback(void) {
     led_red.off();
-    rxMutex.giveFromInterrupt();
+    rxSemaphore.giveFromInterrupt();
 }

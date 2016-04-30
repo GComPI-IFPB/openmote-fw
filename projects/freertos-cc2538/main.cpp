@@ -13,11 +13,14 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include "semphr.h"
 
 #include "openmote-cc2538.h"
 
+#include "Gpio.h"
+#include "Tps62730.h"
+
 #include "Callback.h"
+#include "Semaphore.h"
 
 /*================================ define ===================================*/
 
@@ -35,12 +38,13 @@ static void buttonCallback(void);
 
 /*=============================== variables =================================*/
 
-static SemaphoreHandle_t buttonSemaphore;
+static SemaphoreBinary buttonSemaphore;
+
 static PlainCallback userCallback(buttonCallback);
 
 /*================================= public ==================================*/
 
-int main (void)
+int main(void)
 {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
@@ -61,8 +65,8 @@ static void buttonCallback(void)
     static BaseType_t xHigherPriorityTaskWoken;
     xHigherPriorityTaskWoken = pdFALSE;
 
-    // Give the button semaphore as the button has been pressed
-    xSemaphoreGiveFromISR(buttonSemaphore, &xHigherPriorityTaskWoken);
+	// Give the buttonSemaphore from the interrupt
+    buttonSemaphore.giveFromInterrupt();
 
     // Force a context switch after the interrupt if required
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
@@ -70,9 +74,6 @@ static void buttonCallback(void)
 
 static void prvButtonTask(void *pvParameters)
 {
-    // Create the button semaphore
-    buttonSemaphore = xSemaphoreCreateMutex();
-
     // Configure the user button
     button_user.setCallback(&userCallback);
     button_user.enableInterrupts();
@@ -81,8 +82,7 @@ static void prvButtonTask(void *pvParameters)
     while (true)
     {
         // Take the buttonSemaphore, block until available
-        if (xSemaphoreTake(buttonSemaphore, (TickType_t) portMAX_DELAY) == pdTRUE)
-        {
+        if (buttonSemaphore.take()) {
             // Toggle the red LED
             led_red.toggle();
         }
@@ -92,7 +92,7 @@ static void prvButtonTask(void *pvParameters)
 static void prvGreenLedTask(void *pvParameters)
 {
     // Forever
-    while(true)
+    while (true)
     {
         // Turn off green LED for 1950 ms
         led_green.off();
