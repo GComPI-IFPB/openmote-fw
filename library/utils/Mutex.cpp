@@ -1,4 +1,4 @@
-/**
+ /**
  * @file       Mutex.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
@@ -26,6 +26,9 @@
 Mutex::Mutex()
 {
     mutex_ = xSemaphoreCreateMutex();
+    if (mutex_ == NULL) {
+        while (true);
+    }
 }
 
 Mutex::~Mutex()
@@ -51,21 +54,35 @@ void Mutex::give(void)
     xSemaphoreGive(mutex_);
 }
 
-void Mutex::giveFromInterrupt(void)
-{
-    priorityTaskWoken_ = pdFALSE;
-    xSemaphoreGiveFromISR(mutex_, &priorityTaskWoken_);
-    portYIELD_FROM_ISR(priorityTaskWoken_);
-}
-
 MutexRecursive::MutexRecursive()
 {
     mutex_ = xSemaphoreCreateRecursiveMutex();
+    if (mutex_ == NULL) {
+        while (true);
+    }
 }
 
 MutexRecursive::~MutexRecursive()
 {
     vSemaphoreDelete(mutex_);
+}
+
+bool MutexRecursive::take(void)
+{
+    bool status = (xSemaphoreTakeRecursive(mutex_, portMAX_DELAY) == pdTRUE);
+    return status;
+}
+
+bool MutexRecursive::take(uint32_t milliseconds)
+{
+    TickType_t timeout = milliseconds / portTICK_RATE_MS;
+    bool status = (xSemaphoreTakeRecursive(mutex_, timeout) == pdTRUE);
+    return status;
+}
+
+void MutexRecursive::give()
+{
+    xSemaphoreGiveRecursive(mutex_);
 }
 
 /*=============================== protected =================================*/

@@ -9,14 +9,12 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-
 #ifndef QUEUE_H_
 #define QUEUE_H_
 
 #include <stdint.h>
 
-#include "FreeRTOS.h"
-#include "semphr.h"
+#include "Mutex.h"
 
 class Queue
 {
@@ -35,7 +33,8 @@ public:
 private:
     void empty(void);
 private:
-    SemaphoreHandle_t mutex_;
+    Mutex mutex_;
+
     uint8_t* buffer_;
     int32_t  length_;
     uint8_t* read_;

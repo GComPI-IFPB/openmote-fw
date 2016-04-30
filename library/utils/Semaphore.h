@@ -19,6 +19,8 @@
 class Semaphore
 {
 public:
+    Semaphore();
+    ~Semaphore();
     bool take(void);
     bool take(uint32_t milliseconds);
     void give(void);
@@ -32,14 +34,12 @@ class SemaphoreBinary : public Semaphore
 {
 public:
     SemaphoreBinary();
-    ~SemaphoreBinary();
 };
 
 class SemaphoreCounting : public Semaphore
 {
 public:
     SemaphoreCounting(uint32_t initialCount, uint32_t maxCount);
-    ~SemaphoreCounting();
 };
 
 #endif /* SEMAPHORE_H_ */

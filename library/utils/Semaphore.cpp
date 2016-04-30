@@ -23,6 +23,15 @@
 
 /*================================= public ==================================*/
 
+Semaphore::Semaphore(void)
+{
+}
+
+Semaphore::~Semaphore(void)
+{
+    vSemaphoreDelete(semaphore_);
+}
+
 bool Semaphore::take(void)
 {
     bool status = (xSemaphoreTake(semaphore_, portMAX_DELAY) == pdTRUE);
@@ -51,21 +60,18 @@ void Semaphore::giveFromInterrupt(void)
 SemaphoreBinary::SemaphoreBinary(void)
 {
     semaphore_ = xSemaphoreCreateBinary();
-}
-
-SemaphoreBinary::~SemaphoreBinary(void)
-{
-	vSemaphoreDelete(semaphore_);
+    if (semaphore_ == NULL) {
+        while(true);
+    }
+    Semaphore::give();
 }
 
 SemaphoreCounting::SemaphoreCounting(uint32_t initialCount, uint32_t maxCount)
 {
     semaphore_ = xSemaphoreCreateCounting(maxCount, initialCount);
-}
-
-SemaphoreCounting::~SemaphoreCounting(void)
-{
-    vSemaphoreDelete(semaphore_);
+    if (semaphore_ == NULL) {
+        while(true);
+    }
 }
 
 /*=============================== protected =================================*/

@@ -14,8 +14,7 @@
 
 #include <stdint.h>
 
-#include "FreeRTOS.h"
-#include "semphr.h"
+#include "Mutex.h"
 
 class CircularBuffer
 {
@@ -30,7 +29,8 @@ public:
     bool write(uint8_t data);
     bool write(const uint8_t* data, uint32_t length);
 private:
-    SemaphoreHandle_t mutex_;
+    MutexRecursive rmutex_;
+    
     uint8_t* buffer_;
     uint32_t  length_;
     uint32_t  count_;

@@ -24,13 +24,11 @@ public:
     bool take(void);
     bool take(uint32_t milliseconds);
     void give(void);
-    void giveFromInterrupt(void);
-protected:
+private:
     SemaphoreHandle_t mutex_;
-    BaseType_t priorityTaskWoken_;
 };
 
-class MutexRecursive : public Mutex
+class MutexRecursive
 {
 public:
     MutexRecursive();
@@ -38,7 +36,8 @@ public:
     bool take(void);
     bool take(uint32_t milliseconds);
     void give(void);
-    void giveFromInterrupt(void);
+private:
+    SemaphoreHandle_t mutex_;
 };
 
 #endif /* MUTEX_H_ */

@@ -27,23 +27,19 @@ Queue::Queue(uint8_t* buffer, uint32_t length):
     buffer_(buffer), length_(length),
     read_(buffer), write_(buffer)
 {
-    mutex_ = xSemaphoreCreateMutex();
-    if (mutex_ == NULL) {
-        while(true);
-    }
 }
 
 void Queue::reset(void)
 {
     // Try to acquire the mutex
-    if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
+    if (mutex_.take())
     {
         empty();
 
         read_  = buffer_;
         write_ = buffer_;
 
-        xSemaphoreGive(mutex_);
+        mutex_.give();
     }
 }
 
@@ -52,11 +48,11 @@ int32_t Queue::isEmpty(void)
     int32_t scratch;
 
     // Try to acquire the mutex
-    if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
+    if (mutex_.take())
     {
         scratch = (read_ == write_);
 
-        xSemaphoreGive(mutex_);
+        mutex_.give();
 
         return scratch;
     }
@@ -71,11 +67,11 @@ int32_t Queue::isFull(void)
     int32_t scratch;
 
     // Try to acquire the mutex
-    if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
+    if (mutex_.take())
     {
         scratch = (write_ == (buffer_ + length_));
 
-        xSemaphoreGive(mutex_);
+        mutex_.give();
 
         return scratch;
     }
@@ -90,11 +86,11 @@ int32_t Queue::getSize(void)
     int32_t scratch;
 
     // Try to acquire the mutex
-    if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
+    if (mutex_.take())
     {
         scratch = length_;
 
-        xSemaphoreGive(mutex_);
+        mutex_.give();
 
         return scratch;
     }
@@ -109,11 +105,11 @@ int32_t Queue::getOccupied(void)
     int32_t scratch;
 
     // Try to acquire the mutex
-    if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
+    if (mutex_.take())
     {
         scratch = (write_ - buffer_);
 
-        xSemaphoreGive(mutex_);
+        mutex_.give();
 
         return scratch;
     }
@@ -128,11 +124,11 @@ int32_t Queue::getRemaining(void)
     int32_t scratch;
 
     // Try to acquire the mutex
-    if (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE)
+    if (mutex_.take())
     {
         scratch = (buffer_ + length_ - write_);
 
-        xSemaphoreGive(mutex_);
+        mutex_.give();
 
         return scratch;
     }
