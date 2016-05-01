@@ -33,7 +33,7 @@ const uint32_t I2C_MAX_DELAY_TICKS = I2C_MAX_DELAY_US / Board::BOARD_TICKS_PER_U
 
 /*================================= public ==================================*/
 
-I2c::I2c(Gpio& scl, Gpio& sda, I2cConfig config):
+I2c::I2c(Gpio& scl, Gpio& sda, I2cConfig& config):
     scl_(scl), sda_(sda), config_(config)
 {
 }
@@ -49,7 +49,6 @@ void I2c::enable(uint32_t baudrate)
 
     GpioConfig& scl = scl_.getGpioConfig();
     GpioConfig& sda = sda_.getGpioConfig();
-    
 
     // Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3)
     SysCtrlPeripheralEnable(config_.peripheral);

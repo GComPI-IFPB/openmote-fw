@@ -26,7 +26,7 @@ class I2c
 friend class InterruptHandler;
 
 public:
-    I2c(Gpio& scl, Gpio& sda, I2cConfig config);
+    I2c(Gpio& scl, Gpio& sda, I2cConfig& config);
     void enable(uint32_t baudrate = 100000);
     void sleep(void);
     void wakeup(void);
