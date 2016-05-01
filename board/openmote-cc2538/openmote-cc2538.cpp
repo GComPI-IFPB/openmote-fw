@@ -154,11 +154,11 @@
 #define I2C_SDA_PIN             ( GPIO_PIN_4 )
 
 #define ADXL346_INT_PORT        ( GPIO_B_BASE)
-#define ADXL346_INT_PIN         ( GPIO_PIN_5 )
-#define ADXL346_INT_EDGE        ( GPIO_FALLING_EDGE )
+#define ADXL346_INT_PIN         ( GPIO_PIN_2 )
+#define ADXL346_INT_EDGE        ( GPIO_RISING_EDGE )
 
 #define MAX44009_INT_PORT       ( GPIO_B_BASE )
-#define MAX44009_INT_PIN        ( GPIO_PIN_2 )
+#define MAX44009_INT_PIN        ( GPIO_PIN_5 )
 #define MAX44009_INT_EDGE       ( GPIO_FALLING_EDGE )
 
 #define ENC28J60_INT_PORT       ( GPIO_D_BASE )
@@ -175,37 +175,37 @@ Watchdog watchdog(WATCHDOG_INTERVAL);
 
 // Step-down DC/DC converter
 GpioConfig bypass_cfg = {TPS62730_PORT, TPS62730_BYPASS_PIN};
-GpioConfig status_cfg = {TPS62730_PORT, TPS62730_STATUS_PIN, TPS62730_STATUS_EDGE};
+GpioConfig status_cfg = {TPS62730_PORT, TPS62730_STATUS_PIN, 0, TPS62730_STATUS_EDGE, 0};
 GpioOut bypass(bypass_cfg);
 GpioIn status(status_cfg);
 Tps62730 tps62730(bypass, status);
 
 // Debug pins
-GpioConfig debug_ad0_cfg = {GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN};
-GpioConfig debug_ad1_cfg = {GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN};
-GpioConfig debug_ad2_cfg = {GPIO_DEBUG_AD2_PORT, GPIO_DEBUG_AD2_PIN};
+GpioConfig debug_ad0_cfg = {GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN, 0, 0, 0};
+GpioConfig debug_ad1_cfg = {GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN, 0, 0, 0};
+GpioConfig debug_ad2_cfg = {GPIO_DEBUG_AD2_PORT, GPIO_DEBUG_AD2_PIN, 0, 0, 0};
 GpioOut debug_ad0(debug_ad0_cfg);
 GpioOut debug_ad1(debug_ad1_cfg);
 GpioOut debug_ad2(debug_ad2_cfg);
 
 // Leds
-GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN};
-GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN};
-GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN};
-GpioConfig led_yellow_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN};
+GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, 0, 0, 0};
+GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 0};
+GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN, 0, 0, 0};
+GpioConfig led_yellow_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, 0, 0, 0};
 GpioOut led_green(led_green_cfg);
 GpioOut led_orange(led_orange_cfg);
 GpioOut led_red(led_red_cfg);
 GpioOut led_yellow(led_yellow_cfg);
 
 // Antenna
-GpioConfig antenna_ext_cfg = {ANTENNA_EXTERNAL_PORT, ANTENNA_EXTERNAL_PIN};
-GpioConfig antenna_int_cfg = {ANTENNA_INTERNAL_PORT, ANTENNA_INTERNAL_PIN};
+GpioConfig antenna_ext_cfg = {ANTENNA_EXTERNAL_PORT, ANTENNA_EXTERNAL_PIN, 0, 0, 0};
+GpioConfig antenna_int_cfg = {ANTENNA_INTERNAL_PORT, ANTENNA_INTERNAL_PIN, 0, 0, 0};
 GpioOut antenna_external(antenna_ext_cfg);
 GpioOut antenna_internal(antenna_int_cfg);
 
 // Button
-GpioConfig button_user_cfg = {BUTTON_USER_PORT, BUTTON_USER_PIN, BUTTON_USER_EDGE};
+GpioConfig button_user_cfg = {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0};
 GpioInPow button_user(button_user_cfg);
 
 // Timer
@@ -225,18 +225,18 @@ SleepTimer sleepTimer(SLEEP_TIMER_INTERRUPT);
 RadioTimer radioTimer(RADIO_TIMER_INTERRUPT);
 
 // I2C peripheral
-GpioConfig i2c_scl_cfg = {I2C_SCL_BASE, I2C_SCL_PIN};
-GpioConfig i2c_sda_cfg = {I2C_SDA_BASE, I2C_SDA_PIN};
+GpioConfig i2c_scl_cfg = {I2C_SCL_BASE, I2C_SCL_PIN, 0, 0, 0};
+GpioConfig i2c_sda_cfg = {I2C_SDA_BASE, I2C_SDA_PIN, 0, 0, 0};
 I2cConfig i2c_cfg = {I2C_PERIPHERAL, I2C_BAUDRATE};
 Gpio i2c_scl(i2c_scl_cfg);
 Gpio i2c_sda(i2c_sda_cfg);
 I2c i2c(i2c_scl, i2c_sda, i2c_cfg);
 
 // SPI peripheral
-GpioConfig spi_miso_cfg = {SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC};
-GpioConfig spi_mosi_cfg = {SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC};
-GpioConfig spi_clk_cfg  = {SPI_CLK_BASE, SPI_CLK_PIN, SPI_CLK_IOC};
-GpioConfig spi_ncs_cfg  = {SPI_nCS_BASE, SPI_nCS_PIN, SPI_nCS_IOC};
+GpioConfig spi_miso_cfg = {SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC, 0, 0};
+GpioConfig spi_mosi_cfg = {SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC, 0, 0};
+GpioConfig spi_clk_cfg  = {SPI_CLK_BASE, SPI_CLK_PIN, SPI_CLK_IOC, 0, 0};
+GpioConfig spi_ncs_cfg  = {SPI_nCS_BASE, SPI_nCS_PIN, SPI_nCS_IOC, 0, 0};
 SpiConfig spi_cfg = {SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, SPI_INT, SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE};
 Gpio spi_miso(spi_miso_cfg);
 Gpio spi_mosi(spi_mosi_cfg);
@@ -245,8 +245,8 @@ GpioOut spi_ncs(spi_ncs_cfg);
 Spi spi(spi_miso, spi_mosi, spi_clk, spi_ncs, spi_cfg);
 
 // UART peripheral
-GpioConfig uart_rx_cfg = {UART_RX_PORT, UART_RX_PIN, UART_RX_IOC};
-GpioConfig uart_tx_cfg = {UART_TX_PORT, UART_TX_PIN, UART_TX_IOC};
+GpioConfig uart_rx_cfg = {UART_RX_PORT, UART_RX_PIN, UART_RX_IOC, 0, 0};
+GpioConfig uart_tx_cfg = {UART_TX_PORT, UART_TX_PIN, UART_TX_IOC, 0, 0};
 UartConfig uart_cfg = {UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INT, UART_BAUDRATE, UART_MODE};
 Gpio uart_rx(uart_rx_cfg);
 Gpio uart_tx(uart_tx_cfg);
@@ -256,12 +256,12 @@ Uart uart(uart_rx, uart_tx, uart_cfg);
 Radio radio;
 
 // Acceleration sensor
-GpioConfig adxl346_int_cfg = {ADXL346_INT_PORT, ADXL346_INT_PIN, ADXL346_INT_EDGE};
+GpioConfig adxl346_int_cfg = {ADXL346_INT_PORT, ADXL346_INT_PIN, 0, ADXL346_INT_EDGE, 0};
 GpioInPow adxl346_int(adxl346_int_cfg);
 Adxl346 adxl346(i2c, adxl346_int);
 
 // Light sensor
-GpioConfig max44009_int_cfg = {MAX44009_INT_PORT, MAX44009_INT_PIN, MAX44009_INT_EDGE};
+GpioConfig max44009_int_cfg = {MAX44009_INT_PORT, MAX44009_INT_PIN, 0, MAX44009_INT_EDGE, 0};
 GpioIn max44009_int(max44009_int_cfg);
 Max44009 max44009(i2c, max44009_int);
 
@@ -272,7 +272,7 @@ Sht21 sht21(i2c);
 TemperatureSensor temp;
 
 // Ethernet PHY + MAC chip
-GpioConfig enc28j60_int_cfg = {ENC28J60_INT_PORT, ENC28J60_INT_PIN, ENC28J60_INT_EDGE};
+GpioConfig enc28j60_int_cfg = {ENC28J60_INT_PORT, ENC28J60_INT_PIN, 0, ENC28J60_INT_EDGE, 0};
 GpioIn enc28j60_int(enc28j60_int_cfg);
 Enc28j60 enc28j60(spi, enc28j60_int);
 
