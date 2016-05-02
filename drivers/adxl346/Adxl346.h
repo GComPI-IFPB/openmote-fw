@@ -32,6 +32,8 @@ public:
     void setCallback(Callback* callback);
     void clearCallback(void);
     bool readSample(uint16_t* x, uint16_t* y, uint16_t* z);
+    bool readSamples(uint8_t* buff, uint8_t samples);
+    uint8_t samplesAvailable(void);
 private:
     I2c& i2c_;
     GpioIn& gpio_;

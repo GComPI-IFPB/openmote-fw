@@ -138,9 +138,21 @@ bool Adxl346::enable(void)
     // Lock access to I2C
     i2c_.lock();
 
+    // Clear the power register
+    config[0] = ADXL346_POWER_CTL_ADDR;
+    config[1] = 0x00;
+    status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    if (status == false) goto error;
+
     // Write the bandwidth register
     config[0] = ADXL346_BW_RATE_ADDR;
-    config[1] = (ADXL346_BW_RATE_RATE(12));
+    config[1] = (ADXL346_BW_RATE_RATE(13));
+    status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    if (status == false) goto error;
+
+    // Write the FIFO control register
+    config[0] = ADXL346_FIFO_CTL_ADDR;
+    config[1] = (0x46);
     status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
     if (status == false) goto error;
 
@@ -150,9 +162,15 @@ bool Adxl346::enable(void)
     status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
     if (status == false) goto error;
 
+    // Write the bandwidth register
+    config[0] = ADXL346_INT_ENABLE_ADDR;
+    config[1] = (ADXL346_INT_ENABLE_WATERMARK);
+    status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
+    if (status == false) goto error;
+
     // Write the power register
     config[0] = ADXL346_POWER_CTL_ADDR;
-    config[1] |= ADXL346_POWER_CTL_MEASURE;
+    config[1] = ADXL346_POWER_CTL_MEASURE;
     status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
     if (status == false) goto error;
 
@@ -411,6 +429,59 @@ error:
     // Release access to I2C
     i2c_.unlock();
     return false;
+}
+
+bool Adxl346::readSamples(uint8_t* buffer, uint8_t samples)
+{
+    bool status;
+
+    // Lock access to I2C
+    i2c_.lock();
+
+    // Read the data format register
+    status = i2c_.writeByte(ADXL346_ADDRESS, ADXL346_DATAX0_ADDR);
+    if (status == false) goto error;
+
+    // Read the number of samples
+    status = i2c_.readByte(ADXL346_ADDRESS, buffer, samples);
+    if (status == false) goto error;
+
+    // Release access to I2C
+    i2c_.unlock();
+
+    return true;
+
+error:
+    // Release access to I2C
+    i2c_.unlock();
+    return false;
+}
+
+uint8_t Adxl346::samplesAvailable()
+{
+    uint8_t samples;
+    bool status;
+
+    // Lock access to I2C
+    i2c_.lock();
+
+    // Read the data format register
+    status = i2c_.writeByte(ADXL346_ADDRESS, ADXL346_FIFO_STATUS_ADDR);
+    if (status == false) goto error;
+
+    // Read the data format register
+    status = i2c_.readByte(ADXL346_ADDRESS, &samples);
+    if (status == false) goto error;
+
+    // Unlock access to I2C
+    i2c_.unlock();
+
+    return (samples & 0x3F);
+
+error:
+    // Release access to I2C
+    i2c_.unlock();
+    return 0;
 }
 
 /*=============================== protected =================================*/
