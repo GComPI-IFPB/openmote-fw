@@ -14,6 +14,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include <string.h>
+
 #include "openmote-cc2538.h"
 
 #include "Board.h"
@@ -59,17 +61,21 @@ static void radioRxInitCallback(void);
 static void radioRxDoneCallback(void);
 static void radioTxInitCallback(void);
 static void radioTxDoneCallback(void);
+static void adxl346Callback(void);
 
 /*=============================== variables =================================*/
 
 Serial serial(uart);
 
 SemaphoreBinary rxSemaphore, txSemaphore;
+SemaphoreBinary adxl346Semaphore;
 
 PlainCallback radioRxInitCallback_{radioRxInitCallback};
 PlainCallback radioRxDoneCallback_{radioRxDoneCallback};
 PlainCallback radioTxInitCallback_{radioTxInitCallback};
 PlainCallback radioTxDoneCallback_{radioTxDoneCallback};
+
+PlainCallback adxl346Callback_{adxl346Callback};
 
 uint8_t  radioBuffer[128];
 uint8_t* radioBuffer_ptr;
@@ -109,11 +115,14 @@ static void prvGreenLedTask(void *pvParameters) {
 }
 
 static void prvSensorTask(void *pvParameters) {
-    uint16_t x, y, z = 0;
-    uint8_t data[6];
+    uint8_t buffer[6];
+    uint8_t counter;
 
     // Enable the I2C bus at 400 kHz
     i2c.enable(I2C_BAUDRATE);
+
+    // Set the ADXL346 callback
+    adxl346.setCallback(&adxl346Callback_);
 
     // Enable the ADXL346
     adxl346.enable();
@@ -130,28 +139,47 @@ static void prvSensorTask(void *pvParameters) {
     radio.enableInterrupts();
 
     // Calibrate the ADXL346 sensor
-    adxl346.calibrate();
+    // adxl346.calibrate();
+
+    // Take semaphore since it is given by default
+    adxl346Semaphore.take();
 
     // Forever
     while (true) { 
-        // Read x, y and z samples from the ADXL346
-        if (adxl346.readSample(&x, &y, &z)) {
-            if (txSemaphore.take()) {
-                // Copy samples to buffer
-                data[0] = (x >> 8) & 0xFF;
-                data[1] = (x >> 0) & 0xFF;
-                data[2] = (y >> 8) & 0xFF;
-                data[3] = (y >> 0) & 0xFF;
-                data[4] = (z >> 8) & 0xFF;
-                data[5] = (z >> 0) & 0xFF;
+        // Restore pointer and counter
+        radioBuffer_ptr = radioBuffer;
+        counter = 0;
 
-                // Turn radio on, load packet and fire
-                radio.on();
-                radio.loadPacket(data, sizeof(data));
-                radio.transmit();
+        // Wait until packet is complete
+        while (counter < 120) {
+            // Wait until ADXL346 samples are available
+            if (adxl346Semaphore.take()) {
+                // Read number of samples available
+                uint8_t samples = adxl346.samplesAvailable();
+                
+                // Read samples for each axis
+                adxl346.readSamples(buffer, samples);
+
+                // We expect 6 samples per read
+                if (samples == 6) {
+                    // Copy samples to radio packet
+                    memcpy(radioBuffer_ptr, buffer, samples);
+                    
+                    // Update pointer and counter
+                    radioBuffer_ptr += samples;
+                    counter += samples;
+                }
             }
-            vTaskDelay(5 / portTICK_RATE_MS);
         }
+
+        // Wait until radio is available
+        if (txSemaphore.take()) {
+            // Turn radio on, load packet and fire
+            radio.on();
+            radio.loadPacket(radioBuffer, counter);
+            radio.transmit();
+        }
+        
     }
 }
 
@@ -188,15 +216,19 @@ static void prvConcentratorTask(void *pvParameters) {
             result = radio.getPacket(radioBuffer_ptr, &radioBuffer_len, &rssi, &lqi, &crc);
 
             // Check CRC and packet length
-            if (result == RadioResult_Success && radioBuffer_len == 6) {
-                // Turn off the radio
-                radio.off();
-
+            if (result == RadioResult_Success) {
                 // Send buffer over serial
-                serial.write(radioBuffer_ptr, 6);
+                serial.write(radioBuffer_ptr, radioBuffer_len);
             }
+
+            // Turn off the radio
+            radio.off();
         }
     }
+}
+
+static void adxl346Callback(void) {
+    adxl346Semaphore.giveFromInterrupt();
 }
 
 static void radioTxInitCallback(void) {

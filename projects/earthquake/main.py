@@ -59,10 +59,10 @@ class Earthquake():
     print("- Serial: Listening to port %s at %s bps." % (self.serial_name, self.baud_rate))
     self.serial_port.start()
 
-    ringlen = 100
-    x = deque(np.zeros(ringlen, dtype='f'), ringlen)
-    y = deque(np.zeros(ringlen, dtype='f'), ringlen)
-    z = deque(np.zeros(ringlen, dtype='f'), ringlen)
+    ringlen = 1600
+    rb_x = deque(np.zeros(ringlen, dtype='f'), ringlen)
+    rb_y = deque(np.zeros(ringlen, dtype='f'), ringlen)
+    rb_z = deque(np.zeros(ringlen, dtype='f'), ringlen)
 
     fig = plt.figure()
 
@@ -74,13 +74,13 @@ class Earthquake():
     ax2.grid(True)
     ax3.grid(True)
 
-    ax1.set_ylim([-2, 2])
-    ax2.set_ylim([-2, 2])
-    ax3.set_ylim([-2, 2])
+    ax1.set_ylim([-1.5, 1.5])
+    ax2.set_ylim([-1.5, 1.5])
+    ax3.set_ylim([-1.5, 1.5])
 
-    graph1, = ax1.plot(x)
-    graph2, = ax2.plot(y)
-    graph3, = ax3.plot(z)
+    graph1, = ax1.plot(rb_x)
+    graph2, = ax2.plot(rb_y)
+    graph3, = ax3.plot(rb_z)
 
     file = "output.log"
     f = open(file,'w')
@@ -89,31 +89,34 @@ class Earthquake():
 
     while (not stop):
         stop, packet, length = self.serial_port.receive()
-        if (length == 6):
+
+        if (length > 0):
           # Unpack the values
-          values = struct.unpack('>hhh', packet)
-          
-          # Convert the values to G
-          x_ = values[0] / 256.0
-          y_ = values[1] / 256.0
-          z_ = values[2] / 256.0
+          elements = length/2
+          values = struct.unpack('<' + 'h' * elements, packet)
+          # Iterate over values and append to buffer
+          for x, y, z in zip(*[iter(values)]*3):
+            # Conver to Gs
+            x = x / 256.0
+            y = y / 256.0
+            z = z / 256.0
+            
+            # Append to ringbuffer
+            rb_x.append(x)
+            rb_y.append(y)
+            rb_z.append(z)
 
-          # Update the data
-          x.append(x_)
-          y.append(y_)
-          z.append(z_)
+            # Write to log file
+            f.write(str(x) + "," + str(y) + "," + str(z) + "\n")
+            f.flush()
 
-          # Write to log file
-          f.write(str(x_) + "," + str(y_) + "," + str(z_) + "\n")
-          f.flush()
+        # Update the graph data
+        graph1.set_ydata(rb_x)
+        graph2.set_ydata(rb_y)
+        graph3.set_ydata(rb_z)
 
-          # Update the graph data
-          graph1.set_ydata(x)
-          graph2.set_ydata(y)
-          graph3.set_ydata(z)
-
-          # Update the plot
-          fig.canvas.draw()
+        # Update the plot
+        fig.canvas.draw()
 
     # Close the file
     f.close()
