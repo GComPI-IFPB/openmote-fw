@@ -68,7 +68,7 @@ static void adxl346Callback(void);
 Serial serial(uart);
 
 SemaphoreBinary rxSemaphore, txSemaphore;
-SemaphoreBinary adxl346Semaphore;
+SemaphoreBinary adxl346Semaphore(false);
 
 PlainCallback radioRxInitCallback_{radioRxInitCallback};
 PlainCallback radioRxDoneCallback_{radioRxDoneCallback};
@@ -140,9 +140,6 @@ static void prvSensorTask(void *pvParameters) {
 
     // Calibrate the ADXL346 sensor
     // adxl346.calibrate();
-
-    // Take semaphore since it is given by default
-    adxl346Semaphore.take();
 
     // Forever
     while (true) { 
