@@ -133,6 +133,8 @@ Adxl346::Adxl346(I2c& i2c, GpioIn& gpio):
 bool Adxl346::enable(void)
 {
     uint8_t config[2];
+    uint8_t buffer[32];
+    uint8_t samples;
     bool status;
 
     // Lock access to I2C
@@ -144,6 +146,18 @@ bool Adxl346::enable(void)
     status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
     if (status == false) goto error;
 
+    // Read the FIFO status register
+    status = i2c_.writeByte(ADXL346_ADDRESS, ADXL346_FIFO_STATUS_ADDR);
+    if (status == false) goto error;
+    status = i2c_.readByte(ADXL346_ADDRESS, &samples);
+    if (status == false) goto error;
+
+    // Read the FIFO to clean it
+    status = i2c_.writeByte(ADXL346_ADDRESS, ADXL346_DATAX0_ADDR);
+    if (status == false) goto error;
+    status = i2c_.readByte(ADXL346_ADDRESS, buffer, 6);
+    if (status == false) goto error;
+
     // Write the bandwidth register
     config[0] = ADXL346_BW_RATE_ADDR;
     config[1] = (ADXL346_BW_RATE_RATE(13));
@@ -152,7 +166,7 @@ bool Adxl346::enable(void)
 
     // Write the FIFO control register
     config[0] = ADXL346_FIFO_CTL_ADDR;
-    config[1] = (0x46);
+    config[1] = (0x86);
     status = i2c_.writeByte(ADXL346_ADDRESS, config, sizeof(config));
     if (status == false) goto error;
 
