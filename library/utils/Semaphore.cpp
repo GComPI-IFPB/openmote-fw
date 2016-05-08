@@ -57,13 +57,16 @@ void Semaphore::giveFromInterrupt(void)
     portYIELD_FROM_ISR(priorityTaskWoken_);
 }
 
-SemaphoreBinary::SemaphoreBinary(void)
+SemaphoreBinary::SemaphoreBinary(bool given)
 {
     semaphore_ = xSemaphoreCreateBinary();
     if (semaphore_ == NULL) {
         while(true);
     }
-    Semaphore::give();
+    
+    if (given) {
+        Semaphore::give();
+    }
 }
 
 SemaphoreCounting::SemaphoreCounting(uint32_t initialCount, uint32_t maxCount)

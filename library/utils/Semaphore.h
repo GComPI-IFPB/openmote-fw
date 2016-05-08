@@ -33,7 +33,7 @@ protected:
 class SemaphoreBinary : public Semaphore
 {
 public:
-    SemaphoreBinary();
+    SemaphoreBinary(bool given = true);
 };
 
 class SemaphoreCounting : public Semaphore
