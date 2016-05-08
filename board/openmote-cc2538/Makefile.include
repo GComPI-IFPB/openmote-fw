@@ -14,5 +14,10 @@ ifndef TARGET
 TARGET = cc2538
 endif
 
+# Define the CPU for the board
+ifndef CPU
+CPU    = cortex-m3
+endif
+
 ###############################################################################
 

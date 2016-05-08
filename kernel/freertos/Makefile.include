@@ -1,3 +1,26 @@
-# Append to the files to compile
-SRC_FILES += croutine.c event_groups.c heap_2.c list.c port.c queue.c tasks.c timers.c
+###############################################################################
 
+FREERTOS_COMMON = $(FREERTOS_PATH)/common
+FREERTOS_INC = $(FREERTOS_PATH)/inc
+FREERTOS_CPU = $(FREERTOS_PATH)/$(CPU)
+
+###############################################################################
+
+# Append to the source and include paths
+INC_PATH += -I $(FREERTOS_INC)
+INC_PATH += -I $(FREERTOS_CPU)
+
+###############################################################################
+
+# Extend the virtual path
+VPATH += $(FREERTOS_COMMON)
+VPATH += $(FREERTOS_INC)
+VPATH += $(FREERTOS_CPU)
+
+###############################################################################
+
+# Include the Makefiles in the FreeRTOS subdirectory
+include $(FREERTOS_COMMON)/Makefile.include
+include $(FREERTOS_CPU)/Makefile.include
+
+###############################################################################

@@ -6,16 +6,6 @@ FREERTOS_PATH = $(KERNEL_PATH)/$(FREERTOS_NAME)
 
 ###############################################################################
 
-# Append to the source and include paths
-INC_PATH += -I $(FREERTOS_PATH)
-
-###############################################################################
-
-# Extend the virtual path
-VPATH += $(FREERTOS_PATH)
-
-###############################################################################
-
 # Include the Makefiles in the FreeRTOS subdirectory
 include $(FREERTOS_PATH)/Makefile.include
 
