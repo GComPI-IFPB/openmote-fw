@@ -43,9 +43,6 @@ void Serial::init(void)
     // Enable UART interrupts
     uart_.enableInterrupts();
 
-    // Lock the UART receive
-    uart_.rxLock();
-
     // Open the HDLC receive buffer
     hdlc_.rxOpen();
 }
