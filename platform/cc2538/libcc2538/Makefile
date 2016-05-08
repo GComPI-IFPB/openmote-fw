@@ -13,19 +13,20 @@ AR = arm-none-eabi-ar
 LD = arm-none-eabi-ld
 GDB = arm-none-eabi-gdb
 OBJCOPY = arm-none-eabi-objcopy
+OBJDUMP = arm-none-eabi-objdump
 OBJSIZE = arm-none-eabi-size
 
 ###############################################################################
 
 # C compiler flags
-CFLAGS  = -mthumb -mcpu=cortex-m3 -mlittle-endian
-CFLAGS += -ffunction-sections -fdata-sections
-CFLAGS += -fshort-enums -fomit-frame-pointer -fno-strict-aliasing
+CFLAGS += -mthumb -mcpu=cortex-m3 -mlittle-endian
+CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
+CFLAGS += -fshort-enums -fomit-frame-pointer
 CFLAGS += -std=c99
-CFLAGS += -Wall -Wstrict-prototypes
+CFLAGS += -Wall -pedantic -Wstrict-prototypes
 CFLAGS += -O0
-CFLAGS += -g3 -ggdb
-CFLAGS += $(DOPTIONS)
+CFLAGS += -g -ggdb
+CFLAGS += -DNO_CLOCK_DIVIDER_RESTORE
 
 # C archiver flags
 ARFLAGS = r
