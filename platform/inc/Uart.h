@@ -45,7 +45,7 @@ public:
     void writeByte(uint8_t byte);
     uint32_t writeByte(uint8_t* buffer, uint32_t length);
 protected:
-    uint32_t getBase(void);
+    UartConfig& getConfig(void);
     void interruptHandler(void);
 private:
     void interruptHandlerRx(void);

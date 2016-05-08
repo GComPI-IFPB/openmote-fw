@@ -25,8 +25,6 @@ friend class InterruptHandler;
 
 public:
     Timer(TimerConfig& config);
-    uint32_t getBase(void);
-    uint32_t getSource(void);
     void init(uint32_t frequency);
     void start(void);
     void stop(void);
@@ -36,6 +34,7 @@ public:
     void enableInterrupts(void);
     void disableInterrupts(void);
 protected:
+    TimerConfig& getConfig(void);
     void interruptHandler(void);
 private:
     TimerConfig& config_;

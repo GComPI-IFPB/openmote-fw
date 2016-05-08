@@ -235,9 +235,9 @@ uint32_t Spi::writeByte(uint8_t* buffer, uint32_t length)
 
 /*=============================== protected =================================*/
 
-uint32_t Spi::getBase(void)
+SpiConfig& Spi::getConfig(void)
 {
-    return config_.base;
+    return config_;
 }
 
 void Spi::interruptHandler(void)

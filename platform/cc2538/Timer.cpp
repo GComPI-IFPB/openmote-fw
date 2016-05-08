@@ -32,16 +32,6 @@ Timer::Timer(TimerConfig& config):
 {
 }
 
-uint32_t Timer::getBase(void)
-{
-    return config_.base;
-}
-
-uint32_t Timer::getSource(void)
-{
-    return config_.source;
-}
-
 void Timer::init(uint32_t frequency)
 {
     // Disable peripheral previous to configuring it
@@ -108,6 +98,11 @@ void Timer::disableInterrupts(void)
 }
 
 /*=============================== protected =================================*/
+
+TimerConfig& Timer::getConfig(void)
+{
+    return config_;
+}
 
 void Timer::interruptHandler(void)
 {

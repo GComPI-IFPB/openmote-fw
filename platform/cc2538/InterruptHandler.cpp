@@ -71,11 +71,9 @@ InterruptHandler &InterruptHandler::getInstance(void)
 
 void InterruptHandler::setInterruptHandler(GpioIn* gpio)
 {
-    GpioConfig& gc = gpio->getGpioConfig();
-
     // Get the GPIO port and pin
-    uint32_t port = gc.port;
-    uint8_t pin   = gc.pin;
+    uint32_t port = gpio->getGpioConfig().port;
+    uint8_t pin   = gpio->getGpioConfig().pin;
 
     // Select the pin number
     if (pin == GPIO_PIN_0)
@@ -136,11 +134,9 @@ void InterruptHandler::setInterruptHandler(GpioIn* gpio)
 
 void InterruptHandler::clearInterruptHandler(GpioIn* gpio)
 {
-    GpioConfig& gc = gpio->getGpioConfig();
-
     // Get the GPIO port and pin
-    uint32_t port = gc.port;
-    uint8_t pin   = gc.pin;
+    uint32_t port = gpio->getGpioConfig().port;
+    uint8_t pin   = gpio->getGpioConfig().pin;
 
     // Select the pin number
     if (pin == GPIO_PIN_0)
@@ -198,8 +194,8 @@ void InterruptHandler::clearInterruptHandler(GpioIn* gpio)
 void InterruptHandler::setInterruptHandler(Timer* timer_)
 {
     // Get the TIMER base
-    uint32_t base = timer_->getBase();
-    uint32_t source = timer_->getSource();
+    uint32_t base = timer_->getConfig().base;
+    uint32_t source = timer_->getConfig().source;
 
     if (base == GPTIMER0_BASE)
     {
@@ -254,8 +250,8 @@ void InterruptHandler::setInterruptHandler(Timer* timer_)
 void InterruptHandler::clearInterruptHandler(Timer* timer_)
 {
     // Get the TIMER base
-    uint32_t base = timer_->getBase();
-    uint32_t source = timer_->getSource();
+    uint32_t base = timer_->getConfig().base;
+    uint32_t source = timer_->getConfig().source;
 
     if (base == GPTIMER0_BASE)
     {
@@ -310,7 +306,7 @@ void InterruptHandler::clearInterruptHandler(Timer* timer_)
 void InterruptHandler::setInterruptHandler(Uart * uart_)
 {
     // Get the UART base
-    uint32_t base = uart_->getBase();
+    uint32_t base = uart_->getConfig().base;
 
     // Store a pointer to the UART object in the interrupt vector
     if (base == UART0_BASE)
@@ -326,7 +322,7 @@ void InterruptHandler::setInterruptHandler(Uart * uart_)
 void InterruptHandler::clearInterruptHandler(Uart * uart_)
 {
     // Get the UART base
-    uint32_t base = uart_->getBase();
+    uint32_t base = uart_->getConfig().base;
 
     // Remove the pointer to the UART object in the interrupt vector
     if (base == UART0_BASE)
@@ -353,10 +349,10 @@ void InterruptHandler::clearInterruptHandler(I2c * i2c_)
 
 void InterruptHandler::setInterruptHandler(Spi * spi_)
 {
-    // Get the UART base
-    uint32_t base = spi_->getBase();
+    // Get the SPI base
+    uint32_t base = spi_->getConfig().base;
 
-    // Store a pointer to the UART object in the interrupt vector
+    // Store a pointer to the SPI object in the interrupt vector
     if (base == SSI0_BASE)
     {
         SPI0_interruptVector_ = spi_;
@@ -369,10 +365,10 @@ void InterruptHandler::setInterruptHandler(Spi * spi_)
 
 void InterruptHandler::clearInterruptHandler(Spi * spi_)
 {
-    // Get the UART base
-    uint32_t base = spi_->getBase();
+    // Get the SPI base
+    uint32_t base = spi_->getConfig().base;
 
-    // Remove the pointer to the UART object in the interrupt vector
+    // Remove the pointer to the SPI object in the interrupt vector
     if (base == SSI0_BASE)
     {
         SPI0_interruptVector_ = nullptr;

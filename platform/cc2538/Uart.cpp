@@ -29,12 +29,14 @@
 /*================================= public ==================================*/
 
 Uart::Uart(Gpio& rx, Gpio& tx, UartConfig& config):
-    rx_(rx), tx_(tx), config_(config)
+    rx_(rx), tx_(tx), config_(config), \
+    rxSemaphore_(false), txSemaphore_(false)
 {
 }
 
 void Uart::enable(uint32_t baudrate)
 {
+    // Get GpioConfig structures
     GpioConfig& rx = rx_.getGpioConfig();
     GpioConfig& tx = tx_.getGpioConfig();
 
@@ -77,6 +79,7 @@ void Uart::enable(uint32_t baudrate)
 
 void Uart::sleep(void)
 {
+    // Get GpioConfig structures
     GpioConfig& rx = rx_.getGpioConfig();
     GpioConfig& tx = tx_.getGpioConfig();
 
@@ -176,6 +179,8 @@ uint8_t Uart::readByte(void)
 uint32_t Uart::readByte(uint8_t * buffer, uint32_t length)
 {
     uint32_t data;
+
+    // Read all bytes from UART (blocking)
     for (uint32_t i = 0; i < length; i++)
     {
         data = UARTCharGet(config_.base);
@@ -196,12 +201,13 @@ void Uart::writeByte(uint8_t byte)
 
 uint32_t Uart::writeByte(uint8_t * buffer, uint32_t length)
 {
+    // Put all bytes to UART (blocking)
     for (uint32_t i = 0; i < length; i++)
     {
         UARTCharPut(config_.base, *buffer++);
     }
 
-    // Wait until it is complete
+    // Wait until last byte is complete
     while(UARTBusy(config_.base))
         ;
 
@@ -210,9 +216,9 @@ uint32_t Uart::writeByte(uint8_t * buffer, uint32_t length)
 
 /*=============================== protected =================================*/
 
-uint32_t Uart::getBase(void)
+UartConfig& Uart::getConfig(void)
 {
-    return config_.base;
+    return config_;
 }
 
 void Uart::interruptHandler(void)
@@ -233,8 +239,7 @@ void Uart::interruptHandler(void)
     }
 
     // Process RX interrupt
-    if (status & UART_INT_RX ||
-        status & UART_INT_RT)
+    if ((status & UART_INT_RX) || (status & UART_INT_RT))
     {
         UARTIntClear(config_.base, UART_INT_RX | UART_INT_RT);
         interruptHandlerRx();
