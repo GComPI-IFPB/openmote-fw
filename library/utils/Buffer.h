@@ -1,5 +1,5 @@
 /**
- * @file       CircularBuffer.h
+ * @file       Buffer.h
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,15 +9,17 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef CIRCULAR_BUFFER_H_
-#define CIRCULAR_BUFFER_H_
+#ifndef BUFFER_H_
+#define BUFFER_H_
 
-#include "Buffer.h"
+#include <stdint.h>
 
-class CircularBuffer : public Buffer
+#include "Mutex.h"
+
+class Buffer
 {
 public:
-    CircularBuffer(uint8_t* buffer, uint32_t length);
+    Buffer(uint8_t* buffer, uint32_t length);
     void reset(void);
     uint32_t getSize(void);
     bool isEmpty(void);
@@ -27,6 +29,13 @@ public:
     bool write(uint8_t data);
     bool write(const uint8_t* data, uint32_t length);
 private:
+    MutexRecursive rmutex_;
+
+    uint8_t* buffer_;
+    uint32_t length_;
+    uint32_t count_;
+    uint8_t* head_;
+    uint8_t* tail_;
 };
 
-#endif /* CIRCULAR_BUFFER_H_ */
+#endif /* BUFFER_H_ */
