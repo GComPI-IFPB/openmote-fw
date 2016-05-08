@@ -35,8 +35,8 @@ protected:
     void radioRxInitCallback(void);
     void radioRxDoneCallback(void);
 protected:
-    Board board_;
-    Radio radio_;
+    Board& board_;
+    Radio& radio_;
 
     SnifferCallback snifferRadioRxInitCallback_;
     SnifferCallback snifferRadioRxDoneCallback_;
