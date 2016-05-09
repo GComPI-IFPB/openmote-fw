@@ -63,9 +63,9 @@ DRIVERS_PATH = $(PROJECT_HOME)/$(DRIVERS_NAME)
 KERNEL_NAME = kernel
 KERNEL_PATH = $(PROJECT_HOME)/$(KERNEL_NAME)
 
-# Define the library subdirectory
-LIBRARY_NAME = library
-LIBRARY_PATH = $(PROJECT_HOME)/$(LIBRARY_NAME)
+# Define the stack subdirectory
+STACK_NAME = stack
+STACK_PATH = $(PROJECT_HOME)/$(STACK_NAME)
 
 # Define the platform subdirectory
 PLATFORM_NAME = platform
@@ -112,14 +112,14 @@ ifeq ($(USE_KERNEL), TRUE)
     VPATH += $(KERNEL_PATH)
 endif
 
-# Decide if we need to include the kernel makefile
-ifeq ($(USE_LIBRARY), TRUE)
-    include $(LIBRARY_PATH)/Makefile.include
-    INC_PATH += -I $(LIBRARY_PATH)
-    VPATH += $(LIBRARY_PATH)
+# Decide if we need to include the stack makefile
+ifeq ($(USE_STACK), TRUE)
+    include $(STACK_PATH)/Makefile.include
+    INC_PATH += -I $(STACK_PATH)
+    VPATH += $(STACK_PATH)
 endif
 
-# Include the platform and library makefiles
+# Decide if we need to include the platform makefile
 ifeq ($(USE_PLATFORM), TRUE)
     include $(PLATFORM_PATH)/Makefile.include
 endif
