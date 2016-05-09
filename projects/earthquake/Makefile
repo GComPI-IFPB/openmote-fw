@@ -13,7 +13,7 @@ INC_PATH += -I $(PROJECT_DIR)
 USE_BOARD = TRUE
 USE_DRIVERS = TRUE
 USE_KERNEL = TRUE
-USE_LIBRARY = TRUE
+USE_STACK = TRUE
 USE_PLATFORM = TRUE
 
 # Include the Makefile in the root directory
