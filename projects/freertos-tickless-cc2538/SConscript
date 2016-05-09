@@ -1,0 +1,20 @@
+import os
+
+Import('env')
+
+localEnv = env.Clone()
+
+target = 'freertos-tickless'
+source = ['main.cpp', 'cc2538_lowpower.c']
+
+lib_name = ['board', 'drivers', 'platform', 'stack', 'kernel', 'cc2538']
+lib_path =  os.path.join('#', 'bin', localEnv['board'])
+
+main = localEnv.Program(
+    target = target,
+    source = source,
+    LIBS = lib_name,
+    LIBPATH = lib_path
+)
+
+Return('main')

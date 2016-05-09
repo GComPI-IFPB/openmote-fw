@@ -1,0 +1,15 @@
+import os
+
+Import('env')
+
+localEnv = env.Clone()
+
+source = [
+    'SnifferCommon.cpp',
+    'SnifferEthernet.cpp',
+    'SnifferSerial.cpp',
+]
+
+common  = localEnv.Object(source=source)
+
+Return('common')

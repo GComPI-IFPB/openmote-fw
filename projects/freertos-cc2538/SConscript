@@ -1,0 +1,20 @@
+import os
+
+Import('env')
+
+localEnv = env.Clone()
+
+target = 'freertos-cc2538'
+source = ['main.cpp']
+
+lib_name = ['board', 'drivers', 'platform', 'stack', 'kernel', 'cc2538']
+lib_path =  os.path.join('#', 'bin', localEnv['board'])
+
+main = localEnv.Program(
+    target = target,
+    source = source,
+    LIBS = lib_name,
+    LIBPATH = lib_path
+)
+
+Return('main')

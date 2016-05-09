@@ -1,0 +1,21 @@
+import os
+
+Import('env')
+
+localEnv = env.Clone()
+
+source = [
+    'Buffer.cpp',
+    'CircularBuffer.cpp',
+    'Crc16.cpp',
+    'CriticalSection.cpp',
+    'Hdlc.cpp',
+    'Mutex.cpp',
+    'Queue.cpp',
+    'Semaphore.cpp',
+    'Serial.cpp',
+]
+
+common  = localEnv.Object(source=source)
+
+Return('common')

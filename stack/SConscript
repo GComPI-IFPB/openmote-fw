@@ -1,0 +1,29 @@
+import os
+
+Import('env')
+
+localEnv = env.Clone()
+
+target = 'libstack'
+
+src_dir   = ['ethernet', 'ieee802154', 'utils']
+output_dir = os.path.join('#', 'bin', env['board'])
+source = []
+
+for src in src_dir:
+    script = os.path.join('#', 'stack', src, 'SConscript')
+    build  = os.path.join('#', 'build', localEnv['board'], 'stack', src)
+    output = localEnv.SConscript(
+        script,
+        variant_dir = build,
+        duplicate = 0,
+        exports = {'env': env},
+    )
+    source.append(output)
+
+libstack = localEnv.StaticLibrary(
+    target = target,
+    source = source,
+)
+
+result = env.Install(output_dir, libstack)

@@ -1,0 +1,18 @@
+import os
+
+Import('env')
+
+localEnv = env.Clone()
+
+script     = os.path.join('#', 'projects', localEnv['project'], 'SConscript')
+build_dir  = os.path.join('#', 'build', localEnv['board'], 'projects', localEnv['project'])
+output_dir = os.path.join('#', 'bin', localEnv['board'])
+
+project = localEnv.SConscript(
+    script,
+    variant_dir = build_dir,
+    duplicate = 0,
+    exports = {'env': env},
+)
+
+result = env.Install(output_dir, project)

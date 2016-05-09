@@ -1,0 +1,56 @@
+import os
+
+Import('env')
+
+localEnv = env.Clone()
+
+################################################################################
+
+target = 'libcc2538'
+
+script     = os.path.join('#', 'platform', localEnv['platform'], 'libcc2538', 'src', 'SConscript')
+build_dir  = os.path.join('#', 'build', localEnv['board'], 'platform', localEnv['platform'], 'libcc2538')
+output_dir = os.path.join('#', 'bin', env['board'])
+
+source = localEnv.SConscript(
+    script,
+    variant_dir = build_dir,
+    duplicate = 0,
+    exports = {'env': env},
+)
+
+libcc2538 = localEnv.StaticLibrary(
+    target = target,
+    source = source,
+)
+
+result = env.Install(output_dir, libcc2538)
+
+################################################################################
+
+source = [
+    'Board.cpp',
+    'cc2538_startup.c',
+    'Gpio.cpp',
+    'GpioAdc.cpp',
+    'GpioIn.cpp',
+    'GpioInPow.cpp',
+    'GpioOut.cpp',
+    'I2c.cpp',
+    'InterruptHandler.cpp',
+    'Radio.cpp',
+    'RadioTimer.cpp',
+    'SleepTimer.cpp',
+    'Spi.cpp',
+    'SysTick.cpp',
+    'TemperatureSensor.cpp',
+    'Timer.cpp',
+    'Uart.cpp',
+    'Watchdog.cpp',
+]
+
+common = localEnv.Object(source=source)
+
+Return('common')
+
+################################################################################
