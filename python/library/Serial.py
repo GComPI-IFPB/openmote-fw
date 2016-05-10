@@ -225,18 +225,3 @@ class Serial(threading.Thread):
 
         # Release the transmit condition
         self.transmit_condition.release()
-        
-    def bsl_start(self):
-        self.serial_port.setDTR(High)
-        time.sleep(0.1)
-        self.serial_port.setRTS(Low)
-        time.sleep(0.1)
-        self.serial_port.setDTR(Low)
-    
-    def bsl_stop(self):
-        self.serial_port.setDTR(High)
-        time.sleep(0.1)
-        self.serial_port.setRTS(Low)
-        time.sleep(0.1)
-        self.serial_port.setDTR(Low)
-
