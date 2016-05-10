@@ -29,6 +29,7 @@
 
 #include "Callback.h"
 #include "Semaphore.h"
+#include "Task.h"
 
 /*================================ define ===================================*/
 

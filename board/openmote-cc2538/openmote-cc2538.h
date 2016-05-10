@@ -30,6 +30,7 @@ class Spi;
 class TemperatureSensor;
 class Timer;
 class Uart;
+class RandomNumberGenerator;
 class Watchdog;
 
 class Adxl346;
@@ -44,6 +45,7 @@ class Enc28j60;
 // Board management
 extern Board board;
 extern Watchdog watchdog;
+extern RandomNumberGenerator rng;
 
 // Step-down DC/DC converter
 extern Tps62730 tps62730;

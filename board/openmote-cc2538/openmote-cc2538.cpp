@@ -21,6 +21,7 @@
 #include "TemperatureSensor.h"
 #include "Timer.h"
 #include "Uart.h"
+#include "RandomNumberGenerator.h"
 #include "Watchdog.h"
 
 #include "Adxl346.h"
@@ -251,6 +252,9 @@ UartConfig uart_cfg = {UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INT, UART_BA
 Gpio uart_rx(uart_rx_cfg);
 Gpio uart_tx(uart_tx_cfg);
 Uart uart(uart_rx, uart_tx, uart_cfg);
+
+// Random Number Generator peripheral
+RandomNumberGenerator rng;
 
 // IEEE 802.15.4 radio
 Radio radio;
