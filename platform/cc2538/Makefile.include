@@ -21,7 +21,8 @@ SRC_FILES += Board.cpp InterruptHandler.cpp Gpio.cpp \
 			 GpioAdc.cpp GpioIn.cpp \
              GpioInPow.cpp GpioOut.cpp \
              Uart.cpp I2c.cpp Spi.cpp Timer.cpp  Radio.cpp Watchdog.cpp \
-             SysTick.cpp SleepTimer.cpp RadioTimer.cpp TemperatureSensor.cpp
+             SysTick.cpp SleepTimer.cpp RadioTimer.cpp RandomNumberGenerator.cpp\
+             TemperatureSensor.cpp
 
 # Append the startup code to the files to compile
 SRC_FILES += cc2538_startup.c
