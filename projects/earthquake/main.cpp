@@ -49,6 +49,9 @@
 #endif
 #define UART_BAUDRATE                       ( 576000 )
 
+#define SAMPLES_PER_READ					( 6 )
+#define SAMPLES_PER_PACKET					( 120 )
+
 /*================================ typedef ==================================*/
 
 /*=============================== prototypes ================================*/
@@ -148,7 +151,7 @@ static void prvSensorTask(void *pvParameters) {
         counter = 0;
 
         // Wait until packet is complete
-        while (counter < 120) {
+        while (counter < SAMPLES_PER_PACKET) {
             // Wait until ADXL346 samples are available
             if (adxl346Semaphore.take()) {
                 // Read number of samples available
@@ -158,7 +161,7 @@ static void prvSensorTask(void *pvParameters) {
                 adxl346.readSamples(buffer, samples);
 
                 // We expect 6 samples per read
-                if (samples == 6) {
+                if (samples == SAMPLES_PER_READ) {
                     // Copy samples to radio packet
                     memcpy(radioBuffer_ptr, buffer, samples);
                     
@@ -176,7 +179,6 @@ static void prvSensorTask(void *pvParameters) {
             radio.loadPacket(radioBuffer, counter);
             radio.transmit();
         }
-        
     }
 }
 
