@@ -60,7 +60,7 @@ public:
 protected:
     void interruptHandler(void);
     void errorHandler(void);
-private:
+protected:
     volatile RadioState radioState_;
 
     Callback* rxInit_;
