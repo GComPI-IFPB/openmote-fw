@@ -21,6 +21,7 @@
 
 #include "Callback.h"
 #include "Semaphore.h"
+#include "Task.h"
 
 /*================================ define ===================================*/
 
@@ -61,15 +62,8 @@ int main(void)
 
 static void buttonCallback(void)
 {
-    // Determines if the interrupt triggers a context switch
-    static BaseType_t xHigherPriorityTaskWoken;
-    xHigherPriorityTaskWoken = pdFALSE;
-
 	// Give the buttonSemaphore from the interrupt
     buttonSemaphore.giveFromInterrupt();
-
-    // Force a context switch after the interrupt if required
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 static void prvButtonTask(void *pvParameters)
@@ -96,11 +90,10 @@ static void prvGreenLedTask(void *pvParameters)
     {
         // Turn off green LED for 1950 ms
         led_green.off();
-        vTaskDelay(1950 / portTICK_RATE_MS);
+        Task::delay(1950);
 
         // Turn on green LED for 50 ms
         led_green.on();
-        vTaskDelay(50 / portTICK_RATE_MS);
+        Task::delay(50);
     }
 }
-

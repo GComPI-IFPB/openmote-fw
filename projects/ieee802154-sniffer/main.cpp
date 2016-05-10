@@ -13,22 +13,23 @@
 
 #include <string.h>
 
-#include "Callback.h"
-#include "Serial.h"
-
-#include "SnifferEthernet.h"
-#include "SnifferSerial.h"
-
-#include "openmote-cc2538.h"
-
 #include "FreeRTOS.h"
 #include "task.h"
+#include "openmote-cc2538.h"
 
 #include "Gpio.h"
 #include "Tps62730.h"
 #include "Spi.h"
 #include "Enc28j60.h"
+
+#include "Serial.h"
 #include "Ethernet.h"
+
+#include "Callback.h"
+#include "Task.h"
+
+#include "SnifferEthernet.h"
+#include "SnifferSerial.h"
 
 /*================================ define ===================================*/
 
@@ -74,7 +75,7 @@ static uint8_t sniffer_channel;
 
 /*================================= public ==================================*/
 
-int main (void)
+int main(void)
 {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
@@ -110,11 +111,11 @@ static void prvGreenLedTask(void *pvParameters)
     {
         // Turn off the green LED and keep it for 950 ms
         led_green.off();
-        vTaskDelay(950 / portTICK_RATE_MS);
+        Task::delay(950);
 
         // Turn on the green LED and keep it for 50 ms
         led_green.on();
-        vTaskDelay(50 / portTICK_RATE_MS);
+        Task::delay(50);
     }
 }
 

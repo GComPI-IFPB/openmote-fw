@@ -21,6 +21,7 @@
 
 #include "Callback.h"
 #include "Semaphore.h"
+#include "Task.h" 
 
 /*================================ define ===================================*/
 
@@ -47,7 +48,7 @@ static PlainCallback userCallback(buttonCallback);
 
 /*================================= public ==================================*/
 
-int main (void)
+int main(void)
 {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
@@ -73,17 +74,9 @@ TickType_t board_wakeup(TickType_t xModifiableIdleTime)
 /*================================ private ==================================*/
 
 static void buttonCallback(void)
-{
-    static BaseType_t xHigherPriorityTaskWoken;
-    
-    // Initialize the xHigherPriorityTaskWoken variable
-    xHigherPriorityTaskWoken = pdFALSE;
-    
+{  
     // Give the buttonSemaphore from the interrupt
     buttonSemaphore.giveFromInterrupt();
-    
-    // Decide if we need to do a context switch
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 static void prvButtonTask(void *pvParameters)
@@ -93,7 +86,7 @@ static void prvButtonTask(void *pvParameters)
     button_user.enableInterrupts();
 
     // Forever
-    while(true)
+    while (true)
     {
         // Take the buttonSemaphore, block until available
         if (buttonSemaphore.take()) {
@@ -106,15 +99,14 @@ static void prvButtonTask(void *pvParameters)
 static void prvGreenLedTask(void *pvParameters)
 {
     // Forever
-    while(true)
+    while (true)
     {
         // Turn off green LED for 1950 ms
         led_green.off();
-        vTaskDelay(1950 / portTICK_RATE_MS);
+        Task::delay(1950);
 
         // Turn on green LED for 50 ms
         led_green.on();
-        vTaskDelay(50 / portTICK_RATE_MS);
+        Task::delay(50);
     }
 }
-
