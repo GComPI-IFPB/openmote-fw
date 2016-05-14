@@ -21,6 +21,7 @@ class Task
 public:
     Task();
     static void delay(uint32_t milliseconds);
+    static void remove(void);
 private:
 };
 
