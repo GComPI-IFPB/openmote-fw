@@ -15,14 +15,29 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include "semphr.h"
 
 #include "openmote-cc2538.h"
+
+#include "Board.h"
+#include "Enc28j60.h"
+#include "Gpio.h"
+#include "Spi.h"
+
+#include "Tps62730.h"
+
+#include "Ethernet.h"
+
+#include "Callback.h"
+#include "Scheduler.h"
+#include "Semaphore.h"
+#include "Task.h"
 
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
 #define ETHERNET_TASK_PRIORITY              ( tskIDLE_PRIORITY + 1 )
+
+#define SPI_BAUDRATE                        ( 8000000 )
 
 /*================================ typedef ==================================*/
 
@@ -52,8 +67,8 @@ static uint8_t  rx_frame[128];
 static uint8_t* rx_frame_ptr = rx_frame;
 static uint32_t rx_frame_len = sizeof(rx_frame);
 
-static xSemaphoreHandle ethernet_rx_semaphore;
-static PlainCallback    ethernet_rx_callback(&ethernet_process_rx);
+static SemaphoreBinary ethernet_rx_semaphore;
+static PlainCallback   ethernet_rx_callback(&ethernet_process_rx);
 
 static Ethernet ethernet(enc28j60);
 
@@ -63,19 +78,16 @@ int main (void)
 {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
-    
-    // Enable erasing the Flash with the user button
-    board.enableFlashErase();
 
     // Enable the SPI peripheral
-    spi.enable(SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE);
+    spi.enable(SPI_BAUDRATE);
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
     xTaskCreate(prvEthernetTask, (const char *) "Ethernet", 128, NULL, ETHERNET_TASK_PRIORITY, NULL);
-
-    // Kick the FreeRTOS scheduler
-    vTaskStartScheduler();
+    
+    // Start the scheduler
+    Scheduler::run();
 }
 
 /*=============================== protected =================================*/
@@ -85,15 +97,15 @@ int main (void)
 static void prvGreenLedTask(void *pvParameters)
 {
     // Forever
-    while (true)
+    while(true)
     {
         // Turn off green LED for 950 ms
         led_green.off();
-        vTaskDelay(950 / portTICK_RATE_MS);
+        Task::delay(950);
 
         // Turn on green LED for 50 ms
         led_green.on();
-        vTaskDelay(50 / portTICK_RATE_MS);
+        Task::delay(50);
     }
 }
 
@@ -111,20 +123,17 @@ static void prvEthernetTask(void *pvParameters)
     // Register Ethernet callback
     ethernet.setCallback(&ethernet_rx_callback);
 
-    // Create and initialize semaphore
-    ethernet_rx_semaphore = xSemaphoreCreateMutex();
-    xSemaphoreTake(ethernet_rx_semaphore, (TickType_t) portMAX_DELAY);
-
-    vTaskDelay(2500 / portTICK_RATE_MS);
+    // Delay until Ether is ready
+    Task::delay(2500);
 
     // Forever
-    while (true)
+    while(true)
     {
         // Send Ethernet payload
         ethernet.transmitFrame(tx_frame_ptr, tx_frame_len);
 
         // Try to take the semaphore
-        if (xSemaphoreTake(ethernet_rx_semaphore, (TickType_t) portMAX_DELAY) == pdTRUE)
+        if (ethernet_rx_semaphore.take())
         {
             // Receive the frame
             ethernet.receiveFrame(rx_frame_ptr, &rx_frame_len);
@@ -136,20 +145,14 @@ static void prvEthernetTask(void *pvParameters)
             rx_frame_ptr = rx_frame;
             rx_frame_len = sizeof(rx_frame);
 
-            vTaskDelay(250 / portTICK_RATE_MS);
+            // Delay until next frame
+            Task::delay(250);
         }
     }
 }
 
 static void ethernet_process_rx(void)
 {
-    // Determines if the interrupt triggers a context switch
-    static BaseType_t xHigherPriorityTaskWoken;
-    xHigherPriorityTaskWoken = pdFALSE;
-
-    // Give the transmit semaphore as the packet has been transmitted
-    xSemaphoreGiveFromISR(ethernet_rx_semaphore, &xHigherPriorityTaskWoken);
-
-    // Force a context switch after the interrupt if required
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    // Let the task run once a packet is received
+    ethernet_rx_semaphore.giveFromInterrupt();
 }

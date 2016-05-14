@@ -17,6 +17,14 @@
 
 #include "openmote-cc2538.h"
 
+#include "Board.h"
+#include "Gpio.h"
+
+#include "Tps62730.h"
+
+#include "Scheduler.h"
+#include "Task.h"
+
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
@@ -38,15 +46,12 @@ int main (void)
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
 
-    // Enable erasing the Flash with the user button
-    board.enableFlashErase();
-
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
     xTaskCreate(prvRedLedTask, (const char *) "Red", 128, NULL, RED_LED_TASK_PRIORITY, NULL);
 
-    // Kick the FreeRTOS scheduler
-    vTaskStartScheduler();
+    // Start the scheduler
+    Scheduler::run();
 }
 
 static void prvRedLedTask(void *pvParameters)
@@ -55,7 +60,7 @@ static void prvRedLedTask(void *pvParameters)
     while(true)
     {
         // Togle the red LED every 100 ms
-        vTaskDelay(100 / portTICK_RATE_MS);
+        Task::delay(100);
         led_red.toggle();
     }
 }
@@ -67,11 +72,11 @@ static void prvGreenLedTask(void *pvParameters)
     {
         // Turn off green LED for 950 ms
         led_green.off();
-        vTaskDelay(950 / portTICK_RATE_MS);
+        Task::delay(950);
         
         // Turn on green LED for 50 ms
         led_green.on();
-        vTaskDelay(50 / portTICK_RATE_MS);
+        Task::delay(50);
     }
 }
 

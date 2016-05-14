@@ -11,13 +11,22 @@
 
 /*================================ include ==================================*/
 
-#include "Callback.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 #include "openmote-cc2538.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
+#include "Board.h"
+#include "Gpio.h"
+#include "Radio.h"
+#include "Uart.h"
+
+#include "Tps62730.h"
+
+#include "Callback.h"
+#include "Scheduler.h"
+#include "Semaphore.h"
+#include "Task.h"
 
 /*================================ define ===================================*/
 
@@ -27,6 +36,8 @@
 #define RADIO_CHANNEL                       ( 26 )
 
 #define PAYLOAD_LENGTH                      ( 125 )
+
+#define UART_BAUDRATE                       ( 115200 )
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 2 )
 #define RADIO_RX_TASK_PRIORITY              ( tskIDLE_PRIORITY + 0 )
@@ -47,8 +58,7 @@ static void txDone(void);
 
 /*=============================== variables =================================*/
 
-static xSemaphoreHandle rxSemaphore;
-static xSemaphoreHandle txSemaphore;
+static SemaphoreBinary rxSemaphore, txSemaphore;
 
 static PlainCallback rxInitCallback(&rxInit);
 static PlainCallback rxDoneCallback(&rxDone);
@@ -69,18 +79,8 @@ int main (void)
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
 
-    // Enable erasing the Flash with the user button
-    board.enableFlashErase();
-
     // Enable the UART interface
-    uart.enable(UART_BAUDRATE, UART_CONFIG, UART_INT_MODE);
-
-    // Configure the IEEE 802.15.4 radio
-    radio.setTxCallbacks(&txInitCallback, &txDoneCallback);
-    radio.setRxCallbacks(&rxInitCallback, &rxDoneCallback);
-    radio.enable();
-    radio.enableInterrupts();
-    radio.setChannel(RADIO_CHANNEL);
+    uart.enable(UART_BAUDRATE);
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
@@ -90,8 +90,8 @@ int main (void)
     xTaskCreate(prvRadioTxTask, (const char *) "RadioTx", 128, NULL, RADIO_TX_TASK_PRIORITY, NULL);
 #endif
 
-    // Kick the FreeRTOS scheduler
-    vTaskStartScheduler();
+    // Start the scheduler
+    Scheduler::run();
 }
 
 /*================================ private ==================================*/
@@ -103,11 +103,11 @@ static void prvGreenLedTask(void *pvParameters)
     {
         // Turn off green LED for 950 ms
         led_green.off();
-        vTaskDelay(950 / portTICK_RATE_MS);
+        Task::delay(950);
 
         // Turn on green LED for 50 ms
         led_green.on();
-        vTaskDelay(50 / portTICK_RATE_MS);
+        Task::delay(50);
     }
 }
 
@@ -115,11 +115,11 @@ static void prvRadioRxTask(void *pvParameters)
 {
     static RadioResult result;
 
-    // Create the receive semaphore
-    rxSemaphore = xSemaphoreCreateMutex();
-
-    // Take the receive semaphore so that we block until a packet is received
-    xSemaphoreTake(rxSemaphore, (TickType_t) portMAX_DELAY);
+    // Configure the IEEE 802.15.4 radio
+    radio.setRxCallbacks(&rxInitCallback, &rxDoneCallback);
+    radio.enable();
+    radio.enableInterrupts();
+    radio.setChannel(RADIO_CHANNEL);
 
     // Forever
     while (true)
@@ -134,7 +134,7 @@ static void prvRadioRxTask(void *pvParameters)
         led_yellow.on();
 
         // Take the rxSemaphre, block until available
-        if (xSemaphoreTake(rxSemaphore, (TickType_t) portMAX_DELAY) == pdTRUE)
+        if (rxSemaphore.take())
         {
             // Turn the yellow LED off when a packet is received
             led_yellow.off();
@@ -159,14 +159,17 @@ static void prvRadioTxTask(void *pvParameters)
 {
     static RadioResult result;
 
-    // Create the transmit semaphore
-    txSemaphore = xSemaphoreCreateMutex();
+    // Configure the IEEE 802.15.4 radio
+    radio.setTxCallbacks(&txInitCallback, &txDoneCallback);
+    radio.enable();
+    radio.enableInterrupts();
+    radio.setChannel(RADIO_CHANNEL);
 
     // Forever
     while (true)
     {
         // Take the txSemaphre, block until available
-        if (xSemaphoreTake(txSemaphore, (TickType_t) portMAX_DELAY) == pdTRUE)
+        if (txSemaphore.take())
         {
             // Turn on the radio transceiver
             radio.on();
@@ -187,7 +190,7 @@ static void prvRadioTxTask(void *pvParameters)
             }
 
             // Delay the transmission of the next packet 250 ms
-            vTaskDelay(250 / portTICK_RATE_MS);
+            Task::delay(250);
         }
     }
 }
@@ -200,18 +203,11 @@ static void rxInit(void)
 
 static void rxDone(void)
 {
-    // Determines if the interrupt triggers a context switch
-    static BaseType_t xHigherPriorityTaskWoken;
-    xHigherPriorityTaskWoken = pdFALSE;
-
-    // Turn off the radio LED as the packet is now received
+    // Turn off the radio LED as the packet is received
     led_red.off();
 
-    // Give the receive semaphore as the packet has been received
-    xSemaphoreGiveFromISR(rxSemaphore, &xHigherPriorityTaskWoken);
-
-    // Force a context switch after the interrupt if required
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    // Let the task run once a packet is received
+    rxSemaphore.giveFromInterrupt();
 }
 
 static void txInit(void)
@@ -222,19 +218,9 @@ static void txInit(void)
 
 static void txDone(void)
 {
-    // Determines if the interrupt triggers a context switch
-    static BaseType_t xHigherPriorityTaskWoken;
-    xHigherPriorityTaskWoken = pdFALSE;
-
     // Turn off the radio LED as the packet is transmitted
     led_red.off();
 
-    // Turn off the radio until the next packet
-    radio.off();
-
-    // Give the transmit semaphore as the packet has been transmitted
-    xSemaphoreGiveFromISR(txSemaphore, &xHigherPriorityTaskWoken);
-
-    // Force a context switch after the interrupt if required
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    // Let the task run once a packet is transmitted
+    txSemaphore.giveFromInterrupt();
 }

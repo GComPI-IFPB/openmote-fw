@@ -13,14 +13,26 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include "semphr.h"
 
 #include "openmote-cc2538.h"
+
+#include "Board.h"
+#include "Gpio.h"
+#include "Spi.h"
+
+#include "Tps62730.h"
+
+#include "Callback.h"
+#include "Scheduler.h"
+#include "Semaphore.h"
+#include "Task.h"
 
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
 #define SPI_TASK_PRIORITY                   ( tskIDLE_PRIORITY + 0 )
+
+#define SPI_BAUDRATE                        ( 8000000 )
 
 /*================================ typedef ==================================*/
 
@@ -41,25 +53,22 @@ int main (void)
 {
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
-    
-    // Enable erasing the Flash with the user button
-    board.enableFlashErase();
 
     // Enable the SPI peripheral
-    spi.enable(SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE);
+    spi.enable(SPI_BAUDRATE);
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
     xTaskCreate(prvSpiTask, (const char *) "Spi", 128, NULL, SPI_TASK_PRIORITY, NULL);
 
-    // Kick the FreeRTOS scheduler
-    vTaskStartScheduler();
+    // Start the scheduler
+    Scheduler::run();
 }
 
 static void prvSpiTask(void *pvParameters)
 {
     // Forever
-    while (true)
+    while(true)
     {
         // Turn on red LED
         led_red.on();
@@ -71,7 +80,7 @@ static void prvSpiTask(void *pvParameters)
         led_red.off();
 
         // Delay for 250 ms
-        vTaskDelay(250 / portTICK_RATE_MS);
+        Task::delay(250);
     }
 }
 
@@ -82,13 +91,12 @@ static void prvGreenLedTask(void *pvParameters)
     {
         // Turn off green LED for 950 ms
         led_green.off();
-        vTaskDelay(950 / portTICK_RATE_MS);
+        Task::delay(950);
 
         // Turn on green LED for 50 ms
         led_green.on();
-        vTaskDelay(50 / portTICK_RATE_MS);
+        Task::delay(50);
     }
 }
 
 /*================================ private ==================================*/
-

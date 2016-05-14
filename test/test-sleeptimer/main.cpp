@@ -12,6 +12,13 @@
 /*================================ include ==================================*/
 
 #include "openmote-cc2538.h"
+#include "platform_types.h"
+
+#include "Board.h"
+#include "Gpio.h"
+#include "SleepTimer.h"
+
+#include "Tps62730.h"
 
 #include "Callback.h"
 
@@ -31,9 +38,9 @@ static PlainCallback sleepTimerCallback(sleep_timer_callback);
 
 int main (void)
 {
-    // Enable erasing the Flash with the user button
-    board.enableFlashErase();
-
+    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
+    tps62730.setBypass();
+    
     // Initialize Rtc
     sleepTimer.setCallback(&sleepTimerCallback);
     sleepTimer.enableInterrupts();

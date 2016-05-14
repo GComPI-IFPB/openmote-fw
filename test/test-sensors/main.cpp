@@ -13,11 +13,24 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include "semphr.h"
 
 #include "openmote-cc2538.h"
 
+#include "Board.h"
+#include "Gpio.h"
+#include "I2c.h"
+#include "Radio.h"
+#include "TemperatureSensor.h"
+
+#include "Adxl346.h"
+#include "Max44009.h"
+#include "Sht21.h"
+#include "Tps62730.h"
+
 #include "Callback.h"
+#include "Scheduler.h"
+#include "Semaphore.h"
+#include "Task.h"
 
 /*================================ define ===================================*/
 
@@ -49,9 +62,6 @@ int main (void)
     // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
     tps62730.setBypass();
 
-    // Enable erasing the Flash with the user button
-    board.enableFlashErase();
-
     // Enable the I2C interface
     i2c.enable();
 
@@ -62,8 +72,8 @@ int main (void)
     xTaskCreate(prvLightTask, (const char *) "Light", 128, NULL, LIGHT_TASK_PRIORITY, NULL);
     xTaskCreate(prvTemperatureInternalTask, (const char *) "TemperatureInternal", 128, NULL, TEMPERATURE_INTERNAL_TASK_PRIORITY, NULL);
 
-    // Kick the FreeRTOS scheduler
-    vTaskStartScheduler();
+    // Start the scheduler
+    Scheduler::run();
 }
 
 TickType_t board_sleep(TickType_t xModifiableIdleTime)
@@ -101,13 +111,13 @@ static void prvTemperatureTask(void *pvParameters)
 
             led_orange.off();
 
-            vTaskDelay(2000 / portTICK_RATE_MS);
+            Task::delay(2000);
         }
     }
     else
     {
         led_orange.on();
-        vTaskDelete(NULL);
+        Task::remove();
     }
 }
 
@@ -126,7 +136,7 @@ static void prvTemperatureInternalTask(void *pvParameters)
 
         led_orange.off();
 
-        vTaskDelay(2000 / portTICK_RATE_MS);
+        Task::delay(2000);
     }
 }
 
@@ -147,13 +157,13 @@ static void prvLightTask(void *pvParameters)
 
             led_yellow.off();
 
-            vTaskDelay(2000 / portTICK_RATE_MS);
+            Task::delay(2000);
         }
     }
     else
     {
         led_yellow.on();
-        vTaskDelete(NULL);
+        Task::remove();
     }
 }
 
@@ -174,13 +184,13 @@ static void prvAccelerationTask(void *pvParameters) {
 
             led_red.off();
 
-            vTaskDelay(2000 / portTICK_RATE_MS);
+            Task::delay(2000);
         }
     }
     else
     {
         led_red.on();
-        vTaskDelete(NULL);
+        Task::remove();
     }
 }
 
@@ -191,11 +201,11 @@ static void prvGreenLedTask(void *pvParameters)
     {
         // Turn off green LED for 1950 ms
         led_green.off();
-        vTaskDelay(1950 / portTICK_RATE_MS);
+        Task::delay(1950);
 
         // Turn on green LED for 50 ms
         led_green.on();
-        vTaskDelay(50 / portTICK_RATE_MS);
+        Task::delay(50);
     }
 }
 

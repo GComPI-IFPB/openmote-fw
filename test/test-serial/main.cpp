@@ -13,18 +13,24 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include "semphr.h"
 
 #include "openmote-cc2538.h"
 
 #include "Gpio.h"
+
 #include "Tps62730.h"
+
 #include "Serial.h"
+
+#include "Scheduler.h"
+#include "Task.h"
 
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
 #define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
+
+#define UART_BAUDRATE                       ( 115200 )
 
 /*================================ typedef ==================================*/
 
@@ -35,15 +41,15 @@ static void prvSerialTask(void *pvParameters);
 
 /*=============================== variables =================================*/
 
-uint8_t serial_tx_buffer[] = {'O','p','e','n','M','o','t','e','-','C','C','2','5','3','8'};
-uint8_t* serial_tx_ptr = serial_tx_buffer;
-uint8_t serial_tx_len  = sizeof(serial_tx_buffer);
+static uint8_t serial_tx_buffer[] = {'O','p','e','n','M','o','t','e','-','C','C','2','5','3','8'};
+static uint8_t* serial_tx_ptr = serial_tx_buffer;
+static uint8_t serial_tx_len  = sizeof(serial_tx_buffer);
 
-uint8_t serial_rx_buffer[128];
-uint8_t* serial_rx_ptr = serial_rx_buffer;
-uint8_t serial_rx_len  = sizeof(serial_rx_buffer);
+static uint8_t serial_rx_buffer[128];
+static uint8_t* serial_rx_ptr = serial_rx_buffer;
+static uint8_t serial_rx_len  = sizeof(serial_rx_buffer);
 
-Serial serial(uart);
+static Serial serial(uart);
 
 /*================================= public ==================================*/
 
@@ -53,15 +59,15 @@ int main (void)
     tps62730.setBypass();
 
     // Enable the UART peripheral and the serial driver
-    uart.enable();
+    uart.enable(UART_BAUDRATE);
     serial.init();
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
     xTaskCreate(prvSerialTask, (const char *) "Serial", 128, NULL, SERIAL_TASK_PRIORITY, NULL);
 
-    // Kick the FreeRTOS scheduler
-    vTaskStartScheduler();
+    // Start the scheduler
+    Scheduler::run();
 }
 
 /*=============================== protected =================================*/
@@ -89,7 +95,7 @@ static void prvSerialTask(void *pvParameters)
         serial_rx_len = serial.read(serial_rx_ptr, serial_rx_len);
 
         // Delay for 250 ms
-        vTaskDelay(250 / portTICK_RATE_MS);
+        Task::delay(250);
 
         // Turn on red LED
         led_yellow.on();
@@ -109,10 +115,10 @@ static void prvGreenLedTask(void *pvParameters)
     {
         // Turn off green LED for 950 ms
         led_green.off();
-        vTaskDelay(950 / portTICK_RATE_MS);
+        Task::delay(950);
 
         // Turn on green LED for 50 ms
         led_green.on();
-        vTaskDelay(50 / portTICK_RATE_MS);
+        Task::delay(50);
     }
 }

@@ -13,7 +13,14 @@
 
 #include "openmote-cc2538.h"
 
+#include "Board.h"
+#include "Gpio.h"
+#include "Timer.h"
+
+#include "Tps62730.h"
+
 #include "Callback.h"
+#include "Scheduler.h"
 
 /*================================ define ===================================*/
 
@@ -37,8 +44,8 @@ static PlainCallback timerCallback3(timer3_callback);
 
 int main (void)
 {
-    // Enable erasing the Flash with the user button
-    board.enableFlashErase();
+    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
+    tps62730.setBypass();
 
     // Initialize Timer0
     timer0.init(800000);

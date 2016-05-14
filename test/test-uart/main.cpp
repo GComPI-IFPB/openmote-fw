@@ -13,18 +13,22 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include "semphr.h"
+
+#include "openmote-cc2538.h"
 
 #include "Gpio.h"
 #include "Tps62730.h"
 #include "Uart.h"
 
-#include "openmote-cc2538.h"
+#include "Scheduler.h"
+#include "Task.h"
 
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
 #define UART_TASK_PRIORITY                  ( tskIDLE_PRIORITY + 0 )
+
+#define UART_BAUDRATE                       ( 115200 )
 
 /*================================ typedef ==================================*/
 
@@ -47,14 +51,14 @@ int main (void)
     tps62730.setBypass();
 
     // Enable the UART peripheral and the serial driver
-    uart.enable();
+    uart.enable(UART_BAUDRATE);
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
     xTaskCreate(prvUartTask, (const char *) "Uart", 128, NULL, UART_TASK_PRIORITY, NULL);
 
-    // Kick the FreeRTOS scheduler
-    vTaskStartScheduler();
+    // Start the scheduler
+    Scheduler::run();
 }
 
 /*=============================== protected =================================*/
@@ -64,7 +68,7 @@ int main (void)
 static void prvUartTask(void *pvParameters)
 {
     // Forever
-    while (true)
+    while(true)
     {
         uart_ptr = uart_buffer;
         uart_len = sizeof(uart_buffer);
@@ -79,21 +83,21 @@ static void prvUartTask(void *pvParameters)
         led_red.off();
 
         // Delay for 250 ms
-        vTaskDelay(250 / portTICK_RATE_MS);
+        Task::delay(250);
     }
 }
 
 static void prvGreenLedTask(void *pvParameters)
 {
     // Forever
-    while (true)
+    while(true)
     {
         // Turn off green LED for 950 ms
         led_green.off();
-        vTaskDelay(950 / portTICK_RATE_MS);
+        Task::delay(950);
 
         // Turn on green LED for 50 ms
         led_green.on();
-        vTaskDelay(50 / portTICK_RATE_MS);
+        Task::delay(50);
     }
 }
