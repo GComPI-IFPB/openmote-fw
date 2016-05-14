@@ -28,6 +28,7 @@
 #include "Tps62730.h"
 
 #include "Callback.h"
+#include "Scheduler.h"
 #include "Semaphore.h"
 #include "Task.h"
 
@@ -69,24 +70,24 @@ static void adxl346Callback(void);
 
 /*=============================== variables =================================*/
 
-Serial serial(uart);
+static Serial serial(uart);
 
-SemaphoreBinary rxSemaphore, txSemaphore;
-SemaphoreBinary adxl346Semaphore(false);
+static SemaphoreBinary rxSemaphore, txSemaphore;
+static SemaphoreBinary adxl346Semaphore(false);
 
-PlainCallback radioRxInitCallback_{radioRxInitCallback};
-PlainCallback radioRxDoneCallback_{radioRxDoneCallback};
-PlainCallback radioTxInitCallback_{radioTxInitCallback};
-PlainCallback radioTxDoneCallback_{radioTxDoneCallback};
+static PlainCallback radioRxInitCallback_{radioRxInitCallback};
+static PlainCallback radioRxDoneCallback_{radioRxDoneCallback};
+static PlainCallback radioTxInitCallback_{radioTxInitCallback};
+static PlainCallback radioTxDoneCallback_{radioTxDoneCallback};
 
-PlainCallback adxl346Callback_{adxl346Callback};
+static PlainCallback adxl346Callback_{adxl346Callback};
 
-uint8_t  radioBuffer[128];
-uint8_t* radioBuffer_ptr;
-uint8_t  radioBuffer_len;
-int8_t  rssi;
-uint8_t lqi;
-uint8_t crc;
+static uint8_t  radioBuffer[128];
+static uint8_t* radioBuffer_ptr;
+static uint8_t  radioBuffer_len;
+static int8_t  rssi;
+static uint8_t lqi;
+static uint8_t crc;
 
 /*================================= public ==================================*/
 
@@ -96,11 +97,11 @@ int main(void) {
 
     // Create FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "LedTask", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-    // xTaskCreate(prvSensorTask, (const char *) "Sensor", 128, NULL, SENSOR_TASK_PRIORITY, NULL);
-    xTaskCreate(prvConcentratorTask, (const char *) "Concentrator", 128, NULL, CONCENTRATOR_TASK_PRIORITY, NULL);
+    xTaskCreate(prvSensorTask, (const char *) "Sensor", 128, NULL, SENSOR_TASK_PRIORITY, NULL);
+    // xTaskCreate(prvConcentratorTask, (const char *) "Concentrator", 128, NULL, CONCENTRATOR_TASK_PRIORITY, NULL);
 
-    // Kick the FreeRTOS scheduler
-    vTaskStartScheduler();
+    // Start the scheduler
+    Scheduler::run();
 }
 
 /*================================ private ==================================*/

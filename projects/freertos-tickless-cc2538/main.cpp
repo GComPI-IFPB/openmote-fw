@@ -20,8 +20,9 @@
 #include "Tps62730.h"
 
 #include "Callback.h"
+#include "Scheduler.h"
 #include "Semaphore.h"
-#include "Task.h" 
+#include "Task.h"
 
 /*================================ define ===================================*/
 
@@ -57,8 +58,8 @@ int main(void)
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
     xTaskCreate(prvButtonTask, (const char *) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
 
-    // Kick the FreeRTOS scheduler
-    vTaskStartScheduler();
+    // Start the scheduler
+    Scheduler::run();
 }
 
 TickType_t board_sleep(TickType_t xModifiableIdleTime)

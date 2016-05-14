@@ -26,6 +26,7 @@
 #include "Ethernet.h"
 
 #include "Callback.h"
+#include "Scheduler.h"
 #include "Task.h"
 
 #include "SnifferEthernet.h"
@@ -37,7 +38,7 @@
 #define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 #define SNIFFER_TASK_PRIORITY               ( tskIDLE_PRIORITY + 2 )
 
-#define SNIFFER_DEFAULT_CHANNEL             ( 20 )
+#define SNIFFER_DEFAULT_CHANNEL             ( 26 )
 #define SERIAL_CHANGE_CHANNEL_CMD           ( 0xCC )
 
 #define SNIFFER_ETHERNET                    ( 0 )
@@ -98,8 +99,8 @@ int main(void)
     // Create the serial task to receive commands
     xTaskCreate(prvSerialTask, (const char *) "SerialTask", 128, NULL, SERIAL_TASK_PRIORITY, NULL);
 
-    // Kick the FreeRTOS scheduler
-    vTaskStartScheduler();
+    // Start the scheduler
+    Scheduler::run();
 }
 
 /*================================ private ==================================*/
