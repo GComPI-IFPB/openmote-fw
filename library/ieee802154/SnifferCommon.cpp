@@ -33,7 +33,7 @@ const uint8_t SnifferCommon::ethernetType[2]     = {0x80, 0x9A};
 /*================================= public ==================================*/
 
 SnifferCommon::SnifferCommon(Board& board, Radio& radio):
-    board_(board), radio_(radio), \
+    board_(board), radio_(radio), semaphore(false), \
     snifferRadioRxInitCallback_(this, &SnifferCommon::radioRxInitCallback), \
     snifferRadioRxDoneCallback_(this, &SnifferCommon::radioRxDoneCallback), \
     radioBuffer_ptr(radioBuffer), radioBuffer_len(sizeof(radioBuffer)), \

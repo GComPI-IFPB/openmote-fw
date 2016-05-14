@@ -38,10 +38,10 @@ protected:
     Board& board_;
     Radio& radio_;
 
+    SemaphoreBinary semaphore;
+
     SnifferCallback snifferRadioRxInitCallback_;
     SnifferCallback snifferRadioRxDoneCallback_;
-
-    SemaphoreBinary semaphore;
 
     uint8_t macAddress[6];
     static const uint8_t broadcastAddress[6];

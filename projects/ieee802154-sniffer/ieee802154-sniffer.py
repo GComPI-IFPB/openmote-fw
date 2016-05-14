@@ -44,15 +44,13 @@ class Sniffer():
     tun_name         = None
     tun_interface    = None
     
-    def __init__(self, sniffer_mode = None, serial_name = None, baud_rate = None, bsl_mode = None, tun_name = None):
+    def __init__(self, sniffer_mode = None, serial_name = None, baud_rate = None, tun_name = None):
         assert sniffer_mode != None, logger.error("Sniffer mode not defined.")
         assert serial_name  != None, logger.error("Serial port not defined.")
-        assert bsl_mode     != None, logger.error("Bootloader mode not defined.")
         assert baud_rate    != None, logger.error("Serial baudrate not defined.")
         
         self.sniffer_mode = sniffer_mode
         self.serial_name  = serial_name
-        self.bsl_mode     = bsl_mode
         self.baud_rate    = baud_rate
         
         if (self.sniffer_mode == "serial"):
@@ -66,8 +64,7 @@ class Sniffer():
         logging.info("run: Creating the Serial port.")
         try:
             self.serial_port = Serial.Serial(serial_name = self.serial_name,
-                                             baud_rate = self.baud_rate,
-                                             bsl_mode = self.bsl_mode)
+                                             baud_rate = self.baud_rate)
         except:                                   
             return
 
@@ -143,7 +140,7 @@ def parse_config(config = None, arguments = None):
     assert arguments != None, logger.error("Arguments not defined.")
 
     try:
-        opts, args = getopt.getopt(arguments, "s:p:b:q:t:")
+        opts, args = getopt.getopt(arguments, "s:p:b:t:")
     except getopt.GetoptError as error:
         print(str(error))
         sys.exit(1)
@@ -156,8 +153,6 @@ def parse_config(config = None, arguments = None):
             config['serial_name'] = value
         elif option == '-b':
             config['baud_rate'] = value
-        elif option == '-q':
-            config['bsl_mode'] = value
         elif option == '-t':
             config['tun_name'] = value
         else:
@@ -170,7 +165,6 @@ def main():
         'sniffer_mode': 'serial',
         'serial_name' : '/dev/ttyUSB0',
         'baud_rate'   : '115200',
-        'bsl_mode'    : 'true',
         'tun_name'    : 'tun0'
     }
     
@@ -182,7 +176,6 @@ def main():
     sniffer = Sniffer(sniffer_mode = config['sniffer_mode'],
                       serial_name  = config['serial_name'],
                       baud_rate    = config['baud_rate'],
-                      bsl_mode     = config['bsl_mode'],
                       tun_name     = config['tun_name'])
     
     # Execute the sniffer
