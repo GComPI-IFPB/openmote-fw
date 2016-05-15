@@ -22,7 +22,7 @@ OBJSIZE = arm-none-eabi-size
 CFLAGS += -mthumb -mcpu=cortex-m3 -mlittle-endian
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fshort-enums -fomit-frame-pointer
-CFLAGS += -std=c99
+CFLAGS += -std=gnu99
 CFLAGS += -Wall -pedantic -Wstrict-prototypes
 CFLAGS += -O0
 CFLAGS += -g -ggdb
@@ -71,7 +71,7 @@ BIN_TARGET = $(addprefix $(BIN_PATH)/, $(BIN_FILES))
 .DEFAULT_GOAL = library
 
 .PHONY: library
-library: pre build post
+library: pre build post move
 
 pre:
 	@echo "Building '$(PROJECT_NAME)' library..."
@@ -81,6 +81,10 @@ build: $(BIN_TARGET)
 
 post: $(PROJECT_NAME).a
 	@echo "Archiving '$(PROJECT_NAME)' done."
+
+move: $(PROJECT_NAME).a
+	@mv $(PROJECT_NAME).a ../
+	@rm -rf $(BIN_PATH)
 
 .PHONY: clean
 clean:
