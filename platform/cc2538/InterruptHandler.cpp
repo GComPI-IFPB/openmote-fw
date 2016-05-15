@@ -13,6 +13,7 @@
 
 #include "InterruptHandler.h"
 
+#include "Aes.h"
 #include "Gpio.h"
 #include "Timer.h"
 #include "Uart.h"
@@ -58,6 +59,8 @@ Spi* InterruptHandler::SPI1_interruptVector_;
 SysTick* InterruptHandler::SysTick_interruptVector_;
 
 Radio* InterruptHandler::Radio_interruptVector_;
+
+Aes* InterruptHandler::Aes_interruptVector_;
 
 /*=============================== prototypes ================================*/
 
@@ -411,6 +414,16 @@ void InterruptHandler::clearInterruptHandler(RadioTimer * radioimer_)
     RadioTimer_interruptVector_ = nullptr;
 }
 
+void InterruptHandler::setInterruptHandler(Aes * aes_)
+{
+    Aes_interruptVector_ = aes_;
+}
+
+void InterruptHandler::clearInterruptHandler(Aes * aes_)
+{
+    Aes_interruptVector_ = nullptr;
+}
+
 /*=============================== protected =================================*/
 
 /*================================ private ==================================*/
@@ -456,10 +469,16 @@ InterruptHandler::InterruptHandler()
     IntRegister(INT_RFCOREERR, RFError_InterruptHandler);
 
     // Register the SleepTimer interrupt handler
-    SleepModeIntRegister(SleepTimer_InterruptHandler);
+    // SleepModeIntRegister(SleepTimer_InterruptHandler);
 
     // Register the RadioTimer interrupt handler
-    IntRegister(INT_MACTIMR, RadioTimer_InterruptHandler);
+    // IntRegister(INT_MACTIMR, RadioTimer_InterruptHandler);
+
+    // Register the AES interrupt handler
+    IntRegister(INT_AES, Aes_InterruptHandler);
+
+    // Enable the alternative interrupt map
+    IntAltMapEnable();
 }
 
 inline void InterruptHandler::GPIOA_InterruptHandler(void)
@@ -848,4 +867,10 @@ inline void InterruptHandler::RadioTimer_InterruptHandler(void)
 {
     // Call the RadioTimer interrupt handler
     RadioTimer_interruptVector_->interruptHandler();
+}
+
+inline void InterruptHandler::Aes_InterruptHandler(void)
+{
+    // Call the AES interrupt handler
+    Aes_interruptVector_->interruptHandler();
 }

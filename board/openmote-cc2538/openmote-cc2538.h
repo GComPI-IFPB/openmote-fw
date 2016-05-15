@@ -18,6 +18,7 @@
 
 /*================================ typedef ==================================*/
 
+class Aes;
 class Board;
 class GpioIn;
 class GpioInPow;
@@ -91,6 +92,9 @@ extern Uart uart;
 
 // IEEE 802.15.4 radio
 extern Radio radio;
+
+// AES module
+extern Aes aes;
 
 // CC2538 Temperature sensor
 extern TemperatureSensor temp;

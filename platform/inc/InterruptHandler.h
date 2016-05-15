@@ -12,6 +12,7 @@
 #ifndef INTERRUPT_HANDLER_H_
 #define INTERRUPT_HANDLER_H_
 
+class Aes;
 class GpioIn;
 class GpioInPow;
 class Timer;
@@ -45,6 +46,8 @@ public:
     static void clearInterruptHandler(SleepTimer* sleepTimer);
     static void setInterruptHandler(RadioTimer* radioTimer);
     static void clearInterruptHandler(RadioTimer* radioTimer);
+    static void setInterruptHandler(Aes* radioTimer);
+    static void clearInterruptHandler(Aes* radioTimer);
 private:
     InterruptHandler();
     static inline void GPIOA_InterruptHandler(void);
@@ -65,6 +68,7 @@ private:
     static inline void RFError_InterruptHandler(void);
     static inline void SleepTimer_InterruptHandler(void);
     static inline void RadioTimer_InterruptHandler(void);
+    static inline void Aes_InterruptHandler(void);
 private:
     static InterruptHandler instance_;
     static GpioIn* GPIOA_interruptVector_[8];
@@ -84,6 +88,7 @@ private:
     static Radio* Radio_interruptVector_;
     static SleepTimer* SleepTimer_interruptVector_;
     static RadioTimer* RadioTimer_interruptVector_;
+    static Aes* Aes_interruptVector_;
 };
 
 #endif /* INTERRUPT_HANDLER_H */

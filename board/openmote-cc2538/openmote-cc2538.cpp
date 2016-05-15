@@ -11,6 +11,7 @@
 
 /*================================ include ==================================*/
 
+#include "Aes.h"
 #include "Board.h"
 #include "Gpio.h"
 #include "I2c.h"
@@ -258,6 +259,9 @@ RandomNumberGenerator rng;
 
 // IEEE 802.15.4 radio
 Radio radio;
+
+// AES module
+Aes aes;
 
 // Acceleration sensor
 GpioConfig adxl346_int_cfg = {ADXL346_INT_PORT, ADXL346_INT_PIN, 0, ADXL346_INT_EDGE, 0};
