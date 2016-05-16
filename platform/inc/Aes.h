@@ -21,6 +21,7 @@ friend class InterruptHandler;
 public:
     Aes();
     void enable(void);
+    void reset(void);
     bool sleep(void);
     bool wakeup(void);
     bool loadKey(uint8_t key[16]);

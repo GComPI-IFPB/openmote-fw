@@ -40,6 +40,11 @@ void Aes::enable(void)
     SysCtrlPeripheralEnable(SYS_CTRL_PERIPH_AES);
 }
 
+void Aes::reset(void)
+{
+	enable();
+}
+
 bool Aes::sleep(void)
 {
 	return true;
