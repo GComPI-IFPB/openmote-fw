@@ -11,14 +11,14 @@
 
 /*================================ include ==================================*/
 
+#include "string.h"
+
 #include "cc2538_include.h"
 #include "platform_types.h"
 
 #include "Aes.h"
 
 #include "Semaphore.h"
-
-
 
 /*================================ define ===================================*/
 
@@ -40,12 +40,27 @@ void Aes::enable(void)
     SysCtrlPeripheralEnable(SYS_CTRL_PERIPH_AES);
 }
 
+bool Aes::sleep(void)
+{
+	return true;
+}
+
+bool Aes::wakeup(void)
+{
+	loadKey(key_);
+
+	return true;
+}
+
 bool Aes::loadKey(uint8_t key[16])
 {
 	uint8_t status;
 
+	// Store the key in non-volatile RAM
+	memcpy(key_, key, 16);
+
 	// Load the key at a given location
-	status = AESLoadKey((uint8_t*) key, KEY_AREA_0);
+	status = AESLoadKey((uint8_t *) key_, KEY_AREA_0);
 	
 	// Check for AES status
 	if (status != AES_SUCCESS)
@@ -114,11 +129,11 @@ bool Aes::processBuffer(uint8_t* input, uint8_t* output, uint8_t length, bool en
 bool Aes::processBlock(uint8_t* input, uint8_t* output, uint8_t key, bool encrypt)
 {
 	// Encrypt a data block
-	if (AESECBStart(input, output, key, encrypt, false))
+	if (AESECBStart(input, output, key, encrypt, false) == AES_SUCCESS)
 	{
 		do {
 			ASM_NOP;
-		} while(AESECBCheckResult() == 0);
+		} while (!(AESECBCheckResult()));
 
 		if (AESECBGetResult() == AES_SUCCESS)
 		{
