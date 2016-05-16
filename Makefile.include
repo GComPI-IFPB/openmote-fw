@@ -16,7 +16,7 @@ OBJSIZE = arm-none-eabi-size
 CFLAGS += -mthumb -mcpu=cortex-m3 -mlittle-endian
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fshort-enums -fomit-frame-pointer
-CFLAGS += -std=c99
+CFLAGS += -std=gnu99
 CFLAGS += -Wall -pedantic -Wstrict-prototypes
 CFLAGS += -O0
 CFLAGS += -g -ggdb
