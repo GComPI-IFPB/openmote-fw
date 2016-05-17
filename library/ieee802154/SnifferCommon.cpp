@@ -26,18 +26,21 @@
 
 extern GpioOut led_red;
 extern GpioOut led_orange;
+extern GpioOut led_yellow;
 
 const uint8_t SnifferCommon::broadcastAddress[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 const uint8_t SnifferCommon::ethernetType[2]     = {0x80, 0x9A};
 
 /*================================= public ==================================*/
 
-SnifferCommon::SnifferCommon(Board& board, Radio& radio):
-    board_(board), radio_(radio), semaphore(false), \
+SnifferCommon::SnifferCommon(Board& board, Radio& radio, Aes& aes):
+    board_(board), radio_(radio), aes_(aes), semaphore(false), \
     snifferRadioRxInitCallback_(this, &SnifferCommon::radioRxInitCallback), \
     snifferRadioRxDoneCallback_(this, &SnifferCommon::radioRxDoneCallback), \
     radioBuffer_ptr(radioBuffer), radioBuffer_len(sizeof(radioBuffer)), \
-    outputBuffer_ptr(outputBuffer), outputBuffer_len(sizeof(outputBuffer))
+    aesBuffer_ptr(radioBuffer), aesBuffer_len(sizeof(radioBuffer)), \
+    outputBuffer_ptr(outputBuffer), outputBuffer_len(sizeof(outputBuffer)),
+    decrypt(false)
 {
 }
 
@@ -74,6 +77,23 @@ void SnifferCommon::setChannel(uint8_t channel)
 {
     // Set the radio channel
     radio_.setChannel(channel);
+}
+
+void SnifferCommon::setKey(bool enable, uint8_t* key)
+{
+	// Mark if incoming frames should be decrypted
+    decrypt = enable;
+
+	// Set the key to decrypt incoming frames
+	if (decrypt)
+	{	
+		led_yellow.on();
+    	aes_.loadKey(key);
+	}
+	else
+	{
+		led_yellow.off();
+	}
 }
 
 void SnifferCommon::initFrame(uint8_t* buffer, uint8_t length, int8_t rssi, uint8_t lqi, uint8_t crc)

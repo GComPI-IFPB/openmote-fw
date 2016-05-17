@@ -18,7 +18,7 @@
 class SnifferEthernet : public SnifferCommon
 {
 public:
-    SnifferEthernet(Board& board, Radio& radio, Ethernet& ethernet);
+    SnifferEthernet(Board& board, Radio& radio, Aes& aes, Ethernet& ethernet);
     void init(void);
     void processRadioFrame(void);
 private:

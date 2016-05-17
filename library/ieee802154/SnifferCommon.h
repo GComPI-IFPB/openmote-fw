@@ -12,6 +12,7 @@
 #ifndef SNIFFER_COMMON_H_
 #define SNIFFER_COMMON_H_
 
+#include "Aes.h"
 #include "Board.h"
 #include "Callback.h"
 #include "Semaphore.h"
@@ -24,11 +25,12 @@ typedef GenericCallback<SnifferCommon> SnifferCallback;
 class SnifferCommon
 {
 public:
-    SnifferCommon(Board& board, Radio& radio);
+    SnifferCommon(Board& board, Radio& radio, Aes& aes);
     void init(void);
     void start(void);
     void stop(void);
     void setChannel(uint8_t channel);
+    void setKey(bool enable, uint8_t key[16]);
     virtual void processRadioFrame(void) = 0;
     void initFrame(uint8_t* buffer, uint8_t length, int8_t rssi, uint8_t lqi, uint8_t crc);
 protected:
@@ -37,6 +39,7 @@ protected:
 protected:
     Board& board_;
     Radio& radio_;
+    Aes& aes_;
 
     SemaphoreBinary semaphore;
 
@@ -51,6 +54,10 @@ protected:
     uint8_t* radioBuffer_ptr;
     uint8_t  radioBuffer_len;
 
+    uint8_t  aesBuffer[128];
+    uint8_t* aesBuffer_ptr;
+    uint8_t  aesBuffer_len;
+
     uint8_t  outputBuffer[255];
     uint8_t* outputBuffer_ptr;
     uint32_t outputBuffer_len;
@@ -58,6 +65,8 @@ protected:
     int8_t  rssi;
     uint8_t lqi;
     uint8_t crc;
+
+    bool decrypt;
 };
 
 #endif /* SNIFFER_COMMON_H_ */

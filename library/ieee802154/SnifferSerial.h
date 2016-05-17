@@ -18,7 +18,7 @@
 class SnifferSerial : public SnifferCommon
 {
 public:
-    SnifferSerial(Board& board, Radio& radio, Serial& serial);
+    SnifferSerial(Board& board, Radio& radio, Aes& aes, Serial& serial);
     void processRadioFrame(void);
 private:
     void initSerialFrame(uint8_t* buffer, uint8_t length);

@@ -25,14 +25,15 @@
 
 /*================================= public ==================================*/
 
-SnifferSerial::SnifferSerial(Board& board, Radio& radio, Serial& serial):
-    SnifferCommon(board, radio), serial_(serial)
+SnifferSerial::SnifferSerial(Board& board, Radio& radio, Aes& aes, Serial& serial):
+    SnifferCommon(board, radio, aes), serial_(serial)
 {
 }
 
 void SnifferSerial::processRadioFrame(void)
 {
     RadioResult result;
+    bool status;
 
     // This call blocks until a radio frame is received
     if (semaphore.take())
@@ -46,6 +47,17 @@ void SnifferSerial::processRadioFrame(void)
         {
             // Turn off the radio
             radio_.off();
+
+            // If the packet needs to be decrypted
+            if (decrypt)
+            {
+                // Decrypt the incoming frame
+                status = aes_.decrypt(radioBuffer_ptr, aesBuffer_ptr, radioBuffer_len);
+                if (status) {
+                    // Make the radio pointer point to the frame
+                    radioBuffer_ptr = aesBuffer_ptr;
+                }
+            }
 
             // Initialize Serial frame
             outputBuffer_ptr = outputBuffer;
