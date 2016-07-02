@@ -63,7 +63,7 @@ endif
 
 # Configure the Segger J-Link
 JLINK_NAME = JLinkGDBServer
-JLINK_PATH = /opt/segger/JLink
+JLINK_PATH = /opt/segger
 JLINK_OPT  = -device
 JLINK_DEV  = CC2538SF53
 
@@ -83,7 +83,7 @@ NEMIVER_EXT  = elf
 CC2538_BSL_PYTHON = python
 CC2538_BSL_NAME   = cc2538-bsl.py
 CC2538_BSL_PATH   = $(PROJECT_HOME)/tools/openmote-bsl/cc2538-bsl
-CC2538_BSL_OPT    = -e -w -b 450000 -p $(BSL_PORT)
+CC2538_BSL_OPT    = -e -w -b 500000 -p $(BSL_PORT)
 CC2538_BSL_EXT    = hex
 
 # Configure the OpenMote bootloader
