@@ -19,10 +19,15 @@
 class Task
 {
 public:
-    Task();
-    static void delay(uint32_t milliseconds);
-    static void remove(void);
+    Task(const char* const name, uint8_t priority);
+    void delay(uint32_t milliseconds);
+public:
+    static void init(void* params);
+protected:
+	virtual void run(void) = 0;
 private:
+	const char* const name_;
+	uint8_t priority_;
 };
 
 #endif /* TASK_H_ */
