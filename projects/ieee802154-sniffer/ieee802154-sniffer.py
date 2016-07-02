@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 class Sniffer():
     default_channel    = 20
     cmd_change_channel = chr(0xCC)
+    cmd_change_aes_key = chr(0xCE)
     
     sniffer_type     = None
         
@@ -106,6 +107,8 @@ class Sniffer():
                     time.sleep(0.5)
 
             except (KeyboardInterrupt):
+            	# Define the IEEE 802.15.4 security
+            	self.set_aes_key()
                 # Define the IEEE 802.15.4 channel
                 stop = self.set_radio_channel()
             
@@ -116,7 +119,25 @@ class Sniffer():
         if (self.sniffer_mode == "serial"):
             # Stop the TUN interface
             self.tun_interface.stop()
-                    
+              
+	def set_aes_key(self):
+		raw = [0xAA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+		keys = ''.join([chr(r) for r in raw])
+
+		encrypt = -1
+        while (encrypt != 0 and encrypt != 1): 
+            try:
+                encrypt = int(raw_input("- Radio: Enable encryption (0 = disable, 1 = enable): "))
+            except (KeyboardInterrupt):
+                print
+        logging.info("set_aes_key: Setting the IEEE 802.15.4 radio encryption to %d.", encrypt)
+        print("- Radio:  Setting the IEEE 802.15.4 channel encryption to %d." % encrypt)
+
+        output_message = ''.join([self.cmd_change_aes_key, chr(encrypt), keys])
+
+        self.serial_port.transmit(str(output_message))
+        return False    
+
     def set_radio_channel(self):
         channel = -1
         while (channel != 0 and (channel < 11 or channel > 26)): 
