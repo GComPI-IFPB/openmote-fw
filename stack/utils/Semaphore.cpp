@@ -1,5 +1,5 @@
 /**
- * @file       SemaphoreBinary.cpp
+ * @file       Semaphore.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
