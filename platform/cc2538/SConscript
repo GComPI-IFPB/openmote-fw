@@ -29,6 +29,7 @@ result = env.Install(output_dir, libcc2538)
 ################################################################################
 
 source = [
+	'Aes.cpp',
     'Board.cpp',
     'cc2538_startup.c',
     'Gpio.cpp',
@@ -40,6 +41,7 @@ source = [
     'InterruptHandler.cpp',
     'Radio.cpp',
     'RadioTimer.cpp',
+    'RandomNumberGenerator.cpp',
     'SleepTimer.cpp',
     'Spi.cpp',
     'SysTick.cpp',

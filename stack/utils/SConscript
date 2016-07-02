@@ -12,8 +12,10 @@ source = [
     'Hdlc.cpp',
     'Mutex.cpp',
     'Queue.cpp',
+    'Scheduler.cpp',
     'Semaphore.cpp',
     'Serial.cpp',
+    'Task.cpp'
 ]
 
 common  = localEnv.Object(source=source)
