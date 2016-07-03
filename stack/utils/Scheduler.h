@@ -19,9 +19,9 @@
 class Scheduler
 {
 public:
-    Scheduler();
     static void run();
 private:
+	Scheduler();
 };
 
 #endif /* SCHEDULER_H_ */
