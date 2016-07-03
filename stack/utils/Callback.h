@@ -22,7 +22,6 @@ class Callback
 {
 public:
     virtual void execute(void) = 0;
-private:
 };
 
 /*****************************************************************************/
