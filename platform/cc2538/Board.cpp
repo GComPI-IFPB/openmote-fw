@@ -15,6 +15,7 @@
 
 #include "Board.h"
 #include "Gpio.h"
+#include "Tps62730.h"
 
 #include "cc2538_include.h"
 #include "platform_types.h"
@@ -34,6 +35,7 @@
 
 /*=============================== variables =================================*/
 
+extern Tps62730 tps62730;
 extern GpioInPow button_user;
 
 const uint32_t Board::BOARD_TICKS_PER_US = 31;
@@ -51,6 +53,12 @@ Board::Board():
     sleepMode_(SleepMode_None), \
     flashEraseCallback_(&flashEraseCallback)
 {
+}
+
+void Board::init(void)
+{
+    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
+    tps62730.setBypass();
 }
 
 void Board::reset(void)

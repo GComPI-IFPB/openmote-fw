@@ -21,6 +21,7 @@ enum SleepMode : uint8_t;
 class Board {
 public:
     Board();
+    void init(void);
     void reset(void);
     void setSleepMode(SleepMode sleepMode);
     void sleep(void);
