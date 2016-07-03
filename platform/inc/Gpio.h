@@ -23,6 +23,8 @@ class Gpio
 public:
     Gpio(GpioConfig& config);
     GpioConfig& getGpioConfig(void);
+public:
+    bool operator==(const Gpio& other);
 protected:
     GpioConfig& config_;
 };

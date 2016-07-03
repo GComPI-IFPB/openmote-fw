@@ -34,6 +34,10 @@ Uart::Uart(Gpio& rx, Gpio& tx, UartConfig& config):
 {
 }
 
+bool Uart::operator==(const Uart& other) {
+  return (config_ == other.config_);
+}
+
 void Uart::enable(uint32_t baudrate)
 {
     // Get GpioConfig structures

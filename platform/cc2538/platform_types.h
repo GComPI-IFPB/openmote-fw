@@ -34,6 +34,7 @@ enum SleepMode : uint8_t {
 };
 
 struct GpioConfig {
+	bool operator==(const GpioConfig& other) {return (port == other.port) && (pin == other.pin);}
 	uint32_t port;
 	uint8_t pin;
 	uint32_t ioc;
@@ -42,6 +43,7 @@ struct GpioConfig {
 };
 
 struct TimerConfig {
+	bool operator==(const TimerConfig& other) {return (peripheral == other.peripheral);}
 	uint32_t peripheral;
 	uint32_t base;
 	uint32_t source;
@@ -51,11 +53,13 @@ struct TimerConfig {
 };
 
 struct I2cConfig {
+	bool operator==(const I2cConfig& other) {return (peripheral == other.peripheral);}
 	uint32_t peripheral;
 	uint32_t baudrate;
 };
 
 struct SpiConfig {
+	bool operator==(const SpiConfig& other) {return (peripheral == other.peripheral);}
 	uint32_t peripheral;
 	uint32_t base;
 	uint32_t clock;
@@ -67,6 +71,7 @@ struct SpiConfig {
 };
 
 struct UartConfig {
+	bool operator==(const UartConfig& other) {return (peripheral == other.peripheral);}
 	uint32_t peripheral;
 	uint32_t base;
 	uint32_t clock;

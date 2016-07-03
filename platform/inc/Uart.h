@@ -44,6 +44,8 @@ public:
     uint32_t readByte(uint8_t* buffer, uint32_t length);
     void writeByte(uint8_t byte);
     uint32_t writeByte(uint8_t* buffer, uint32_t length);
+public:
+    bool operator==(const Uart& other);
 protected:
     UartConfig& getConfig(void);
     void interruptHandler(void);
