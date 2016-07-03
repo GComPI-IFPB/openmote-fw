@@ -18,6 +18,7 @@ typedef uint32_t lock_t;
 
 class CriticalSection
 {
+public:
     CriticalSection(void);
     ~CriticalSection(void);
 private:
