@@ -25,7 +25,7 @@ public:
     static void init(void* params);
 protected:
 	virtual void run(void) = 0;
-private:
+protected:
 	const char* const name_;
 	uint8_t priority_;
 };
