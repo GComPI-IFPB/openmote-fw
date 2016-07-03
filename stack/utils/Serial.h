@@ -30,6 +30,8 @@ public:
     void init(void);
     void write(uint8_t* data, uint32_t size);
     uint32_t read(uint8_t* buffer, uint32_t size);
+public:
+    bool operator==(const Serial& other);
 private:
     void rxCallback(void);
     void txCallback(void);

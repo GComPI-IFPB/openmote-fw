@@ -34,6 +34,10 @@ Serial::Serial(Uart& uart):
 {
 }
 
+bool Serial::operator==(const Serial& other) {
+  return uart_ == other.uart_;
+}
+
 void Serial::init(void)
 {
     // Register UART callbacks
