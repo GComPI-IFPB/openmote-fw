@@ -18,10 +18,10 @@
 #include "openmote-cc2538.h"
 
 #include "Aes.h"
-#include "Gpio.h"
-#include "Tps62730.h"
-#include "Spi.h"
+#include "Board.h"
 #include "Enc28j60.h"
+#include "Gpio.h"
+#include "Spi.h"
 
 #include "Serial.h"
 #include "Ethernet.h"
@@ -80,8 +80,8 @@ static int32_t serial_buffer_len;
 
 int main(void)
 {
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+    // Initialize the board
+    board.init();
 
     // Enable the SPI peripheral
     spi.enable();
@@ -110,15 +110,14 @@ int main(void)
 static void prvGreenLedTask(void *pvParameters)
 {
     // Forever
-    while (true)
-    {
-        // Turn off the green LED and keep it for 950 ms
+    while (true) {
+        // Turn off green LED for 950 ms
         led_green.off();
-        Task::delay(950);
+         vTaskDelay(950 / portTICK_RATE_MS);
 
-        // Turn on the green LED and keep it for 50 ms
+        // Turn on green LED for 50 ms
         led_green.on();
-        Task::delay(50);
+        vTaskDelay(50 / portTICK_RATE_MS);
     }
 }
 
@@ -155,8 +154,7 @@ static void prvSnifferTask(void *pvParameters)
     // Set the default sniffer channel
     sniffer.setChannel(SNIFFER_DEFAULT_CHANNEL);
 
-    while (true)
-    {
+    while (true) {
         // Start the sniffer
         sniffer.start();
 
@@ -178,6 +176,6 @@ static void changeRadioChannel(uint8_t channel)
     sniffer.start();
 }
 
-static void changeAesKey(bool enable, uint8_t* key) {
-
+static void changeAesKey(bool enable, uint8_t* key)
+    {
 }

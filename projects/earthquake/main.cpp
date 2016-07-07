@@ -91,9 +91,10 @@ static uint8_t crc;
 
 /*================================= public ==================================*/
 
-int main(void) {
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+int main(void)
+{
+    // Initialize the board
+    board.init();
 
     // Create FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "LedTask", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
@@ -106,20 +107,22 @@ int main(void) {
 
 /*================================ private ==================================*/
 
-static void prvGreenLedTask(void *pvParameters) {
+static void prvGreenLedTask(void *pvParameters)
+{
     // Forever
     while (true) {
-        // Turn off the green LED and keep it for 950 ms
+        // Turn off green LED for 1950 ms
         led_green.off();
-        Task::delay(950);
+         vTaskDelay(1950 / portTICK_RATE_MS);
 
-        // Turn on the green LED and keep it for 50 ms
+        // Turn on green LED for 50 ms
         led_green.on();
-        Task::delay(50);
+        vTaskDelay(50 / portTICK_RATE_MS);
     }
 }
 
-static void prvSensorTask(void *pvParameters) {
+static void prvSensorTask(void *pvParameters)
+{
     uint8_t buffer[6];
     uint8_t counter;
 
@@ -184,7 +187,8 @@ static void prvSensorTask(void *pvParameters) {
     }
 }
 
-static void prvConcentratorTask(void *pvParameters) {
+static void prvConcentratorTask(void *pvParameters)
+{
     RadioResult result;
 
     // Enable the UART peripheral
@@ -228,24 +232,29 @@ static void prvConcentratorTask(void *pvParameters) {
     }
 }
 
-static void adxl346Callback(void) {
+static void adxl346Callback(void)
+{
     adxl346Semaphore.giveFromInterrupt();
 }
 
-static void radioTxInitCallback(void) {
+static void radioTxInitCallback(void)
+{
     led_red.on();
 }
 
-static void radioTxDoneCallback(void) {
+static void radioTxDoneCallback(void)
+{
     led_red.off();
     txSemaphore.giveFromInterrupt();
 }
 
-static void radioRxInitCallback(void) {
+static void radioRxInitCallback(void)
+{
     led_red.on();
 }
 
-static void radioRxDoneCallback(void) {
+static void radioRxDoneCallback(void)
+{
     led_red.off();
     rxSemaphore.giveFromInterrupt();
 }

@@ -16,8 +16,8 @@
 
 #include "openmote-cc2538.h"
 
+#include "Board.h"
 #include "Gpio.h"
-#include "Tps62730.h"
 
 #include "Callback.h"
 #include "Scheduler.h"
@@ -51,8 +51,8 @@ static PlainCallback userCallback(buttonCallback);
 
 int main(void)
 {
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+    // Initialize the board
+    board.init();
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
@@ -87,8 +87,7 @@ static void prvButtonTask(void *pvParameters)
     button_user.enableInterrupts();
 
     // Forever
-    while (true)
-    {
+    while (true) {
         // Take the buttonSemaphore, block until available
         if (buttonSemaphore.take()) {
             // Toggle the red LED
@@ -100,14 +99,13 @@ static void prvButtonTask(void *pvParameters)
 static void prvGreenLedTask(void *pvParameters)
 {
     // Forever
-    while (true)
-    {
+    while (true) {
         // Turn off green LED for 1950 ms
         led_green.off();
-        Task::delay(1950);
+         vTaskDelay(1950 / portTICK_RATE_MS);
 
         // Turn on green LED for 50 ms
         led_green.on();
-        Task::delay(50);
+        vTaskDelay(50 / portTICK_RATE_MS);
     }
 }
