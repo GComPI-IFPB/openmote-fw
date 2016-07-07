@@ -40,6 +40,11 @@ void Task::delay(uint32_t milliseconds)
     vTaskDelay(milliseconds / portTICK_RATE_MS);
 }
 
+void Task::yield(void)
+{
+    taskYIELD();
+}
+
 /*=============================== protected =================================*/
 
 /*================================ private ==================================*/
