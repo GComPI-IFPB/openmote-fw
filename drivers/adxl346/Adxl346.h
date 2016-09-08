@@ -12,11 +12,9 @@
 #ifndef ADXL346_H_
 #define ADXL346_H_
 
-#include <stdint.h>
-
-class I2c;
-class GpioIn;
-class Callback;
+#include "I2c.h"
+#include "Gpio.h"
+#include "Callback.h"
 
 class Adxl346
 {

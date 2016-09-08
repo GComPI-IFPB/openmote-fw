@@ -12,11 +12,9 @@
 #ifndef MAX44009_H_
 #define MAX44009_H_
 
-#include <stdint.h>
-
-class I2c;
-class GpioIn;
-class Callback;
+#include "I2c.h"
+#include "Gpio.h"
+#include "Callback.h"
 
 class Max44009
 {

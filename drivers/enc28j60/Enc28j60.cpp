@@ -11,12 +11,7 @@
 
 /*================================ include ==================================*/
 
-#include <stdint.h>
-
 #include "Enc28j60.h"
-
-#include "Gpio.h"
-#include "Spi.h"
 
 #include "platform_types.h"
 
@@ -267,8 +262,8 @@
 
 /*================================= public ==================================*/
 
-Enc28j60::Enc28j60(Spi& spi, GpioIn& gpio):
-    spi_(spi), gpio_(gpio), \
+Enc28j60::Enc28j60(Spi& spi, GpioOut& cs, GpioIn& irq):
+    spi_(spi), cs_(cs), irq_(irq), \
     interrupt_(this, &Enc28j60::interruptHandler), \
     callback_(nullptr), \
     nextPacketPtr(0)
@@ -284,8 +279,8 @@ void Enc28j60::init(uint8_t* mac_address)
     reset();
 
     // Set and enable ENC268J60 interrupt
-    gpio_.setCallback(&interrupt_);
-    gpio_.enableInterrupts();
+    irq_.setCallback(&interrupt_);
+    irq_.enableInterrupts();
 }
 
 void Enc28j60::reset(void)
@@ -463,7 +458,7 @@ uint8_t Enc28j60::readOperation(uint8_t op, uint8_t address)
 {
     uint8_t result;
 
-    spi_.select();
+    cs_.high();
 
     spi_.writeByte(op | (address & ADDR_MASK));
 
@@ -473,19 +468,19 @@ uint8_t Enc28j60::readOperation(uint8_t op, uint8_t address)
         result = spi_.readByte();
     }
 
-    spi_.deselect();
+    cs_.low();
 
     return result;
 }
 
 void Enc28j60::writeOperation(uint8_t op, uint8_t address, uint8_t data)
 {
-    spi_.select();
+    cs_.high();
 
     spi_.writeByte(op | (address & ADDR_MASK));
     spi_.writeByte(data);
 
-    spi_.deselect();
+    cs_.low();
 }
 
 void Enc28j60::setBank(uint8_t address)
@@ -544,7 +539,7 @@ void Enc28j60::writePhy(uint8_t address, uint16_t data)
 }
 void Enc28j60::writeBuffer(const uint8_t* data, uint16_t length)
 {
-    spi_.select();
+    cs_.high();
 
     spi_.writeByte(ENC28J60_WRITE_BUF_MEM);
     while (length--)
@@ -552,12 +547,12 @@ void Enc28j60::writeBuffer(const uint8_t* data, uint16_t length)
         spi_.writeByte(*data++);
     }
 
-    spi_.deselect();
+    cs_.low();
 }
 
 void Enc28j60::readBuffer(uint8_t* data, uint16_t length)
 {
-    spi_.select();
+    cs_.high();
 
     spi_.writeByte(ENC28J60_READ_BUF_MEM);
     while (length--)
@@ -565,7 +560,7 @@ void Enc28j60::readBuffer(uint8_t* data, uint16_t length)
         *data++ = spi_.readByte();
     }
 
-    spi_.deselect();
+    cs_.low();
 }
 
 bool Enc28j60::isLinkUp(void)

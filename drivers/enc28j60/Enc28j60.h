@@ -11,22 +11,18 @@
 #ifndef ENC268J60_H_
 #define ENC268J60_H_
 
-#include <stdint.h>
-
 #include "Callback.h"
 #include "Ethernet.h"
+#include "Gpio.h"
+#include "Spi.h"
 
 class Enc28j60;
-class GpioIn;
-class GpioOut;
-class Spi;
-
 typedef GenericCallback<Enc28j60> Enc28j60Callback;
 
 class Enc28j60 : public EthernetDevice
 {
 public:
-    Enc28j60(Spi& spi, GpioIn& gpio);
+    Enc28j60(Spi& spi, GpioOut& cs, GpioIn& irq);
     void init(uint8_t* mac_address);
     void reset(void);
     void setCallback(Callback* callback);
@@ -50,7 +46,8 @@ private:
     bool isLinkUp(void);
 private:
     Spi& spi_;
-    GpioIn& gpio_;
+    GpioOut& cs_;
+    GpioIn& irq_;
 
     Enc28j60Callback interrupt_;
     Callback* callback_;

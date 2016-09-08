@@ -13,10 +13,6 @@
 
 #include "Max44009.h"
 
-#include "Callback.h"
-#include "I2c.h"
-#include "Gpio.h"
-
 #include "platform_types.h"
 
 /*================================ define ===================================*/

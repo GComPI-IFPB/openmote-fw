@@ -12,8 +12,7 @@
 #ifndef TPS62730_H_
 #define TPS62730_H_
 
-class GpioIn;
-class GpioOut;
+#include "Gpio.h"
 
 class Tps62730
 {

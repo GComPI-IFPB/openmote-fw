@@ -13,8 +13,6 @@
 
 #include "Tps62730.h"
 
-#include "Gpio.h"
-
 #include "platform_types.h"
 
 /*================================ define ===================================*/

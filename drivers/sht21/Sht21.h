@@ -12,9 +12,7 @@
 #ifndef SHT21_H_
 #define SHT21_H_
 
-#include <stdint.h>
-
-class I2c;
+#include "I2c.h"
 
 class Sht21
 {
