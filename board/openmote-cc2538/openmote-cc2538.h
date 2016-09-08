@@ -40,6 +40,7 @@ class Sht21;
 
 class Tps62730;
 class Enc28j60;
+class Cc1200;
 
 /*=============================== variables =================================*/
 
@@ -110,6 +111,12 @@ extern Sht21 sht21;
 
 // Ethernet PHY + MAC chip
 extern Enc28j60 enc28j60;
+
+// CC1200 transceiver
+extern Cc1200 cc1200;
+extern GpioIn cc1200_gpio0;
+extern GpioIn cc1200_gpio2;
+extern GpioIn cc1200_gpio3;
 
 /*=============================== prototypes ================================*/
 

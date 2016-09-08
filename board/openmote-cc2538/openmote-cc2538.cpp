@@ -31,6 +31,7 @@
 
 #include "Tps62730.h"
 #include "Enc28j60.h"
+#include "Cc1200.h"
 
 #include "cc2538_include.h"
 #include "platform_types.h"
@@ -141,9 +142,6 @@
 #define SPI_MOSI_BASE           ( GPIO_A_BASE )
 #define SPI_MOSI_PIN            ( GPIO_PIN_5 )
 #define SPI_MOSI_IOC            ( IOC_MUX_OUT_SEL_SSI0_TXD )
-#define SPI_nCS_BASE            ( GPIO_A_BASE )
-#define SPI_nCS_PIN             ( GPIO_PIN_3 )
-#define SPI_nCS_IOC             ( IOC_MUX_OUT_SEL_SSI0_FSSOUT )
 #define SPI_CLK_BASE            ( GPIO_A_BASE )
 #define SPI_CLK_PIN             ( GPIO_PIN_2 )
 #define SPI_CLK_IOC             ( IOC_MUX_OUT_SEL_SSI0_CLKOUT )
@@ -163,9 +161,28 @@
 #define MAX44009_INT_PIN        ( GPIO_PIN_5 )
 #define MAX44009_INT_EDGE       ( GPIO_FALLING_EDGE )
 
+#define ENC28J60_CS_BASE        ( GPIO_A_BASE )
+#define ENC28J60_CS_PIN         ( GPIO_PIN_3 )
+#define ENC28J60_CS_IOC         ( IOC_MUX_OUT_SEL_SSI0_FSSOUT )
 #define ENC28J60_INT_PORT       ( GPIO_D_BASE )
 #define ENC28J60_INT_PIN        ( GPIO_PIN_0 )
 #define ENC28J60_INT_EDGE       ( GPIO_FALLING_EDGE )
+
+#define CC1200_CS_BASE          ( GPIO_A_BASE )
+#define CC1200_CS_PIN           ( GPIO_PIN_3 )
+#define CC1200_CS_IOC           ( IOC_MUX_OUT_SEL_SSI0_FSSOUT )
+
+#define CC1200_GPIO0_BASE       ( GPIO_A_BASE )
+#define CC1200_GPIO0_PIN        ( GPIO_PIN_3 )
+#define CC1200_GPIO0_EDGE       ( GPIO_RISING_EDGE )
+
+#define CC1200_GPIO2_BASE       ( GPIO_A_BASE )
+#define CC1200_GPIO2_PIN        ( GPIO_PIN_3 )
+#define CC1200_GPIO2_EDGE       ( GPIO_RISING_EDGE )
+
+#define CC1200_GPIO3_BASE       ( GPIO_A_BASE )
+#define CC1200_GPIO3_PIN        ( GPIO_PIN_3 )
+#define CC1200_GPIO3_EDGE       ( GPIO_RISING_EDGE )
 
 /*================================ typedef ==================================*/
 
@@ -238,13 +255,11 @@ I2c i2c(i2c_scl, i2c_sda, i2c_cfg);
 GpioConfig spi_miso_cfg = {SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC, 0, 0};
 GpioConfig spi_mosi_cfg = {SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC, 0, 0};
 GpioConfig spi_clk_cfg  = {SPI_CLK_BASE, SPI_CLK_PIN, SPI_CLK_IOC, 0, 0};
-GpioConfig spi_ncs_cfg  = {SPI_nCS_BASE, SPI_nCS_PIN, SPI_nCS_IOC, 0, 0};
 SpiConfig spi_cfg = {SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, SPI_INT, SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE};
 Gpio spi_miso(spi_miso_cfg);
 Gpio spi_mosi(spi_mosi_cfg);
 Gpio spi_clk(spi_clk_cfg);
-GpioOut spi_ncs(spi_ncs_cfg);
-Spi spi(spi_miso, spi_mosi, spi_clk, spi_ncs, spi_cfg);
+Spi spi(spi_miso, spi_mosi, spi_clk, spi_cfg);
 
 // UART peripheral
 GpioConfig uart_rx_cfg = {UART_RX_PORT, UART_RX_PIN, UART_RX_IOC, 0, 0};
@@ -280,9 +295,23 @@ Sht21 sht21(i2c);
 TemperatureSensor temp;
 
 // Ethernet PHY + MAC chip
+GpioConfig enc28j60_cs_cfg = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0};
 GpioConfig enc28j60_int_cfg = {ENC28J60_INT_PORT, ENC28J60_INT_PIN, 0, ENC28J60_INT_EDGE, 0};
+GpioOut enc28j60_cs(enc28j60_cs_cfg);
 GpioIn enc28j60_int(enc28j60_int_cfg);
-Enc28j60 enc28j60(spi, enc28j60_int);
+Enc28j60 enc28j60(spi, enc28j60_cs, enc28j60_int);
+
+// CC1200 radio transceiver
+GpioConfig cc1200_cs_cfg    = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0};
+GpioConfig cc1200_gpio0_cfg = {CC1200_GPIO0_BASE, CC1200_GPIO0_PIN, 0, CC1200_GPIO0_EDGE, 0};
+GpioConfig cc1200_gpio2_cfg = {CC1200_GPIO2_BASE, CC1200_GPIO2_PIN, 0, CC1200_GPIO2_EDGE, 0};
+GpioConfig cc1200_gpio3_cfg = {CC1200_GPIO3_BASE, CC1200_GPIO3_PIN, 0, CC1200_GPIO3_EDGE, 0};
+
+GpioOut cc1200_cs(cc1200_cs_cfg);
+GpioIn cc1200_gpio0(cc1200_gpio0_cfg);
+GpioIn cc1200_gpio2(cc1200_gpio2_cfg);
+GpioIn cc1200_gpio3(cc1200_gpio3_cfg);
+Cc1200 cc1200(spi, cc1200_cs, cc1200_gpio0, cc1200_gpio2, cc1200_gpio3);
 
 /*=============================== prototypes ================================*/
 
