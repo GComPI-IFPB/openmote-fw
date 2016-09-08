@@ -28,8 +28,8 @@
 
 /*================================= public ==================================*/
 
-Spi::Spi(Gpio& miso, Gpio& mosi, Gpio& clk, GpioOut& ncs, SpiConfig& config):
-        miso_(miso), mosi_(mosi), clk_(clk), ncs_(ncs), config_(config)
+Spi::Spi(Gpio& miso, Gpio& mosi, Gpio& clk, SpiConfig& config):
+        miso_(miso), mosi_(mosi), clk_(clk), config_(config)
 {
 }
 
@@ -38,7 +38,6 @@ void Spi::enable(uint32_t baudrate)
     GpioConfig& miso = miso_.getGpioConfig();
     GpioConfig& mosi = mosi_.getGpioConfig();
     GpioConfig& clk  = clk_.getGpioConfig();
-    // GpioConfig& ncs  = ncs_.getGpioConfig();
 
     // Store baudrate in configuration
     if (baudrate != 0) {
@@ -60,13 +59,11 @@ void Spi::enable(uint32_t baudrate)
     IOCPinConfigPeriphInput(miso.port, miso.pin, miso.ioc);
     IOCPinConfigPeriphOutput(mosi.port, mosi.pin, mosi.ioc);
     IOCPinConfigPeriphOutput(clk.port, clk.pin, clk.ioc);
-    // IOCPinConfigPeriphOutput(ncs.port, ncs.pin, ncs.ioc);
 
     // Configure MISO, MOSI, CLK and nCS GPIOs
     GPIOPinTypeSSI(miso.port, miso.pin);
     GPIOPinTypeSSI(mosi.port, mosi.pin);
     GPIOPinTypeSSI(clk.port, clk.pin);
-    // GPIOPinTypeSSI(ncs.port, ncs.pin);
 
     // Configure the SPI0 clock
     SSIConfigSetExpClk(config_.base, SysCtrlIOClockGet(), config_.protocol, \
@@ -81,21 +78,18 @@ void Spi::sleep(void)
     GpioConfig& miso = miso_.getGpioConfig();
     GpioConfig& mosi = mosi_.getGpioConfig();
     GpioConfig& clk  = clk_.getGpioConfig();
-    // GpioConfig& ncs  = ncs_.getGpioConfig();
 
     SSIDisable(config_.base);
 
-    // Configure the MISO, MOSI, CLK and nCS pins as output
+    // Configure the MISO, MOSI and CLK pins as output
     GPIOPinTypeGPIOOutput(miso.port, miso.pin);
     GPIOPinTypeGPIOOutput(mosi.port, mosi.pin);
     GPIOPinTypeGPIOOutput(clk.port, clk.pin);
-    // GPIOPinTypeGPIOOutput(ncs.port, ncs.pin);
 
     //
     GPIOPinWrite(miso.port, miso.pin, 0);
     GPIOPinWrite(mosi.port, mosi.pin, 0);
     GPIOPinWrite(clk.port, clk.pin, 0);
-    // GPIOPinWrite(ncs.port, ncs.pin, 0);
 }
 
 void Spi::wakeup(void)
@@ -132,32 +126,6 @@ void Spi::disableInterrupts(void)
 
     // Disable the SPI interrupt
     IntDisable(config_.interrupt);
-}
-
-void Spi::select(void)
-{
-    if (config_.protocol == SSI_FRF_MOTO_MODE_0 ||
-        config_.protocol == SSI_FRF_MOTO_MODE_1)
-    {
-        ncs_.off();
-    }
-    else
-    {
-        ncs_.on();
-    }
-}
-
-void Spi::deselect(void)
-{
-    if (config_.protocol == SSI_FRF_MOTO_MODE_0 ||
-        config_.protocol == SSI_FRF_MOTO_MODE_1)
-    {
-        ncs_.on();
-    }
-    else
-    {
-        ncs_.off();
-    }
 }
 
 uint8_t Spi::readByte(void)
@@ -231,6 +199,23 @@ uint32_t Spi::writeByte(uint8_t* buffer, uint32_t length)
     }
 
     return 0;
+}
+
+uint8_t Spi::rwByte(uint8_t byte)
+{
+    uint32_t ret;
+
+    // Push a byte
+    SSIDataPut(config_.base, byte);
+
+    // Wait until it is complete
+    while(SSIBusy(config_.base))
+        ;
+
+    // Read a byte
+    SSIDataGet(config_.base, &ret);
+
+    return (uint8_t)(ret & 0xFF);
 }
 
 /*=============================== protected =================================*/

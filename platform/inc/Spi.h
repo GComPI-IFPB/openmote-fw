@@ -26,7 +26,7 @@ class Spi
 friend class InterruptHandler;
 
 public:
-    Spi(Gpio& miso, Gpio& mosi, Gpio& clk, GpioOut& ncs, SpiConfig& config);
+    Spi(Gpio& miso, Gpio& mosi, Gpio& clk, SpiConfig& config);
     void enable(uint32_t baudrate = 0);
     void sleep(void);
     void wakeup(void);
@@ -40,6 +40,7 @@ public:
     uint32_t readByte(uint8_t * buffer, uint32_t length);
     void writeByte(uint8_t byte);
     uint32_t writeByte(uint8_t * buffer, uint32_t length);
+    uint8_t rwByte(uint8_t byte);
 protected:
     SpiConfig& getConfig(void);
     void interruptHandler(void);
@@ -50,7 +51,6 @@ private:
     Gpio& miso_;
     Gpio& mosi_;
     Gpio& clk_;
-    GpioOut& ncs_;
 
     SpiConfig& config_;
 

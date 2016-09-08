@@ -70,6 +70,8 @@ public:
     void on(void);
     void off(void);
     void toggle(void);
+    void high(void);
+    void low(void);
     uint32_t status(void);
 };
 

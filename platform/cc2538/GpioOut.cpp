@@ -60,6 +60,16 @@ void GpioOut::toggle(void)
     GPIOPinWrite(config_.port, config_.pin, status);
 }
 
+void GpioOut::high(void)
+{
+    on();
+}
+
+void GpioOut::low(void)
+{
+    off();
+}
+
 uint32_t GpioOut::status(void)
 {
     // Read the pin status
