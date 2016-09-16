@@ -45,10 +45,10 @@ public:
     void setPower(uint8_t power);
     RadioResult loadPacket(uint8_t* data, uint8_t length);
     RadioResult getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uint8_t* lqi, uint8_t* crc);
+    uint8_t state(void);    
 private:
 	uint8_t strobe(uint8_t strobe);
-	uint8_t state(void);
-private:
+public:
     uint8_t singleRead(uint16_t address);
     uint8_t singleWrite(uint16_t address, uint8_t value);
 private:

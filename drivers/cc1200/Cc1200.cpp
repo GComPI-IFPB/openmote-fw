@@ -45,6 +45,7 @@
 Cc1200::Cc1200(Spi& spi, GpioOut& cs, GpioIn& gpio0, GpioIn& gpio2, GpioIn& gpio3):
     spi_(spi), cs_(cs), gpio0_(gpio0), gpio2_(gpio2), gpio3_(gpio3)
 {
+    cs_.high();
 }
 
 void Cc1200::init(void)
@@ -98,7 +99,7 @@ void Cc1200::on(void)
     singleWrite(CC1200_IOCFG0, GPIO0_IOCFG);
 
     // Calibrate the radio when turning it on
-    calibrate();
+    // calibrate();
 }
 
 void Cc1200::off(void)
@@ -171,13 +172,13 @@ void Cc1200::reset(void)
 void Cc1200::transmit(void)
 {
     // Put the radio in transmit mode
-    strobe(CC1200_SFTX);
+    strobe(CC1200_STX);
 }
 
 void Cc1200::receive(void)
 {
     // Put the radio in receive mode
-    strobe(CC1200_SFRX);
+    strobe(CC1200_SRX);
 }
 
 void Cc1200::calibrate(void)
@@ -243,13 +244,13 @@ uint8_t Cc1200::strobe(uint8_t strobe)
     uint8_t result;
 
     // Activate CS
-    cs_.high();
+    cs_.low();
 
     // Write the strobe command
     result = spi_.rwByte(strobe);
 
     // Deactivate CS
-    cs_.low();
+    cs_.high();
 
     return result;
 }
@@ -267,7 +268,7 @@ uint8_t Cc1200::singleRead(uint16_t address)
     uint8_t ret;
 
     // Activate CS
-    cs_.high();
+    cs_.low();
 
     // Check register addressing mode
     if (CC1200_IS_EXTENDED_ADDR(address)) {
@@ -281,7 +282,7 @@ uint8_t Cc1200::singleRead(uint16_t address)
     ret = spi_.readByte();
     
     // Deactivate CS
-    cs_.low();
+    cs_.high();
 
     return ret;
 }
@@ -291,7 +292,7 @@ uint8_t Cc1200::singleWrite(uint16_t address, uint8_t value)
     uint8_t ret;
 
     // Activate CS
-    cs_.high();
+    cs_.low();
 
     // Check register addressing mode
     if (CC1200_IS_EXTENDED_ADDR(address)) {
@@ -302,10 +303,10 @@ uint8_t Cc1200::singleWrite(uint16_t address, uint8_t value)
     }
     
     // Push the value and read the byte
-    ret = spi_.rwByte(value);
+    spi_.writeByte(value);
     
     // Deactivate CS
-    cs_.low();
+    cs_.high();
 
     return ret;
 }
