@@ -172,16 +172,16 @@
 #define CC1200_CS_PIN           ( GPIO_PIN_3 )
 #define CC1200_CS_IOC           ( IOC_MUX_OUT_SEL_SSI0_FSSOUT )
 
-#define CC1200_GPIO0_BASE       ( GPIO_A_BASE )
+#define CC1200_GPIO0_BASE       ( GPIO_D_BASE )
 #define CC1200_GPIO0_PIN        ( GPIO_PIN_3 )
 #define CC1200_GPIO0_EDGE       ( GPIO_RISING_EDGE )
 
-#define CC1200_GPIO2_BASE       ( GPIO_A_BASE )
-#define CC1200_GPIO2_PIN        ( GPIO_PIN_3 )
+#define CC1200_GPIO2_BASE       ( GPIO_D_BASE )
+#define CC1200_GPIO2_PIN        ( GPIO_PIN_2 )
 #define CC1200_GPIO2_EDGE       ( GPIO_RISING_EDGE )
 
-#define CC1200_GPIO3_BASE       ( GPIO_A_BASE )
-#define CC1200_GPIO3_PIN        ( GPIO_PIN_3 )
+#define CC1200_GPIO3_BASE       ( GPIO_D_BASE )
+#define CC1200_GPIO3_PIN        ( GPIO_PIN_0 )
 #define CC1200_GPIO3_EDGE       ( GPIO_RISING_EDGE )
 
 /*================================ typedef ==================================*/
@@ -295,11 +295,11 @@ Sht21 sht21(i2c);
 TemperatureSensor temp;
 
 // Ethernet PHY + MAC chip
-GpioConfig enc28j60_cs_cfg = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0};
-GpioConfig enc28j60_int_cfg = {ENC28J60_INT_PORT, ENC28J60_INT_PIN, 0, ENC28J60_INT_EDGE, 0};
-GpioOut enc28j60_cs(enc28j60_cs_cfg);
-GpioIn enc28j60_int(enc28j60_int_cfg);
-Enc28j60 enc28j60(spi, enc28j60_cs, enc28j60_int);
+// GpioConfig enc28j60_cs_cfg = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0};
+// GpioConfig enc28j60_int_cfg = {ENC28J60_INT_PORT, ENC28J60_INT_PIN, 0, ENC28J60_INT_EDGE, 0};
+// GpioOut enc28j60_cs(enc28j60_cs_cfg);
+// GpioIn enc28j60_int(enc28j60_int_cfg);
+// Enc28j60 enc28j60(spi, enc28j60_cs, enc28j60_int);
 
 // CC1200 radio transceiver
 GpioConfig cc1200_cs_cfg    = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0};
