@@ -79,10 +79,6 @@ static int8_t rssi;
 static uint8_t lqi;
 static uint8_t crc;
 
-static uint8_t uart_buffer[PAYLOAD_LENGTH];
-static uint8_t* uart_ptr = uart_buffer;
-static uint8_t  uart_len = sizeof(radio_buffer);
-
 static Serial serial(uart);
 
 /*================================= public ==================================*/
@@ -103,9 +99,8 @@ int main (void)
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
 
 #if (RADIO_MODE == RADIO_MODE_RX)
-    // Enable the UART driver and Serial device
+    // Enable the UART driver
     uart.enable(UART_BAUDRATE);
-    serial.init();
 
     // Create the radio receive task
     xTaskCreate(prvRadioRxTask, (const char *) "RadioRx", 128, NULL, RADIO_RX_TASK_PRIORITY, NULL);
@@ -127,11 +122,11 @@ static void prvGreenLedTask(void *pvParameters)
     {
         // Turn off the green LED and keep it for 950 ms
         led_green.off();
-        Task::delay(950);
+        vTaskDelay(950 / portTICK_RATE_MS);
 
         // Turn on the green LED and keep it for 50 ms
         led_green.on();
-        Task::delay(50);
+        vTaskDelay(50 / portTICK_RATE_MS);
     }
 }
 
@@ -164,24 +159,8 @@ static void prvRadioRxTask(void *pvParameters)
 
             if (result == RadioResult_Success && crc)
             {
-                // Restore the UART pointer
-                uart_ptr = uart_buffer;
-
-                // Copy the payload to the UART buffer
-                memcpy(uart_ptr, radio_ptr, radio_len);
-                uart_ptr += radio_len;
-                uart_len = radio_len;
-
-                // Copy the RSSI to the UART buffer
-                *uart_ptr++ = rssi;
-                uart_len += 1;
-
-                // Copy the CRC to the UART buffer
-                *uart_ptr++ = crc;
-                uart_len += 1;
-
-                // Transmit the buffer over the UART
-                serial.write(uart_buffer, uart_len);
+            	uart.writeByte(rssi);
+                uart.writeByte(crc >> 7);
             }
             
             // Turn off the radio until the next packet
@@ -224,7 +203,7 @@ static void prvRadioTxTask(void *pvParameters)
             }
 
             // Delay the transmission of the next packet 250 ms
-            Task::delay(250);
+            vTaskDelay(250 / portTICK_RATE_MS);
         }
     }
 }
