@@ -154,7 +154,7 @@ void Cc1200::reset(void)
     cs_.low();
 
     // Write the reset command strobe
-    spi_.writeByte(CC1200_SRES);
+    spi_.rwByte(CC1200_SRES);
     
     // Wait until CHIP_RDYn is low
     s = gpio0_.read();
@@ -272,14 +272,14 @@ uint8_t Cc1200::singleRead(uint16_t address)
 
     // Check register addressing mode
     if (CC1200_IS_EXTENDED_ADDR(address)) {
-        spi_.writeByte(CC1200_EXTENDED_READ_CMD);
-        spi_.writeByte((uint8_t)address);
+        spi_.rwByte(CC1200_EXTENDED_READ_CMD);
+        spi_.rwByte((uint8_t)address);
     } else {
-        spi_.writeByte(address | CC1200_READ_BIT);
+        spi_.rwByte(address | CC1200_READ_BIT);
     }
     
     // Push a null byte to read a byte
-    ret = spi_.readByte();
+    ret = spi_.rwByte(0x00);
     
     // Deactivate CS
     cs_.high();
@@ -296,14 +296,14 @@ uint8_t Cc1200::singleWrite(uint16_t address, uint8_t value)
 
     // Check register addressing mode
     if (CC1200_IS_EXTENDED_ADDR(address)) {
-        spi_.writeByte(CC1200_EXTENDED_WRITE_CMD);
-        spi_.writeByte((uint8_t)address);
+        spi_.rwByte(CC1200_EXTENDED_WRITE_CMD);
+        spi_.rwByte((uint8_t)address);
     } else {
-        spi_.writeByte(address | CC1200_WRITE_BIT);
+        spi_.rwByte(address | CC1200_WRITE_BIT);
     }
     
     // Push the value and read the byte
-    spi_.writeByte(value);
+    ret = spi_.rwByte(value);
     
     // Deactivate CS
     cs_.high();

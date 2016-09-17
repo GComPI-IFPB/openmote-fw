@@ -460,12 +460,12 @@ uint8_t Enc28j60::readOperation(uint8_t op, uint8_t address)
 
     cs_.high();
 
-    spi_.writeByte(op | (address & ADDR_MASK));
+    spi_.rwByte(op | (address & ADDR_MASK));
 
-    result = spi_.readByte();
+    result = spi_.rwByte(0x00);
     if (address & 0x80)
     {
-        result = spi_.readByte();
+        result = spi_.rwByte(0x00);
     }
 
     cs_.low();
@@ -477,8 +477,8 @@ void Enc28j60::writeOperation(uint8_t op, uint8_t address, uint8_t data)
 {
     cs_.high();
 
-    spi_.writeByte(op | (address & ADDR_MASK));
-    spi_.writeByte(data);
+    spi_.rwByte(op | (address & ADDR_MASK));
+    spi_.rwByte(data);
 
     cs_.low();
 }
@@ -541,10 +541,10 @@ void Enc28j60::writeBuffer(const uint8_t* data, uint16_t length)
 {
     cs_.high();
 
-    spi_.writeByte(ENC28J60_WRITE_BUF_MEM);
+    spi_.rwByte(ENC28J60_WRITE_BUF_MEM);
     while (length--)
     {
-        spi_.writeByte(*data++);
+        spi_.rwByte(*data++);
     }
 
     cs_.low();
@@ -554,10 +554,10 @@ void Enc28j60::readBuffer(uint8_t* data, uint16_t length)
 {
     cs_.high();
 
-    spi_.writeByte(ENC28J60_READ_BUF_MEM);
+    spi_.rwByte(ENC28J60_READ_BUF_MEM);
     while (length--)
     {
-        *data++ = spi_.readByte();
+        *data++ = spi_.rwByte(0x00);
     }
 
     cs_.low();

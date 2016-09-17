@@ -48,7 +48,6 @@ public:
     uint8_t state(void);    
 private:
 	uint8_t strobe(uint8_t strobe);
-public:
     uint8_t singleRead(uint16_t address);
     uint8_t singleWrite(uint16_t address, uint8_t value);
 private:
