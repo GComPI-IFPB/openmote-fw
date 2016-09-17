@@ -34,13 +34,8 @@ public:
     void setTxCallback(Callback* callback);
     void enableInterrupts(void);
     void disableInterrupts(void);
-    void select(void);
-    void deselect(void);
-    uint8_t readByte(void);
-    uint32_t readByte(uint8_t * buffer, uint32_t length);
-    void writeByte(uint8_t byte);
-    uint32_t writeByte(uint8_t * buffer, uint32_t length);
     uint8_t rwByte(uint8_t byte);
+    bool rwByte(uint8_t* readBuffer, uint32_t readLength, uint8_t* writeBuffer, uint32_t writeLength);
 protected:
     SpiConfig& getConfig(void);
     void interruptHandler(void);
