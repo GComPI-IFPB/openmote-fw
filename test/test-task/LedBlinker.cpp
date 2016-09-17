@@ -44,11 +44,11 @@ void LedBlinker::run(void)
     while (true) {
     	// Turn LED on and wait
     	gpio_.on();
-    	delay(timeOn_);
+    	Task::delay(timeOn_);
 
 		// Turn LED off and wait
     	gpio_.off();
-    	delay(period_ - timeOn_);
+    	Task::delay(period_ - timeOn_);
     }
 }
 

@@ -20,10 +20,10 @@ class Task
 {
 public:
     Task(const char* const name, uint8_t priority);
-    void delay(uint32_t milliseconds);
-    void yield(void);
 public:
     static void init(void* params);
+    static void delay(uint32_t milliseconds);
+    static void yield(void);
 protected:
 	virtual void run(void) = 0;
 protected:
