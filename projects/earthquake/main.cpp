@@ -24,7 +24,7 @@
 #include "Radio.h"
 #include "Serial.h"
 
-#include "Adxl346.h"
+#include "Adxl34x.h"
 #include "Tps62730.h"
 
 #include "Callback.h"
@@ -66,21 +66,21 @@ static void radioRxInitCallback(void);
 static void radioRxDoneCallback(void);
 static void radioTxInitCallback(void);
 static void radioTxDoneCallback(void);
-static void adxl346Callback(void);
+static void adxl34xCallback(void);
 
 /*=============================== variables =================================*/
 
 static Serial serial(uart);
 
 static SemaphoreBinary rxSemaphore, txSemaphore;
-static SemaphoreBinary adxl346Semaphore(false);
+static SemaphoreBinary adxl34xSemaphore(false);
 
 static PlainCallback radioRxInitCallback_{radioRxInitCallback};
 static PlainCallback radioRxDoneCallback_{radioRxDoneCallback};
 static PlainCallback radioTxInitCallback_{radioTxInitCallback};
 static PlainCallback radioTxDoneCallback_{radioTxDoneCallback};
 
-static PlainCallback adxl346Callback_{adxl346Callback};
+static PlainCallback adxl34xCallback_{adxl34xCallback};
 
 static uint8_t  radioBuffer[128];
 static uint8_t* radioBuffer_ptr;
@@ -129,11 +129,11 @@ static void prvSensorTask(void *pvParameters)
     // Enable the I2C bus at 400 kHz
     i2c.enable(I2C_BAUDRATE);
 
-    // Set the ADXL346 callback
-    adxl346.setCallback(&adxl346Callback_);
+    // Set the ADXL34x callback
+    adxl34x.setCallback(&adxl34xCallback_);
 
-    // Enable the ADXL346
-    adxl346.enable();
+    // Enable the ADXL34x
+    adxl34x.enable();
 
     // Enable the radio
     radio.enable();
@@ -146,8 +146,8 @@ static void prvSensorTask(void *pvParameters)
     radio.setTxCallbacks(&radioTxInitCallback_, &radioTxDoneCallback_);
     radio.enableInterrupts();
 
-    // Calibrate the ADXL346 sensor
-    // adxl346.calibrate();
+    // Calibrate the ADXL34x sensor
+    // adxl34x.calibrate();
 
     // Forever
     while (true) { 
@@ -157,13 +157,13 @@ static void prvSensorTask(void *pvParameters)
 
         // Wait until packet is complete
         while (counter < SAMPLES_PER_PACKET) {
-            // Wait until ADXL346 samples are available
-            if (adxl346Semaphore.take()) {
+            // Wait until ADXL34x samples are available
+            if (adxl34xSemaphore.take()) {
                 // Read number of samples available
-                uint8_t samples = adxl346.samplesAvailable();
+                uint8_t samples = adxl34x.samplesAvailable();
                 
                 // Read samples for each axis
-                adxl346.readSamples(buffer, samples);
+                adxl34x.readSamples(buffer, samples);
 
                 // We expect 6 samples per read
                 if (samples == SAMPLES_PER_READ) {
@@ -232,9 +232,9 @@ static void prvConcentratorTask(void *pvParameters)
     }
 }
 
-static void adxl346Callback(void)
+static void adxl34xCallback(void)
 {
-    adxl346Semaphore.giveFromInterrupt();
+    adxl34xSemaphore.giveFromInterrupt();
 }
 
 static void radioTxInitCallback(void)
