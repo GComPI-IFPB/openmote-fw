@@ -4,6 +4,8 @@ import os
 
 Import('env')
 
+print env['project']
+
 verbose = env['verbose']
 board   = env['board']
 project = env['project']
@@ -24,16 +26,6 @@ boards = {
 
 ################################################################################
 
-test = {
-    'name'  : 'test'
-}
-
-projects = {
-    'test' : test
-}
-
-################################################################################
-
 build_dir = os.path.join("#/build", board)
 
 platform  = boards[board]["platform"]
@@ -48,7 +40,7 @@ env['cpu']       = cpu
 env['toolchain'] = toolchain
 env['linker']    = linker
 
-folders = ['board', 'drivers', 'kernel/freertos', 'stack', 'platform', 'projects']
+folders = ['board', 'drivers', 'kernel/freertos', 'stack', 'platform', 'projects', 'test']
 
 ################################################################################
 
@@ -150,6 +142,7 @@ env.Append(
         os.path.join('#','stack', 'ethernet'),
         os.path.join('#','stack', 'ieee802154'),
         os.path.join('#','stack', 'utils'),
+        os.path.join('#', 'test', project)
     ]
 )
 

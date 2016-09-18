@@ -2,7 +2,10 @@ import os
 
 cmd_options = {
     'board'     :          ['openmote-cc2538'],
-    'project'   :          ['earthquake', 'freertos-cc2538', 'freertos-tickless-cc2538', 'ieee802154-sniffer'],
+    'project'   :          ['earthquake', 'freertos-cc2538', 'freertos-tickless-cc2538', 'ieee802154-sniffer',
+                            'test-aes', 'test-board', 'test-button', 'test-cc1200', 'test-crc', 'test-ethernet', 'test-leds',
+                            'test-radio', 'test-radiotimer', 'test-sensors', 'test-serial', 'test-sleeptimer', 'test-spi',
+                            'test-task', 'test-timer', 'test-uart'],
     'verbose'   :          ['0','1']
 }
 
@@ -24,7 +27,7 @@ cmd_vars.AddVariables(
     (
         'project',                                         # key
         '',                                                # help
-        cmd_options['project'][0],                         # default
+        None,                                              # default
         validate_option,                                   # validator
         None,                                              # converter
     ),
