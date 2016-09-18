@@ -5,7 +5,7 @@ Import('env')
 localEnv = env.Clone()
 
 source = [
-    'Adxl346.cpp',
+    'Si7006.cpp',
 ]
 
 localEnv.Append(

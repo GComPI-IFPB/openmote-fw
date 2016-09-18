@@ -1,5 +1,5 @@
 /**
- * @file       Adxl346.h
+ * @file       Adxl34x.h
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,17 +9,17 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef ADXL346_H_
-#define ADXL346_H_
+#ifndef ADXL34X_H_
+#define ADXL34X_H_
 
 #include "I2c.h"
 #include "Gpio.h"
 #include "Callback.h"
 
-class Adxl346
+class Adxl34x
 {
 public:
-    Adxl346(I2c& i2c, GpioIn& gpio);
+    Adxl34x(I2c& i2c, GpioIn& gpio);
     bool enable(void);
     bool reset(void);
     bool wakeup(void);
@@ -37,4 +37,4 @@ private:
     GpioIn& gpio_;
 };
 
-#endif /* ADXL346_H_ */
+#endif /* ADXL34X_H_ */

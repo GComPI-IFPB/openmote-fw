@@ -34,9 +34,10 @@ class Uart;
 class RandomNumberGenerator;
 class Watchdog;
 
-class Adxl346;
+class Adxl34x;
 class Max44009;
 class Sht21;
+class Si7006;
 
 class Tps62730;
 class Enc28j60;
@@ -101,13 +102,14 @@ extern Aes aes;
 extern TemperatureSensor temp;
 
 // Acceleration sensor
-extern Adxl346 adxl346;
+extern Adxl34x adxl34x;
 
 // Light sensor
 extern Max44009 max44009;
 
 // Temperature + Relative humidity sensor
-extern Sht21 sht21;
+// extern Sht21 sht21;
+extern Si7006 si7006;
 
 // Ethernet PHY + MAC chip
 extern Enc28j60 enc28j60;

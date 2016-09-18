@@ -25,9 +25,10 @@
 #include "RandomNumberGenerator.h"
 #include "Watchdog.h"
 
-#include "Adxl346.h"
+#include "Adxl34x.h"
 #include "Max44009.h"
 #include "Sht21.h"
+#include "Si7006.h"
 
 #include "Tps62730.h"
 #include "Enc28j60.h"
@@ -153,9 +154,9 @@
 #define I2C_SDA_BASE            ( GPIO_B_BASE )
 #define I2C_SDA_PIN             ( GPIO_PIN_4 )
 
-#define ADXL346_INT_PORT        ( GPIO_B_BASE)
-#define ADXL346_INT_PIN         ( GPIO_PIN_2 )
-#define ADXL346_INT_EDGE        ( GPIO_RISING_EDGE )
+#define ADXL34X_INT_PORT        ( GPIO_B_BASE)
+#define ADXL34X_INT_PIN         ( GPIO_PIN_2 )
+#define ADXL34X_INT_EDGE        ( GPIO_RISING_EDGE )
 
 #define MAX44009_INT_PORT       ( GPIO_B_BASE )
 #define MAX44009_INT_PIN        ( GPIO_PIN_5 )
@@ -279,9 +280,9 @@ Radio radio;
 Aes aes;
 
 // Acceleration sensor
-GpioConfig adxl346_int_cfg = {ADXL346_INT_PORT, ADXL346_INT_PIN, 0, ADXL346_INT_EDGE, 0};
-GpioInPow adxl346_int(adxl346_int_cfg);
-Adxl346 adxl346(i2c, adxl346_int);
+GpioConfig adxl34x_int_cfg = {ADXL34X_INT_PORT, ADXL34X_INT_PIN, 0, ADXL34X_INT_EDGE, 0};
+GpioInPow adxl34x_int(adxl34x_int_cfg);
+Adxl34x adxl34x(i2c, adxl34x_int);
 
 // Light sensor
 GpioConfig max44009_int_cfg = {MAX44009_INT_PORT, MAX44009_INT_PIN, 0, MAX44009_INT_EDGE, 0};
@@ -289,7 +290,8 @@ GpioIn max44009_int(max44009_int_cfg);
 Max44009 max44009(i2c, max44009_int);
 
 // Temperature + Relative humidity sensor
-Sht21 sht21(i2c);
+// Sht21 sht21(i2c);
+Si7006 si7006(i2c);
 
 // CC2538 Temperature sensor
 TemperatureSensor temp;
