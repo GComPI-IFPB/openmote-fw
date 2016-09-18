@@ -20,11 +20,10 @@
 #include "Gpio.h"
 #include "I2c.h"
 #include "Radio.h"
-#include "TemperatureSensor.h"
 
-#include "Adxl346.h"
+#include "Adxl34x.h"
 #include "Max44009.h"
-#include "Sht21.h"
+#include "Si7006.h"
 #include "Tps62730.h"
 
 #include "Callback.h"
@@ -37,7 +36,6 @@
 #define GREEN_LED_TASK_PRIORITY         	( tskIDLE_PRIORITY + 0 )
 #define LIGHT_TASK_PRIORITY             	( tskIDLE_PRIORITY + 1 )
 #define TEMPERATURE_TASK_PRIORITY       	( tskIDLE_PRIORITY + 2 )
-#define TEMPERATURE_INTERNAL_TASK_PRIORITY	( tskIDLE_PRIORITY + 0 )
 #define ACCELERATION_TASK_PRIORITY      	( tskIDLE_PRIORITY + 3 )
 
 /*================================ typedef ==================================*/
@@ -50,7 +48,6 @@ extern "C" TickType_t board_wakeup(TickType_t xModifiableIdleTime);
 static void prvGreenLedTask(void *pvParameters);
 static void prvLightTask(void *pvParameters);
 static void prvTemperatureTask(void *pvParameters);
-static void prvTemperatureInternalTask(void *pvParameters);
 static void prvAccelerationTask(void *pvParameters);
 
 /*=============================== variables =================================*/
@@ -70,7 +67,6 @@ int main (void)
     xTaskCreate(prvAccelerationTask, (const char *) "Acceleration", 128, NULL, ACCELERATION_TASK_PRIORITY, NULL);
     xTaskCreate(prvTemperatureTask, (const char *) "Temperature", 128, NULL, TEMPERATURE_TASK_PRIORITY, NULL);
     xTaskCreate(prvLightTask, (const char *) "Light", 128, NULL, LIGHT_TASK_PRIORITY, NULL);
-    xTaskCreate(prvTemperatureInternalTask, (const char *) "TemperatureInternal", 128, NULL, TEMPERATURE_INTERNAL_TASK_PRIORITY, NULL);
 
     // Start the scheduler
     Scheduler::run();
@@ -95,19 +91,19 @@ static void prvTemperatureTask(void *pvParameters)
     uint16_t temperature;
     uint16_t humidity;
 
-    if (sht21.isPresent() == true)
+    if (si7006.isPresent() == true)
     {
-        sht21.enable();
+        si7006.enable();
 
-        while(true)
+        while (true)
         {
             led_orange.on();
 
-            sht21.readTemperature();
-            temperature = sht21.getTemperatureRaw();
+            si7006.readTemperature();
+            temperature = si7006.getTemperatureRaw();
 
-            sht21.readHumidity();
-            humidity = sht21.getHumidityRaw();
+            si7006.readHumidity();
+            humidity = si7006.getHumidityRaw();
 
             led_orange.off();
 
@@ -117,26 +113,6 @@ static void prvTemperatureTask(void *pvParameters)
     else
     {
         led_orange.on();
-        Task::remove();
-    }
-}
-
-static void prvTemperatureInternalTask(void *pvParameters)
-{
-    uint16_t temperature;
-    
-    temp.enable();
-
-    while(true)
-    {
-        led_orange.on();
-
-        temp.readTemperature();
-        temperature = temp.getTemperatureRaw();
-
-        led_orange.off();
-
-        Task::delay(2000);
     }
 }
 
@@ -148,7 +124,7 @@ static void prvLightTask(void *pvParameters)
     {
         max44009.enable();
 
-        while(true)
+        while (true)
         {
             led_yellow.on();
 
@@ -163,24 +139,23 @@ static void prvLightTask(void *pvParameters)
     else
     {
         led_yellow.on();
-        Task::remove();
     }
 }
 
 static void prvAccelerationTask(void *pvParameters) {
     uint16_t x, y, z;
 
-    if (adxl346.isPresent() == true)
+    if (adxl34x.isPresent() == true)
     {
-        adxl346.enable();
+        adxl34x.enable();
 
-        while(true)
+        while (true)
         {
             led_red.on();
 
-            adxl346.wakeup();
-            adxl346.readSample(&x, &y, &z);
-            adxl346.suspend();
+            adxl34x.wakeup();
+            adxl34x.readSample(&x, &y, &z);
+            adxl34x.suspend();
 
             led_red.off();
 
@@ -190,14 +165,13 @@ static void prvAccelerationTask(void *pvParameters) {
     else
     {
         led_red.on();
-        Task::remove();
     }
 }
 
 static void prvGreenLedTask(void *pvParameters)
 {
     // Forever
-    while(true)
+    while (true)
     {
         // Turn off green LED for 1950 ms
         led_green.off();
@@ -208,4 +182,3 @@ static void prvGreenLedTask(void *pvParameters)
         Task::delay(50);
     }
 }
-
