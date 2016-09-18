@@ -82,16 +82,9 @@ NEMIVER_EXT  = elf
 # Configure the cc2538-bsl.py script
 CC2538_BSL_PYTHON = python
 CC2538_BSL_NAME   = cc2538-bsl.py
-CC2538_BSL_PATH   = $(PROJECT_HOME)/tools/openmote-bsl/cc2538-bsl
+CC2538_BSL_PATH   = $(PROJECT_HOME)/tools/cc2538-bsl
 CC2538_BSL_OPT    = -e -w -b 500000 -p $(BSL_PORT)
 CC2538_BSL_EXT    = hex
-
-# Configure the OpenMote bootloader
-OPENMOTE_BSL_PYTHON = python
-OPENMOTE_BSL_NAME   = openmote-bsl.py
-OPENMOTE_BSL_PATH   = $(PROJECT_HOME)/tools/openmote-bsl
-OPENMOTE_BSL_OPT    = --board $(BSL_BOARD)
-OPENMOTE_BSL_EXT    = hex
 
 ###############################################################################
 
