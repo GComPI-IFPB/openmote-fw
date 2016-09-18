@@ -6,15 +6,15 @@ import subprocess
 from distutils.spawn import find_executable
 
 current_dir  = "."
-home_dir     = ".."
+home_dir     = "../.."
 
 ignore_folders = ['.git', 'bin', 'python', 'tools']
 
-src_extensions = ['.c', '.cpp', '.h', '.hpp']
+src_extensions = ['.c', '.cpp']
 hdr_extensions = ['.h', '.hpp']
 
 qtcreator_bin      = "qtcreator"
-qtcreator_project  = "tools/qtcreator"
+qtcreator_project  = "tools/qtcreator/qtcreator"
 qtcreator_creator  = "QtCreator.creator"
 qtcreator_files    = "QtCreator.files"
 qtcreator_includes = "QtCreator.includes"
@@ -55,7 +55,7 @@ def get_all_files(path):
     result = []
     for path, subdirs, files in os.walk(path):
         for f in files:
-            if is_valid_source_file(f):
+            if is_valid_source_file(f) or is_valid_header_dir(f):
                 r = os.path.join(path, f)
                 r = os.path.abspath(r)
                 result.append(r)
