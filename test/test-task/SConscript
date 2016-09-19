@@ -4,8 +4,8 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'test-cc1200.elf'
-source = ['main.cpp']
+target = 'test-task.elf'
+source = ['main.cpp', 'LedBlinker.cpp']
 
 lib_name = ['board', 'drivers', 'platform', 'stack', 'kernel', 'cc2538']
 lib_path = [os.path.join('#', 'bin', localEnv['board']),

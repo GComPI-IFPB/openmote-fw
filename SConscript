@@ -1,4 +1,7 @@
 import os
+import sys
+import threading
+import subprocess
 
 ################################################################################
 
@@ -26,6 +29,51 @@ boards = {
 
 ################################################################################
 
+# Convert ELF to HEX
+elf2iHexFunc = Builder(
+   action = 'arm-none-eabi-objcopy --output-target=ihex $SOURCE $TARGET',
+   suffix = '.hex',
+)
+env.Append(BUILDERS = {'Elf2iHex' : elf2iHexFunc})
+
+# Convert ELF to BIN
+elf2BinFunc = Builder(
+   action = 'arm-none-eabi-objcopy --output-target=binary $SOURCE $TARGET',
+   suffix = '.bin',
+)
+env.Append(BUILDERS = {'Elf2iBin' : elf2BinFunc})
+
+# Print sizes
+printSizeFunc = Builder(
+    action = 'arm-none-eabi-size $SOURCE',
+    suffix = '.phonysize',
+)
+env.Append(BUILDERS = {'PrintSize' : printSizeFunc})
+
+################################################################################
+
+def postBuildSize(env, source):
+    returnVal  = []
+    returnVal += [env.PrintSize(source=source)]
+    return returnVal
+env.AddMethod(postBuildSize, 'PostBuildSize')
+
+def postBuildBin(env, source):
+    returnVal  = []
+    returnVal += [env.Elf2iHex(source=source)]
+    returnVal += [env.Elf2iBin(source=source)]
+    return returnVal
+env.AddMethod(postBuildBin, 'PostBuildBin')
+
+def postBuildLoad(env, source):
+    returnVal = []
+    if env['bootload']:
+        returnVal += [env.Bootload(env.Elf2iHex(source))]
+    return returnVal
+env.AddMethod(postBuildLoad, 'PostBuildLoad')
+
+################################################################################
+
 build_dir = os.path.join("#/build", board)
 
 platform  = boards[board]["platform"]
@@ -41,6 +89,70 @@ env['toolchain'] = toolchain
 env['linker']    = linker
 
 folders = ['board', 'drivers', 'kernel/freertos', 'stack', 'platform', 'projects', 'test']
+
+################################################################################
+
+class OpenMoteCC2538_bootloadThread(threading.Thread):
+    def __init__(self, port, binary, semaphore):       
+        # Initialize parent class
+        threading.Thread.__init__(self)
+
+        # Store parameters
+        self.port         = port
+        self.binary       = binary
+        self.semaphore    = semaphore
+        self.name         = 'OpenMoteCC2538_bootloadThread_{0}'.format(self.port)
+        self.bsl_name     = 'cc2538-bsl.py'
+        self.bsl_path     = os.path.join('tools', 'cc2538-bsl')
+        self.bsl_params   = ' -e --bootloader-invert-lines -w -b 500000 -p '
+    
+    def run(self):
+        print 'Starting bootloading on {0}'.format(self.port)
+        command = 'python ' + os.path.join(self.bsl_path, self.bsl_name) + self.bsl_params + '{0} {1}'.format(self.port, self.binary)
+        subprocess.call(
+        	command, shell = True
+        )
+        print 'Done bootloading on {0}'.format(self.port)
+        
+        # Indicate done
+        self.semaphore.release()
+        
+def OpenMoteCC2538_bootload(target, source, env):
+    threadList = []
+    semaphore  = threading.Semaphore(0)
+    
+    # Create threads
+    for port in env['bootload'].split(','):
+        threadList += [
+            OpenMoteCC2538_bootloadThread(
+                port      = port,
+                binary    = source[0].path.split('.')[0] + '.hex',
+                semaphore = semaphore
+            )
+        ]
+
+    # Start threads
+    for t in threadList:
+        t.start()
+
+    # Wait for threads to finish
+    for t in threadList:
+        semaphore.acquire()
+
+################################################################################
+
+def BootloadFunc():
+    if env['board'] == 'openmote-cc2538':
+        return Builder(
+            action      = OpenMoteCC2538_bootload,
+            suffix      = '.phonyupload',
+            src_suffix  = '.bin',
+        )
+    else:
+        raise SystemError('Bootloading on board={0} unsupported.'.format(env['board']))
+
+if env['bootload']:
+    env.Append(BUILDERS = {'Bootload' : BootloadFunc()})
 
 ################################################################################
 
@@ -118,7 +230,7 @@ if not verbose:
    env[  'SHCCCOMSTR']  = "Compiling (shared) $TARGET"
    env[    'ARCOMSTR']  = "Archiving          $TARGET"
    env['RANLIBCOMSTR']  = "Indexing           $TARGET"
-   env[  'LINKCOMSTR']  = "Linking            $ARGET"
+   env[  'LINKCOMSTR']  = "Linking            $TARGET"
    env['SHLINKCOMSTR']  = "Linking (shared)   $TARGET"
    env[  'INSTALLSTR']  = "Installing         $TARGET"
 

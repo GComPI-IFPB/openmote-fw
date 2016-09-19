@@ -4,12 +4,12 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'test-cc1200.elf'
+target = 'test-aes.elf'
 source = ['main.cpp']
 
 lib_name = ['board', 'drivers', 'platform', 'stack', 'kernel', 'cc2538']
-lib_path = [os.path.join('#', 'bin', localEnv['board']),
-            os.path.join('#', 'platform', localEnv['platform'])]
+lib_path =  [os.path.join('#', 'bin', localEnv['board']),
+             os.path.join('#', 'platform', localEnv['platform'])]
 
 output = localEnv.Program(
     target = target,

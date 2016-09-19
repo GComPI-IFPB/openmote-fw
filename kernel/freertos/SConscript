@@ -12,7 +12,7 @@ output_dir = os.path.join('#', 'bin', env['board'])
 
 for src in src_dir:
     script = os.path.join('#', 'kernel', 'freertos', src, 'SConscript')
-    build  = os.path.join('#', 'build', localEnv['board'], 'kernel', src)
+    build  = os.path.join('#', 'build', localEnv['board'], 'kernel', 'freertos', localEnv['cpu'], src)
     
     output = localEnv.SConscript(
         script,

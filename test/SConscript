@@ -16,4 +16,6 @@ if (localEnv['project'].startswith('test')):
 	    exports = {'env': env},
 	)
 
-	result = env.Install(output_dir, project)
+	env.PostBuildSize(project)
+	env.PostBuildBin(project)
+	env.PostBuildLoad(project)

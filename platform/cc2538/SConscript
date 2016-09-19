@@ -6,28 +6,6 @@ localEnv = env.Clone()
 
 ################################################################################
 
-target = 'libcc2538'
-
-script     = os.path.join('#', 'platform', localEnv['platform'], 'libcc2538', 'src', 'SConscript')
-build_dir  = os.path.join('#', 'build', localEnv['board'], 'platform', localEnv['platform'], 'libcc2538')
-output_dir = os.path.join('#', 'bin', env['board'])
-
-source = localEnv.SConscript(
-    script,
-    variant_dir = build_dir,
-    duplicate = 0,
-    exports = {'env': env},
-)
-
-libcc2538 = localEnv.StaticLibrary(
-    target = target,
-    source = source,
-)
-
-result = env.Install(output_dir, libcc2538)
-
-################################################################################
-
 source = [
 	'Aes.cpp',
     'Board.cpp',

@@ -4,7 +4,7 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'test-cc1200.elf'
+target = 'test-sensors.elf'
 source = ['main.cpp']
 
 lib_name = ['board', 'drivers', 'platform', 'stack', 'kernel', 'cc2538']
