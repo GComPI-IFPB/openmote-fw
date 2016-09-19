@@ -89,8 +89,8 @@ static void prvCrcTask(void *pvParameters)
         uint8_t high = (crc_output >> 8) & 0xFF;
         uint8_t low = (crc_output >> 0) & 0xFF;
 
-        spi.writeByte(high);
-        spi.writeByte(low);
+        spi.rwByte(high);
+        spi.rwByte(low);
 
         crc16.set(high);
         crc16.set(low);
@@ -100,8 +100,8 @@ static void prvCrcTask(void *pvParameters)
         high = (crc_output >> 8) & 0xFF;
         low = (crc_output >> 0) & 0xFF;
 
-        spi.writeByte(high);
-        spi.writeByte(low);
+        spi.rwByte(high);
+        spi.rwByte(low);
 
         if (crc16.check())
         {

@@ -73,8 +73,11 @@ static void prvSpiTask(void *pvParameters)
         // Turn on red LED
         led_red.on();
 
-        // Print buffer via SPI
-        spi.writeByte(spi_ptr, spi_len);
+        for (uint8_t i = 0; i < spi_len; ++i)
+        {
+        	// Print buffer via SPI
+        	spi.rwByte(spi_ptr[i]);
+    	}
 
         // Turn off red LED
         led_red.off();
