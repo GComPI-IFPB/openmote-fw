@@ -6,7 +6,7 @@ localEnv = env.Clone()
 
 target = 'libstack'
 
-src_dir   = ['ethernet', 'ieee802154', 'utils']
+src_dir   = ['utils']
 output_dir = os.path.join('#', 'bin', env['board'])
 source = []
 

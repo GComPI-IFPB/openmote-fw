@@ -8,7 +8,8 @@ target = 'freertos-tickless'
 source = ['main.cpp', 'cc2538_lowpower.c']
 
 lib_name = ['board', 'drivers', 'platform', 'stack', 'kernel', 'cc2538']
-lib_path =  os.path.join('#', 'bin', localEnv['board'])
+lib_path =  [os.path.join('#', 'bin', localEnv['board']),
+             os.path.join('#', 'platform', localEnv['platform'])]
 
 main = localEnv.Program(
     target = target,

@@ -4,17 +4,18 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'ieee802154-sniffer'
-source = ['main.cpp']
+target = 'ieee802154-sniffer.elf'
+source = ['main.cpp', 'SnifferCommon.cpp', 'SnifferSerial.cpp']
 
 lib_name = ['board', 'drivers', 'platform', 'stack', 'kernel', 'cc2538']
-lib_path =  os.path.join('#', 'bin', localEnv['board'])
+lib_path =  [os.path.join('#', 'bin', localEnv['board']),
+             os.path.join('#', 'platform', localEnv['platform'])]
 
-main = localEnv.Program(
+output = localEnv.Program(
     target = target,
     source = source,
     LIBS = lib_name,
     LIBPATH = lib_path
 )
 
-Return('main')
+Return('output')

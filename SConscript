@@ -252,8 +252,6 @@ env.Append(
         os.path.join('#','drivers', 'sht21'),
         os.path.join('#','drivers', 'si7006'),
         os.path.join('#','drivers', 'tps62730'),
-        os.path.join('#','stack', 'ethernet'),
-        os.path.join('#','stack', 'ieee802154'),
         os.path.join('#','stack', 'utils'),
         os.path.join('#', 'test', project)
     ]
