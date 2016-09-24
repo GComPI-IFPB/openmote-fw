@@ -1,0 +1,21 @@
+import os
+
+Import('env')
+
+localEnv = env.Clone()
+
+target = 'test-ethernet.elf'
+source = ['main.cpp']
+
+lib_name = ['board', 'drivers', 'platform', 'stack', 'kernel', 'cc2538']
+lib_path = [os.path.join('#', 'bin', localEnv['board']),
+            os.path.join('#', 'platform', localEnv['platform'])]
+
+output = localEnv.Program(
+    target = target,
+    source = source,
+    LIBS = lib_name,
+    LIBPATH = lib_path
+)
+
+Return('output')
