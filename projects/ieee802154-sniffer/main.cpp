@@ -19,18 +19,14 @@
 
 #include "Aes.h"
 #include "Board.h"
-#include "Enc28j60.h"
 #include "Gpio.h"
 #include "Spi.h"
-
-#include "Serial.h"
-#include "Ethernet.h"
 
 #include "Callback.h"
 #include "Scheduler.h"
 #include "Task.h"
 
-#include "SnifferEthernet.h"
+#include "Serial.h"
 #include "SnifferSerial.h"
 
 /*================================ define ===================================*/
@@ -62,15 +58,7 @@ static void changeAesKey(bool enable, uint8_t* key);
 /*=============================== variables =================================*/
 
 static Serial serial(uart);
-static Ethernet ethernet(enc28j60);
-
-#if (SNIFFER_TYPE == SNIFFER_SERIAL)
-static SnifferSerial   sniffer(board, radio, aes, serial);
-#elif  (SNIFFER_TYPE == SNIFFER_ETHERNET)
-static SnifferEthernet sniffer(board, radio, aes, ethernet);
-#else
-#error "SNIFFER_TYPE not defined or not valid!"
-#endif
+static SnifferSerial sniffer(board, radio, aes, serial);
 
 static uint8_t serial_buffer[32];
 static uint8_t* serial_buffer_ptr;
