@@ -1,0 +1,15 @@
+import os
+
+Import('env')
+
+localEnv = env.Clone()
+
+source = [
+    'Ethernet.cpp',
+    'EthernetDevice.cpp',
+    'EthernetFrame.cpp',
+]
+
+common  = localEnv.Object(source=source)
+
+Return('common')
