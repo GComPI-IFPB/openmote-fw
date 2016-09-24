@@ -31,6 +31,7 @@
 #include "Si7006.h"
 
 #include "Tps62730.h"
+#include "Enc28j60.h"
 #include "Cc1200.h"
 
 #include "cc2538_include.h"
@@ -161,6 +162,13 @@
 #define MAX44009_INT_PIN        ( GPIO_PIN_5 )
 #define MAX44009_INT_EDGE       ( GPIO_FALLING_EDGE )
 
+#define ENC28J60_CS_BASE        ( GPIO_A_BASE )
+#define ENC28J60_CS_PIN         ( GPIO_PIN_3 )
+#define ENC28J60_CS_IOC         ( IOC_MUX_OUT_SEL_SSI0_FSSOUT )
+#define ENC28J60_INT_PORT       ( GPIO_D_BASE )
+#define ENC28J60_INT_PIN        ( GPIO_PIN_0 )
+#define ENC28J60_INT_EDGE       ( GPIO_FALLING_EDGE )
+
 #define CC1200_CS_BASE          ( GPIO_A_BASE )
 #define CC1200_CS_PIN           ( GPIO_PIN_3 )
 #define CC1200_CS_IOC           ( IOC_MUX_OUT_SEL_SSI0_FSSOUT )
@@ -287,6 +295,13 @@ Si7006 si7006(i2c);
 
 // CC2538 Temperature sensor
 TemperatureSensor temp;
+
+// Ethernet PHY + MAC chip
+// GpioConfig enc28j60_cs_cfg = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0};
+// GpioConfig enc28j60_int_cfg = {ENC28J60_INT_PORT, ENC28J60_INT_PIN, 0, ENC28J60_INT_EDGE, 0};
+// GpioOut enc28j60_cs(enc28j60_cs_cfg);
+// GpioIn enc28j60_int(enc28j60_int_cfg);
+// Enc28j60 enc28j60(spi, enc28j60_cs, enc28j60_int);
 
 // CC1200 radio transceiver
 GpioConfig cc1200_cs_cfg    = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0};

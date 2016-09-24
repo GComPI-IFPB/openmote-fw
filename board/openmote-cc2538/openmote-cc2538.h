@@ -40,6 +40,7 @@ class Sht21;
 class Si7006;
 
 class Tps62730;
+class Enc28j60;
 class Cc1200;
 
 /*=============================== variables =================================*/
@@ -109,6 +110,9 @@ extern Max44009 max44009;
 // Temperature + Relative humidity sensor
 // extern Sht21 sht21;
 extern Si7006 si7006;
+
+// Ethernet PHY + MAC chip
+extern Enc28j60 enc28j60;
 
 // CC1200 transceiver
 extern Cc1200 cc1200;
