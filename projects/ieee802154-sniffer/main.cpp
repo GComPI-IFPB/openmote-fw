@@ -151,7 +151,6 @@ static void prvSnifferTask(void *pvParameters)
     }
 }
 
-
 static void changeRadioChannel(uint8_t channel)
 {
     // Stop the sniffer prior to updating the channel
@@ -165,5 +164,5 @@ static void changeRadioChannel(uint8_t channel)
 }
 
 static void changeAesKey(bool enable, uint8_t* key)
-    {
+{
 }
