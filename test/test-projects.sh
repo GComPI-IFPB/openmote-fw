@@ -4,8 +4,8 @@ HOME=".."
 PROJECTS="test"
 TEST="test"
 
-MAKE_COMMAND="make BOARD=openmote-cc2538"
-CLEAN_COMMAND="make BOARD=openmote-cc2538 clean"
+MAKE_COMMAND="scons board=openmote-cc2538 project="
+CLEAN_COMMAND="scons -c board=openmote-cc2538 project="
 
 cd $HOME
 HOME=$(pwd)
@@ -14,14 +14,14 @@ cd $PROJECTS
 for PROJECT in *; do
     if [[ -d $PROJECT ]]; then
         
-        cd $PROJECT
+        cd $HOME
         
         echo -ne "Cleaning $PROJECT..."
         OUTPUT=$($CLEAN_COMMAND 2>&1)
         echo -e "ok!"
         
         echo -ne "Building $PROJECT..."
-        OUTPUT=$($MAKE_COMMAND 2>&1) 
+        OUTPUT=$($MAKE_COMMAND$PROJECT 2>&1) 
         
         if [[ $OUTPUT == *rror* ]]; then
             echo -e "$OUTPUT" > $HOME/$TEST/$PROJECT.log
@@ -31,7 +31,7 @@ for PROJECT in *; do
             echo -e "ok!"
         fi
         
-        cd $HOME/$PROJECTS
+        cd $PROJECTS
         
     fi
 done
