@@ -297,11 +297,11 @@ Si7006 si7006(i2c);
 TemperatureSensor temp;
 
 // Ethernet PHY + MAC chip
-// GpioConfig enc28j60_cs_cfg = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0};
-// GpioConfig enc28j60_int_cfg = {ENC28J60_INT_PORT, ENC28J60_INT_PIN, 0, ENC28J60_INT_EDGE, 0};
-// GpioOut enc28j60_cs(enc28j60_cs_cfg);
-// GpioIn enc28j60_int(enc28j60_int_cfg);
-// Enc28j60 enc28j60(spi, enc28j60_cs, enc28j60_int);
+GpioConfig enc28j60_cs_cfg = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0};
+GpioConfig enc28j60_int_cfg = {ENC28J60_INT_PORT, ENC28J60_INT_PIN, 0, ENC28J60_INT_EDGE, 0};
+GpioOut enc28j60_cs(enc28j60_cs_cfg);
+GpioIn enc28j60_int(enc28j60_int_cfg);
+Enc28j60 enc28j60(spi, enc28j60_cs, enc28j60_int);
 
 // CC1200 radio transceiver
 GpioConfig cc1200_cs_cfg    = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0};
