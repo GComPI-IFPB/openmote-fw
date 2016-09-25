@@ -7,8 +7,6 @@ import subprocess
 
 Import('env')
 
-print env['project']
-
 verbose = env['verbose']
 board   = env['board']
 project = env['project']
@@ -82,13 +80,19 @@ toolchain = boards[board]["toolchain"]
 
 linker    = os.path.join(".", 'platform', platform, boards[board]["linker"])
 
+lib_name = ['board', 'drivers', 'platform', 'stack', 'net', 'kernel']
+lib_path = [os.path.join('#', 'bin', board),
+            os.path.join('#', 'platform', platform)]
+
 env['board']     = board
 env['platform']  = platform
 env['cpu']       = cpu
 env['toolchain'] = toolchain
 env['linker']    = linker
+env['lib_name']  = lib_name
+env['lib_path']  = lib_path
 
-folders = ['board', 'drivers', 'kernel/freertos', 'stack', 'platform', 'projects', 'test']
+src_folders = ['board', 'drivers', 'kernel/freertos', 'net', 'stack', 'platform', 'projects', 'test']
 
 ################################################################################
 
@@ -252,6 +256,8 @@ env.Append(
         os.path.join('#','drivers', 'sht21'),
         os.path.join('#','drivers', 'si7006'),
         os.path.join('#','drivers', 'tps62730'),
+        os.path.join('#','net', 'ethernet'),
+        os.path.join('#','net', 'ieee802154'),
         os.path.join('#','stack', 'utils'),
         os.path.join('#', 'test', project)
     ]
@@ -273,18 +279,19 @@ else:
 if (platform == 'cc2538'):
     env.Append(
         CPPPATH = [
-            os.path.join('#','platform', 'cc2538', 'libcc2538'),
-            os.path.join('#','platform', 'cc2538', 'libcc2538', 'inc'),
-            os.path.join('#','platform', 'cc2538', 'libcc2538', 'src')
+            os.path.join('#','platform', platform, 'libcc2538'),
+            os.path.join('#','platform', platform, 'libcc2538', 'inc'),
+            os.path.join('#','platform', platform, 'libcc2538', 'src')
         ]
     )
+    lib_name += [platform]
 else:
     raise SystemError("Error, platform not valid!")
 
 ################################################################################
 
 # Build all targets and dependencies
-for folder in folders:
+for folder in src_folders:
     if verbose:
         print("Parsing folder={0}.".format(folder))
     script = os.path.join("#", folder, "SConscript")
