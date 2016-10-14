@@ -4,15 +4,15 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'libkernel'
+target = 'libfreertos'
 source = []
 
 src_dir    = ['common', localEnv['cpu']]
 output_dir = os.path.join('#', 'bin', env['board'])
 
 for src in src_dir:
-    script = os.path.join('#', 'kernel', 'freertos', src, 'SConscript')
-    build  = os.path.join('#', 'build', localEnv['board'], 'kernel', 'freertos', localEnv['cpu'], src)
+    script = os.path.join('#', 'freertos', src, 'SConscript')
+    build  = os.path.join('#', 'build', localEnv['board'], 'freertos', localEnv['cpu'], src)
     
     output = localEnv.SConscript(
         script,
@@ -23,9 +23,9 @@ for src in src_dir:
     
     source.append(output)
 
-libkernel = localEnv.StaticLibrary(
+libfreertos = localEnv.StaticLibrary(
     target = target,
     source = source,
 )
 
-result = env.Install(output_dir, libkernel)
+result = env.Install(output_dir, libfreertos)
