@@ -2,6 +2,7 @@ import os
 import sys
 import threading
 import subprocess
+import glob
 
 ################################################################################
 
@@ -18,7 +19,8 @@ openmote_cc2538 = {
     'platform'  : 'cc2538',
     'cpu'       : 'cortex-m3',
     'toolchain' : 'arm-none-eabi',
-    'linker'    : 'cc2538_linker.lds',
+    'os'        : 'freertos',
+    'linker'    : 'cc2538_linker.lds'
 }
 
 boards = {
@@ -80,7 +82,7 @@ toolchain = boards[board]["toolchain"]
 
 linker    = os.path.join(".", 'platform', platform, boards[board]["linker"])
 
-lib_name = ['board', 'drivers', 'platform', 'stack', 'net', 'kernel']
+lib_name = ['board', 'drivers', 'net', 'platform', 'stack', 'freertos']
 lib_path = [os.path.join('#', 'bin', board),
             os.path.join('#', 'platform', platform)]
 
@@ -88,11 +90,15 @@ env['board']     = board
 env['platform']  = platform
 env['cpu']       = cpu
 env['toolchain'] = toolchain
+env['os']        = os
 env['linker']    = linker
 env['lib_name']  = lib_name
 env['lib_path']  = lib_path
 
-src_folders = ['board', 'drivers', 'kernel/freertos', 'net', 'stack', 'platform', 'projects', 'test']
+library_folders = ['board', 'drivers', 'freertos', 'net', 'stack', 'platform']
+project_folders = ['projects', 'test']
+
+src_folders = project_folders + library_folders
 
 ################################################################################
 
@@ -108,14 +114,12 @@ class OpenMoteCC2538_bootloadThread(threading.Thread):
         self.name         = 'OpenMoteCC2538_bootloadThread_{0}'.format(self.port)
         self.bsl_name     = 'cc2538-bsl.py'
         self.bsl_path     = os.path.join('tools', 'cc2538-bsl')
-        self.bsl_params   = ' -e --bootloader-invert-lines -w -b 500000 -p '
+        self.bsl_params   = ' -e --bootloader-invert-lines -w -b 400000 -p '
     
     def run(self):
         print 'Starting bootloading on {0}'.format(self.port)
         command = 'python ' + os.path.join(self.bsl_path, self.bsl_name) + self.bsl_params + '{0} {1}'.format(self.port, self.binary)
-        subprocess.call(
-        	command, shell = True
-        )
+        subprocess.Popen(command, shell = True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
         print 'Done bootloading on {0}'.format(self.port)
         
         # Indicate done
@@ -125,8 +129,14 @@ def OpenMoteCC2538_bootload(target, source, env):
     threadList = []
     semaphore  = threading.Semaphore(0)
     
+    # Enumerate ports
+    ports = env['bootload'].split(',')
+
+    # Check pots to bootload
+    ports = OpenMoteCC2538_expand(ports)
+
     # Create threads
-    for port in env['bootload'].split(','):
+    for port in ports:
         threadList += [
             OpenMoteCC2538_bootloadThread(
                 port      = port,
@@ -142,6 +152,47 @@ def OpenMoteCC2538_bootload(target, source, env):
     # Wait for threads to finish
     for t in threadList:
         semaphore.acquire()
+
+##
+# Pass a list, a range or all ports to do the bootloading
+# list  -> /dev/ttyUSB0,ttyUSB1,/dev/ttyUSB2
+# range -> /dev/ttyUSB[0-2] = /dev/ttyUSB0,ttyUSB1,/dev/ttyUSB2
+# all   -> /dev/ttyUSBX = /dev/ttyUSB0,ttyUSB1,/dev/ttyUSB2
+##
+def OpenMoteCC2538_expand(ports):
+    # Process only when there is a single port
+    if (len(ports) == 1):
+        port  = ports[0]
+        ports = []
+        last_char = port[-1:]
+        base_dir  = os.path.dirname(port)      
+
+        # /dev/ttyUSBX means bootload all ttyUSB ports
+        if (last_char == "X"):
+            base_file = os.path.basename(port[:-1])
+            ports     = sorted(glob.glob(os.path.join(base_dir, base_file) + "*"))
+
+        # /dev/ttyUSB[1-2] means bootload a range of ttyUSB ports
+        elif (last_char == "]"):
+            base_file   = os.path.basename(port.split('[')[0])
+            first, last = sorted(map(int, ((port.split('['))[1].split(']')[0]).split('-')))
+
+            # For all elements in range
+            for i in range(first, last + 1):
+                p = os.path.join(base_dir, base_file + str(i))
+                ports.append(p)
+        else:
+            ports = [port]
+
+    # Check that the ports exist
+    # ports = [p for p in ports if os.path.isfile(p)]
+
+    # Check if new list is empty
+    if (not ports):
+        raise SystemError("Bootload port expansion is empty or erroneous!")
+
+    return ports
+
 
 ################################################################################
 
@@ -168,17 +219,17 @@ if verbose:
 
 ################################################################################
 
-env.Replace(CC          = toolchain + '-gcc')
-env.Replace(CXX         = toolchain + '-g++')
-env.Replace(AS          = toolchain + '-as')
-env.Replace(OBJCOPY     = toolchain + '-objcopy')
-env.Replace(OBJDUMP     = toolchain + '-objdump')
-env.Replace(AR          = toolchain + '-ar')
-env.Replace(RANLIB      = toolchain + '-ranlib')
-env.Replace(NM          = toolchain + '-nm')
-env.Replace(SIZE        = toolchain + '-size')
-
 if (cpu == 'cortex-m3'):
+    env.Replace(CC          = toolchain  + '-gcc')
+    env.Replace(CXX         = toolchain + '-g++')
+    env.Replace(AS          = toolchain + '-as')
+    env.Replace(OBJCOPY     = toolchain + '-objcopy')
+    env.Replace(OBJDUMP     = toolchain + '-objdump')
+    env.Replace(AR          = toolchain + '-ar')
+    env.Replace(RANLIB      = toolchain + '-ranlib')
+    env.Replace(NM          = toolchain + '-nm')
+    env.Replace(SIZE        = toolchain + '-size')
+
     env.Append(CFLAGS       = '-mthumb')
     env.Append(CFLAGS       = '-mcpu=cortex-m3')
     env.Append(CFLAGS       = '-mlittle-endian')
@@ -222,7 +273,6 @@ if (cpu == 'cortex-m3'):
     env.Append(LINKFLAGS    = '-Wl,__cxa_pure_virtual=0')
     env.Append(LINKFLAGS    = '-nodefaultlibs')
     env.Append(LINKFLAGS    = '-T' + linker)
-
 else:
     raise SystemError("Error, cpu not valid!")
 
@@ -244,9 +294,9 @@ env.Append(
     CPPPATH = [
         os.path.join('#','platform', 'inc'),
         os.path.join('#','platform', platform),
-        os.path.join('#','kernel', 'freertos', 'common'),
-        os.path.join('#','kernel', 'freertos', 'inc'),
-        os.path.join('#','kernel', 'freertos', cpu),
+        os.path.join('#','freertos', 'common'),
+        os.path.join('#','freertos', 'inc'),
+        os.path.join('#','freertos', cpu),
         os.path.join('#','projects', project),
         os.path.join('#','drivers', 'inc'),
         os.path.join('#','drivers', 'adxl34x'),
@@ -258,7 +308,8 @@ env.Append(
         os.path.join('#','drivers', 'tps62730'),
         os.path.join('#','net', 'ethernet'),
         os.path.join('#','net', 'ieee802154'),
-        os.path.join('#','stack', 'utils'),
+        os.path.join('#','stack', 'inc'),
+        os.path.join('#','stack', 'src'),
         os.path.join('#', 'test', project)
     ]
 )
@@ -271,6 +322,8 @@ if (board == 'openmote-cc2538'):
             os.path.join('#','board', 'openmote-cc2538')
         ]
     )
+elif(board == 'linux'):
+    pass
 else:
     raise SystemError("Error, board not valid!")
 
@@ -285,6 +338,8 @@ if (platform == 'cc2538'):
         ]
     )
     lib_name += [platform]
+elif (platform == 'linux'):
+    lib_name += ['pthread']
 else:
     raise SystemError("Error, platform not valid!")
 
