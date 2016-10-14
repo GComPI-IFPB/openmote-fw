@@ -8,7 +8,6 @@ source = [
     'Buffer.cpp',
     'CircularBuffer.cpp',
     'Crc16.cpp',
-    'CriticalSection.cpp',
     'Hdlc.cpp',
     'Mutex.cpp',
     'Queue.cpp',
