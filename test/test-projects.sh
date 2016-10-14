@@ -17,7 +17,7 @@ for PROJECT in *; do
         cd $HOME
         
         echo -ne "Cleaning $PROJECT..."
-        OUTPUT=$($CLEAN_COMMAND 2>&1)
+        OUTPUT=$($CLEAN_COMMAND$PROJECT 2>&1)
         echo -e "ok!"
         
         echo -ne "Building $PROJECT..."
