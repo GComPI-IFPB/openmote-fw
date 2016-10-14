@@ -30,8 +30,6 @@
 #include "Sht21.h"
 #include "Si7006.h"
 
-#include "Tps62730.h"
-#include "Enc28j60.h"
 #include "Cc1200.h"
 
 #include "cc2538_include.h"
@@ -104,11 +102,6 @@
 
 #define RADIO_TIMER_INTERRUPT   ( INT_MACTIMR )
 
-#define TPS62730_PORT           ( GPIO_B_BASE )
-#define TPS62730_STATUS_PIN     ( GPIO_PIN_0 )
-#define TPS62730_STATUS_EDGE    ( GPIO_BOTH_EDGES )
-#define TPS62730_BYPASS_PIN     ( GPIO_PIN_1 )
-
 #define ANTENNA_EXTERNAL_PORT   ( GPIO_D_BASE )
 #define ANTENNA_EXTERNAL_PIN    ( GPIO_PIN_4 )
 #define ANTENNA_INTERNAL_PORT   ( GPIO_D_BASE )
@@ -162,13 +155,6 @@
 #define MAX44009_INT_PIN        ( GPIO_PIN_5 )
 #define MAX44009_INT_EDGE       ( GPIO_FALLING_EDGE )
 
-#define ENC28J60_CS_BASE        ( GPIO_A_BASE )
-#define ENC28J60_CS_PIN         ( GPIO_PIN_3 )
-#define ENC28J60_CS_IOC         ( IOC_MUX_OUT_SEL_SSI0_FSSOUT )
-#define ENC28J60_INT_PORT       ( GPIO_D_BASE )
-#define ENC28J60_INT_PIN        ( GPIO_PIN_0 )
-#define ENC28J60_INT_EDGE       ( GPIO_FALLING_EDGE )
-
 #define CC1200_CS_BASE          ( GPIO_A_BASE )
 #define CC1200_CS_PIN           ( GPIO_PIN_3 )
 #define CC1200_CS_IOC           ( IOC_MUX_OUT_SEL_SSI0_FSSOUT )
@@ -192,13 +178,6 @@
 // Board management
 Board board;
 Watchdog watchdog(WATCHDOG_INTERVAL);
-
-// Step-down DC/DC converter
-GpioConfig bypass_cfg = {TPS62730_PORT, TPS62730_BYPASS_PIN};
-GpioConfig status_cfg = {TPS62730_PORT, TPS62730_STATUS_PIN, 0, TPS62730_STATUS_EDGE, 0};
-GpioOut bypass(bypass_cfg);
-GpioIn status(status_cfg);
-Tps62730 tps62730(bypass, status);
 
 // Debug pins
 GpioConfig debug_ad0_cfg = {GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN, 0, 0, 0};
@@ -247,7 +226,7 @@ RadioTimer radioTimer(RADIO_TIMER_INTERRUPT);
 // I2C peripheral
 GpioConfig i2c_scl_cfg = {I2C_SCL_BASE, I2C_SCL_PIN, 0, 0, 0};
 GpioConfig i2c_sda_cfg = {I2C_SDA_BASE, I2C_SDA_PIN, 0, 0, 0};
-I2cConfig i2c_cfg = {I2C_PERIPHERAL, I2C_BAUDRATE};
+I2cConfig i2c_cfg      = {I2C_PERIPHERAL, I2C_BAUDRATE};
 Gpio i2c_scl(i2c_scl_cfg);
 Gpio i2c_sda(i2c_sda_cfg);
 I2c i2c(i2c_scl, i2c_sda, i2c_cfg);
@@ -256,7 +235,7 @@ I2c i2c(i2c_scl, i2c_sda, i2c_cfg);
 GpioConfig spi_miso_cfg = {SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC, 0, 0};
 GpioConfig spi_mosi_cfg = {SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC, 0, 0};
 GpioConfig spi_clk_cfg  = {SPI_CLK_BASE, SPI_CLK_PIN, SPI_CLK_IOC, 0, 0};
-SpiConfig spi_cfg = {SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, SPI_INT, SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE};
+SpiConfig spi_cfg       = {SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, SPI_INT, SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE};
 Gpio spi_miso(spi_miso_cfg);
 Gpio spi_mosi(spi_mosi_cfg);
 Gpio spi_clk(spi_clk_cfg);
@@ -295,13 +274,6 @@ Si7006 si7006(i2c);
 
 // CC2538 Temperature sensor
 TemperatureSensor temp;
-
-// Ethernet PHY + MAC chip
-GpioConfig enc28j60_cs_cfg = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0};
-GpioConfig enc28j60_int_cfg = {ENC28J60_INT_PORT, ENC28J60_INT_PIN, 0, ENC28J60_INT_EDGE, 0};
-GpioOut enc28j60_cs(enc28j60_cs_cfg);
-GpioIn enc28j60_int(enc28j60_int_cfg);
-Enc28j60 enc28j60(spi, enc28j60_cs, enc28j60_int);
 
 // CC1200 radio transceiver
 GpioConfig cc1200_cs_cfg    = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0};

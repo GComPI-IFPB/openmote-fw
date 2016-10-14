@@ -39,8 +39,6 @@ class Max44009;
 class Sht21;
 class Si7006;
 
-class Tps62730;
-class Enc28j60;
 class Cc1200;
 
 /*=============================== variables =================================*/
@@ -49,9 +47,6 @@ class Cc1200;
 extern Board board;
 extern Watchdog watchdog;
 extern RandomNumberGenerator rng;
-
-// Step-down DC/DC converter
-extern Tps62730 tps62730;
 
 // Debug pins
 extern GpioOut debug_ad0;
@@ -110,9 +105,6 @@ extern Max44009 max44009;
 // Temperature + Relative humidity sensor
 // extern Sht21 sht21;
 extern Si7006 si7006;
-
-// Ethernet PHY + MAC chip
-extern Enc28j60 enc28j60;
 
 // CC1200 transceiver
 extern Cc1200 cc1200;
