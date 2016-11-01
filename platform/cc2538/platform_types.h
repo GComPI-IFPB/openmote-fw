@@ -43,6 +43,7 @@ struct GpioConfig {
 	uint32_t ioc;
 	uint32_t edge;
 	uint32_t adc;
+	bool invert;
 };
 
 struct TimerConfig {
