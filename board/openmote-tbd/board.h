@@ -1,5 +1,5 @@
 /**
- * @file       openmote-cc2538.h
+ * @file       board.h
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,37 +9,30 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef BOARD_OPENMOTE_CC2538_H_
-#define BOARD_OPENMOTE_CC2538_H_
+#ifndef BOARD_OPENMOTE_TBD_H_
+#define BOARD_OPENMOTE_TBD_H_
 
 /*================================ include ==================================*/
+
+#include "Aes.h"
+#include "Board.h"
+#include "Gpio.h"
+#include "I2c.h"
+#include "Radio.h"
+#include "RadioTimer.h"
+#include "SleepTimer.h"
+#include "Spi.h"
+#include "TemperatureSensor.h"
+#include "Timer.h"
+#include "Uart.h"
+#include "RandomNumberGenerator.h"
+#include "Watchdog.h"
+
+#include "Cc1200.h"
 
 /*================================ define ===================================*/
 
 /*================================ typedef ==================================*/
-
-class Aes;
-class Board;
-class GpioIn;
-class GpioInPow;
-class GpioOut;
-class I2c;
-class Radio;
-class RadioTimer;
-class SleepTimer;
-class Spi;
-class TemperatureSensor;
-class Timer;
-class Uart;
-class RandomNumberGenerator;
-class Watchdog;
-
-class Adxl34x;
-class Max44009;
-class Sht21;
-class Si7006;
-
-class Cc1200;
 
 /*=============================== variables =================================*/
 
@@ -47,11 +40,6 @@ class Cc1200;
 extern Board board;
 extern Watchdog watchdog;
 extern RandomNumberGenerator rng;
-
-// Debug pins
-extern GpioOut debug_ad0;
-extern GpioOut debug_ad1;
-extern GpioOut debug_ad2;
 
 // Leds
 extern GpioOut led_green;
@@ -62,9 +50,8 @@ extern GpioOut led_yellow;
 // Button
 extern GpioInPow button_user;
 
-// Antenna
-extern GpioOut antenna_external;
-extern GpioOut antenna_internal;
+// VREG Control
+extern GpioOut vreg_ctrl;
 
 // Timer
 extern Timer timer0;
@@ -95,16 +82,6 @@ extern Aes aes;
 
 // CC2538 Temperature sensor
 extern TemperatureSensor temp;
-
-// Acceleration sensor
-extern Adxl34x adxl34x;
-
-// Light sensor
-extern Max44009 max44009;
-
-// Temperature + Relative humidity sensor
-// extern Sht21 sht21;
-extern Si7006 si7006;
 
 // CC1200 transceiver
 extern Cc1200 cc1200;

@@ -1,7 +1,7 @@
 import os
 
 cmd_options = {
-    'board'     :          ['openmote-cc2538','linux'],
+    'board'     :          ['openmote-tbd', 'openmote-usb'],
     'project'   :          ['earthquake', 'freertos-cc2538', 'freertos-cc2538-tickless', 'freertos-linux', 'ieee802154-sniffer',
                             'test-aes', 'test-board', 'test-button', 'test-cc1200', 'test-crc', 'test-ethernet', 'test-leds',
                             'test-radio', 'test-radiotimer', 'test-sensors', 'test-serial', 'test-sleeptimer', 'test-spi',

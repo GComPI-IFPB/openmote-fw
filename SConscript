@@ -14,8 +14,17 @@ project = env['project']
 
 ################################################################################
 
-openmote_cc2538 = {
-    'name'      : 'openmote-cc2538',
+openmote_usb = {
+    'name'      : 'openmote-usb',
+    'platform'  : 'cc2538',
+    'cpu'       : 'cortex-m3',
+    'toolchain' : 'arm-none-eabi',
+    'os'        : 'freertos',
+    'linker'    : 'cc2538_linker.lds'
+}
+
+openmote_tbd = {
+    'name'      : 'openmote-tbd',
     'platform'  : 'cc2538',
     'cpu'       : 'cortex-m3',
     'toolchain' : 'arm-none-eabi',
@@ -24,7 +33,8 @@ openmote_cc2538 = {
 }
 
 boards = {
-    'openmote-cc2538'  : openmote_cc2538,
+    'openmote-usb'  : openmote_usb,
+    'openmote-tbd'  : openmote_tbd,
 }
 
 ################################################################################
@@ -114,12 +124,15 @@ class OpenMoteCC2538_bootloadThread(threading.Thread):
         self.name         = 'OpenMoteCC2538_bootloadThread_{0}'.format(self.port)
         self.bsl_name     = 'cc2538-bsl.py'
         self.bsl_path     = os.path.join('tools', 'cc2538-bsl')
-        self.bsl_params   = ' -e --bootloader-invert-lines -w -b 400000 -p '
+        self.bsl_params   = ' -e -w --bootloader-invert-lines -b 400000 -p '
     
     def run(self):
         print 'Starting bootloading on {0}'.format(self.port)
         command = 'python ' + os.path.join(self.bsl_path, self.bsl_name) + self.bsl_params + '{0} {1}'.format(self.port, self.binary)
-        subprocess.Popen(command, shell = True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        if (verbose):
+			subprocess.Popen(command, shell = True).communicate()
+        else:
+        	subprocess.Popen(command, shell = True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
         print 'Done bootloading on {0}'.format(self.port)
         
         # Indicate done
@@ -197,7 +210,7 @@ def OpenMoteCC2538_expand(ports):
 ################################################################################
 
 def BootloadFunc():
-    if env['board'] == 'openmote-cc2538':
+    if (env['board'] == 'openmote-usb') or (env['board'] == 'openmote-tbd'):
         return Builder(
             action      = OpenMoteCC2538_bootload,
             suffix      = '.phonyupload',
@@ -298,11 +311,11 @@ env.Append(
         os.path.join('#','freertos', 'inc'),
         os.path.join('#','freertos', cpu),
         os.path.join('#','projects', project),
+        os.path.join('#','board', board),
         os.path.join('#','drivers', 'inc'),
         os.path.join('#','drivers', 'adxl34x'),
         os.path.join('#','drivers', 'cc1200'),
         os.path.join('#','drivers', 'max44009'),
-        os.path.join('#','drivers', 'sht21'),
         os.path.join('#','drivers', 'si7006'),
         os.path.join('#','net', 'ethernet'),
         os.path.join('#','net', 'ieee802154'),
@@ -311,19 +324,6 @@ env.Append(
         os.path.join('#', 'test', project)
     ]
 )
-
-################################################################################
-
-if (board == 'openmote-cc2538'):
-    env.Append(
-        CPPPATH = [
-            os.path.join('#','board', 'openmote-cc2538')
-        ]
-    )
-elif(board == 'linux'):
-    pass
-else:
-    raise SystemError("Error, board not valid!")
 
 ################################################################################
 
@@ -336,8 +336,6 @@ if (platform == 'cc2538'):
         ]
     )
     lib_name += [platform]
-elif (platform == 'linux'):
-    lib_name += ['pthread']
 else:
     raise SystemError("Error, platform not valid!")
 

@@ -1,5 +1,5 @@
-	/**
- * @file       openmote-cc2538.cpp
+/**
+ * @file       board.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -27,7 +27,6 @@
 
 #include "Adxl34x.h"
 #include "Max44009.h"
-#include "Sht21.h"
 #include "Si7006.h"
 
 #include "Cc1200.h"
@@ -180,28 +179,22 @@ Board board;
 Watchdog watchdog(WATCHDOG_INTERVAL);
 
 // Debug pins
-GpioConfig debug_ad0_cfg = {GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN, 0, 0, 0};
-GpioConfig debug_ad1_cfg = {GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN, 0, 0, 0};
-GpioConfig debug_ad2_cfg = {GPIO_DEBUG_AD2_PORT, GPIO_DEBUG_AD2_PIN, 0, 0, 0};
+GpioConfig debug_ad0_cfg = {GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN, 0, 0, 0, 0};
+GpioConfig debug_ad1_cfg = {GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN, 0, 0, 0, 0};
+GpioConfig debug_ad2_cfg = {GPIO_DEBUG_AD2_PORT, GPIO_DEBUG_AD2_PIN, 0, 0, 0, 0};
 GpioOut debug_ad0(debug_ad0_cfg);
 GpioOut debug_ad1(debug_ad1_cfg);
 GpioOut debug_ad2(debug_ad2_cfg);
 
 // Leds
-GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, 0, 0, 0};
-GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 0};
-GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN, 0, 0, 0};
-GpioConfig led_yellow_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, 0, 0, 0};
+GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, 0, 0, 0, 0};
+GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 0, 0};
+GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN, 0, 0, 0, 0};
+GpioConfig led_yellow_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, 0, 0, 0, 0};
 GpioOut led_green(led_green_cfg);
 GpioOut led_orange(led_orange_cfg);
 GpioOut led_red(led_red_cfg);
 GpioOut led_yellow(led_yellow_cfg);
-
-// Antenna
-GpioConfig antenna_ext_cfg = {ANTENNA_EXTERNAL_PORT, ANTENNA_EXTERNAL_PIN, 0, 0, 0};
-GpioConfig antenna_int_cfg = {ANTENNA_INTERNAL_PORT, ANTENNA_INTERNAL_PIN, 0, 0, 0};
-GpioOut antenna_external(antenna_ext_cfg);
-GpioOut antenna_internal(antenna_int_cfg);
 
 // Button
 GpioConfig button_user_cfg = {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0};
@@ -269,7 +262,6 @@ GpioIn max44009_int(max44009_int_cfg);
 Max44009 max44009(i2c, max44009_int);
 
 // Temperature + Relative humidity sensor
-// Sht21 sht21(i2c);
 Si7006 si7006(i2c);
 
 // CC2538 Temperature sensor
@@ -290,5 +282,8 @@ Cc1200 cc1200(spi, cc1200_cs, cc1200_gpio0, cc1200_gpio2, cc1200_gpio3);
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/
+
+void Board::init(void) {
+}
 
 /*================================ private ==================================*/
