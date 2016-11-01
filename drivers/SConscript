@@ -7,7 +7,7 @@ localEnv = env.Clone()
 target  = 'libdrivers'
 source  = []
 
-src_dir    = ['adxl34x', 'cc1200', 'max44009', 'sht21', 'si7006']
+src_dir    = ['adxl34x', 'cc1200', 'max44009', 'si7006']
 output_dir = os.path.join('#', 'bin', env['board'])
 
 for src in src_dir:
