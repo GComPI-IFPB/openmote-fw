@@ -114,15 +114,17 @@ SECTIONS
         . = ALIGN(4);
         KEEP(*(.flashcca))
     } > FLASH_CCA
-    
+
     /* Contains information to unwind the stack for debugging purposes */
-    PROVIDE_HIDDEN (__exidx_start = .);
-    .ARM.exidx :
+    .ARM.extab : ALIGN(4)  
+    {  
+       *(.ARM.extab* .gnu.linkonce.armextab.*)
+    } > FLASH  
+    
+    .ARM.exidx : ALIGN(4)
     {
-        . = ALIGN(4);
-        *(.ARM.exidx*)
+        *(.ARM.exidx* .gnu.linkonce.armextab.*)
     } > FLASH
-    PROVIDE_HIDDEN (__exidx_end = .);
     
     /DISCARD/ :
     {
