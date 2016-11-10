@@ -69,6 +69,9 @@
 #define BUTTON_USER_PIN         ( GPIO_PIN_3 )
 #define BUTTON_USER_EDGE        ( GPIO_FALLING_EDGE )
 
+#define BOOTLOAD_PORT           ( GPIO_A_BASE )
+#define BOOTLOAD_PIN            ( GPIO_PIN_6 )
+
 #define TIMER0_PERIPHERAL       ( SYS_CTRL_PERIPH_GPT0 )
 #define TIMER0_BASE             ( GPTIMER0_BASE )
 #define TIMER0_SOURCE           ( GPTIMER_BOTH )
@@ -178,14 +181,6 @@
 Board board;
 Watchdog watchdog(WATCHDOG_INTERVAL);
 
-// Debug pins
-GpioConfig debug_ad0_cfg = {GPIO_DEBUG_AD0_PORT, GPIO_DEBUG_AD0_PIN, 0, 0, 0, 0};
-GpioConfig debug_ad1_cfg = {GPIO_DEBUG_AD1_PORT, GPIO_DEBUG_AD1_PIN, 0, 0, 0, 0};
-GpioConfig debug_ad2_cfg = {GPIO_DEBUG_AD2_PORT, GPIO_DEBUG_AD2_PIN, 0, 0, 0, 0};
-GpioOut debug_ad0(debug_ad0_cfg);
-GpioOut debug_ad1(debug_ad1_cfg);
-GpioOut debug_ad2(debug_ad2_cfg);
-
 // Leds
 GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, 0, 0, 0, 0};
 GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 0, 0};
@@ -199,6 +194,10 @@ GpioOut led_yellow(led_yellow_cfg);
 // Button
 GpioConfig button_user_cfg = {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0};
 GpioInPow button_user(button_user_cfg);
+
+// Button
+GpioConfig bootload_cfg = {BOOTLOAD_PORT, BOOTLOAD_PIN, 0, 0, 0};
+GpioIn bootload(bootload_cfg);
 
 // Timer
 TimerConfig timer0_cfg = {TIMER0_PERIPHERAL, TIMER0_BASE, TIMER0_SOURCE, TIMER0_CONFIG, TIMER0_INTERRUPT, TIMER0_INTERRUPT_MODE};

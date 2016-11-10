@@ -44,11 +44,6 @@ extern Board board;
 extern Watchdog watchdog;
 extern RandomNumberGenerator rng;
 
-// Debug pins
-extern GpioOut debug_ad0;
-extern GpioOut debug_ad1;
-extern GpioOut debug_ad2;
-
 // Leds
 extern GpioOut led_green;
 extern GpioOut led_orange;
@@ -57,10 +52,6 @@ extern GpioOut led_yellow;
 
 // Button
 extern GpioInPow button_user;
-
-// Antenna
-extern GpioOut antenna_external;
-extern GpioOut antenna_internal;
 
 // Timer
 extern Timer timer0;
