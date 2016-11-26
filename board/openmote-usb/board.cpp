@@ -195,10 +195,6 @@ GpioOut led_yellow(led_yellow_cfg);
 GpioConfig button_user_cfg = {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0};
 GpioInPow button_user(button_user_cfg);
 
-// Button
-GpioConfig bootload_cfg = {BOOTLOAD_PORT, BOOTLOAD_PIN, 0, 0, 0};
-GpioIn bootload(bootload_cfg);
-
 // Timer
 TimerConfig timer0_cfg = {TIMER0_PERIPHERAL, TIMER0_BASE, TIMER0_SOURCE, TIMER0_CONFIG, TIMER0_INTERRUPT, TIMER0_INTERRUPT_MODE};
 Timer timer0(timer0_cfg);
@@ -257,7 +253,7 @@ Adxl34x adxl34x(i2c, adxl34x_int);
 
 // Light sensor
 GpioConfig max44009_int_cfg = {MAX44009_INT_PORT, MAX44009_INT_PIN, 0, MAX44009_INT_EDGE, 0};
-GpioIn max44009_int(max44009_int_cfg);
+GpioInPow max44009_int(max44009_int_cfg);
 Max44009 max44009(i2c, max44009_int);
 
 // Temperature + Relative humidity sensor
