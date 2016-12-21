@@ -11,6 +11,7 @@ Import('env')
 verbose = env['verbose']
 board   = env['board']
 project = env['project']
+chip    = env['chip']
 
 ################################################################################
 
@@ -20,7 +21,7 @@ openmote_usb = {
     'cpu'       : 'cortex-m3',
     'toolchain' : 'arm-none-eabi',
     'os'        : 'freertos',
-    'linker'    : 'cc2538_linker.lds'
+    'linker'    : env['chip'] + '.lds'
 }
 
 openmote_tbd = {
@@ -29,7 +30,7 @@ openmote_tbd = {
     'cpu'       : 'cortex-m3',
     'toolchain' : 'arm-none-eabi',
     'os'        : 'freertos',
-    'linker'    : 'cc2538_linker.lds'
+    'linker'    : env['chip']+'.lds'
 }
 
 boards = {
