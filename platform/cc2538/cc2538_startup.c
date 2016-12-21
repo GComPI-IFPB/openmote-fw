@@ -38,7 +38,6 @@ typedef struct
     uint32_t bootloader_config;
     uint32_t image_is_valid;
     uint32_t image_vector_address;
-    uint8_t  lock_page[32];
 } lock_page_cca_t;
 
 /*=============================== prototypes ================================*/
@@ -77,14 +76,6 @@ const lock_page_cca_t lock_page_cca =
   BOOTLOADER_BACKDOOR_ENABLED,  // Bootloader backdoor enabled
   0,                            // Image valid bytes
   FLASH_START_ADDR,             // Vector table located at flash start address
-  {0xFF, 0xFF, 0xFF, 0xFF,      // Unlock all pages and debug
-   0xFF, 0xFF, 0xFF, 0xFF,
-   0xFF, 0xFF, 0xFF, 0xFF,
-   0xFF, 0xFF, 0xFF, 0xFF,
-   0xFF, 0xFF, 0xFF, 0xFF,
-   0xFF, 0xFF, 0xFF, 0xFF,
-   0xFF, 0xFF, 0xFF, 0xFF,
-   0xFF, 0xFF, 0xFF, 0xFF}
 };
 
 __attribute__ ((section(".vectors"), used))
@@ -228,6 +219,14 @@ reset_handler(void)
 
 static void system_init(void)
 {
+    /**
+     * Set GPIOs as output
+     */
+    GPIOPinTypeGPIOInput(GPIO_A_BASE, 0xFF);
+    GPIOPinTypeGPIOInput(GPIO_B_BASE, 0xFF);
+    GPIOPinTypeGPIOInput(GPIO_C_BASE, 0xFF);
+    GPIOPinTypeGPIOInput(GPIO_D_BASE, 0xFF);
+
     /**
      * Configure the 32 kHz pins, PD6 and PD7, for crystal operation
      * By default they are configured as GPIOs
