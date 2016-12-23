@@ -33,7 +33,7 @@
 
 /*================================ define ===================================*/
 
-#define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
+#define BLINK_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
 #define SENSOR_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 #define CONCENTRATOR_TASK_PRIORITY          ( tskIDLE_PRIORITY + 1 )
 
@@ -57,7 +57,7 @@
 
 /*=============================== prototypes ================================*/
 
-static void prvGreenLedTask(void *pvParameters);
+static void prvBlinkLedTask(void *pvParameters);
 
 #ifdef SENSOR
     static void prvSensorTask(void *pvParameters);
@@ -102,10 +102,11 @@ int main(void)
     board.init();
 
     // Create FreeRTOS tasks
-    xTaskCreate(prvGreenLedTask, (const char *) "LedTask", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
 #ifdef SENSOR
+    xTaskCreate(prvBlinkLedTask, (const char *) "LedTask", 128, &led_yellow, BLINK_LED_TASK_PRIORITY, NULL);
     xTaskCreate(prvSensorTask, (const char *) "Sensor", 128, NULL, SENSOR_TASK_PRIORITY, NULL);
 #elif CONCENTRATOR
+    xTaskCreate(prvBlinkLedTask, (const char *) "LedTask", 128, &led_green, BLINK_LED_TASK_PRIORITY, NULL);
     xTaskCreate(prvConcentratorTask, (const char *) "Concentrator", 128, NULL, CONCENTRATOR_TASK_PRIORITY, NULL);
 #else
 #error "You need to define params=SENSOR or params=CONCENTRATOR!"
@@ -117,16 +118,18 @@ int main(void)
 
 /*================================ private ==================================*/
 
-static void prvGreenLedTask(void *pvParameters)
+static void prvBlinkLedTask(void *pvParameters)
 {
+	GpioOut* led = static_cast<GpioOut *>(pvParameters);
+
     // Forever
     while (true) {
         // Turn off green LED for 1950 ms
-        led_green.off();
+        led->off();
          vTaskDelay(1950 / portTICK_RATE_MS);
 
         // Turn on green LED for 50 ms
-        led_green.on();
+        led->on();
         vTaskDelay(50 / portTICK_RATE_MS);
     }
 }
