@@ -7,6 +7,9 @@ localEnv = env.Clone()
 target = 'earthquake'
 source = ['main.cpp']
 
+if localEnv['params']:
+    localEnv.Append(CPPDEFINES=[localEnv['params']])
+
 earthquake = localEnv.Program(
     target = target,
     source = source,

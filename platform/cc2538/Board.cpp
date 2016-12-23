@@ -53,10 +53,6 @@ Board::Board():
 {
 }
 
-void Board::init(void)
-{
-}
-
 void Board::reset(void)
 {
     // Reset the board

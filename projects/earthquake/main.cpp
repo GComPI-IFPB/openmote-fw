@@ -16,7 +16,7 @@
 
 #include <string.h>
 
-#include "openmote-cc2538.h"
+#include "board.h"
 
 #include "Board.h"
 #include "Gpio.h"
@@ -25,7 +25,6 @@
 #include "Serial.h"
 
 #include "Adxl34x.h"
-#include "Tps62730.h"
 
 #include "Callback.h"
 #include "Scheduler.h"
@@ -59,8 +58,14 @@
 /*=============================== prototypes ================================*/
 
 static void prvGreenLedTask(void *pvParameters);
-static void prvSensorTask(void *pvParameters);
-static void prvConcentratorTask(void *pvParameters);
+
+#ifdef SENSOR
+    static void prvSensorTask(void *pvParameters);
+#elif CONCENTRATOR
+    static void prvConcentratorTask(void *pvParameters);
+#else
+    #error "You need to define SENSOR or CONCENTRATOR"
+#endif
 
 static void radioRxInitCallback(void);
 static void radioRxDoneCallback(void);
@@ -98,8 +103,13 @@ int main(void)
 
     // Create FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "LedTask", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-    // xTaskCreate(prvSensorTask, (const char *) "Sensor", 128, NULL, SENSOR_TASK_PRIORITY, NULL);
+#ifdef SENSOR
+    xTaskCreate(prvSensorTask, (const char *) "Sensor", 128, NULL, SENSOR_TASK_PRIORITY, NULL);
+#elif CONCENTRATOR
     xTaskCreate(prvConcentratorTask, (const char *) "Concentrator", 128, NULL, CONCENTRATOR_TASK_PRIORITY, NULL);
+#else
+#error "You need to define params=SENSOR or params=CONCENTRATOR!"
+#endif
 
     // Start the scheduler
     Scheduler::run();
@@ -121,6 +131,7 @@ static void prvGreenLedTask(void *pvParameters)
     }
 }
 
+#ifdef SENSOR
 static void prvSensorTask(void *pvParameters)
 {
     uint8_t buffer[6];
@@ -186,7 +197,9 @@ static void prvSensorTask(void *pvParameters)
         }
     }
 }
+#endif
 
+#ifdef CONCENTRATOR
 static void prvConcentratorTask(void *pvParameters)
 {
     RadioResult result;
@@ -231,6 +244,7 @@ static void prvConcentratorTask(void *pvParameters)
         }
     }
 }
+#endif
 
 static void adxl34xCallback(void)
 {

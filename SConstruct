@@ -47,6 +47,13 @@ cmd_vars.AddVariables(
         None,                                              # converter
     ),
     (
+        'params',                                          # key
+        '',                                                # help
+        '',                                                # default
+        None,                                              # validator
+        None,                                              # converter
+    ),
+    (
         'verbose',                                         # key
         '',                                                # help
         cmd_options['verbose'][0],                         # default
