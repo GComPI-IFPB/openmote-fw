@@ -16,7 +16,7 @@
 
 #include "board.h"
 
-#include "Rendezvouz.h"
+#include "Rendezvous.h"
 #include "Scheduler.h"
 #include "Semaphore.h"
 #include "Task.h"
@@ -24,20 +24,20 @@
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
-#define RED_LED_TASK_PRIORITY               ( tskIDLE_PRIORITY + 1 )
-#define ORANGE_LED_TASK_PRIORITY               ( tskIDLE_PRIORITY + 2 )
+#define YELLOW_LED_TASK_PRIORITY            ( tskIDLE_PRIORITY + 1 )
+#define ORANGE_LED_TASK_PRIORITY            ( tskIDLE_PRIORITY + 2 )
 
 /*================================ typedef ==================================*/
 
 /*=============================== prototypes ================================*/
 
 static void prvGreenLedTask(void *pvParameters);
-static void prvRedLedTask(void *pvParameters);
+static void prvYellowLedTask(void *pvParameters);
 static void prvOrangeLedTask(void *pvParameters);
 
 /*=============================== variables =================================*/
 
-static Rendezvouz rendezvouz;
+static Rendezvous rendezvous;
 
 /*================================= public ==================================*/
 
@@ -48,7 +48,7 @@ int main (void)
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-    xTaskCreate(prvRedLedTask, (const char *) "Red", 128, NULL, RED_LED_TASK_PRIORITY, NULL);
+    xTaskCreate(prvYellowLedTask, (const char *) "Yellow", 128, NULL, YELLOW_LED_TASK_PRIORITY, NULL);
     xTaskCreate(prvOrangeLedTask, (const char *) "Orange", 128, NULL, ORANGE_LED_TASK_PRIORITY, NULL);
 
     // Start the scheduler
@@ -61,9 +61,12 @@ int main (void)
 
 static void prvGreenLedTask(void *pvParameters)
 {
-    static uint8_t taskId;
+    static RendezvousId rendezvousId;
 
-    taskId = rendezvouz.getTaskId();
+    if (!rendezvous.getId(&rendezvousId)) {
+        led_red.on();
+        while(true);
+    }
 
     // Forever
     while (true) {
@@ -71,8 +74,8 @@ static void prvGreenLedTask(void *pvParameters)
         led_green.off();
         vTaskDelay(50 / portTICK_RATE_MS);
 
-        // Synchronization point with maxium delay of 1000 ms
-        rendezvouz.sync(taskId, 1000);
+        // Synchronization point with maxium delay of 100 ms
+        rendezvous.sync(rendezvousId, 100);
 
         // Turn on green LED for 50 ms
         led_green.on();
@@ -80,41 +83,47 @@ static void prvGreenLedTask(void *pvParameters)
     }
 }
 
-static void prvRedLedTask(void *pvParameters)
+static void prvYellowLedTask(void *pvParameters)
 {
-    static uint8_t taskId;
+    static RendezvousId rendezvousId;
 
-    taskId = rendezvouz.getTaskId();
+    if (!rendezvous.getId(&rendezvousId)) {
+        led_red.on();
+        while(true);
+    }
 
     // Forever
     while (true) {
-        // Turn off green LED for 1950 ms
-        led_red.off();
-        vTaskDelay(1950 / portTICK_RATE_MS);
+        // Turn off yellow LED for 1950 ms
+        led_yellow.off();
+        vTaskDelay(50 / portTICK_RATE_MS);
 
-        // Synchronization point with infinite delay
-        rendezvouz.sync(taskId);
+        // Synchronization point with 1000 ms delay
+        rendezvous.sync(rendezvousId, 1000);
 
-        // Turn on green LED for 50 ms
-        led_red.on();
+        // Turn on yellow LED for 50 ms
+        led_yellow.on();
         vTaskDelay(50 / portTICK_RATE_MS);
     }
 }
 
 static void prvOrangeLedTask(void *pvParameters)
 {
-    static uint8_t taskId;
+    static RendezvousId rendezvousId;
 
-    taskId = rendezvouz.getTaskId();
+    if (!rendezvous.getId(&rendezvousId)) {
+        led_red.on();
+        while(true);
+    }
 
     // Forever
     while (true) {
         // Turn off green LED for 1950 ms
         led_orange.off();
-        vTaskDelay(50 / portTICK_RATE_MS);
+        vTaskDelay(1950 / portTICK_RATE_MS);
 
-        // Synchronization point with maximum delay of 100 ms
-        rendezvouz.sync(taskId, 100);
+        // Synchronization point with maximum delay
+        rendezvous.sync(rendezvousId);
 
         // Turn on green LED for 50 ms
         led_orange.on();

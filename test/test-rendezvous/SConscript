@@ -4,7 +4,7 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'test-rendezvouz'
+target = 'test-rendezvous'
 source = ['main.cpp']
 
 main = localEnv.Program(

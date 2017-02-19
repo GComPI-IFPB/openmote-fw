@@ -1,5 +1,5 @@
 /**
- * @file       Rendezvouz.cpp
+ * @file       Rendezvous.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -11,9 +11,13 @@
 
 /*================================ include ==================================*/
 
-#include "Rendezvouz.h"
+#include "Rendezvous.h"
+
+#include "CriticalSection.h"
 
 /*================================ define ===================================*/
+
+#define MAX_RENDEZVOUS_TASKS        ( 32 )
 
 /*================================ typedef ==================================*/
 
@@ -23,51 +27,56 @@
 
 /*================================= public ==================================*/
 
-Rendezvouz::Rendezvouz():
-	taskCounter(0), lastTaskId(0), maxTaskId(0)
+Rendezvous::Rendezvous(void):
+	counter_(0), lastId_(0), maxId_(0)
 {
-	groupHandle_ = xEventGroupCreate();
-    if (groupHandle_ == NULL) {
-    	while(true);
-    }
+  handle_ = xEventGroupCreate();
+  if (handle_ == NULL) {
+    while(true);
+  }
 }
 
-Rendezvouz::~Rendezvouz(void)
+Rendezvous::~Rendezvous(void)
 {
-    vEventGroupDelete(groupHandle_);
+  vEventGroupDelete(handle_);
 }
 
-uint8_t Rendezvouz::getTaskId(void)
+bool Rendezvous::getId(RendezvousId* id)
 {
-	lastTaskId = 1 << (taskCounter);
-	taskCounter++;
-	maxTaskId |= lastTaskId;
-	return lastTaskId;
+  CriticalSection cs;
+
+  if (counter_ < MAX_RENDEZVOUS_TASKS && id != NULL) {
+    lastId_ = 1 << (counter_);
+    *id = lastId_;
+    counter_++;
+    maxId_ |= lastId_;
+    return true;
+  }
+
+  return false;
 }
 
-bool Rendezvouz::sync(uint8_t taskId)
+bool Rendezvous::sync(uint8_t taskId)
 {
-    xEventGroupSync(groupHandle_, taskId, maxTaskId, portMAX_DELAY);
+    xEventGroupSync(handle_, taskId, maxId_, portMAX_DELAY);
     return true;
 }
 
-bool Rendezvouz::sync(uint8_t taskId, uint32_t milliseconds)
+bool Rendezvous::sync(uint8_t taskId, uint32_t milliseconds)
 {
 	EventBits_t uxReturn;
 
 	TickType_t timeout = milliseconds / portTICK_RATE_MS;
-	uxReturn = xEventGroupSync(groupHandle_,
-                               taskId,
-                               maxTaskId,
-                               timeout);
+	uxReturn = xEventGroupSync(handle_,
+                             taskId,
+                             maxId_,
+                             timeout);
 
-	/* All three tasks reached the synchronisation point before the call
-       to xEventGroupSync() timed out. */
-    if ((uxReturn & maxTaskId) == maxTaskId) {
-        return true;
-    }
+  if ((uxReturn & maxId_) == maxId_) {
+      return true;
+  }
 
-    return false;
+  return false;
 }
 
 /*=============================== protected =================================*/

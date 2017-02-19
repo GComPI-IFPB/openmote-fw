@@ -1,5 +1,5 @@
 /**
- * @file       Semaphore.h
+ * @file       Rendezvous.h
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,26 +9,28 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef RENDEZVOUZ_H_
-#define RENDEZVOUZ_H_
+#ifndef RENDEZVOUS_H_
+#define RENDEZVOUS_H_
 
 #include "FreeRTOS.h"
-#include "task.h"
 #include "event_groups.h"
 
-class Rendezvouz
+typedef uint32_t RendezvousId;
+
+class Rendezvous
 {
 public:
-    Rendezvouz();
-    ~Rendezvouz();
-    uint8_t getTaskId(void);
+    Rendezvous();
+    ~Rendezvous();
+    bool getId(RendezvousId* id);
     bool sync(uint8_t taskId);
     bool sync(uint8_t taskId, uint32_t milliseconds);
 protected:
-    EventGroupHandle_t groupHandle_;
-    uint8_t taskCounter;
-    uint8_t lastTaskId;
-    uint8_t maxTaskId;
+    EventGroupHandle_t handle_;
+
+    uint32_t counter_;
+    uint32_t lastId_;
+    uint32_t maxId_;
 };
 
-#endif /* RENDEZVOUZ_H_ */
+#endif /* RENDEZVOUS_H_ */
