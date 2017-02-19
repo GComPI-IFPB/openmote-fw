@@ -125,7 +125,7 @@ class OpenMoteCC2538_bootloadThread(threading.Thread):
         self.name         = 'OpenMoteCC2538_bootloadThread_{0}'.format(self.port)
         self.bsl_name     = 'cc2538-bsl.py'
         self.bsl_path     = os.path.join('tools', 'cc2538-bsl')
-        self.bsl_params   = ' -e -w --bootloader-invert-lines -b 500000 -p '
+        self.bsl_params   = ' -e -w --bootloader-invert-lines -b 400000 -p '
     
     def run(self):
         print 'Starting bootloading on {0}'.format(self.port)
