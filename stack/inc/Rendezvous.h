@@ -23,8 +23,8 @@ public:
     Rendezvous();
     ~Rendezvous();
     bool getId(RendezvousId* id);
-    bool sync(uint8_t taskId);
-    bool sync(uint8_t taskId, uint32_t milliseconds);
+    bool sync(RendezvousId id);
+    bool sync(RendezvousId id, uint32_t milliseconds);
 protected:
     EventGroupHandle_t handle_;
 

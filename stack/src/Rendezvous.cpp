@@ -56,19 +56,19 @@ bool Rendezvous::getId(RendezvousId* id)
   return false;
 }
 
-bool Rendezvous::sync(uint8_t taskId)
+bool Rendezvous::sync(RendezvousId id)
 {
-    xEventGroupSync(handle_, taskId, maxId_, portMAX_DELAY);
+    xEventGroupSync(handle_, id, maxId_, portMAX_DELAY);
     return true;
 }
 
-bool Rendezvous::sync(uint8_t taskId, uint32_t milliseconds)
+bool Rendezvous::sync(RendezvousId id, uint32_t milliseconds)
 {
 	EventBits_t uxReturn;
 
 	TickType_t timeout = milliseconds / portTICK_RATE_MS;
 	uxReturn = xEventGroupSync(handle_,
-                             taskId,
+                             id,
                              maxId_,
                              timeout);
 
