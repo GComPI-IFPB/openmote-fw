@@ -15,6 +15,7 @@
 #include <stdint.h>
 
 #include "Callback.h"
+#include "Timer.h"
 
 struct GpioConfig;
 
@@ -73,6 +74,26 @@ public:
     void high(void);
     void low(void);
     uint32_t status(void);
+};
+
+/*****************************************************************************/
+
+class GpioPwm : public GpioOut, Timer
+{
+
+public:
+    GpioPwm(GpioConfig& gpioConfig, TimerConfig& timerConfig);
+    void init(bool level);
+    void setCallback(Callback* callback);
+    void clearCallback(void);
+    void enableInterrupts(void);
+    void disableInterrupts(void);
+    void setFrequency(uint16_t frequency);
+    void setDutyCycle(uint16_t dutyCycle);
+    void start(void);
+    void stop(void);
+private:
+    uint16_t dutyCycle_;
 };
 
 /*****************************************************************************/

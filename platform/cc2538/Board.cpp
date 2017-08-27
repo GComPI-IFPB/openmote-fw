@@ -59,6 +59,11 @@ void Board::reset(void)
     SysCtrlReset();
 }
 
+uint32_t Board::getClock(void)
+{
+    return SysCtrlClockGet();
+}
+
 void Board::setSleepMode(SleepMode sleepMode)
 {
      sleepMode_ = sleepMode;

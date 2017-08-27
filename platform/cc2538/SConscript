@@ -15,6 +15,7 @@ source = [
     'GpioIn.cpp',
     'GpioInPow.cpp',
     'GpioOut.cpp',
+    'GpioPwm.cpp',
     'I2c.cpp',
     'InterruptHandler.cpp',
     'Radio.cpp',

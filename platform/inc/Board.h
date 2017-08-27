@@ -23,6 +23,7 @@ public:
     Board();
     void init(void);
     void reset(void);
+    uint32_t getClock(void);
     void setSleepMode(SleepMode sleepMode);
     void sleep(void);
     void wakeup(void);

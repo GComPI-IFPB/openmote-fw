@@ -11,6 +11,7 @@
 
 /*================================ include ==================================*/
 
+#include "Board.h"
 #include "Timer.h"
 #include "InterruptHandler.h"
 
@@ -19,20 +20,24 @@
 
 /*================================ define ===================================*/
 
+#define DEFAULT_PRESCALER     ( 255 )
+
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
+
+extern Board board;
 
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/
 
 Timer::Timer(TimerConfig& config):
-    config_(config)    
+    config_(config), prescaler_(DEFAULT_PRESCALER)    
 {
 }
 
-void Timer::init(uint32_t frequency)
+void Timer::init(void)
 {
     // Disable peripheral previous to configuring it
     TimerDisable(config_.base, config_.source);
@@ -45,8 +50,38 @@ void Timer::init(uint32_t frequency)
     // Configure the peripheral
     TimerConfigure(config_.base, config_.config);
 
-    // Set the frequency
-    TimerLoadSet(config_.base, config_.source, frequency);
+    // Set the prescaler
+    setPrescaler(prescaler_);
+}
+
+uint32_t Timer::getPrescaler(void)
+{
+    return prescaler_;
+}
+
+void Timer::setPrescaler(uint32_t prescaler)
+{
+    if (prescaler > 255)
+    {
+        prescaler = 255;
+    }
+
+    prescaler_ = prescaler;
+
+    // Configure the prescaler
+    TimerPrescaleSet(config_.base, config_.source, prescaler_);
+}
+
+uint32_t Timer::getFrequency(void)
+{
+    return frequency_;
+}
+
+void Timer::setFrequency(uint32_t frequency)
+{
+    frequency_ = (board.getClock() / (prescaler_ * frequency));
+
+    TimerLoadSet(config_.base, config_.source, frequency_);
 }
 
 void Timer::start(void)
@@ -78,11 +113,14 @@ void Timer::enableInterrupts(void)
 {
     InterruptHandler::getInstance().setInterruptHandler(this);
 
+    // Clear Timer interrupts
+    // TimerIntClear(config_.base, config_.interrupt_mode);
+
     // Enable Timer interrupts
     TimerIntEnable(config_.base, config_.interrupt_mode);
 
     // Set the Timer interrupt priority
-    // IntPrioritySet(interrupt_, (7 << 5));
+    // IntPrioritySet(config_.interrupt, (7 << 5));
 
     // Enable the Timer interrupt
     IntEnable(config_.interrupt);
