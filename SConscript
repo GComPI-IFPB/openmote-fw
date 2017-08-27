@@ -314,6 +314,7 @@ env.Append(
         os.path.join('#','projects', project),
         os.path.join('#','board', board),
         os.path.join('#','drivers', 'inc'),
+        os.path.join('#','drivers', 'at86rf215'),
         os.path.join('#','drivers', 'adxl34x'),
         os.path.join('#','drivers', 'cc1200'),
         os.path.join('#','drivers', 'max44009'),
