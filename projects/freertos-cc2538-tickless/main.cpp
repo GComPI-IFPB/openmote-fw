@@ -14,10 +14,15 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "openmote-cc2538.h"
+#include "board.h"
+#include "platform_types.h"
 
 #include "Board.h"
 #include "Gpio.h"
+#include "Spi.h"
+
+#include "Cc1200.h"
+#include "Cc1200_regs.h"
 
 #include "Callback.h"
 #include "Scheduler.h"
@@ -28,6 +33,8 @@
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
 #define BUTTON_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
+
+#define SPI_BAUDRATE                        ( 4000000 )
 
 /*================================ typedef ==================================*/
 
@@ -56,7 +63,12 @@ int main(void)
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-    xTaskCreate(prvButtonTask, (const char *) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
+
+    // Enable the SPI peripheral
+    spi.enable(SPI_BAUDRATE);
+
+    // Put CC1200 in transmit mode
+    cc1200.sleep();
 
     // Start the scheduler
     Scheduler::run();
@@ -85,6 +97,8 @@ static void prvButtonTask(void *pvParameters)
     // Set the button callback and enable interrupts
     button_user.setCallback(&userCallback);
     button_user.enableInterrupts();
+
+    buttonSemaphore.take();
 
     // Forever
     while (true) {

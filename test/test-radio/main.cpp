@@ -11,19 +11,13 @@
 
 /*================================ include ==================================*/
 
-#include "string.h"
+#include <string.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
 
-#include "openmote-cc2538.h"
-
-#include "Board.h"
-#include "Gpio.h"
-#include "Radio.h"
-
-#include "Tps62730.h"
+#include "board.h"
 
 #include "Callback.h"
 #include "Scheduler.h"
@@ -35,7 +29,7 @@
 
 #define RADIO_MODE_RX                       ( 0 )
 #define RADIO_MODE_TX                       ( 1 )
-#define RADIO_MODE                          ( RADIO_MODE_RX )
+#define RADIO_MODE                          ( RADIO_MODE_TX )
 #define RADIO_CHANNEL                       ( 26 )
 
 #define PAYLOAD_LENGTH                      ( 125 )
@@ -85,8 +79,8 @@ static Serial serial(uart);
 
 int main (void)
 {
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+    // Initialize board
+    board.init();
 
     // Enable the IEEE 802.15.4 radio
     radio.setTxCallbacks(&txInitCallback, &txDoneCallback);

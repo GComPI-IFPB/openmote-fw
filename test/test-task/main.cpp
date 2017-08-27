@@ -11,9 +11,8 @@
 
 /*================================ include ==================================*/
 
-#include "openmote-cc2538.h"
+#include "board.h"
 
-#include "Board.h"
 #include "LedBlinker.h"
 
 #include "Scheduler.h"
@@ -44,10 +43,10 @@ int main(void) {
     board.init();
 
     // Set blinking periods
-    redLedBlinker.setTime(500, 1000);
-    greenLedBlinker.setTime(500, 1000);
-    yellowLedBlinker.setTime(500, 1000);
-    orangeLedBlinker.setTime(500, 1000);
+    greenLedBlinker.setTime(100, 1600);
+    yellowLedBlinker.setTime(200, 1600);
+    orangeLedBlinker.setTime(400, 1600);
+    redLedBlinker.setTime(800, 1600);
 
     // Start the scheduler
     Scheduler::run();

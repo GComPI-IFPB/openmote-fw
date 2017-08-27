@@ -14,7 +14,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "openmote-cc2538.h"
+#include "board.h"
 
 #include "Board.h"
 #include "Gpio.h"
@@ -72,6 +72,8 @@ static void prvButtonTask(void *pvParameters)
     // Configure the user button
     button_user.setCallback(&userCallback);
     button_user.enableInterrupts();
+
+    buttonSemaphore.take();
 
     // Forever
     while (true) {

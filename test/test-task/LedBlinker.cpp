@@ -11,11 +11,9 @@
 
 /*================================ include ==================================*/
 
-#include "openmote-cc2538.h"
+#include "board.h"
 
 #include "LedBlinker.h"
-#include "Gpio.h"
-#include "Uart.h"
 
 /*================================ define ===================================*/
 
@@ -34,7 +32,7 @@ LedBlinker::LedBlinker(const char * const name, uint8_t priority, GpioOut& gpio)
 
 void LedBlinker::setTime(uint32_t timeOn, uint32_t period)
 {
-	timeOn_  = timeOn;
+	timeOn_ = timeOn;
 	period_ = period;
 }
 

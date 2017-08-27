@@ -14,12 +14,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "openmote-cc2538.h"
-
-#include "Board.h"
-#include "Gpio.h"
-#include "Spi.h"
-#include "Tps62730.h"
+#include "board.h"
+#include "platform_types.h"
 
 #include "Cc1200.h"
 #include "Cc1200_regs.h"
@@ -43,14 +39,17 @@
 
 int main(void)
 {
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+	// Initialize board
+	board.init();
 
     // Enable the SPI peripheral
     spi.enable(SPI_BAUDRATE);
 
     // Put CC1200 in transmit mode
     cc1200.transmit();
+
+	//board.setSleepMode(SleepMode_3);
+    //board.sleep(); 
 
     // Forever and ever!
     while(true)

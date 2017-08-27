@@ -11,13 +11,7 @@
 
 /*================================ include ==================================*/
 
-#include "openmote-cc2538.h"
-
-#include "Board.h"
-#include "Gpio.h"
-#include "Timer.h"
-
-#include "Tps62730.h"
+#include "board.h"
 
 #include "Callback.h"
 #include "Scheduler.h"
@@ -44,34 +38,39 @@ static PlainCallback timerCallback3(timer3_callback);
 
 int main (void)
 {
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+    // Initialize board
+    board.init();
 
     // Initialize Timer0
-    timer0.init(800000);
-    timer0.setCallback(&timerCallback0);
-    timer0.enableInterrupts();
+    timer0b.init();
+    timer0b.setFrequency(2);
+    timer0b.setCallback(&timerCallback0);
+    timer0b.enableInterrupts();
 
     // Initialize Timer1
-    timer1.init(1600000);
-    timer1.setCallback(&timerCallback1);
-    timer1.enableInterrupts();
+    timer1b.init();
+    timer1b.setFrequency(4);
+    timer1b.setCallback(&timerCallback1);
+    timer1b.enableInterrupts();
 
     // Initialize Timer2
-    timer2.init(3200000);
-    timer2.setCallback(&timerCallback2);
-    timer2.enableInterrupts();
+    timer2b.init();
+    timer2b.setPrescaler(255);
+    timer2b.setFrequency(8);
+    timer2b.setCallback(&timerCallback2);
+    timer2b.enableInterrupts();
 
     // Initialize Timer3
-    timer3.init(6400000);
-    timer3.setCallback(&timerCallback3);
-    timer3.enableInterrupts();
+    timer3b.init();
+    timer3b.setFrequency(16);
+    timer3b.setCallback(&timerCallback3);
+    timer3b.enableInterrupts();
 
     // Start Timer0, 1, 2 and 3
-    timer0.start();
-    timer1.start();
-    timer2.start();
-    timer3.start();
+    timer0b.start();
+    timer1b.start();
+    timer2b.start();
+    timer3b.start();
     
     // Enable interrupts
     board.enableInterrupts();

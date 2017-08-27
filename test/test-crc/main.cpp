@@ -14,13 +14,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "openmote-cc2538.h"
-
-#include "Board.h"
-#include "Gpio.h"
-#include "Spi.h"
-
-#include "Tps62730.h"
+#include "board.h"
 
 #include "Crc16.h"
 #include "Scheduler.h"
@@ -49,8 +43,8 @@ static Crc16 crc16;
 
 int main (void)
 {
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+    // Initialize board
+    board.init();
 
     // Enable the SPI peripheral
     spi.enable(SPI_BAUDRATE);

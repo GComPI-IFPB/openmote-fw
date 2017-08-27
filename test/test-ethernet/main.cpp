@@ -16,14 +16,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "openmote-cc2538.h"
-
-#include "Board.h"
-#include "Enc28j60.h"
-#include "Gpio.h"
-#include "Spi.h"
-
-#include "Tps62730.h"
+#include "board.h"
 
 #include "Ethernet.h"
 
@@ -76,8 +69,8 @@ static Ethernet ethernet(enc28j60);
 
 int main (void)
 {
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+    // Initialize board
+    board.init();
 
     // Enable the SPI peripheral
     spi.enable(SPI_BAUDRATE);

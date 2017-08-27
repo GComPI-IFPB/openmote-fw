@@ -14,17 +14,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "openmote-cc2538.h"
-
-#include "Board.h"
-#include "Gpio.h"
-#include "I2c.h"
-#include "Radio.h"
-
-#include "Adxl34x.h"
-#include "Max44009.h"
-#include "Si7006.h"
-#include "Tps62730.h"
+#include "board.h"
 
 #include "Callback.h"
 #include "Scheduler.h"
@@ -56,8 +46,8 @@ static void prvAccelerationTask(void *pvParameters);
 
 int main (void)
 {
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+    // Initialize board
+    board.init();
 
     // Enable the I2C interface
     i2c.enable();

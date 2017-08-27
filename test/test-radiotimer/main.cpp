@@ -11,15 +11,8 @@
 
 /*================================ include ==================================*/
 
-#include "openmote-cc2538.h"
+#include "board.h"
 #include "platform_types.h"
-
-#include "Board.h"
-#include "Gpio.h"
-#include "RadioTimer.h"
-#include "SleepTimer.h"
-
-#include "Tps62730.h"
 
 #include "Callback.h"
 
@@ -43,8 +36,8 @@ static PlainCallback radioTimerCompareCallback(radio_timer_compare_callback);
 
 int main (void)
 {
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+    // Initialize board
+    board.init();
 
     // Initialize sleepTimer
     sleepTimer.setCallback(&sleepTimerCallback);

@@ -11,15 +11,7 @@
 
 /*================================ include ==================================*/
 
-#include "openmote-cc2538.h"
-
-#include "Aes.h"
-#include "Board.h"
-#include "Gpio.h"
-#include "Radio.h"
-#include "Uart.h"
-
-#include "Tps62730.h"
+#include "board.h"
 
 /*================================ define ===================================*/
 
@@ -48,8 +40,8 @@ int main (void)
 {
     bool status;
 
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+	// Initialize board
+	board.init();
 
     // Activate the AES module
     aes.enable();

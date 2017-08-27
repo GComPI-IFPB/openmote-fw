@@ -14,14 +14,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "openmote-cc2538.h"
-
-#include "Board.h"
-#include "Gpio.h"
-#include "Radio.h"
-#include "Uart.h"
-
-#include "Tps62730.h"
+#include "board.h"
 
 #include "Callback.h"
 #include "Scheduler.h"
@@ -76,8 +69,8 @@ static uint8_t crc;
 
 int main (void)
 {
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+    // Initialize board
+    board.init();
 
     // Enable the UART interface
     uart.enable(UART_BAUDRATE);

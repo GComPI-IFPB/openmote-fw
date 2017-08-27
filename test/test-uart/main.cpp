@@ -14,11 +14,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "openmote-cc2538.h"
-
-#include "Gpio.h"
-#include "Tps62730.h"
-#include "Uart.h"
+#include "board.h"
 
 #include "Scheduler.h"
 #include "Task.h"
@@ -47,8 +43,8 @@ uint8_t uart_len  = sizeof(uart_buffer);
 
 int main (void)
 {
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+    // Initialize board
+    board.init();
 
     // Enable the UART peripheral and the serial driver
     uart.enable(UART_BAUDRATE);

@@ -15,12 +15,7 @@
 #include "task.h"
 #include "semphr.h"
 
-#include "openmote-cc2538.h"
-
-#include "Board.h"
-#include "Gpio.h"
-
-#include "Tps62730.h"
+#include "board.h"
 
 #include "Scheduler.h"
 #include "Task.h"
@@ -43,8 +38,8 @@ static void prvRedLedTask(void *pvParameters);
 
 int main (void)
 {
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+    // Initialize board
+    board.init();
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);

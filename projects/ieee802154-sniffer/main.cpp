@@ -15,7 +15,8 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include "openmote-cc2538.h"
+
+#include "board.h"
 
 #include "Aes.h"
 #include "Board.h"

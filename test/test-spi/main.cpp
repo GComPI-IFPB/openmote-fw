@@ -14,13 +14,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "openmote-cc2538.h"
-
-#include "Board.h"
-#include "Gpio.h"
-#include "Spi.h"
-
-#include "Tps62730.h"
+#include "board.h"
 
 #include "Callback.h"
 #include "Scheduler.h"
@@ -51,8 +45,8 @@ uint8_t  spi_len = sizeof(spi_buffer);
 
 int main (void)
 {
-    // Set the TPS62730 in bypass mode (Vin = 3.3V, Iq < 1 uA)
-    tps62730.setBypass();
+    // Initialize board
+    board.init();
 
     // Enable the SPI peripheral
     spi.enable(SPI_BAUDRATE);
@@ -68,7 +62,7 @@ int main (void)
 static void prvSpiTask(void *pvParameters)
 {
     // Forever
-    while(true)
+    while (true)
     {
         // Turn on red LED
         led_red.on();
@@ -90,7 +84,7 @@ static void prvSpiTask(void *pvParameters)
 static void prvGreenLedTask(void *pvParameters)
 {
     // Forever
-    while(true)
+    while (true)
     {
         // Turn off green LED for 950 ms
         led_green.off();
