@@ -1,0 +1,17 @@
+import os
+
+Import('env')
+
+localEnv = env.Clone()
+
+source = [
+    'At86rf215.cpp',
+]
+
+localEnv.Append(
+    CPPPATH =  []
+)
+
+common  = localEnv.Object(source=source)
+
+Return('common')
