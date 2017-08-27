@@ -8,6 +8,7 @@
  * @copyright  Copyright 2016, OpenMote Technologies, S.L.
  *             This file is licensed under the GNU General Public License v2.
  */
+
 #ifndef CC1200_H_
 #define CC1200_H_
 
