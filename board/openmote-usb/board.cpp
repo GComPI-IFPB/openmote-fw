@@ -267,22 +267,22 @@ GpioConfig led_yellow_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, LED_YELLOW_IOC, 0,
 GpioPwm led_yellow(led_yellow_cfg, timer3a_cfg);
 
 // Button
-GpioConfig button_user_cfg = {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0};
+GpioConfig button_user_cfg = {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0 ,0};
 GpioInPow button_user(button_user_cfg);
 
 
 // I2C peripheral
-GpioConfig i2c_scl_cfg = {I2C_SCL_BASE, I2C_SCL_PIN, 0, 0, 0};
-GpioConfig i2c_sda_cfg = {I2C_SDA_BASE, I2C_SDA_PIN, 0, 0, 0};
+GpioConfig i2c_scl_cfg = {I2C_SCL_BASE, I2C_SCL_PIN, 0, 0, 0 ,0};
+GpioConfig i2c_sda_cfg = {I2C_SDA_BASE, I2C_SDA_PIN, 0, 0, 0 ,0};
 I2cConfig i2c_cfg      = {I2C_PERIPHERAL, I2C_BAUDRATE};
 Gpio i2c_scl(i2c_scl_cfg);
 Gpio i2c_sda(i2c_sda_cfg);
 I2c i2c(i2c_scl, i2c_sda, i2c_cfg);
 
 // SPI peripheral
-GpioConfig spi_miso_cfg = {SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC, 0, 0};
-GpioConfig spi_mosi_cfg = {SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC, 0, 0};
-GpioConfig spi_clk_cfg  = {SPI_CLK_BASE, SPI_CLK_PIN, SPI_CLK_IOC, 0, 0};
+GpioConfig spi_miso_cfg = {SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC, 0, 0 ,0};
+GpioConfig spi_mosi_cfg = {SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC, 0, 0 ,0};
+GpioConfig spi_clk_cfg  = {SPI_CLK_BASE, SPI_CLK_PIN, SPI_CLK_IOC, 0, 0 ,0};
 SpiConfig spi_cfg       = {SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, SPI_INT, SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE};
 Gpio spi_miso(spi_miso_cfg);
 Gpio spi_mosi(spi_mosi_cfg);
@@ -290,8 +290,8 @@ Gpio spi_clk(spi_clk_cfg);
 Spi spi(spi_miso, spi_mosi, spi_clk, spi_cfg);
 
 // UART peripheral
-GpioConfig uart_rx_cfg = {UART_RX_PORT, UART_RX_PIN, UART_RX_IOC, 0, 0};
-GpioConfig uart_tx_cfg = {UART_TX_PORT, UART_TX_PIN, UART_TX_IOC, 0, 0};
+GpioConfig uart_rx_cfg = {UART_RX_PORT, UART_RX_PIN, UART_RX_IOC, 0, 0 ,0};
+GpioConfig uart_tx_cfg = {UART_TX_PORT, UART_TX_PIN, UART_TX_IOC, 0, 0 ,0};
 UartConfig uart_cfg = {UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INT, UART_BAUDRATE, UART_MODE};
 Gpio uart_rx(uart_rx_cfg);
 Gpio uart_tx(uart_tx_cfg);
@@ -307,12 +307,12 @@ Radio radio;
 Aes aes;
 
 // Acceleration sensor
-GpioConfig adxl34x_int_cfg = {ADXL34X_INT_PORT, ADXL34X_INT_PIN, 0, ADXL34X_INT_EDGE, 0};
+GpioConfig adxl34x_int_cfg = {ADXL34X_INT_PORT, ADXL34X_INT_PIN, 0, ADXL34X_INT_EDGE, 0 ,0};
 GpioInPow adxl34x_int(adxl34x_int_cfg);
 Adxl34x adxl34x(i2c, adxl34x_int);
 
 // Light sensor
-GpioConfig max44009_int_cfg = {MAX44009_INT_PORT, MAX44009_INT_PIN, 0, MAX44009_INT_EDGE, 0};
+GpioConfig max44009_int_cfg = {MAX44009_INT_PORT, MAX44009_INT_PIN, 0, MAX44009_INT_EDGE, 0 ,0};
 GpioInPow max44009_int(max44009_int_cfg);
 Max44009 max44009(i2c, max44009_int);
 
@@ -323,10 +323,10 @@ Si7006 si7006(i2c);
 TemperatureSensor temp;
 
 // CC1200 radio transceiver
-GpioConfig cc1200_cs_cfg    = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0};
-GpioConfig cc1200_gpio0_cfg = {CC1200_GPIO0_BASE, CC1200_GPIO0_PIN, 0, CC1200_GPIO0_EDGE, 0};
-GpioConfig cc1200_gpio2_cfg = {CC1200_GPIO2_BASE, CC1200_GPIO2_PIN, 0, CC1200_GPIO2_EDGE, 0};
-GpioConfig cc1200_gpio3_cfg = {CC1200_GPIO3_BASE, CC1200_GPIO3_PIN, 0, CC1200_GPIO3_EDGE, 0};
+GpioConfig cc1200_cs_cfg    = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0, 0};
+GpioConfig cc1200_gpio0_cfg = {CC1200_GPIO0_BASE, CC1200_GPIO0_PIN, 0, CC1200_GPIO0_EDGE, 0 ,0};
+GpioConfig cc1200_gpio2_cfg = {CC1200_GPIO2_BASE, CC1200_GPIO2_PIN, 0, CC1200_GPIO2_EDGE, 0 ,0};
+GpioConfig cc1200_gpio3_cfg = {CC1200_GPIO3_BASE, CC1200_GPIO3_PIN, 0, CC1200_GPIO3_EDGE, 0 ,0};
 
 GpioOut cc1200_cs(cc1200_cs_cfg);
 GpioIn cc1200_gpio0(cc1200_gpio0_cfg);
