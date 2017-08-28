@@ -36,13 +36,18 @@ enum SleepMode : uint8_t {
     SleepMode_3    = SYS_CTRL_PM_3
 };
 
+struct AdcConfig {
+	uint32_t resolution;
+	uint32_t reference;
+	uint32_t channel;
+};
+
 struct GpioConfig {
 	bool operator==(const GpioConfig& other) {return (port == other.port) && (pin == other.pin);}
 	uint32_t port;
 	uint8_t pin;
 	uint32_t ioc;
 	uint32_t edge;
-	uint32_t adc;
 	bool invert;
 };
 

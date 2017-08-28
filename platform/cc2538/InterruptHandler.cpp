@@ -62,6 +62,8 @@ Radio* InterruptHandler::Radio_interruptVector_;
 
 Aes* InterruptHandler::Aes_interruptVector_;
 
+GpioAdc* InterruptHandler::Adc_interruptVector_;
+
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/
@@ -424,6 +426,16 @@ void InterruptHandler::clearInterruptHandler(Aes * aes_)
     Aes_interruptVector_ = nullptr;
 }
 
+void InterruptHandler::setInterruptHandler(GpioAdc * adc_)
+{
+    Adc_interruptVector_ = adc_;
+}
+
+void InterruptHandler::clearInterruptHandler(GpioAdc * adc_)
+{
+    Adc_interruptVector_ = nullptr;
+}
+
 /*=============================== protected =================================*/
 
 /*================================ private ==================================*/
@@ -476,6 +488,9 @@ InterruptHandler::InterruptHandler()
 
     // Register the AES interrupt handler
     IntRegister(INT_AES, Aes_InterruptHandler);
+
+    // Register the ADC interrupt handler
+    IntRegister(INT_ADC0, Adc_InterruptHandler);
 
     // Enable the alternative interrupt map
     IntAltMapEnable();
@@ -873,4 +888,10 @@ inline void InterruptHandler::Aes_InterruptHandler(void)
 {
     // Call the AES interrupt handler
     Aes_interruptVector_->interruptHandler();
+}
+
+inline void InterruptHandler::Adc_InterruptHandler(void)
+{
+    // Call the AES interrupt handler
+    Adc_interruptVector_->interruptHandler();
 }

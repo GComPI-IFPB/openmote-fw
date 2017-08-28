@@ -18,6 +18,7 @@
 #include "Timer.h"
 
 struct GpioConfig;
+struct AdcConfig;
 
 class Gpio
 {
@@ -54,7 +55,6 @@ protected:
 
 class GpioInPow : public GpioIn
 {
-
 public:
     GpioInPow(GpioConfig& config);
     void enableInterrupts(void);
@@ -98,12 +98,26 @@ private:
 
 /*****************************************************************************/
 
-class GpioAdc : public Gpio
+class GpioAdc: public Gpio
 {
+
+friend class InterruptHandler;
+
 public:
-    GpioAdc(GpioConfig& config);
-    void init(uint32_t resolution, uint32_t reference);
+    GpioAdc(GpioConfig& gpioConfig, AdcConfig& adcConfig);
+    void start(void);
+    void poll(void);
     uint32_t read(void);
+    void setCallback(Callback* callback);
+    void clearCallback(void);
+    void enableInterrupts(void);
+    void disableInterrupts(void);
+protected:
+    void interruptHandler(void);
+protected:
+    Callback* callback_;
+private:
+    AdcConfig& adcConfig_;
 };
 
 /*****************************************************************************/

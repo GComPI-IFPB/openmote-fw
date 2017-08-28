@@ -15,6 +15,7 @@
 class Aes;
 class GpioIn;
 class GpioInPow;
+class GpioAdc;
 class Timer;
 class Uart;
 class I2c;
@@ -46,8 +47,10 @@ public:
     static void clearInterruptHandler(SleepTimer* sleepTimer);
     static void setInterruptHandler(RadioTimer* radioTimer);
     static void clearInterruptHandler(RadioTimer* radioTimer);
-    static void setInterruptHandler(Aes* radioTimer);
-    static void clearInterruptHandler(Aes* radioTimer);
+    static void setInterruptHandler(Aes* aes);
+    static void clearInterruptHandler(Aes* aes);
+    static void setInterruptHandler(GpioAdc* adc);
+    static void clearInterruptHandler(GpioAdc* adc);
 private:
     InterruptHandler();
     static inline void GPIOA_InterruptHandler(void);
@@ -69,6 +72,7 @@ private:
     static inline void SleepTimer_InterruptHandler(void);
     static inline void RadioTimer_InterruptHandler(void);
     static inline void Aes_InterruptHandler(void);
+    static inline void Adc_InterruptHandler(void);
 private:
     static InterruptHandler instance_;
     static GpioIn* GPIOA_interruptVector_[8];
@@ -89,6 +93,7 @@ private:
     static SleepTimer* SleepTimer_interruptVector_;
     static RadioTimer* RadioTimer_interruptVector_;
     static Aes* Aes_interruptVector_;
+    static GpioAdc* Adc_interruptVector_;
 };
 
 #endif /* INTERRUPT_HANDLER_H */

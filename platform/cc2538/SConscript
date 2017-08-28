@@ -7,7 +7,7 @@ localEnv = env.Clone()
 ################################################################################
 
 source = [
-	'Aes.cpp',
+    'Aes.cpp',
     'Board.cpp',
     'cc2538_startup.c',
     'Gpio.cpp',
