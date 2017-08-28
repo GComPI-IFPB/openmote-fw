@@ -48,6 +48,15 @@ extern GpioOut led_orange;
 extern GpioOut led_red;
 extern GpioOut led_yellow;
 
+// Debug
+extern GpioOut debug0;
+extern GpioOut debug1;
+extern GpioOut debug2;
+extern GpioOut debug3;
+
+// Adc
+extern GpioAdc gpio_adc; 
+
 // Button
 extern GpioInPow button_user;
 

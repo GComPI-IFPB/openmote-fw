@@ -53,14 +53,26 @@
 #define LED_GREEN_PORT          ( GPIO_C_BASE )
 #define LED_GREEN_PIN           ( GPIO_PIN_7 )
 
-#define GPIO_DEBUG_AD0_PORT     ( GPIO_D_BASE )
-#define GPIO_DEBUG_AD0_PIN      ( GPIO_PIN_3 )
+#define GPIO_DEBUG_0_PORT     	( GPIO_B_BASE )
+#define GPIO_DEBUG_0_PIN      	( GPIO_PIN_0 )
 
-#define GPIO_DEBUG_AD1_PORT     ( GPIO_D_BASE )
-#define GPIO_DEBUG_AD1_PIN      ( GPIO_PIN_2 )
+#define GPIO_DEBUG_1_PORT     	( GPIO_B_BASE )
+#define GPIO_DEBUG_1_PIN      	( GPIO_PIN_1 )
 
-#define GPIO_DEBUG_AD2_PORT     ( GPIO_D_BASE )
-#define GPIO_DEBUG_AD2_PIN      ( GPIO_PIN_1 )
+#define GPIO_DEBUG_2_PORT     	( GPIO_B_BASE )
+#define GPIO_DEBUG_2_PIN      	( GPIO_PIN_2 )
+
+#define GPIO_DEBUG_3_PORT  		( GPIO_B_BASE )
+#define GPIO_DEBUG_3_PIN   		( GPIO_PIN_3 )
+
+#define GPIO_DEBUG_4_PORT  		( GPIO_C_BASE )
+#define GPIO_DEBUG_4_PIN   		( GPIO_PIN_3 )
+
+#define GPIO_DEBUG_5_PORT  		( GPIO_A_BASE )
+#define GPIO_DEBUG_5_PIN   		( GPIO_PIN_7 )
+#define GPIO_DEBUG_5_ADC_RES	( SOCADC_12_BIT )
+#define GPIO_DEBUG_5_ADC_REF	( SOCADC_REF_INTERNAL )
+#define GPIO_DEBUG_5_ADC_CHAN	( SOCADC_AIN7 )
 
 #define BUTTON_USER_PORT        ( GPIO_A_BASE )
 #define BUTTON_USER_PIN         ( GPIO_PIN_6 )
@@ -72,6 +84,11 @@
 
 #define BOOTLOAD_PORT           ( GPIO_A_BASE )
 #define BOOTLOAD_PIN            ( GPIO_PIN_6 )
+
+#define ANTENNA_AT86RF215_PORT  ( GPIO_D_BASE )
+#define ANTENNA_AT86RF215_PIN   ( GPIO_PIN_3 )
+#define ANTENNA_CC2538_PORT     ( GPIO_D_BASE )
+#define ANTENNA_CC2538_PIN      ( GPIO_PIN_4 )
 
 #define TIMER0_PERIPHERAL       ( SYS_CTRL_PERIPH_GPT0 )
 #define TIMER0_BASE             ( GPTIMER0_BASE )
@@ -104,11 +121,6 @@
 #define SLEEP_TIMER_INTERRUPT   ( INT_SMTIM )
 
 #define RADIO_TIMER_INTERRUPT   ( INT_MACTIMR )
-
-#define ANTENNA_AT86RF215_PORT  ( GPIO_D_BASE )
-#define ANTENNA_AT86RF215_PIN   ( GPIO_PIN_3 )
-#define ANTENNA_CC2538_PORT     ( GPIO_D_BASE )
-#define ANTENNA_CC2538_PIN      ( GPIO_PIN_4 )
 
 #define UART_PERIPHERAL         ( SYS_CTRL_PERIPH_UART0 )
 #define UART_BASE               ( UART0_BASE )
@@ -173,17 +185,32 @@ Board board;
 Watchdog watchdog(WATCHDOG_INTERVAL);
 
 // Leds
-GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, 0, 0, 0, 0};
-GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 0, 0};
-GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN, 0, 0, 0, 0};
-GpioConfig led_yellow_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, 0, 0, 0, 0};
+GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, 0, 0, 0};
+GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 0};
+GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN, 0, 0, 0};
+GpioConfig led_yellow_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, 0, 0, 0};
 GpioOut led_green(led_green_cfg);
 GpioOut led_orange(led_orange_cfg);
 GpioOut led_red(led_red_cfg);
 GpioOut led_yellow(led_yellow_cfg);
 
+// Debug 
+GpioConfig debug0_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, 0, 0, 0};
+GpioConfig debug1_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 0};
+GpioConfig debug2_cfg = {LED_RED_PORT, LED_RED_PIN, 0, 0, 0};
+GpioConfig debug3_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, 0, 0, 0};
+GpioOut debug0(debug0_cfg);
+GpioOut debug1(debug1_cfg);
+GpioOut debug2(debug2_cfg);
+GpioOut debug3(debug3_cfg);
+
+// Adc 
+GpioConfig gpio_adc_cfg = {GPIO_DEBUG_5_PORT, GPIO_DEBUG_5_PIN, 0, 0, 0};
+AdcConfig adc_cfg = {GPIO_DEBUG_5_ADC_RES, GPIO_DEBUG_5_ADC_REF, GPIO_DEBUG_5_ADC_CHAN};
+GpioAdc gpio_adc(gpio_adc_cfg, adc_cfg);
+
 // Button
-GpioConfig button_user_cfg = {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0, 0};
+GpioConfig button_user_cfg = {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0};
 GpioInPow button_user(button_user_cfg);
 
 // Timer
@@ -203,17 +230,17 @@ SleepTimer sleepTimer(SLEEP_TIMER_INTERRUPT);
 RadioTimer radioTimer(RADIO_TIMER_INTERRUPT);
 
 // I2C peripheral
-GpioConfig i2c_scl_cfg = {I2C_SCL_BASE, I2C_SCL_PIN, 0, 0, 0 ,0};
-GpioConfig i2c_sda_cfg = {I2C_SDA_BASE, I2C_SDA_PIN, 0, 0, 0 ,0};
+GpioConfig i2c_scl_cfg = {I2C_SCL_BASE, I2C_SCL_PIN, 0, 0, 0};
+GpioConfig i2c_sda_cfg = {I2C_SDA_BASE, I2C_SDA_PIN, 0, 0, 0};
 I2cConfig i2c_cfg      = {I2C_PERIPHERAL, I2C_BAUDRATE};
 Gpio i2c_scl(i2c_scl_cfg);
 Gpio i2c_sda(i2c_sda_cfg);
 I2c i2c(i2c_scl, i2c_sda, i2c_cfg);
 
 // SPI peripheral
-GpioConfig spi_miso_cfg = {SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC, 0, 0 ,0};
-GpioConfig spi_mosi_cfg = {SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC, 0, 0 ,0};
-GpioConfig spi_clk_cfg  = {SPI_CLK_BASE, SPI_CLK_PIN, SPI_CLK_IOC, 0, 0 ,0};
+GpioConfig spi_miso_cfg = {SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC, 0, 0};
+GpioConfig spi_mosi_cfg = {SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC, 0, 0};
+GpioConfig spi_clk_cfg  = {SPI_CLK_BASE, SPI_CLK_PIN, SPI_CLK_IOC, 0, 0};
 SpiConfig spi_cfg       = {SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, SPI_INT, SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE};
 Gpio spi_miso(spi_miso_cfg);
 Gpio spi_mosi(spi_mosi_cfg);
@@ -221,8 +248,8 @@ Gpio spi_clk(spi_clk_cfg);
 Spi spi(spi_miso, spi_mosi, spi_clk, spi_cfg);
 
 // UART peripheral
-GpioConfig uart_rx_cfg = {UART_RX_PORT, UART_RX_PIN, UART_RX_IOC, 0, 0 ,0};
-GpioConfig uart_tx_cfg = {UART_TX_PORT, UART_TX_PIN, UART_TX_IOC, 0, 0 ,0};
+GpioConfig uart_rx_cfg = {UART_RX_PORT, UART_RX_PIN, UART_RX_IOC, 0, 0};
+GpioConfig uart_tx_cfg = {UART_TX_PORT, UART_TX_PIN, UART_TX_IOC, 0, 0};
 UartConfig uart_cfg = {UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INT, UART_BAUDRATE, UART_MODE};
 Gpio uart_rx(uart_rx_cfg);
 Gpio uart_tx(uart_tx_cfg);
@@ -244,10 +271,10 @@ Si7006 si7006(i2c);
 TemperatureSensor temp;	
 
 // AT86RF215 radio transceiver
-GpioConfig at86rf215_pwr_cfg = {AT86RF215_PWR_BASE, AT86RF215_PWR_PIN, 0, 0, 0, 0};
-GpioConfig at86rf215_rst_cfg = {AT86RF215_RST_BASE, AT86RF215_RST_PIN, 0, 0, 0, 0};
-GpioConfig at86rf215_csn_cfg = {AT86RF215_CSn_BASE, AT86RF215_CSn_PIN, AT86RF215_CSn_IOC, 0, 0, 0};
-GpioConfig at86rf215_irq_cfg = {AT86RF215_IRQ_BASE, AT86RF215_IRQ_PIN, 0, AT86RF215_IRQ_EDGE, 0, 0};
+GpioConfig at86rf215_pwr_cfg = {AT86RF215_PWR_BASE, AT86RF215_PWR_PIN, 0, 0, 0};
+GpioConfig at86rf215_rst_cfg = {AT86RF215_RST_BASE, AT86RF215_RST_PIN, 0, 0, 0};
+GpioConfig at86rf215_csn_cfg = {AT86RF215_CSn_BASE, AT86RF215_CSn_PIN, AT86RF215_CSn_IOC, 0, 0};
+GpioConfig at86rf215_irq_cfg = {AT86RF215_IRQ_BASE, AT86RF215_IRQ_PIN, 0, AT86RF215_IRQ_EDGE, 0};
 
 GpioOut at86rf215_pwr(at86rf215_pwr_cfg);
 GpioOut at86rf215_rst(at86rf215_rst_cfg);
