@@ -5,7 +5,7 @@ Import('env')
 localEnv = env.Clone()
 
 target = 'test-openusb.elf'
-source = ['main.cpp']
+source = ['main.cpp', 'cc2538_lowpower.c']
 
 output = localEnv.Program(
     target  = target,

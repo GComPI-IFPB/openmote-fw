@@ -4,7 +4,7 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'test-sensors.elf'
+target = 'test-cc2538.elf'
 source = ['main.cpp']
 
 output = localEnv.Program(

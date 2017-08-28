@@ -4,9 +4,9 @@ cmd_options = {
     'board'     :          ['openmote', 'openusb'],
     'chip'      :          ['cc2538sf53', 'cc2538sf23'],
     'project'   :          ['earthquake', 'freertos-cc2538', 'freertos-cc2538-tickless', 'freertos-linux', 'ieee802154-sniffer',
-                            'test-aes', 'test-at86rf215', 'test-board', 'test-cc1200', 'test-crc', 'test-openmote', 'test-radio',
-                            'test-radiotimer', 'test-rendezvous', 'test-sensors', 'test-serial', 'test-sleeptimer', 'test-spi', 
-                            'test-pwm', 'test-task', 'test-timer', 'test-uart'],
+                            'test-aes', 'test-board', 'test-crc', 'test-openmote', 'test-openusb', 'test-radio-at86rf215', 
+                            'test-radio-cc1200', 'test-radio-cc2538', 'test-radiotimer', 'test-rendezvous', 'test-serial',
+                            'test-sleeptimer', 'test-spi', 'test-pwm', 'test-task', 'test-timer', 'test-uart'],
     'verbose'   :          ['0','1']
 }
 
