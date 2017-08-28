@@ -21,11 +21,24 @@
 class At86rf215 : public Radio
 {
 public:
-    At86rf215(Spi& spi, GpioOut& cs, GpioIn& gpio0);
+    At86rf215(Spi& spi, GpioOut& pwr, GpioOut& rst, GpioOut& cs, GpioIn& irq);
+    void enable(void);
+    void sleep(void);
+    void wakeup(void);
+    void on(void);
+    void off(void);
+    void reset(void);
+    bool check(void);
+    void setRxCallbacks(Callback* rxInit, Callback* rxDone);
+    void setTxCallbacks(Callback* txInit, Callback* txDone);
+    void enableInterrupts(void);
+    void disableInterrupts(void);
 private:
     Spi& spi_;
+    GpioOut& pwr_;
+    GpioOut& rst_;
     GpioOut& cs_;
-    GpioIn& gpio0_;
+    GpioIn& irq_;
 };
 
 #endif /* AT86RF215_H_ */

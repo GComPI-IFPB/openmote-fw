@@ -27,7 +27,7 @@
 
 /*================================ define ===================================*/
 
-#define SPI_BAUDRATE                        ( 4000000 )
+#define SPI_BAUDRATE                        ( 8000000 )
 
 /*================================ typedef ==================================*/
 
@@ -46,10 +46,13 @@ int main(void)
     spi.enable(SPI_BAUDRATE);
 
     // Put CC1200 in transmit mode
-    cc1200.transmit();
+    at86rf215.on();
 
-	//board.setSleepMode(SleepMode_3);
-    //board.sleep(); 
+	if(at86rf215.check()) {
+        led_green.on();
+    } else {
+        led_red.on();
+    }
 
     // Forever and ever!
     while(true)

@@ -15,6 +15,15 @@ chip    = env['chip']
 
 ################################################################################
 
+openmote = {
+    'name'      : 'openmote',
+    'platform'  : 'cc2538',
+    'cpu'       : 'cortex-m3',
+    'toolchain' : 'arm-none-eabi',
+    'os'        : 'freertos',
+    'linker'    : env['chip'] + '.lds'
+}
+
 openmote_usb = {
     'name'      : 'openmote-usb',
     'platform'  : 'cc2538',
@@ -34,6 +43,7 @@ openmote_tbd = {
 }
 
 boards = {
+    'openmote'      : openmote,
     'openmote-usb'  : openmote_usb,
     'openmote-tbd'  : openmote_tbd,
 }
@@ -211,7 +221,7 @@ def OpenMoteCC2538_expand(ports):
 ################################################################################
 
 def BootloadFunc():
-    if (env['board'] == 'openmote-usb') or (env['board'] == 'openmote-tbd'):
+    if ((env['board'] == 'openmote') or env['board'] == 'openmote-usb') or (env['board'] == 'openmote-tbd'):
         return Builder(
             action      = OpenMoteCC2538_bootload,
             suffix      = '.phonyupload',
