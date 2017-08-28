@@ -4,7 +4,7 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'test-leds.elf'
+target = 'test-openusb.elf'
 source = ['main.cpp']
 
 output = localEnv.Program(

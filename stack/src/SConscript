@@ -10,6 +10,7 @@ source = [
     'CriticalSection.cpp',
     'Crc16.cpp',
     'Hdlc.cpp',
+    'LedBlinker.cpp',
     'Mutex.cpp',
     'Queue.cpp',
     'Rendezvous.cpp',

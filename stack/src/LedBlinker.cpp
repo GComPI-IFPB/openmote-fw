@@ -25,8 +25,8 @@
 
 /*================================= public ==================================*/
 
-LedBlinker::LedBlinker(const char * const name, uint8_t priority, GpioOut& gpio):
-	Task(name, priority), gpio_(gpio)
+LedBlinker::LedBlinker(const char * const name, uint16_t size, uint8_t priority, GpioOut& gpio):
+	Task(name, size, priority), gpio_(gpio)
 {
 }
 
@@ -43,10 +43,10 @@ void LedBlinker::run(void)
     	// Turn LED on and wait
     	gpio_.on();
     	Task::delay(timeOn_);
-
-		// Turn LED off and wait
-    	gpio_.off();
-    	Task::delay(period_ - timeOn_);
+        // Turn LED off and wait
+        gpio_.off();
+        
+        Task::delay(period_ - timeOn_);
     }
 }
 

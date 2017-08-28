@@ -23,10 +23,10 @@
 
 /*================================= public ==================================*/
 
-Task::Task(const char* const name, uint8_t priority) :
+Task::Task(const char* const name, const uint16_t size, uint8_t priority) :
 	name_(name), priority_(priority)
 {
-	xTaskCreate(Task::init, name_, 128, this, priority_, NULL);
+	xTaskCreate(Task::init, name_, size, this, priority_, NULL);
 }
 
 void Task::init(void* params)

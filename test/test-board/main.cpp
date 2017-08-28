@@ -2,86 +2,59 @@
  * @file       main.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2015
+ * @date       May, 2016
  * @brief
  *
- * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ * @copyright  Copyright 2016, OpenMote Technologies, S.L.
  *             This file is licensed under the GNU General Public License v2.
  */
 
 /*================================ include ==================================*/
 
-#include "FreeRTOS.h"
-#include "task.h"
-
 #include "board.h"
 
-#include "Callback.h"
+#include "LedBlinker.h"
+
 #include "Scheduler.h"
-#include "Semaphore.h"
 #include "Task.h"
 
 /*================================ define ===================================*/
 
-#define RADIO_MODE_RX                       ( 0 )
-#define RADIO_MODE_TX                       ( 1 )
-#define RADIO_MODE                          ( RADIO_MODE_RX )
-#define RADIO_CHANNEL                       ( 26 )
+#define RED_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
+#define YELLOW_LED_TASK_PRIORITY          ( tskIDLE_PRIORITY + 1 )
+#define ORANGE_LED_TASK_PRIORITY          ( tskIDLE_PRIORITY + 2 )
 
-#define PAYLOAD_LENGTH                      ( 125 )
-
-#define UART_BAUDRATE                       ( 115200 )
-
-#define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 2 )
-#define RADIO_RX_TASK_PRIORITY              ( tskIDLE_PRIORITY + 0 )
-#define RADIO_TX_TASK_PRIORITY              ( tskIDLE_PRIORITY + 0 )
+#define BUTTON_TASK_PRIORITY              ( tskIDLE_PRIORITY + 3 )
 
 /*================================ typedef ==================================*/
 
 /*=============================== prototypes ================================*/
 
-static void prvGreenLedTask(void *pvParameters);
-static void prvRadioRxTask(void *pvParameters);
-static void prvRadioTxTask(void *pvParameters);
-
-static void rxInit(void);
-static void rxDone(void);
-static void txInit(void);
-static void txDone(void);
+static void prvButtonTask(void *pvParameters);
+static void buttonCallback(void);
 
 /*=============================== variables =================================*/
 
-static SemaphoreBinary rxSemaphore, txSemaphore;
+static LedBlinker redLedBlinker("redLedBlinker", 128, RED_LED_TASK_PRIORITY, led_red);
+static LedBlinker yellowLedBlinker("yellowLedBlinker", 128, YELLOW_LED_TASK_PRIORITY, led_yellow);
+static LedBlinker orangeLedBlinker("orangeLedBlinker", 128, ORANGE_LED_TASK_PRIORITY, led_orange);
 
-static PlainCallback rxInitCallback(&rxInit);
-static PlainCallback rxDoneCallback(&rxDone);
-static PlainCallback txInitCallback(&txInit);
-static PlainCallback txDoneCallback(&txDone);
-
-static uint8_t radio_buffer[PAYLOAD_LENGTH];
-static uint8_t* radio_ptr = radio_buffer;
-static uint8_t  radio_len = sizeof(radio_buffer);
-static int8_t rssi;
-static uint8_t lqi;
-static uint8_t crc;
+static SemaphoreBinary buttonSemaphore;
+static PlainCallback userCallback(buttonCallback);
 
 /*================================= public ==================================*/
 
-int main (void)
-{
-    // Initialize board
+int main(void) {
+	// Initialize the board
     board.init();
 
-    // Enable the UART interface
-    uart.enable(UART_BAUDRATE);
+    // Set blinking periods
+    yellowLedBlinker.setTime(200, 1600);
+    orangeLedBlinker.setTime(400, 1600);
+    redLedBlinker.setTime(800, 1600);
 
-    // Create two FreeRTOS tasks
-    xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-#if (RADIO_MODE == RADIO_MODE_RX)
-    xTaskCreate(prvRadioRxTask, (const char *) "RadioRx", 128, NULL, RADIO_RX_TASK_PRIORITY, NULL);
-#elif (RADIO_MODE == RADIO_MODE_TX)
-    xTaskCreate(prvRadioTxTask, (const char *) "RadioTx", 128, NULL, RADIO_TX_TASK_PRIORITY, NULL);
-#endif
+    // Create button task
+    xTaskCreate(prvButtonTask, (const char *) "ButtonTask", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
 
     // Start the scheduler
     Scheduler::run();
@@ -89,131 +62,25 @@ int main (void)
 
 /*================================ private ==================================*/
 
-static void prvGreenLedTask(void *pvParameters)
+static void prvButtonTask(void *pvParameters)
 {
+    // Configure the user button
+    button_user.setCallback(&userCallback);
+    button_user.enableInterrupts();
+
     // Forever
     while(true)
     {
-        // Turn off green LED for 950 ms
-        led_green.off();
-        Task::delay(950);
-
-        // Turn on green LED for 50 ms
-        led_green.on();
-        Task::delay(50);
-    }
-}
-
-static void prvRadioRxTask(void *pvParameters)
-{
-    static RadioResult result;
-
-    // Configure the IEEE 802.15.4 radio
-    radio.setRxCallbacks(&rxInitCallback, &rxDoneCallback);
-    radio.enable();
-    radio.enableInterrupts();
-    radio.setChannel(RADIO_CHANNEL);
-
-    // Forever
-    while (true)
-    {
-        // Turn on the radio transceiver
-        radio.on();
-
-        // Put the radio transceiver in receive mode
-        radio.receive();
-
-        // Turn the yellow LED on when a the radio is receiving
-        led_yellow.on();
-
-        // Take the rxSemaphre, block until available
-        if (rxSemaphore.take())
+        // Take the buttonSemaphore, block until available
+        if (buttonSemaphore.take())
         {
-            // Turn the yellow LED off when a packet is received
-            led_yellow.off();
-
-            // Get a packet from the radio buffer
-            result = radio.getPacket(radio_ptr, &radio_len, &rssi, &lqi, &crc);
-
-            // Check the result of the operation and the packet CRC
-            if (result == RadioResult_Success && crc)
-            {
-                // Transmit the RSSI byte over the UART
-                uart.writeByte(rssi);
-            }
-
-            // Turn off the radio until the next packet
-            radio.off();
+            led_green.toggle();
         }
     }
 }
 
-static void prvRadioTxTask(void *pvParameters)
+static void buttonCallback(void)
 {
-    static RadioResult result;
-
-    // Configure the IEEE 802.15.4 radio
-    radio.setTxCallbacks(&txInitCallback, &txDoneCallback);
-    radio.enable();
-    radio.enableInterrupts();
-    radio.setChannel(RADIO_CHANNEL);
-
-    // Forever
-    while (true)
-    {
-        // Take the txSemaphre, block until available
-        if (txSemaphore.take())
-        {
-            // Turn on the radio transceiver
-            radio.on();
-
-            // Turn the yellow LED on when the packet is being loaded
-            led_yellow.on();
-
-            // Load the packet to the transmit buffer
-            result = radio.loadPacket(radio_ptr, radio_len);
-
-            if (result == RadioResult_Success)
-            {
-                // Put the radio transceiver in transmit mode
-                radio.transmit();
-
-                // Turn the yellow LED off when the packet has beed loaded
-                led_yellow.off();
-            }
-
-            // Delay the transmission of the next packet 250 ms
-            Task::delay(250);
-        }
-    }
-}
-
-static void rxInit(void)
-{
-    // Turn on the radio LED as the radio is now receiving a packet
-    led_red.on();
-}
-
-static void rxDone(void)
-{
-    // Turn off the radio LED as the packet is received
-    led_red.off();
-
-    // Let the task run once a packet is received
-    rxSemaphore.giveFromInterrupt();
-}
-
-static void txInit(void)
-{
-    // Turn on the radio LED as the packet is now transmitting
-    led_red.on();
-}
-
-static void txDone(void)
-{
-    // Turn off the radio LED as the packet is transmitted
-    led_red.off();
-
-    // Let the task run once a packet is transmitted
-    txSemaphore.giveFromInterrupt();
+    // Give the button semaphore as the button has been pressed
+    buttonSemaphore.giveFromInterrupt();
 }

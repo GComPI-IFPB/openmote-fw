@@ -19,7 +19,7 @@ class GpioOut;
 class LedBlinker : protected Task
 {
 public:
-    LedBlinker(const char* const name, uint8_t priority, GpioOut& gpio);
+    LedBlinker(const char* const name, uint16_t size, uint8_t priority, GpioOut& gpio);
     void setTime(uint32_t timeOn, uint32_t period);
 protected:
     void run(void);

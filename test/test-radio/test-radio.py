@@ -25,8 +25,8 @@ def program():
         buff = ser.read(2);
         data = struct.unpack("bB", buff)
         
-        rssi    = data[0]
-        crc     = data[1]
+        rssi    = data[1]
+        crc     = data[0]
 
         print rssi, crc
 

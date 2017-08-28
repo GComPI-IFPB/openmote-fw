@@ -4,7 +4,7 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'test-ethernet.elf'
+target = 'test-openmote.elf'
 source = ['main.cpp']
 
 output = localEnv.Program(

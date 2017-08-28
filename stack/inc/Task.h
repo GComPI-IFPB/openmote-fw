@@ -19,7 +19,7 @@
 class Task
 {
 public:
-    Task(const char* const name, uint8_t priority);
+    Task(const char* const name, const uint16_t size, uint8_t priority);
 public:
     static void init(void* params);
     static void delay(uint32_t milliseconds);
