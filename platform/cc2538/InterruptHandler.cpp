@@ -481,10 +481,10 @@ InterruptHandler::InterruptHandler()
     IntRegister(INT_RFCOREERR, RFError_InterruptHandler);
 
     // Register the SleepTimer interrupt handler
-    // SleepModeIntRegister(SleepTimer_InterruptHandler);
+    SleepModeIntRegister(SleepTimer_InterruptHandler);
 
     // Register the RadioTimer interrupt handler
-    // IntRegister(INT_MACTIMR, RadioTimer_InterruptHandler);
+    IntRegister(INT_MACTIMR, RadioTimer_InterruptHandler);
 
     // Register the AES interrupt handler
     IntRegister(INT_AES, Aes_InterruptHandler);
