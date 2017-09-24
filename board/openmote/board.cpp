@@ -43,36 +43,40 @@
 
 #define LED_RED_PORT            ( GPIO_C_BASE )
 #define LED_RED_PIN             ( GPIO_PIN_4 )
+#define LED_RED_IOC             ( IOC_MUX_OUT_SEL_GPT0_ICP1 )
 
 #define LED_ORANGE_PORT         ( GPIO_C_BASE )
 #define LED_ORANGE_PIN          ( GPIO_PIN_5 )
+#define LED_ORANGE_IOC          ( IOC_MUX_OUT_SEL_GPT0_ICP1 )
 
 #define LED_YELLOW_PORT         ( GPIO_C_BASE )
 #define LED_YELLOW_PIN          ( GPIO_PIN_6 )
+#define LED_YELLOW_IOC          ( IOC_MUX_OUT_SEL_GPT0_ICP1 )
 
 #define LED_GREEN_PORT          ( GPIO_C_BASE )
 #define LED_GREEN_PIN           ( GPIO_PIN_7 )
+#define LED_GREEN_IOC           ( IOC_MUX_OUT_SEL_GPT0_ICP1 )
 
-#define GPIO_DEBUG_0_PORT     	( GPIO_B_BASE )
-#define GPIO_DEBUG_0_PIN      	( GPIO_PIN_0 )
+#define DEBUG0_PORT             ( GPIO_B_BASE )
+#define DEBUG0_PIN              ( GPIO_PIN_0 )
 
-#define GPIO_DEBUG_1_PORT     	( GPIO_B_BASE )
-#define GPIO_DEBUG_1_PIN      	( GPIO_PIN_1 )
+#define DEBUG1_PORT             ( GPIO_B_BASE )
+#define DEBUG1_PIN              ( GPIO_PIN_1 )
 
-#define GPIO_DEBUG_2_PORT     	( GPIO_B_BASE )
-#define GPIO_DEBUG_2_PIN      	( GPIO_PIN_2 )
+#define DEBUG2_PORT             ( GPIO_B_BASE )
+#define DEBUG2_PIN              ( GPIO_PIN_2 )
 
-#define GPIO_DEBUG_3_PORT  		( GPIO_B_BASE )
-#define GPIO_DEBUG_3_PIN   		( GPIO_PIN_3 )
+#define DEBUG3_PORT             ( GPIO_B_BASE )
+#define DEBUG3_PIN              ( GPIO_PIN_3 )
 
-#define GPIO_DEBUG_4_PORT  		( GPIO_C_BASE )
-#define GPIO_DEBUG_4_PIN   		( GPIO_PIN_3 )
+#define DEBUG4_PORT             ( GPIO_C_BASE )
+#define DEBUG4_PIN              ( GPIO_PIN_3 )
 
-#define GPIO_DEBUG_5_PORT  		( GPIO_A_BASE )
-#define GPIO_DEBUG_5_PIN   		( GPIO_PIN_7 )
-#define GPIO_DEBUG_5_ADC_RES	( SOCADC_12_BIT )
-#define GPIO_DEBUG_5_ADC_REF	( SOCADC_REF_INTERNAL )
-#define GPIO_DEBUG_5_ADC_CHAN	( SOCADC_AIN7 )
+#define DEBUG5_PORT             ( GPIO_A_BASE )
+#define DEBUG5_PIN              ( GPIO_PIN_7 )
+#define DEBUG5_ADC_RES          ( SOCADC_12_BIT )
+#define DEBUG5_ADC_REF          ( SOCADC_REF_INTERNAL )
+#define DEBUG5_ADC_CHAN         ( SOCADC_AIN7 )
 
 #define BUTTON_USER_PORT        ( GPIO_A_BASE )
 #define BUTTON_USER_PIN         ( GPIO_PIN_6 )
@@ -85,38 +89,67 @@
 #define BOOTLOAD_PORT           ( GPIO_A_BASE )
 #define BOOTLOAD_PIN            ( GPIO_PIN_6 )
 
+
 #define ANTENNA_AT86RF215_PORT  ( GPIO_D_BASE )
 #define ANTENNA_AT86RF215_PIN   ( GPIO_PIN_3 )
 #define ANTENNA_CC2538_PORT     ( GPIO_D_BASE )
 #define ANTENNA_CC2538_PIN      ( GPIO_PIN_4 )
 
-#define TIMER0_PERIPHERAL       ( SYS_CTRL_PERIPH_GPT0 )
-#define TIMER0_BASE             ( GPTIMER0_BASE )
-#define TIMER0_SOURCE           ( GPTIMER_BOTH )
-#define TIMER0_CONFIG           ( GPTIMER_CFG_PERIODIC )
-#define TIMER0_INTERRUPT        ( INT_TIMER0A )
-#define TIMER0_INTERRUPT_MODE   ( GPTIMER_TIMA_TIMEOUT )
+#define TIMER0A_PERIPHERAL      ( SYS_CTRL_PERIPH_GPT0 )
+#define TIMER0A_BASE            ( GPTIMER0_BASE )
+#define TIMER0A_SOURCE          ( GPTIMER_A )
+#define TIMER0A_CONFIG          ( GPTIMER_CFG_SPLIT_PAIR |  GPTIMER_CFG_A_PWM | GPTIMER_CFG_B_PERIODIC )
+#define TIMER0A_INTERRUPT       ( INT_TIMER0A )
+#define TIMER0A_INTERRUPT_MODE  ( GPTIMER_TIMA_TIMEOUT )
 
-#define TIMER1_PERIPHERAL       ( SYS_CTRL_PERIPH_GPT1 )
-#define TIMER1_BASE             ( GPTIMER1_BASE )
-#define TIMER1_SOURCE           ( GPTIMER_BOTH )
-#define TIMER1_CONFIG           ( GPTIMER_CFG_PERIODIC )
-#define TIMER1_INTERRUPT        ( INT_TIMER1A )
-#define TIMER1_INTERRUPT_MODE   ( GPTIMER_TIMA_TIMEOUT )
+#define TIMER0B_PERIPHERAL      ( SYS_CTRL_PERIPH_GPT0 )
+#define TIMER0B_BASE            ( GPTIMER0_BASE )
+#define TIMER0B_SOURCE          ( GPTIMER_B )
+#define TIMER0B_CONFIG          ( GPTIMER_CFG_SPLIT_PAIR |  GPTIMER_CFG_A_PWM | GPTIMER_CFG_B_PERIODIC )
+#define TIMER0B_INTERRUPT       ( INT_TIMER0B )
+#define TIMER0B_INTERRUPT_MODE  ( GPTIMER_TIMB_TIMEOUT )
 
-#define TIMER2_PERIPHERAL       ( SYS_CTRL_PERIPH_GPT2 )
-#define TIMER2_BASE             ( GPTIMER2_BASE )
-#define TIMER2_SOURCE           ( GPTIMER_BOTH )
-#define TIMER2_CONFIG           ( GPTIMER_CFG_PERIODIC )
-#define TIMER2_INTERRUPT        ( INT_TIMER2A )
-#define TIMER2_INTERRUPT_MODE   ( GPTIMER_TIMA_TIMEOUT )
+#define TIMER1A_PERIPHERAL      ( SYS_CTRL_PERIPH_GPT1 )
+#define TIMER1A_BASE            ( GPTIMER1_BASE )
+#define TIMER1A_SOURCE          ( GPTIMER_A )
+#define TIMER1A_CONFIG          ( GPTIMER_CFG_SPLIT_PAIR |  GPTIMER_CFG_A_PERIODIC | GPTIMER_CFG_B_PERIODIC )
+#define TIMER1A_INTERRUPT       ( INT_TIMER1A )
+#define TIMER1A_INTERRUPT_MODE  ( GPTIMER_TIMA_TIMEOUT )
 
-#define TIMER3_PERIPHERAL       ( SYS_CTRL_PERIPH_GPT3 )
-#define TIMER3_BASE             ( GPTIMER3_BASE )
-#define TIMER3_SOURCE           ( GPTIMER_BOTH )
-#define TIMER3_CONFIG           ( GPTIMER_CFG_PERIODIC )
-#define TIMER3_INTERRUPT        ( INT_TIMER3A )
-#define TIMER3_INTERRUPT_MODE   ( GPTIMER_TIMA_TIMEOUT )
+#define TIMER1B_PERIPHERAL      ( SYS_CTRL_PERIPH_GPT1 )
+#define TIMER1B_BASE            ( GPTIMER1_BASE )
+#define TIMER1B_SOURCE          ( GPTIMER_B )
+#define TIMER1B_CONFIG          ( GPTIMER_CFG_SPLIT_PAIR |  GPTIMER_CFG_A_PERIODIC | GPTIMER_CFG_B_PERIODIC )
+#define TIMER1B_INTERRUPT       ( INT_TIMER1B )
+#define TIMER1B_INTERRUPT_MODE  ( GPTIMER_TIMB_TIMEOUT )
+
+#define TIMER2A_PERIPHERAL      ( SYS_CTRL_PERIPH_GPT2 )
+#define TIMER2A_BASE            ( GPTIMER2_BASE )
+#define TIMER2A_SOURCE          ( GPTIMER_A )
+#define TIMER2A_CONFIG          ( GPTIMER_CFG_SPLIT_PAIR |  GPTIMER_CFG_A_PERIODIC | GPTIMER_CFG_B_PERIODIC )
+#define TIMER2A_INTERRUPT       ( INT_TIMER2A )
+#define TIMER2A_INTERRUPT_MODE  ( GPTIMER_TIMA_TIMEOUT )
+
+#define TIMER2B_PERIPHERAL      ( SYS_CTRL_PERIPH_GPT2 )
+#define TIMER2B_BASE            ( GPTIMER2_BASE )
+#define TIMER2B_SOURCE          ( GPTIMER_B )
+#define TIMER2B_CONFIG          ( GPTIMER_CFG_SPLIT_PAIR |  GPTIMER_CFG_A_PERIODIC | GPTIMER_CFG_B_PERIODIC )
+#define TIMER2B_INTERRUPT       ( INT_TIMER2B )
+#define TIMER2B_INTERRUPT_MODE  ( GPTIMER_TIMB_TIMEOUT )
+
+#define TIMER3A_PERIPHERAL      ( SYS_CTRL_PERIPH_GPT3 )
+#define TIMER3A_BASE            ( GPTIMER3_BASE )
+#define TIMER3A_SOURCE          ( GPTIMER_A )
+#define TIMER3A_CONFIG          ( GPTIMER_CFG_SPLIT_PAIR |  GPTIMER_CFG_A_PERIODIC | GPTIMER_CFG_B_PERIODIC )
+#define TIMER3A_INTERRUPT       ( INT_TIMER3A )
+#define TIMER3A_INTERRUPT_MODE  ( GPTIMER_TIMA_TIMEOUT )
+
+#define TIMER3B_PERIPHERAL      ( SYS_CTRL_PERIPH_GPT3 )
+#define TIMER3B_BASE            ( GPTIMER3_BASE )
+#define TIMER3B_SOURCE          ( GPTIMER_B )
+#define TIMER3B_CONFIG          ( GPTIMER_CFG_SPLIT_PAIR |  GPTIMER_CFG_A_PERIODIC | GPTIMER_CFG_B_PERIODIC )
+#define TIMER3B_INTERRUPT       ( INT_TIMER3B )
+#define TIMER3B_INTERRUPT_MODE  ( GPTIMER_TIMB_TIMEOUT )
 
 #define SLEEP_TIMER_INTERRUPT   ( INT_SMTIM )
 
@@ -162,18 +195,18 @@
 #define I2C_SDA_BASE            ( GPIO_B_BASE )
 #define I2C_SDA_PIN             ( GPIO_PIN_4 )
 
-#define AT86RF215_PWR_BASE		( GPIO_C_BASE )
-#define AT86RF215_PWR_PIN		( GPIO_PIN_0 )
+#define AT86RF215_PWR_BASE      ( GPIO_C_BASE )
+#define AT86RF215_PWR_PIN       ( GPIO_PIN_0 )
 
-#define AT86RF215_RST_BASE		( GPIO_D_BASE )
-#define AT86RF215_RST_PIN		( GPIO_PIN_1 )
+#define AT86RF215_RST_BASE      ( GPIO_D_BASE )
+#define AT86RF215_RST_PIN       ( GPIO_PIN_1 )
 
-#define AT86RF215_IRQ_BASE		( GPIO_D_BASE )
-#define AT86RF215_IRQ_PIN		( GPIO_PIN_0 )
+#define AT86RF215_IRQ_BASE      ( GPIO_D_BASE )
+#define AT86RF215_IRQ_PIN       ( GPIO_PIN_0 )
 #define AT86RF215_IRQ_EDGE      ( GPIO_RISING_EDGE )
 
-#define AT86RF215_CSn_BASE		( GPIO_A_BASE )
-#define AT86RF215_CSn_PIN		( GPIO_PIN_3 )
+#define AT86RF215_CSn_BASE      ( GPIO_A_BASE )
+#define AT86RF215_CSn_PIN       ( GPIO_PIN_3 )
 #define AT86RF215_CSn_IOC       ( IOC_MUX_OUT_SEL_SSI0_FSSOUT )
 
 /*================================ typedef ==================================*/
@@ -184,44 +217,70 @@
 Board board;
 Watchdog watchdog(WATCHDOG_INTERVAL);
 
+// Timers
+TimerConfig timer0a_cfg = {TIMER0A_PERIPHERAL, TIMER0A_BASE, TIMER0A_SOURCE, TIMER0A_CONFIG, TIMER0A_INTERRUPT, TIMER0A_INTERRUPT_MODE};
+Timer timer0a(timer0a_cfg);
+TimerConfig timer0b_cfg = {TIMER0B_PERIPHERAL, TIMER0B_BASE, TIMER0B_SOURCE, TIMER0B_CONFIG, TIMER0B_INTERRUPT, TIMER0B_INTERRUPT_MODE};
+Timer timer0b(timer0b_cfg);
+
+TimerConfig timer1a_cfg = {TIMER1A_PERIPHERAL, TIMER1A_BASE, TIMER1A_SOURCE, TIMER1A_CONFIG, TIMER1A_INTERRUPT, TIMER1A_INTERRUPT_MODE};
+Timer timer1a(timer1a_cfg);
+TimerConfig timer1b_cfg = {TIMER1B_PERIPHERAL, TIMER1B_BASE, TIMER1B_SOURCE, TIMER1B_CONFIG, TIMER1B_INTERRUPT, TIMER1B_INTERRUPT_MODE};
+Timer timer1b(timer1b_cfg);
+
+TimerConfig timer2a_cfg = {TIMER2A_PERIPHERAL, TIMER2A_BASE, TIMER2A_SOURCE, TIMER2A_CONFIG, TIMER2A_INTERRUPT, TIMER2A_INTERRUPT_MODE};
+Timer timer2a(timer2a_cfg);
+TimerConfig timer2b_cfg = {TIMER2B_PERIPHERAL, TIMER2B_BASE, TIMER2B_SOURCE, TIMER2B_CONFIG, TIMER2B_INTERRUPT, TIMER2B_INTERRUPT_MODE};
+Timer timer2b(timer2b_cfg);
+
+TimerConfig timer3a_cfg = {TIMER3A_PERIPHERAL, TIMER3A_BASE, TIMER3A_SOURCE, TIMER3A_CONFIG, TIMER3A_INTERRUPT, TIMER3A_INTERRUPT_MODE};
+Timer timer3a(timer3a_cfg);
+TimerConfig timer3b_cfg = {TIMER3B_PERIPHERAL, TIMER3B_BASE, TIMER3B_SOURCE, TIMER3B_CONFIG, TIMER3B_INTERRUPT, TIMER3B_INTERRUPT_MODE};
+Timer timer3b(timer3b_cfg);
+
 // Leds
-GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, 0, 0, 0};
-GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 0};
-GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN, 0, 0, 0};
-GpioConfig led_yellow_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, 0, 0, 0};
+GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, 0, 0, 1};
+GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 1};
+GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN, 0, 0, 1};
+GpioConfig led_yellow_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, 0, 0, 1};
 GpioOut led_green(led_green_cfg);
 GpioOut led_orange(led_orange_cfg);
 GpioOut led_red(led_red_cfg);
 GpioOut led_yellow(led_yellow_cfg);
 
+// PWM Leds
+// GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, LED_GREEN_IOC, 0, 1};
+// GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, LED_ORANGE_IOC, 0, 1};
+// GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN, LED_RED_IOC, 0, 1};
+// GpioConfig led_yellow_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, LED_YELLOW_IOC, 0, 1};
+// GpioPwm led_green(led_green_cfg, timer0a_cfg);
+// GpioPwm led_orange(led_orange_cfg, timer1a_cfg);
+// GpioPwm led_red(led_red_cfg, timer2a_cfg);
+// GpioPwm led_yellow(led_yellow_cfg, timer3a_cfg);
+
 // Debug 
-GpioConfig debug0_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, 0, 0, 0};
-GpioConfig debug1_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 0};
-GpioConfig debug2_cfg = {LED_RED_PORT, LED_RED_PIN, 0, 0, 0};
-GpioConfig debug3_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, 0, 0, 0};
-GpioOut debug0(debug0_cfg);
-GpioOut debug1(debug1_cfg);
-GpioOut debug2(debug2_cfg);
-GpioOut debug3(debug3_cfg);
+GpioConfig debug0_cfg = {DEBUG0_PORT, DEBUG0_PIN, 0, 0, 0};
+GpioConfig debug1_cfg = {DEBUG1_PORT, DEBUG1_PIN, 0, 0, 0};
+GpioConfig debug2_cfg = {DEBUG2_PORT, DEBUG2_PIN, 0, 0, 0};
+GpioConfig debug3_cfg = {DEBUG3_PORT, DEBUG3_PIN, 0, 0, 0};
+GpioIn debug0(debug0_cfg);
+GpioIn debug1(debug1_cfg);
+GpioIn debug2(debug2_cfg);
+GpioIn debug3(debug3_cfg);
 
 // Adc 
-GpioConfig gpio_adc_cfg = {GPIO_DEBUG_5_PORT, GPIO_DEBUG_5_PIN, 0, 0, 0};
-AdcConfig adc_cfg = {GPIO_DEBUG_5_ADC_RES, GPIO_DEBUG_5_ADC_REF, GPIO_DEBUG_5_ADC_CHAN};
+GpioConfig gpio_adc_cfg = {DEBUG5_PORT, DEBUG5_PIN, 0, 0, 0};
+AdcConfig adc_cfg = {DEBUG5_ADC_RES, DEBUG5_ADC_REF, DEBUG5_ADC_CHAN};
 GpioAdc gpio_adc(gpio_adc_cfg, adc_cfg);
 
 // Button
 GpioConfig button_user_cfg = {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0};
-GpioInPow button_user(button_user_cfg);
+GpioIn button_user(button_user_cfg);
 
-// Timer
-TimerConfig timer0_cfg = {TIMER0_PERIPHERAL, TIMER0_BASE, TIMER0_SOURCE, TIMER0_CONFIG, TIMER0_INTERRUPT, TIMER0_INTERRUPT_MODE};
-Timer timer0(timer0_cfg);
-TimerConfig timer1_cfg = {TIMER1_PERIPHERAL, TIMER1_BASE, TIMER1_SOURCE, TIMER1_CONFIG, TIMER1_INTERRUPT, TIMER1_INTERRUPT_MODE};
-Timer timer1(timer1_cfg);
-TimerConfig timer2_cfg = {TIMER2_PERIPHERAL, TIMER2_BASE, TIMER2_SOURCE, TIMER2_CONFIG, TIMER2_INTERRUPT, TIMER2_INTERRUPT_MODE};
-Timer timer2(timer2_cfg);
-TimerConfig timer3_cfg = {TIMER3_PERIPHERAL, TIMER3_BASE, TIMER3_SOURCE, TIMER3_CONFIG, TIMER3_INTERRUPT, TIMER3_INTERRUPT_MODE};
-Timer timer3(timer3_cfg);
+GpioConfig antenna_at86rf215_cfg = {ANTENNA_AT86RF215_PORT, ANTENNA_AT86RF215_PIN, 0, 0, 0};
+GpioConfig antenna_cc2538_cfg = {ANTENNA_CC2538_PORT, ANTENNA_CC2538_PIN, 0, 0, 0};
+GpioOut antenna_at86rf215(antenna_at86rf215_cfg);
+GpioOut antenna_cc2538(antenna_cc2538_cfg);
 
 // SleepTimer
 SleepTimer sleepTimer(SLEEP_TIMER_INTERRUPT);
@@ -268,11 +327,11 @@ Aes aes;
 Si7006 si7006(i2c);
 
 // CC2538 Temperature sensor
-TemperatureSensor temp;	
+TemperatureSensor temp;
 
 // AT86RF215 radio transceiver
 GpioConfig at86rf215_pwr_cfg = {AT86RF215_PWR_BASE, AT86RF215_PWR_PIN, 0, 0, 0};
-GpioConfig at86rf215_rst_cfg = {AT86RF215_RST_BASE, AT86RF215_RST_PIN, 0, 0, 0};
+GpioConfig at86rf215_rst_cfg = {AT86RF215_RST_BASE, AT86RF215_RST_PIN, 0, 0, 1};
 GpioConfig at86rf215_csn_cfg = {AT86RF215_CSn_BASE, AT86RF215_CSn_PIN, AT86RF215_CSn_IOC, 0, 0};
 GpioConfig at86rf215_irq_cfg = {AT86RF215_IRQ_BASE, AT86RF215_IRQ_PIN, 0, AT86RF215_IRQ_EDGE, 0};
 
@@ -287,6 +346,10 @@ At86rf215 at86rf215(spi, at86rf215_pwr, at86rf215_rst, at86rf215_csn, at86rf215_
 /*================================= public ==================================*/
 
 void Board::init(void) {
+	led_green.off();
+	led_yellow.off();
+	led_orange.off();
+	led_red.off();
 }
 
 /*================================ private ==================================*/

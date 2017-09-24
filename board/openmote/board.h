@@ -48,6 +48,11 @@ extern GpioOut led_orange;
 extern GpioOut led_red;
 extern GpioOut led_yellow;
 
+// extern GpioPwm led_green;
+// extern GpioPwm led_orange;
+// extern GpioPwm led_red;
+// extern GpioPwm led_yellow;
+
 // Debug
 extern GpioOut debug0;
 extern GpioOut debug1;
@@ -61,10 +66,14 @@ extern GpioAdc gpio_adc;
 extern GpioInPow button_user;
 
 // Timer
-extern Timer timer0;
-extern Timer timer1;
-extern Timer timer2;
-extern Timer timer3;
+extern Timer timer0a;
+extern Timer timer0b;
+extern Timer timer1a;
+extern Timer timer1b;
+extern Timer timer2a;
+extern Timer timer2b;
+extern Timer timer3a;
+extern Timer timer3b;
 
 // SleepTimer
 extern SleepTimer sleepTimer;
@@ -94,6 +103,10 @@ extern TemperatureSensor temp;
 extern Si7006 si7006;
 
 // AT86RF215 radio transceiver
+extern GpioOut at86rf215_pwr;
+extern GpioOut at86rf215_rst;
+extern GpioOut at86rf215_csn;
+extern GpioIn at86rf215_irq;
 extern At86rf215 at86rf215;
 
 /*=============================== prototypes ================================*/
