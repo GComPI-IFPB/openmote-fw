@@ -26,8 +26,6 @@ public:
     void enable(void);
     void sleep(void);
     void wakeup(void);
-    void on(void);
-    void off(void);
     void reset(void);
     bool check(void);
     void setCallbacks(Callback* rf09, Callback* r24);
