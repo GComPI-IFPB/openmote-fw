@@ -35,6 +35,11 @@ GpioIn::GpioIn(GpioConfig& config):
 
     // Set the edge of the interrupt
     GPIOIntTypeSet(config_.port, config_.pin, config_.edge);
+
+    if (config_.ioc != IOC_OVERRIDE_DIS)
+    {
+        IOCPadConfigSet(config_.port, config_.pin, config_.ioc);
+    }
 }
 
 bool GpioIn::read(void)
