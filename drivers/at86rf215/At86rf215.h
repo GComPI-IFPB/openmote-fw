@@ -15,6 +15,7 @@
 #include "Radio.h"
 #include "Gpio.h"
 #include "Spi.h"
+#include "Callback.h"
 
 #include "At86rf215_regs.h"
 
@@ -29,16 +30,28 @@ public:
     void off(void);
     void reset(void);
     bool check(void);
-    void setRxCallbacks(Callback* rxInit, Callback* rxDone);
-    void setTxCallbacks(Callback* txInit, Callback* txDone);
+    void setCallbacks(Callback* rf09, Callback* r24);
+    void clearCallbacks(void);
     void enableInterrupts(void);
     void disableInterrupts(void);
+protected:
+    void interruptHandler(void);    
+private:
+    void singleAccessRead(uint16_t address, uint8_t* value);
+    void singleAccessWrite(uint16_t address, uint8_t value);
+    void blockAccessRead(uint16_t address, uint8_t* values, uint16_t length);
+    void blockAccessWrite(uint16_t address, uint8_t* values, uint16_t length);
 private:
     Spi& spi_;
     GpioOut& pwr_;
     GpioOut& rst_;
     GpioOut& cs_;
     GpioIn& irq_;
+
+    GenericCallback<At86rf215> callback_;
+
+    Callback* rf09_cb;
+    Callback* rf24_cb;
 };
 
 #endif /* AT86RF215_H_ */
