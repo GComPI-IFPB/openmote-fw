@@ -118,22 +118,18 @@ void InterruptHandler::setInterruptHandler(GpioIn* gpio)
     if (port == GPIO_A_BASE)
     {
         GPIOA_interruptVector_[pin] = gpio;
-        IntPrioritySet(INT_GPIOA, (7 << 5));
     }
     else if (port == GPIO_B_BASE)
     {
         GPIOB_interruptVector_[pin] = gpio;
-        IntPrioritySet(INT_GPIOB, (7 << 5));
     }
     else if (port == GPIO_C_BASE)
     {
         GPIOC_interruptVector_[pin] = gpio;
-        IntPrioritySet(INT_GPIOC, (7 << 5));
     }
     else if (port == GPIO_D_BASE)
     {
         GPIOD_interruptVector_[pin] = gpio;
-        IntPrioritySet(INT_GPIOD, (7 << 5));
     }
 }
 
