@@ -95,12 +95,8 @@ void Uart::sleep(void)
     UARTDisable(config_.base);
 
     // Configure the pins as outputs
-    GPIOPinTypeGPIOOutput(rx.port, rx.pin);
-    GPIOPinTypeGPIOOutput(tx.port, tx.pin);
-
-    // Pull the pins to ground
-    GPIOPinWrite(rx.port, rx.pin, 0);
-    GPIOPinWrite(tx.port, tx.pin, 0);
+    GPIOPinTypeGPIOInput(rx.port, rx.pin);
+    GPIOPinTypeGPIOInput(tx.port, tx.pin);
 }
 
 void Uart::wakeup(void)

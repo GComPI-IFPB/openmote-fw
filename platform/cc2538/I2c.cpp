@@ -85,12 +85,8 @@ void I2c::sleep(void)
     I2CMasterDisable();
 
     // Configure GPIOs as output
-    GPIOPinTypeGPIOOutput(scl.port, scl.pin);
-    GPIOPinTypeGPIOOutput(sda.port, sda.pin);
-
-    // Set GPIOs to low
-    GPIOPinWrite(scl.port, scl.pin, 0);
-    GPIOPinWrite(sda.port, sda.pin, 0);
+    GPIOPinTypeGPIOInput(scl.port, scl.pin);
+    GPIOPinTypeGPIOInput(sda.port, sda.pin);
 }
 
 void I2c::wakeup(void)

@@ -82,14 +82,9 @@ void Spi::sleep(void)
     SSIDisable(config_.base);
 
     // Configure the MISO, MOSI and CLK pins as output
-    GPIOPinTypeGPIOOutput(miso.port, miso.pin);
-    GPIOPinTypeGPIOOutput(mosi.port, mosi.pin);
-    GPIOPinTypeGPIOOutput(clk.port, clk.pin);
-
-    //
-    GPIOPinWrite(miso.port, miso.pin, 0);
-    GPIOPinWrite(mosi.port, mosi.pin, 0);
-    GPIOPinWrite(clk.port, clk.pin, 0);
+    GPIOPinTypeGPIOInput(miso.port, miso.pin);
+    GPIOPinTypeGPIOInput(mosi.port, mosi.pin);
+    GPIOPinTypeGPIOInput(clk.port, clk.pin);
 }
 
 void Spi::wakeup(void)
