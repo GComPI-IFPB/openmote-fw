@@ -108,19 +108,30 @@ uint32_t Board::getCurrentTicks(void)
     return SleepModeTimerCountGet();
 }
 
-bool Board::isExpiredTicks(uint32_t futureTicks)
+bool Board::isExpiredTicks(uint32_t future)
 {
-    uint32_t currentTicks;
-    int32_t remainingTicks;
+    uint32_t current;
+    int32_t remaining;
 
     // Get the current number of ticks
-    currentTicks = SleepModeTimerCountGet();
+    current = getCurrentTicks();
 
     // Calculte the number of remaining ticks
-    remainingTicks = (int32_t) (futureTicks - currentTicks);
+    remaining = (int32_t) (future - current);
 
     // Returns true if it has expired
-    return (remainingTicks < 0);
+    return (remaining < 0);
+}
+
+void Board::delayMilliseconds(uint32_t milliseconds)
+{
+    uint32_t future, current;
+
+    current = getCurrentTicks();
+    future = current + 32 * milliseconds;
+
+    while(!isExpiredTicks(future))
+        ;
 }
 
 void Board::enableFlashErase(void)

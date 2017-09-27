@@ -32,6 +32,7 @@ public:
     void enableFlashErase(void);
     uint32_t getCurrentTicks(void);
     bool isExpiredTicks(uint32_t futureTicks);
+    void delayMilliseconds(uint32_t milliseconds);
     void getEUI48(uint8_t* address);
     void getEUI64(uint8_t* address);
 public:
