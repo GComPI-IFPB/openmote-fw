@@ -78,17 +78,12 @@
 #define DEBUG5_ADC_REF          ( SOCADC_REF_INTERNAL )
 #define DEBUG5_ADC_CHAN         ( SOCADC_AIN7 )
 
-#define BUTTON_USER_PORT        ( GPIO_A_BASE )
-#define BUTTON_USER_PIN         ( GPIO_PIN_6 )
+#define BUTTON_USER_PORT        ( GPIO_D_BASE )
+#define BUTTON_USER_PIN         ( GPIO_PIN_5 )
 #define BUTTON_USER_EDGE        ( GPIO_FALLING_EDGE )
-
-// #define BUTTON_USER_PORT        ( GPIO_D_BASE )
-// #define BUTTON_USER_PIN         ( GPIO_PIN_5 )
-// #define BUTTON_USER_EDGE        ( GPIO_FALLING_EDGE )
 
 #define BOOTLOAD_PORT           ( GPIO_A_BASE )
 #define BOOTLOAD_PIN            ( GPIO_PIN_6 )
-
 
 #define ANTENNA_AT86RF215_PORT  ( GPIO_D_BASE )
 #define ANTENNA_AT86RF215_PIN   ( GPIO_PIN_3 )
@@ -203,11 +198,11 @@
 
 #define AT86RF215_IRQ_BASE      ( GPIO_D_BASE )
 #define AT86RF215_IRQ_PIN       ( GPIO_PIN_0 )
+#define AT86RF215_IRQ_IOC       ( IOC_OVERRIDE_DIS )
 #define AT86RF215_IRQ_EDGE      ( GPIO_RISING_EDGE )
 
 #define AT86RF215_CSn_BASE      ( GPIO_A_BASE )
 #define AT86RF215_CSn_PIN       ( GPIO_PIN_3 )
-#define AT86RF215_CSn_IOC       ( IOC_MUX_OUT_SEL_SSI0_FSSOUT )
 
 /*================================ typedef ==================================*/
 
@@ -271,16 +266,21 @@ GpioIn debug3(debug3_cfg);
 // Adc 
 GpioConfig gpio_adc_cfg = {DEBUG5_PORT, DEBUG5_PIN, 0, 0, 0};
 AdcConfig adc_cfg = {DEBUG5_ADC_RES, DEBUG5_ADC_REF, DEBUG5_ADC_CHAN};
-GpioAdc gpio_adc(gpio_adc_cfg, adc_cfg);
+// GpioAdc gpio_adc(gpio_adc_cfg, adc_cfg);
 
 // Button
 GpioConfig button_user_cfg = {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0};
 GpioIn button_user(button_user_cfg);
 
+// Bootload
+GpioConfig gpio_boot_cfg = {BOOTLOAD_PORT, BOOTLOAD_PIN, 0, 0, 0};
+GpioIn gpio_boot(gpio_boot_cfg);
+
+// Antenna
 GpioConfig antenna_at86rf215_cfg = {ANTENNA_AT86RF215_PORT, ANTENNA_AT86RF215_PIN, 0, 0, 0};
 GpioConfig antenna_cc2538_cfg = {ANTENNA_CC2538_PORT, ANTENNA_CC2538_PIN, 0, 0, 0};
-GpioOut antenna_at86rf215(antenna_at86rf215_cfg);
-GpioOut antenna_cc2538(antenna_cc2538_cfg);
+//GpioOut antenna_at86rf215(antenna_at86rf215_cfg);
+//GpioOut antenna_cc2538(antenna_cc2538_cfg);
 
 // SleepTimer
 SleepTimer sleepTimer(SLEEP_TIMER_INTERRUPT);
@@ -326,15 +326,14 @@ Aes aes;
 // Temperature + Relative humidity sensor
 Si7006 si7006(i2c);
 
-// CC2538 Temperature sensor
+// CC2538 temperature sensor
 TemperatureSensor temp;
 
 // AT86RF215 radio transceiver
 GpioConfig at86rf215_pwr_cfg = {AT86RF215_PWR_BASE, AT86RF215_PWR_PIN, 0, 0, 0};
 GpioConfig at86rf215_rst_cfg = {AT86RF215_RST_BASE, AT86RF215_RST_PIN, 0, 0, 1};
-GpioConfig at86rf215_csn_cfg = {AT86RF215_CSn_BASE, AT86RF215_CSn_PIN, AT86RF215_CSn_IOC, 0, 0};
-GpioConfig at86rf215_irq_cfg = {AT86RF215_IRQ_BASE, AT86RF215_IRQ_PIN, 0, AT86RF215_IRQ_EDGE, 0};
-
+GpioConfig at86rf215_csn_cfg = {AT86RF215_CSn_BASE, AT86RF215_CSn_PIN, 0, 0, 0};
+GpioConfig at86rf215_irq_cfg = {AT86RF215_IRQ_BASE, AT86RF215_IRQ_PIN, AT86RF215_IRQ_IOC, AT86RF215_IRQ_EDGE, 0};
 GpioOut at86rf215_pwr(at86rf215_pwr_cfg);
 GpioOut at86rf215_rst(at86rf215_rst_cfg);
 GpioOut at86rf215_csn(at86rf215_csn_cfg);
@@ -346,10 +345,14 @@ At86rf215 at86rf215(spi, at86rf215_pwr, at86rf215_rst, at86rf215_csn, at86rf215_
 /*================================= public ==================================*/
 
 void Board::init(void) {
-	led_green.off();
-	led_yellow.off();
-	led_orange.off();
-	led_red.off();
+	led_green.low();
+	led_yellow.low();
+	led_orange.low();
+	led_red.low();
+
+	uart.sleep();
+	spi.sleep();
+	i2c.sleep();
 }
 
 /*================================ private ==================================*/
