@@ -11,18 +11,41 @@
 
 /*================================ include ==================================*/
 
+#include <stdio.h>
+
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "board.h"
+#include "platform_types.h"
 
 #include "Scheduler.h"
+#include "Semaphore.h"
 #include "Task.h"
 
 /*================================ define ===================================*/
+
+#define GREEN_LED_TASK_PRIORITY         	( tskIDLE_PRIORITY + 0 )
+#define RADIO_TASK_PRIORITY              	( tskIDLE_PRIORITY + 2 )
+#define TEMPERATURE_TASK_PRIORITY       	( tskIDLE_PRIORITY + 1 )
+
+#define UART_BAUDRATE                       ( 115200 )
+#define SPI_BAUDRATE                        ( 8000000 )
 
 /*================================ typedef ==================================*/
 
 /*=============================== prototypes ================================*/
 
+static void prvGreenLedTask(void *pvParameters);
+static void prvTemperatureTask(void *pvParameters);
+static void prvRadioTask(void *pvParameters);
+
 /*=============================== variables =================================*/
+
+static uint8_t uart_buffer[32];
+static uint8_t uart_len;
+
+static bool error = false;
 
 /*================================= public ==================================*/
 
@@ -30,8 +53,108 @@ int main(void) {
     // Initialize the board
     board.init();
 
+    // Enable the UART interface
+    uart.enable(UART_BAUDRATE);
+
+    // Enable the SPI interface
+    spi.enable(SPI_BAUDRATE);
+
+    // Enable the I2C interface
+    i2c.enable();
+
+    // Turn AT86RF215 radio on
+    at86rf215.enable();
+
+    // Create the FreeRTOS tasks
+    xTaskCreate(prvGreenLedTask, (const char *) "GreenLed", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
+    xTaskCreate(prvTemperatureTask, (const char *) "Temperature", 128, NULL, TEMPERATURE_TASK_PRIORITY, NULL);
+    xTaskCreate(prvRadioTask, (const char *) "Radio", 128, NULL, RADIO_TASK_PRIORITY, NULL);
+
     // Start the scheduler
     Scheduler::run();
 }
 
 /*================================ private ==================================*/
+
+static void prvTemperatureTask(void *pvParameters)
+{
+    uint16_t temperature;
+    uint16_t humidity;
+
+    if (si7006.isPresent() == true)
+    {
+        si7006.enable();
+
+        while (true)
+        {
+            led_orange.on();
+
+            si7006.readTemperature();
+            temperature = si7006.getTemperatureRaw();
+
+            si7006.readHumidity();
+            humidity = si7006.getHumidityRaw();
+
+            uart_buffer[0] = (uint8_t)((temperature & 0x00FF) >> 0);
+            uart_buffer[1] = (uint8_t)((temperature & 0xFF00) >> 8);
+            uart_buffer[2] = (uint8_t)((humidity & 0x00FF) >> 0);
+            uart_buffer[3] = (uint8_t)((humidity & 0xFF00) >> 8);
+            uart_len = 4;
+
+            uart.writeByte(uart_buffer, uart_len);
+
+            led_orange.off();
+
+            Task::delay(2000);
+        }
+    }
+    else
+    {
+        error = true;
+    }
+}
+
+static void prvRadioTask(void *pvParameters)
+{
+	bool status; 
+
+    // Forever
+    while (true)
+    {
+        status = at86rf215.check();
+        if (status) {
+        	led_yellow.on();
+        } else {
+        	error = true;
+        }
+
+        Task::delay(50);;
+        
+        led_yellow.off();
+
+        Task::delay(2000);
+    }
+}
+
+static void prvGreenLedTask(void *pvParameters)
+{
+    // Forever
+    while (true)
+    {
+        // Turn off green LED for 1000 ms
+        led_green.off();
+        if (error) {
+            led_red.on();
+        }
+        Task::delay(1000);
+
+        // Turn on green LED for 1000 ms
+        led_green.on();
+        if (error) {
+            led_red.off();
+        }
+        Task::delay(1000);
+
+        error = false;
+    }
+}
