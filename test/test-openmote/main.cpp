@@ -40,12 +40,16 @@ static void prvGreenLedTask(void *pvParameters);
 static void prvTemperatureTask(void *pvParameters);
 static void prvRadioTask(void *pvParameters);
 
+static void rf09Callback(void);
+static void rf24Callback(void);
+
 /*=============================== variables =================================*/
+
+static PlainCallback rf09Callback_(rf09Callback);
+static PlainCallback rf24Callback_(rf24Callback);
 
 static uint8_t uart_buffer[32];
 static uint8_t uart_len;
-
-static bool error = false;
 
 /*================================= public ==================================*/
 
@@ -62,8 +66,8 @@ int main(void) {
     // Enable the I2C interface
     i2c.enable();
 
-    // Turn AT86RF215 radio on
-    at86rf215.enable();
+    // Enable general interrupts
+    board.enableInterrupts();
 
     // Create the FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "GreenLed", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
@@ -105,12 +109,8 @@ static void prvTemperatureTask(void *pvParameters)
 
             led_orange.off();
 
-            Task::delay(2000);
+            Task::delay(1000);
         }
-    }
-    else
-    {
-        error = true;
     }
 }
 
@@ -118,21 +118,31 @@ static void prvRadioTask(void *pvParameters)
 {
 	bool status; 
 
+    // Set radio callbacks
+    at86rf215.setCallbacks(&rf09Callback_, &rf24Callback_);
+    at86rf215.enableInterrupts();
+
     // Forever
     while (true)
     {
+        // Turn AT86RF215 radio on
+        at86rf215.enable();
+
         status = at86rf215.check();
         if (status) {
         	led_yellow.on();
         } else {
-        	error = true;
+        	led_yellow.off();
         }
 
-        Task::delay(50);;
-        
+        // Turn AT86RF215 radio off
+        at86rf215.sleep();
+
+        Task::delay(50);
+
         led_yellow.off();
 
-        Task::delay(2000);
+        Task::delay(950);
     }
 }
 
@@ -143,18 +153,20 @@ static void prvGreenLedTask(void *pvParameters)
     {
         // Turn off green LED for 1000 ms
         led_green.off();
-        if (error) {
-            led_red.on();
-        }
         Task::delay(1000);
 
         // Turn on green LED for 1000 ms
         led_green.on();
-        if (error) {
-            led_red.off();
-        }
         Task::delay(1000);
-
-        error = false;
     }
+}
+/*================================ private ==================================*/
+
+static void rf09Callback(void)
+{
+    led_red.toggle();
+}
+
+static void rf24Callback(void)
+{
 }
