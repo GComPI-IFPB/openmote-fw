@@ -239,7 +239,7 @@ static void system_init(void)
      * Set the real-time clock to use the 32.768 kHz external crystal
      * Set the system clock to use the 16 MHz external crystal
      */
-    SysCtrlClockSet(true, true, SYS_CTRL_SYSDIV_16MHZ);
+    SysCtrlClockSet(true, false, SYS_CTRL_SYSDIV_32MHZ);
 
     /**
      * Set the IO clock to operate at 16 MHz
@@ -249,7 +249,7 @@ static void system_init(void)
     /**
      * Wait until the 32 MHz oscillator becomes stable
      */
-    // while (!((HWREG(SYS_CTRL_CLOCK_STA)) & (SYS_CTRL_CLOCK_STA_XOSC_STB)));
+    while (!((HWREG(SYS_CTRL_CLOCK_STA)) & (SYS_CTRL_CLOCK_STA_XOSC_STB)));
 }
 
 static void system_exit(void)
