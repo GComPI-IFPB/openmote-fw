@@ -279,8 +279,8 @@ GpioIn gpio_boot(gpio_boot_cfg);
 // Antenna
 GpioConfig antenna_at86rf215_cfg = {ANTENNA_AT86RF215_PORT, ANTENNA_AT86RF215_PIN, 0, 0, 0};
 GpioConfig antenna_cc2538_cfg = {ANTENNA_CC2538_PORT, ANTENNA_CC2538_PIN, 0, 0, 0};
-//GpioOut antenna_at86rf215(antenna_at86rf215_cfg);
-//GpioOut antenna_cc2538(antenna_cc2538_cfg);
+GpioOut antenna_at86rf215(antenna_at86rf215_cfg);
+GpioOut antenna_cc2538(antenna_cc2538_cfg);
 
 // SleepTimer
 SleepTimer sleepTimer(SLEEP_TIMER_INTERRUPT);
@@ -353,6 +353,9 @@ void Board::init(void) {
 	uart.sleep();
 	spi.sleep();
 	i2c.sleep();
+
+	antenna_at86rf215.high();
+	antenna_cc2538.low();
 }
 
 /*================================ private ==================================*/
