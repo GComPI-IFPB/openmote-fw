@@ -2,11 +2,11 @@ import os
 
 cmd_options = {
     'board'     :          ['openmote-b'],
-    'chip'      :          ['cc2538sf53'],
     'project'   :          ['freertos-cc2538', 'freertos-cc2538-tickless', 'ieee802154-sniffer',
                             'test-aes', 'test-board', 'test-crc', 'test-openmote-b', 'test-radio-at86rf215', 
                             'test-radio-cc2538', 'test-radiotimer', 'test-rendezvous', 'test-serial',
                             'test-sleeptimer', 'test-spi', 'test-pwm', 'test-task', 'test-timer', 'test-uart'],
+    'kernel'    :          ['freertos'],
     'verbose'   :          ['0','1']
 }
 
@@ -21,19 +21,19 @@ cmd_vars.AddVariables(
     (
         'board',                                           # key
         '',                                                # help
-        cmd_options['board'][0],                           # default
-        validate_option,                                   # validator
-        None,                                              # converter
-    ),
-    (
-        'chip',                                            # key
-        '',                                                # help
-        cmd_options['chip'][0],                            # default
+        None,                                              # default
         validate_option,                                   # validator
         None,                                              # converter
     ),
     (
         'project',                                         # key
+        '',                                                # help
+        None,                                              # default
+        validate_option,                                   # validator
+        None,                                              # converter
+    ),
+    (
+        'kernel',                                          # key
         '',                                                # help
         None,                                              # default
         validate_option,                                   # validator

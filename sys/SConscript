@@ -4,15 +4,15 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'libstack'
+target = 'libsys'
 
 src_dir   = ['src']
 output_dir = os.path.join('#', 'bin', env['board'])
 source = []
 
 for src in src_dir:
-    script = os.path.join('#', 'stack', src, 'SConscript')
-    build  = os.path.join('#', 'build', localEnv['board'], 'stack', src)
+    script = os.path.join('#', 'sys', src, 'SConscript')
+    build  = os.path.join('#', 'build', localEnv['board'], 'sys', src)
     output = localEnv.SConscript(
         script,
         variant_dir = build,
