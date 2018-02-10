@@ -202,7 +202,7 @@ def OpenMoteCC2538_expand(ports):
 ################################################################################
 
 def BootloadFunc():
-    if ((env['board'] == 'openmote') or (env['board'] == 'openusb')):
+    if ((env['board'] == 'openmote-b')):
         return Builder(
             action      = OpenMoteCC2538_bootload,
             suffix      = '.phonyupload',
