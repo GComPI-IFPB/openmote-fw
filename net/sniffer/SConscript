@@ -5,12 +5,9 @@ Import('env')
 localEnv = env.Clone()
 
 source = [
-    'Max44009.cpp',
+    'SnifferCommon.cpp',
+    'SnifferSerial.cpp',
 ]
-
-localEnv.Append(
-    CPPPATH =  []
-)
 
 common  = localEnv.Object(source=source)
 

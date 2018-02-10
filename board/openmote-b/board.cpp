@@ -25,11 +25,8 @@
 #include "RandomNumberGenerator.h"
 #include "Watchdog.h"
 
-#include "Adxl34x.h"
-#include "Max44009.h"
 #include "Si7006.h"
-
-#include "Cc1200.h"
+#include "At86rf215.h"
 
 #include "cc2538_include.h"
 #include "platform_types.h"
@@ -60,21 +57,38 @@
 #define LED_GREEN_PIN           ( GPIO_PIN_7 )
 #define LED_GREEN_IOC           ( IOC_MUX_OUT_SEL_GPT0_ICP1 )
 
-#define GPIO_DEBUG_AD0_PORT     ( GPIO_D_BASE )
-#define GPIO_DEBUG_AD0_PIN      ( GPIO_PIN_3 )
+#define DEBUG0_PORT             ( GPIO_B_BASE )
+#define DEBUG0_PIN              ( GPIO_PIN_0 )
 
-#define GPIO_DEBUG_AD1_PORT     ( GPIO_D_BASE )
-#define GPIO_DEBUG_AD1_PIN      ( GPIO_PIN_2 )
+#define DEBUG1_PORT             ( GPIO_B_BASE )
+#define DEBUG1_PIN              ( GPIO_PIN_1 )
 
-#define GPIO_DEBUG_AD2_PORT     ( GPIO_D_BASE )
-#define GPIO_DEBUG_AD2_PIN      ( GPIO_PIN_1 )
+#define DEBUG2_PORT             ( GPIO_B_BASE )
+#define DEBUG2_PIN              ( GPIO_PIN_2 )
 
-#define BUTTON_USER_PORT        ( GPIO_C_BASE )
-#define BUTTON_USER_PIN         ( GPIO_PIN_3 )
+#define DEBUG3_PORT             ( GPIO_B_BASE )
+#define DEBUG3_PIN              ( GPIO_PIN_3 )
+
+#define DEBUG4_PORT             ( GPIO_C_BASE )
+#define DEBUG4_PIN              ( GPIO_PIN_3 )
+
+#define DEBUG5_PORT             ( GPIO_A_BASE )
+#define DEBUG5_PIN              ( GPIO_PIN_7 )
+#define DEBUG5_ADC_RES          ( SOCADC_12_BIT )
+#define DEBUG5_ADC_REF          ( SOCADC_REF_INTERNAL )
+#define DEBUG5_ADC_CHAN         ( SOCADC_AIN7 )
+
+#define BUTTON_USER_PORT        ( GPIO_D_BASE )
+#define BUTTON_USER_PIN         ( GPIO_PIN_5 )
 #define BUTTON_USER_EDGE        ( GPIO_FALLING_EDGE )
 
 #define BOOTLOAD_PORT           ( GPIO_A_BASE )
 #define BOOTLOAD_PIN            ( GPIO_PIN_6 )
+
+#define ANTENNA_AT86RF215_PORT  ( GPIO_D_BASE )
+#define ANTENNA_AT86RF215_PIN   ( GPIO_PIN_3 )
+#define ANTENNA_CC2538_PORT     ( GPIO_D_BASE )
+#define ANTENNA_CC2538_PIN      ( GPIO_PIN_4 )
 
 #define TIMER0A_PERIPHERAL      ( SYS_CTRL_PERIPH_GPT0 )
 #define TIMER0A_BASE            ( GPTIMER0_BASE )
@@ -136,11 +150,6 @@
 
 #define RADIO_TIMER_INTERRUPT   ( INT_MACTIMR )
 
-#define ANTENNA_EXTERNAL_PORT   ( GPIO_D_BASE )
-#define ANTENNA_EXTERNAL_PIN    ( GPIO_PIN_4 )
-#define ANTENNA_INTERNAL_PORT   ( GPIO_D_BASE )
-#define ANTENNA_INTERNAL_PIN    ( GPIO_PIN_5 )
-
 #define UART_PERIPHERAL         ( SYS_CTRL_PERIPH_UART0 )
 #define UART_BASE               ( UART0_BASE )
 #define UART_CLOCK              ( UART_CLOCK_PIOSC )
@@ -177,33 +186,22 @@
 #define I2C_PERIPHERAL          ( SYS_CTRL_PERIPH_I2C )
 #define I2C_BAUDRATE            ( 400000 )
 #define I2C_SCL_BASE            ( GPIO_B_BASE )
-#define I2C_SCL_PIN             ( GPIO_PIN_3 )
+#define I2C_SCL_PIN             ( GPIO_PIN_5 )
 #define I2C_SDA_BASE            ( GPIO_B_BASE )
 #define I2C_SDA_PIN             ( GPIO_PIN_4 )
 
-#define ADXL34X_INT_PORT        ( GPIO_B_BASE)
-#define ADXL34X_INT_PIN         ( GPIO_PIN_2 )
-#define ADXL34X_INT_EDGE        ( GPIO_RISING_EDGE )
+#define AT86RF215_PWR_BASE      ( GPIO_C_BASE )
+#define AT86RF215_PWR_PIN       ( GPIO_PIN_0 )
 
-#define MAX44009_INT_PORT       ( GPIO_B_BASE )
-#define MAX44009_INT_PIN        ( GPIO_PIN_5 )
-#define MAX44009_INT_EDGE       ( GPIO_FALLING_EDGE )
+#define AT86RF215_RST_BASE      ( GPIO_D_BASE )
+#define AT86RF215_RST_PIN       ( GPIO_PIN_1 )
 
-#define CC1200_CS_BASE          ( GPIO_A_BASE )
-#define CC1200_CS_PIN           ( GPIO_PIN_3 )
-#define CC1200_CS_IOC           ( IOC_MUX_OUT_SEL_SSI0_FSSOUT )
+#define AT86RF215_IRQ_BASE      ( GPIO_D_BASE )
+#define AT86RF215_IRQ_PIN       ( GPIO_PIN_0 )
+#define AT86RF215_IRQ_EDGE      ( GPIO_RISING_EDGE )
 
-#define CC1200_GPIO0_BASE       ( GPIO_D_BASE )
-#define CC1200_GPIO0_PIN        ( GPIO_PIN_3 )
-#define CC1200_GPIO0_EDGE       ( GPIO_RISING_EDGE )
-
-#define CC1200_GPIO2_BASE       ( GPIO_D_BASE )
-#define CC1200_GPIO2_PIN        ( GPIO_PIN_2 )
-#define CC1200_GPIO2_EDGE       ( GPIO_RISING_EDGE )
-
-#define CC1200_GPIO3_BASE       ( GPIO_D_BASE )
-#define CC1200_GPIO3_PIN        ( GPIO_PIN_0 )
-#define CC1200_GPIO3_EDGE       ( GPIO_RISING_EDGE )
+#define AT86RF215_CSn_BASE      ( GPIO_A_BASE )
+#define AT86RF215_CSn_PIN       ( GPIO_PIN_3 )
 
 /*================================ typedef ==================================*/
 
@@ -234,41 +232,60 @@ Timer timer3a(timer3a_cfg);
 TimerConfig timer3b_cfg = {TIMER3B_PERIPHERAL, TIMER3B_BASE, TIMER3B_SOURCE, TIMER3B_CONFIG, TIMER3B_INTERRUPT, TIMER3B_INTERRUPT_MODE};
 Timer timer3b(timer3b_cfg);
 
+// Leds
+GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, 0, 0, 1};
+GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 1};
+GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN, 0, 0, 1};
+GpioConfig led_yellow_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, 0, 0, 1};
+GpioOut led_green(led_green_cfg);
+GpioOut led_orange(led_orange_cfg);
+GpioOut led_red(led_red_cfg);
+GpioOut led_yellow(led_yellow_cfg);
+
+// PWM Leds
+// GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, LED_GREEN_IOC, 0, 1};
+// GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, LED_ORANGE_IOC, 0, 1};
+// GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN, LED_RED_IOC, 0, 1};
+// GpioConfig led_yellow_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, LED_YELLOW_IOC, 0, 1};
+// GpioPwm led_green(led_green_cfg, timer0a_cfg);
+// GpioPwm led_orange(led_orange_cfg, timer1a_cfg);
+// GpioPwm led_red(led_red_cfg, timer2a_cfg);
+// GpioPwm led_yellow(led_yellow_cfg, timer3a_cfg);
+
+// Debug 
+GpioConfig debug0_cfg = {DEBUG0_PORT, DEBUG0_PIN, 0, 0, 0};
+GpioConfig debug1_cfg = {DEBUG1_PORT, DEBUG1_PIN, 0, 0, 0};
+GpioConfig debug2_cfg = {DEBUG2_PORT, DEBUG2_PIN, 0, 0, 0};
+GpioConfig debug3_cfg = {DEBUG3_PORT, DEBUG3_PIN, 0, 0, 0};
+GpioIn debug0(debug0_cfg);
+GpioIn debug1(debug1_cfg);
+GpioIn debug2(debug2_cfg);
+GpioIn debug3(debug3_cfg);
+
+// Adc 
+GpioConfig gpio_adc_cfg = {DEBUG5_PORT, DEBUG5_PIN, 0, 0, 0};
+AdcConfig adc_cfg = {DEBUG5_ADC_RES, DEBUG5_ADC_REF, DEBUG5_ADC_CHAN};
+// GpioAdc gpio_adc(gpio_adc_cfg, adc_cfg);
+
+// Button
+GpioConfig button_user_cfg = {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0};
+GpioIn button_user(button_user_cfg);
+
+// Bootload
+GpioConfig gpio_boot_cfg = {BOOTLOAD_PORT, BOOTLOAD_PIN, 0, 0, 0};
+GpioIn gpio_boot(gpio_boot_cfg);
+
+// Antenna
+GpioConfig antenna_at86rf215_cfg = {ANTENNA_AT86RF215_PORT, ANTENNA_AT86RF215_PIN, 0, 0, 0};
+GpioConfig antenna_cc2538_cfg = {ANTENNA_CC2538_PORT, ANTENNA_CC2538_PIN, 0, 0, 0};
+GpioOut antenna_at86rf215(antenna_at86rf215_cfg);
+GpioOut antenna_cc2538(antenna_cc2538_cfg);
+
 // SleepTimer
 SleepTimer sleepTimer(SLEEP_TIMER_INTERRUPT);
 
 // RadioTimer
 RadioTimer radioTimer(RADIO_TIMER_INTERRUPT);
-
-// Leds
-// GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, 0, 0, 0};
-// GpioOut led_green(led_green_cfg);
-
-// GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 0};
-// GpioOut led_orange(led_orange_cfg);
-
-// GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN, 0, 0, 0};
-// GpioOut led_red(led_red_cfg);
-
-//GpioConfig led_yellow_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, 0, 0, 0};
-// GpioOut led_yellow(led_yellow_cfg);
-
-// PWM Leds
-GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, LED_GREEN_IOC, 0, 0};
-GpioPwm led_green(led_green_cfg, timer0a_cfg);
-
-GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, LED_ORANGE_IOC, 0, 0};
-GpioPwm led_orange(led_orange_cfg, timer1a_cfg);
-
-GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN, LED_RED_IOC, 0, 0};
-GpioPwm led_red(led_red_cfg, timer2a_cfg);
-
-GpioConfig led_yellow_cfg = {LED_YELLOW_PORT, LED_YELLOW_PIN, LED_YELLOW_IOC, 0, 0};
-GpioPwm led_yellow(led_yellow_cfg, timer3a_cfg);
-
-// Button
-GpioConfig button_user_cfg = {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0};
-GpioInPow button_user(button_user_cfg);
 
 // I2C peripheral
 GpioConfig i2c_scl_cfg = {I2C_SCL_BASE, I2C_SCL_PIN, 0, 0, 0};
@@ -305,39 +322,39 @@ Radio radio;
 // AES module
 Aes aes;
 
-// Acceleration sensor
-GpioConfig adxl34x_int_cfg = {ADXL34X_INT_PORT, ADXL34X_INT_PIN, 0, ADXL34X_INT_EDGE, 0};
-GpioInPow adxl34x_int(adxl34x_int_cfg);
-Adxl34x adxl34x(i2c, adxl34x_int);
-
-// Light sensor
-GpioConfig max44009_int_cfg = {MAX44009_INT_PORT, MAX44009_INT_PIN, 0, MAX44009_INT_EDGE, 0};
-GpioInPow max44009_int(max44009_int_cfg);
-Max44009 max44009(i2c, max44009_int);
-
 // Temperature + Relative humidity sensor
 Si7006 si7006(i2c);
 
-// CC2538 Temperature sensor
+// CC2538 temperature sensor
 TemperatureSensor temp;
 
-// CC1200 radio transceiver
-GpioConfig cc1200_cs_cfg    = {CC1200_CS_BASE, CC1200_CS_PIN, CC1200_CS_IOC, 0, 0};
-GpioConfig cc1200_gpio0_cfg = {CC1200_GPIO0_BASE, CC1200_GPIO0_PIN, 0, CC1200_GPIO0_EDGE, 0};
-GpioConfig cc1200_gpio2_cfg = {CC1200_GPIO2_BASE, CC1200_GPIO2_PIN, 0, CC1200_GPIO2_EDGE, 0};
-GpioConfig cc1200_gpio3_cfg = {CC1200_GPIO3_BASE, CC1200_GPIO3_PIN, 0, CC1200_GPIO3_EDGE, 0};
-
-GpioOut cc1200_cs(cc1200_cs_cfg);
-GpioIn cc1200_gpio0(cc1200_gpio0_cfg);
-GpioIn cc1200_gpio2(cc1200_gpio2_cfg);
-GpioIn cc1200_gpio3(cc1200_gpio3_cfg);
-Cc1200 cc1200(spi, cc1200_cs, cc1200_gpio0, cc1200_gpio2, cc1200_gpio3);
+// AT86RF215 radio transceiver
+GpioConfig at86rf215_pwr_cfg = {AT86RF215_PWR_BASE, AT86RF215_PWR_PIN, 0, 0, 0};
+GpioConfig at86rf215_rst_cfg = {AT86RF215_RST_BASE, AT86RF215_RST_PIN, 0, 0, 0};
+GpioConfig at86rf215_csn_cfg = {AT86RF215_CSn_BASE, AT86RF215_CSn_PIN, 0, 0, 0};
+GpioConfig at86rf215_irq_cfg = {AT86RF215_IRQ_BASE, AT86RF215_IRQ_PIN, 0, AT86RF215_IRQ_EDGE, 0};
+GpioOut at86rf215_pwr(at86rf215_pwr_cfg);
+GpioOut at86rf215_rst(at86rf215_rst_cfg);
+GpioOut at86rf215_csn(at86rf215_csn_cfg);
+GpioIn at86rf215_irq(at86rf215_irq_cfg);
+At86rf215 at86rf215(spi, at86rf215_pwr, at86rf215_rst, at86rf215_csn, at86rf215_irq);
 
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/
 
 void Board::init(void) {
+	led_green.off();
+	led_yellow.off();
+	led_orange.off();
+	led_red.off();
+
+	uart.sleep();
+	spi.sleep();
+	i2c.sleep();
+
+	antenna_at86rf215.high();
+	antenna_cc2538.low();
 }
 
 /*================================ private ==================================*/

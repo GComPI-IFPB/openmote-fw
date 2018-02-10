@@ -11,31 +11,21 @@ Import('env')
 verbose = env['verbose']
 board   = env['board']
 project = env['project']
-chip    = env['chip']
+kernel  = env['kernel']
 
 ################################################################################
 
-openmote = {
-    'name'      : 'openmote',
+openmote_b = {
+    'name'      : 'openmote-b',
     'platform'  : 'cc2538',
     'cpu'       : 'cortex-m3',
     'toolchain' : 'arm-none-eabi',
-    'os'        : 'freertos',
-    'linker'    : env['chip'] + '.lds'
-}
-
-openusb = {
-    'name'      : 'openusb',
-    'platform'  : 'cc2538',
-    'cpu'       : 'cortex-m3',
-    'toolchain' : 'arm-none-eabi',
-    'os'        : 'freertos',
-    'linker'    : env['chip'] + '.lds'
+    'kernel'    : kernel,
+    'linker'    : 'cc2538sf53' + '.lds'
 }
 
 boards = {
-    'openmote'      : openmote,
-    'openusb'  : openusb,
+    'openmote-b'      : openmote_b,
 }
 
 ################################################################################
@@ -90,10 +80,11 @@ build_dir = os.path.join("#/build", board)
 platform  = boards[board]["platform"]
 cpu       = boards[board]["cpu"]
 toolchain = boards[board]["toolchain"]
+kernel    = boards[board]["kernel"]
 
 linker    = os.path.join(".", 'platform', platform, boards[board]["linker"])
 
-lib_name = ['board', 'drivers', 'net', 'platform', 'stack', 'freertos']
+lib_name = ['board', 'drivers', 'net', 'platform', 'sys', 'kernel']
 lib_path = [os.path.join('#', 'bin', board),
             os.path.join('#', 'platform', platform)]
 
@@ -101,12 +92,12 @@ env['board']     = board
 env['platform']  = platform
 env['cpu']       = cpu
 env['toolchain'] = toolchain
-env['os']        = os
+env['kernel']    = kernel
 env['linker']    = linker
 env['lib_name']  = lib_name
 env['lib_path']  = lib_path
 
-library_folders = ['board', 'drivers', 'freertos', 'net', 'stack', 'platform']
+library_folders = ['board', 'drivers', 'kernel', 'net', 'sys', 'platform']
 project_folders = ['projects', 'test']
 
 src_folders = project_folders + library_folders
@@ -211,7 +202,7 @@ def OpenMoteCC2538_expand(ports):
 ################################################################################
 
 def BootloadFunc():
-    if ((env['board'] == 'openmote') or (env['board'] == 'openusb')):
+    if ((env['board'] == 'openmote-b')):
         return Builder(
             action      = OpenMoteCC2538_bootload,
             suffix      = '.phonyupload',
@@ -308,21 +299,17 @@ env.Append(
     CPPPATH = [
         os.path.join('#','platform', 'inc'),
         os.path.join('#','platform', platform),
-        os.path.join('#','freertos', 'common'),
-        os.path.join('#','freertos', 'inc'),
-        os.path.join('#','freertos', cpu),
+        os.path.join('#','kernel', kernel, 'common'),
+        os.path.join('#','kernel', kernel, 'inc'),
+        os.path.join('#','kernel', kernel, cpu),
         os.path.join('#','projects', project),
         os.path.join('#','board', board),
         os.path.join('#','drivers', 'inc'),
         os.path.join('#','drivers', 'at86rf215'),
-        os.path.join('#','drivers', 'adxl34x'),
-        os.path.join('#','drivers', 'cc1200'),
-        os.path.join('#','drivers', 'max44009'),
         os.path.join('#','drivers', 'si7006'),
-        os.path.join('#','net', 'ethernet'),
-        os.path.join('#','net', 'ieee802154'),
-        os.path.join('#','stack', 'inc'),
-        os.path.join('#','stack', 'src'),
+        os.path.join('#','net', 'sniffer'),
+        os.path.join('#','sys', 'inc'),
+        os.path.join('#','sys', 'src'),
         os.path.join('#', 'test', project)
     ]
 )

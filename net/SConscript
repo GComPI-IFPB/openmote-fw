@@ -6,7 +6,7 @@ localEnv = env.Clone()
 
 target = 'libnet'
 
-src_dir   = ['ethernet', 'ieee802154']
+src_dir   = ['sniffer']
 output_dir = os.path.join('#', 'bin', env['board'])
 source = []
 

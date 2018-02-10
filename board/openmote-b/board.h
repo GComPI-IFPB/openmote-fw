@@ -109,6 +109,9 @@ extern GpioOut at86rf215_csn;
 extern GpioIn at86rf215_irq;
 extern At86rf215 at86rf215;
 
+extern GpioOut antenna_at86rf215;
+extern GpioOut antenna_cc2538;
+
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/
