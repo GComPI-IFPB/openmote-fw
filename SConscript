@@ -15,17 +15,8 @@ chip    = env['chip']
 
 ################################################################################
 
-openmote = {
-    'name'      : 'openmote',
-    'platform'  : 'cc2538',
-    'cpu'       : 'cortex-m3',
-    'toolchain' : 'arm-none-eabi',
-    'os'        : 'freertos',
-    'linker'    : env['chip'] + '.lds'
-}
-
-openusb = {
-    'name'      : 'openusb',
+openmote_b = {
+    'name'      : 'openmote-b',
     'platform'  : 'cc2538',
     'cpu'       : 'cortex-m3',
     'toolchain' : 'arm-none-eabi',
@@ -34,8 +25,7 @@ openusb = {
 }
 
 boards = {
-    'openmote'      : openmote,
-    'openusb'  : openusb,
+    'openmote-b'      : openmote_b,
 }
 
 ################################################################################
@@ -315,12 +305,8 @@ env.Append(
         os.path.join('#','board', board),
         os.path.join('#','drivers', 'inc'),
         os.path.join('#','drivers', 'at86rf215'),
-        os.path.join('#','drivers', 'adxl34x'),
-        os.path.join('#','drivers', 'cc1200'),
-        os.path.join('#','drivers', 'max44009'),
         os.path.join('#','drivers', 'si7006'),
-        os.path.join('#','net', 'ethernet'),
-        os.path.join('#','net', 'ieee802154'),
+        os.path.join('#','net', 'sniffer'),
         os.path.join('#','stack', 'inc'),
         os.path.join('#','stack', 'src'),
         os.path.join('#', 'test', project)

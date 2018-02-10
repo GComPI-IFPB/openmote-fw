@@ -1,11 +1,11 @@
 import os
 
 cmd_options = {
-    'board'     :          ['openmote', 'openusb'],
-    'chip'      :          ['cc2538sf53', 'cc2538sf23'],
-    'project'   :          ['earthquake', 'freertos-cc2538', 'freertos-cc2538-tickless', 'freertos-linux', 'ieee802154-sniffer',
-                            'test-aes', 'test-board', 'test-crc', 'test-openmote', 'test-openusb', 'test-radio-at86rf215', 
-                            'test-radio-cc1200', 'test-radio-cc2538', 'test-radiotimer', 'test-rendezvous', 'test-serial',
+    'board'     :          ['openmote-b'],
+    'chip'      :          ['cc2538sf53'],
+    'project'   :          ['freertos-cc2538', 'freertos-cc2538-tickless', 'ieee802154-sniffer',
+                            'test-aes', 'test-board', 'test-crc', 'test-openmote-b', 'test-radio-at86rf215', 
+                            'test-radio-cc2538', 'test-radiotimer', 'test-rendezvous', 'test-serial',
                             'test-sleeptimer', 'test-spi', 'test-pwm', 'test-task', 'test-timer', 'test-uart'],
     'verbose'   :          ['0','1']
 }
