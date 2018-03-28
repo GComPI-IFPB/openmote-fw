@@ -349,9 +349,9 @@ void Board::init(void) {
 	led_orange.off();
 	led_red.off();
 
-	uart.sleep();
-	spi.sleep();
-	i2c.sleep();
+	// uart.sleep();
+	// spi.sleep();
+	// i2c.sleep();
 
 	antenna_at86rf215.high();
 	antenna_cc2538.low();

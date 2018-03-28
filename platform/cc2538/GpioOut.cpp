@@ -67,12 +67,12 @@ void GpioOut::toggle(void)
 
 void GpioOut::high(void)
 {
-    on();
+    GPIOPinWrite(config_.port, config_.pin, config_.pin);
 }
 
 void GpioOut::low(void)
 {
-    off();
+    GPIOPinWrite(config_.port, config_.pin, 0);
 }
 
 uint32_t GpioOut::status(void)

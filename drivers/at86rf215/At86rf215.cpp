@@ -39,26 +39,28 @@ At86rf215::At86rf215(Spi& spi, GpioOut& pwr, GpioOut& rst, GpioOut& cs, GpioIn& 
 
 {
     irq_.setCallback(&callback_);
+    pwr_.low();
+    rst_.low();
 }
 
 void At86rf215::on(void)
 {
-    pwr_.on();
-    board.delayMilliseconds(1);
-    rst_.low();
+    pwr_.high();
+    board.delayMilliseconds(10);
+    rst_.high();
 }
 
 void At86rf215::off(void)
 {
     rst_.high();
-    board.delayMilliseconds(1);
+    board.delayMilliseconds(10);
     pwr_.off();
 }
 
 void At86rf215::hardReset(void)
 {
     rst_.high();
-    board.delayMilliseconds(1);
+    board.delayMilliseconds(10);
     rst_.low();
 }
 

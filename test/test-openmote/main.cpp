@@ -26,8 +26,9 @@
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY         	( tskIDLE_PRIORITY + 0 )
-#define RADIO_TASK_PRIORITY              	( tskIDLE_PRIORITY + 2 )
-#define TEMPERATURE_TASK_PRIORITY       	( tskIDLE_PRIORITY + 1 )
+#define RADIO_TASK_PRIORITY              	( tskIDLE_PRIORITY + 3 )
+#define TEMPERATURE_TASK_PRIORITY       	( tskIDLE_PRIORITY + 2 )
+#define BUTTON_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 
 #define UART_BAUDRATE                       ( 115200 )
 #define SPI_BAUDRATE                        ( 8000000 )
@@ -40,13 +41,13 @@ static void prvGreenLedTask(void *pvParameters);
 static void prvTemperatureTask(void *pvParameters);
 static void prvRadioTask(void *pvParameters);
 
-static void rf09Callback(void);
-static void rf24Callback(void);
+static void prvButtonTask(void *pvParameters);
+static void buttonCallback(void);
 
 /*=============================== variables =================================*/
 
-static PlainCallback rf09Callback_(rf09Callback);
-static PlainCallback rf24Callback_(rf24Callback);
+static SemaphoreBinary buttonSemaphore;
+static PlainCallback userCallback(buttonCallback);
 
 static uint8_t uart_buffer[32];
 static uint8_t uart_len;
@@ -73,6 +74,7 @@ int main(void) {
     xTaskCreate(prvGreenLedTask, (const char *) "GreenLed", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
     xTaskCreate(prvTemperatureTask, (const char *) "Temperature", 128, NULL, TEMPERATURE_TASK_PRIORITY, NULL);
     xTaskCreate(prvRadioTask, (const char *) "Radio", 128, NULL, RADIO_TASK_PRIORITY, NULL);
+    xTaskCreate(prvButtonTask, (const char *) "ButtonTask", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
 
     // Start the scheduler
     Scheduler::run();
@@ -118,31 +120,28 @@ static void prvRadioTask(void *pvParameters)
 {
 	bool status; 
 
-    // Set radio callbacks
-    at86rf215.setCallbacks(&rf09Callback_, &rf24Callback_);
-    at86rf215.enableInterrupts();
-
     // Forever
     while (true)
     {
         // Turn AT86RF215 radio on
-        at86rf215.enable();
+        at86rf215.on();
 
         status = at86rf215.check();
         if (status) {
         	led_yellow.on();
         } else {
-        	led_yellow.off();
+        	led_red.on();
         }
 
         // Turn AT86RF215 radio off
-        at86rf215.sleep();
+        at86rf215.off();
 
-        Task::delay(50);
+        Task::delay(100);
 
         led_yellow.off();
+        led_red.off();
 
-        Task::delay(950);
+        Task::delay(900);
     }
 }
 
@@ -160,13 +159,28 @@ static void prvGreenLedTask(void *pvParameters)
         Task::delay(1000);
     }
 }
-/*================================ private ==================================*/
 
-static void rf09Callback(void)
+static void prvButtonTask(void *pvParameters)
 {
-    led_red.toggle();
+    // Configure the user button
+    button_user.setCallback(&userCallback);
+    button_user.enableInterrupts();
+
+    // Forever
+    while(true)
+    {
+        // Take the buttonSemaphore, block until available
+        if (buttonSemaphore.take())
+        {
+            led_red.toggle();
+        }
+    }
 }
 
-static void rf24Callback(void)
+/*================================ private ==================================*/
+
+static void buttonCallback(void)
 {
+    // Give the button semaphore as the button has been pressed
+    buttonSemaphore.giveFromInterrupt();
 }

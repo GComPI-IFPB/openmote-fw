@@ -197,7 +197,7 @@ static void prvRadioTxTask(void *pvParameters)
             }
 
             // Delay the transmission of the next packet 250 ms
-            vTaskDelay(250 / portTICK_RATE_MS);
+            vTaskDelay(10 / portTICK_RATE_MS);
         }
     }
 }

@@ -17,7 +17,7 @@
 /*================================ define ===================================*/
 
 // Defines for the transmit power
-#define CC2538_RF_TX_POWER_DEFAULT              ( 0xD5 )
+#define CC2538_RF_TX_POWER_DEFAULT              ( 0xFF )
 
 // Defines for the channel
 #define CC2538_RF_CHANNEL_MIN                   ( 11 )
