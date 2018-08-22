@@ -84,11 +84,11 @@ bool Si7006::enable(void)
 
     // Write the configuration register address
     status = i2c_.writeByte(SI7006_ADDRESS, SI7006_USER_REG_READ);
-    if (status == false) goto error;
+    if (!status) goto error;
 
     // Read the current configuration (see datasheet pag. 9, fig. 18)
     status = i2c_.readByte(SI7006_ADDRESS, &config[1]);
-    if (status == false) goto error;
+    if (!status) goto error;
 
     // Clean all the configuration bits except those reserved
     config[1] &= SI7006_USER_REG_RESERVED_BITS;
@@ -98,7 +98,7 @@ bool Si7006::enable(void)
 
     // Write the user configuration
     status = i2c_.writeByte(SI7006_ADDRESS, config, sizeof(config));
-    if (status == false) goto error;
+    if (!status) goto error;
 
     // Release the mutex of the I2C driver
     i2c_.unlock();
@@ -120,7 +120,7 @@ bool Si7006::reset(void)
 
     // Send a soft-reset command (see datasheet pag. 9, fig. 17)
     status = i2c_.writeByte(SI7006_ADDRESS, SI7006_RESET_CMD);
-    if (status == false) goto error;
+    if (!status) goto error;
 
     // Release the mutex of the I2C driver
     i2c_.unlock();
@@ -146,11 +146,11 @@ bool Si7006::isPresent(void)
 
     //  Write the configuration register address
     status = i2c_.writeByte(SI7006_ADDRESS, SI7006_USER_REG_READ);
-    if (status == false) goto error;
+    if (!status) goto error;
 
     // Read the current configuration
     status = i2c_.readByte(SI7006_ADDRESS, &isPresent);
-    if (status == false) goto error;
+    if (!status) goto error;
 
     // Clear the reserved bits (see datasheet pag. 9, tab. 8)
     isPresent &= ~SI7006_USER_REG_RESERVED_BITS;
@@ -168,6 +168,19 @@ error:
     return false;
 }
 
+bool Si7006::read(void)
+{
+    bool status;
+
+    status = readTemperature();
+    if (!status) return false;
+
+    status = readHumidity();
+    if (!status) return false;
+
+    return true;
+}
+
 bool Si7006::readTemperature(void)
 {
     uint8_t si7006_temperature[2];
@@ -178,11 +191,11 @@ bool Si7006::readTemperature(void)
 
     // Write the read temperature command
     status = i2c_.writeByte(SI7006_ADDRESS, SI7006_TEMPERATURE_HM_CMD);
-    if (status == false) goto error;
+    if (!status) goto error;
 
     // Read the current temperature (see datasheet pag. 8, fig. 15)
     status = i2c_.readByte(SI7006_ADDRESS, si7006_temperature, sizeof(si7006_temperature));
-    if (status == false) goto error;
+    if (!status) goto error;
 
     // Release the mutex of the I2C driver
     i2c_.unlock();
@@ -208,11 +221,11 @@ bool Si7006::readHumidity(void)
 
     // Write the read humidity command
     status = i2c_.writeByte(SI7006_ADDRESS, SI7006_HUMIDITY_HM_CMD);
-    if (status == false) goto error;
+    if (!status) goto error;
 
     // Read the current humidity (see datasheet  pag. 8, fig. 15)
     status = i2c_.readByte(SI7006_ADDRESS, si7006_humidity, sizeof(si7006_humidity));
-    if (status == false) goto error;
+    if (!status) goto error;
 
     // Release the mutex of the I2C driver
     i2c_.unlock();

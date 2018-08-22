@@ -23,6 +23,7 @@ public:
     bool wakeup(void){return false;}
     bool reset(void);
     bool isPresent(void);
+    bool read(void);
     bool readTemperature(void);
     bool readHumidity(void);
     float getTemperature(void);
