@@ -108,6 +108,16 @@ void Radio::wakeup(void)
     enable();
 }
 
+bool Radio::canSleep(void)
+{
+    if (radioState_ != RadioState_Off)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 void Radio::on(void)
 {
     /* Set the radio state to idle */
@@ -185,7 +195,7 @@ void Radio::enableInterrupts(void)
     /* Enable RF error interrupts */
     HWREG(RFCORE_XREG_RFERRM) = RFCORE_XREG_RFERRM_RFERRM_M;
 
-    // Set the UART interrupt priority
+    // Set the radio interrupt priority
     IntPrioritySet(INT_RFCORERTX, (7 << 5));
     // IntPrioritySet(INT_RFCOREERR, (7 << 5));
 

@@ -44,6 +44,7 @@ public:
     void enable(void);
     void sleep(void);
     void wakeup(void);
+    bool canSleep(void);
     void on(void);
     void off(void);
     void reset(void);
