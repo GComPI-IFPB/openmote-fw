@@ -75,9 +75,15 @@ static void prvDisableRTC(void);
    real-time clock (RTC) to generate the tick interrupt. */
 void vPortSetupTimerInterrupt( void )
 {	
-    /* Ensure the 32.768 kHz oscillator is enabled and stable. */
-    while(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_OSC32K);
-    
+    extern bool bExternalOsc32k;
+
+    /* If using the 32.768 kHz oscillator wait until it becomes stable */
+    if (bExternalOsc32k)
+    {
+        while(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_SYNC_32K);
+        while(!(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_SYNC_32K));
+    }
+
     /* Register the SleepTimer interrupt handler */
     IntRegister(INT_SMTIM, SleepTimer_Handler);
     

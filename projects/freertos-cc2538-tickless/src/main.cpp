@@ -21,9 +21,6 @@
 #include "Gpio.h"
 #include "Spi.h"
 
-#include "Cc1200.h"
-#include "Cc1200_regs.h"
-
 #include "Callback.h"
 #include "Scheduler.h"
 #include "Semaphore.h"
@@ -32,9 +29,7 @@
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
-#define BUTTON_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
-
-#define SPI_BAUDRATE                        ( 4000000 )
+#define USER_BUTTON_TASK_PRIORITY           ( tskIDLE_PRIORITY + 1 )
 
 /*================================ typedef ==================================*/
 
@@ -44,7 +39,7 @@ extern "C" TickType_t board_sleep(TickType_t xModifiableIdleTime);
 extern "C" TickType_t board_wakeup(TickType_t xModifiableIdleTime);
 
 static void prvGreenLedTask(void *pvParameters);
-static void prvButtonTask(void *pvParameters);
+static void prvUserButtonTask(void *pvParameters);
 
 static void buttonCallback(void);
 
@@ -63,12 +58,7 @@ int main(void)
 
     // Create two FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-
-    // Enable the SPI peripheral
-    spi.enable(SPI_BAUDRATE);
-
-    // Put CC1200 in transmit mode
-    cc1200.sleep();
+    xTaskCreate(prvUserButtonTask, (const char *) "Button", 128, NULL, USER_BUTTON_TASK_PRIORITY, NULL);
 
     // Start the scheduler
     Scheduler::run();
@@ -92,7 +82,7 @@ static void buttonCallback(void)
     buttonSemaphore.giveFromInterrupt();
 }
 
-static void prvButtonTask(void *pvParameters)
+static void prvUserButtonTask(void *pvParameters)
 {
     // Set the button callback and enable interrupts
     button_user.setCallback(&userCallback);
@@ -114,12 +104,12 @@ static void prvGreenLedTask(void *pvParameters)
 {
     // Forever
     while (true) {
-        // Turn off green LED for 1950 ms
+        // Turn off green LED for 9999 ms
         led_green.off();
-         vTaskDelay(1950 / portTICK_RATE_MS);
+        vTaskDelay(9999 / portTICK_RATE_MS);
 
-        // Turn on green LED for 50 ms
+        // Turn on green LED for 1 ms
         led_green.on();
-        vTaskDelay(50 / portTICK_RATE_MS);
+        vTaskDelay(1 / portTICK_RATE_MS);
     }
 }
