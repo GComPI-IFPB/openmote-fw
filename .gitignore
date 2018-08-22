@@ -1,10 +1,23 @@
+# Directories
 bin/
 build/
+
+# Files
 *~
 *.a
+*.o
+*.ko
+*.obj
 *.bin
 *.elf
 *.hex
 *.log
 *.pyc
 *.dblite
+
+# Code Composer Studio
+Debug/
+Release/
+.config/
+.launches/
+.xdchelp
