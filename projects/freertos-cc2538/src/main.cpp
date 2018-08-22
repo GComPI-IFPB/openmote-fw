@@ -89,12 +89,12 @@ static void prvGreenLedTask(void *pvParameters)
 {
     // Forever
     while (true) {
-        // Turn off green LED for 1950 ms
+        // Turn off green LED for 999 ms
         led_green.off();
-         vTaskDelay(1950 / portTICK_RATE_MS);
+        vTaskDelay(999 / portTICK_RATE_MS);
 
-        // Turn on green LED for 50 ms
+        // Turn on green LED for 1 ms
         led_green.on();
-        vTaskDelay(50 / portTICK_RATE_MS);
+        vTaskDelay(1 / portTICK_RATE_MS);
     }
 }
