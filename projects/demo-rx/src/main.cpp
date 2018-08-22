@@ -19,7 +19,9 @@
 
 #include "Board.h"
 #include "Gpio.h"
-#include "Spi.h"
+#include "Uart.h"
+
+#include "Serial.h"
 
 #include "Callback.h"
 #include "Scheduler.h"
@@ -49,7 +51,9 @@ static void radio_rx_done(void);
 PlainCallback radio_rx_init_cb(&radio_rx_init);
 PlainCallback radio_rx_done_cb(&radio_rx_done);
 
-SemaphoreBinary semaphore(false);
+static SemaphoreBinary semaphore(false);
+
+static Serial serial(uart);
 
 /*================================= public ==================================*/
 
@@ -57,6 +61,12 @@ int main(void)
 {
     // Initialize the board
     board.init();
+
+    // Initialize UART
+    uart.enable();
+
+    // Init the serial
+    serial.init();
 
     // Create FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", GREEN_LED_TASK_STACK_SIZE, NULL, GREEN_LED_TASK_PRIORITY, NULL);
@@ -104,14 +114,26 @@ static void prvReceiveTask(void *pvParameters)
             if (result == RadioResult_Success)
             {
                 radio.off();
+
+                if (rx_buffer[0] == 0x00 && rx_buffer[1] == 0x01)
+                {
+                    // Turn on yellow LED
+                    led_yellow.on();
+
+                    // Transmit the radio frame over Serial
+                    serial.write(radioBuffer_ptr, radioBuffer_len);
+
+                    // Delay for 1 millisecond
+                    vTaskDelay(1 / portTICK_RATE_MS);
+
+                    // Turn off yellow LED
+                    led_yellow.off();
+                }
             }
         }
 
         // Turn off red LED
         led_red.off();
-
-        // Delay for 1 second
-        vTaskDelay(1000 / portTICK_RATE_MS);
     }
 }
 
