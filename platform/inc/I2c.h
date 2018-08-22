@@ -30,6 +30,7 @@ public:
     void enable(uint32_t baudrate = 100000);
     void sleep(void);
     void wakeup(void);
+    bool canSleep(void);
     void lock(void);
     void unlock(void);
     void unlockFromInterrupt(void);

@@ -95,6 +95,16 @@ void I2c::wakeup(void)
     enable();
 }
 
+bool I2c::canSleep(void)
+{
+    if (semaphore_.isTaken())
+    {
+        return false;
+    }
+
+    return true;
+}
+
 void I2c::lock(void)
 {
     semaphore_.take();
