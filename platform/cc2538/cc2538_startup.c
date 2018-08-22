@@ -149,6 +149,9 @@ void (* const interrupt_vector[])(void) =
    default_handler                                       // 162 MACTimer
 };
 
+bool bExternalOsc32k;
+bool bInternalOsc;
+
 /*================================= public ==================================*/
 
 void
@@ -187,8 +190,19 @@ reset_handler(void)
     /* Workaround for PM debug issue */
     HWREG(SYS_CTRL_EMUOVR) = 0xFF;
 
-    /* Workaround for J-Link debug issue */
-    HWREG(NVIC_VTABLE) = (uint32_t)interrupt_vector;
+    /* Workaround for system reset issue while using the XDS110 probe */
+#ifdef DEBUG
+    volatile uint32_t* pStopAtResetIsr = (uint32_t*)0x20003000;
+    volatile uint32_t* pIsAtResetIsr = (uint32_t*)0x20003004;
+
+    /* Signal to GEL script that reset ISR is reached */
+    *pIsAtResetIsr = 0xAABBAABB;
+
+    /* Wait until GEL script writes a value different than 0xA5F01248 to avoid uncontrolled code execution */
+    volatile uint32_t ui32Timeout = 2000000;
+    while((*pStopAtResetIsr == 0xA5F01248) && (ui32Timeout--));
+    *pIsAtResetIsr = 0x0;
+#endif
 
     /* Copy the data segment initializers from flash to SRAM */
     for (src = &_text_end, dst = &_data_start; dst < &_data_end; )
@@ -219,46 +233,45 @@ reset_handler(void)
 
 static void system_init(void)
 {
-    /**
-     * Set GPIOs as input
-     */
+    /* Set GPIOs as input */
     GPIOPinTypeGPIOInput(GPIO_A_BASE, 0xFF);
     GPIOPinTypeGPIOInput(GPIO_B_BASE, 0xFF);
     GPIOPinTypeGPIOInput(GPIO_C_BASE, 0xFF);
     GPIOPinTypeGPIOInput(GPIO_D_BASE, 0xFF);
 
-    /**
-     * Configure the 32 kHz clock pins, PD6 and PD7, for crystal operation
-     */
+    /* Configure the 32 kHz clock pins, PD6 and PD7, for crystal operation */
     GPIODirModeSet(GPIO_D_BASE, 0x40, GPIO_DIR_MODE_IN);
     GPIODirModeSet(GPIO_D_BASE, 0x80, GPIO_DIR_MODE_IN);
     IOCPadConfigSet(GPIO_D_BASE, 0x40, IOC_OVERRIDE_ANA);
     IOCPadConfigSet(GPIO_D_BASE, 0x80, IOC_OVERRIDE_ANA);
 
-    /**
-     * Set the real-time clock to use the 32.768 kHz external crystal
-     * Set the system clock to use the 16 MHz external crystal
-     */
-    SysCtrlClockSet(true, false, SYS_CTRL_SYSDIV_32MHZ);
+    /* Set the system clocks */
+    bExternalOsc32k = false;
+    bInternalOsc = true;
+    SysCtrlClockSet(bExternalOsc32k, bInternalOsc, SYS_CTRL_SYSDIV_32MHZ);
 
-    /**
-     * Set the IO clock to operate at 16 MHz
-     */
+    /* Set the peripherals clock */
     SysCtrlIOClockSet(SYS_CTRL_SYSDIV_16MHZ);
 
-    /**
-     * Wait until the 32 MHz oscillator becomes stable
-     */
-    while (!((HWREG(SYS_CTRL_CLOCK_STA)) & (SYS_CTRL_CLOCK_STA_XOSC_STB)));
+    /* If using the 32 MHz crystal wait until it becomes stable */
+    if (!bInternalOsc)
+    {
+        while (!((HWREG(SYS_CTRL_CLOCK_STA)) & (SYS_CTRL_CLOCK_STA_XOSC_STB)));
+    }
+
+    /* If using the 32.768 kHz oscillator wait until it becomes stable */
+    if (bExternalOsc32k)
+    {
+        while(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_SYNC_32K);
+        while(!(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_SYNC_32K));
+    }
 }
 
 static void system_exit(void)
 {
-    while(true)
+    while (true)
     {
-        /**
-         * Put the board in deep sleep
-         */
+        /* Put the board in deep sleep */
         SysCtrlDeepSleep();
     }
 }
