@@ -246,8 +246,8 @@ static void system_init(void)
     IOCPadConfigSet(GPIO_D_BASE, 0x80, IOC_OVERRIDE_ANA);
 
     /* Set the system clocks */
-    bExternalOsc32k = false;
-    bInternalOsc = true;
+    bExternalOsc32k = true;
+    bInternalOsc = false;
     SysCtrlClockSet(bExternalOsc32k, bInternalOsc, SYS_CTRL_SYSDIV_32MHZ);
 
     /* Set the peripherals clock */
