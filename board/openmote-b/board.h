@@ -28,8 +28,8 @@
 #include "RandomNumberGenerator.h"
 #include "Watchdog.h"
 
-#include "Si7006.h"
-#include "At86rf215.h"
+#include "si7006/Si7006.h"
+#include "at86rf215/At86rf215.h"
 
 /*================================ define ===================================*/
 
