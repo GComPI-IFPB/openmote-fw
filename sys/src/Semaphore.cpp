@@ -32,6 +32,21 @@ Semaphore::~Semaphore(void)
     vSemaphoreDelete(semaphore_);
 }
 
+bool Semaphore::isTaken(void)
+{
+    uint32_t count;
+
+    count = uxSemaphoreGetCount(semaphore_);
+
+    /* If semaphore is available */
+    if (count == 1)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 bool Semaphore::take(void)
 {
     bool status = (xSemaphoreTake(semaphore_, portMAX_DELAY) == pdTRUE);

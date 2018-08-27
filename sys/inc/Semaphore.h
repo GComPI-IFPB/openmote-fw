@@ -22,6 +22,7 @@ class Semaphore
 public:
     Semaphore();
     ~Semaphore();
+    bool isTaken(void);
     bool take(void);
     bool take(uint32_t milliseconds);
     void give(void);
