@@ -78,6 +78,10 @@ int main(void)
 
 /*================================ private ==================================*/
 
+float temperature;
+float humidity;
+float pressure;
+
 static void prvReceiveTask(void *pvParameters)
 {
     static uint8_t rx_buffer[127];
@@ -115,20 +119,17 @@ static void prvReceiveTask(void *pvParameters)
             {
                 radio.off();
 
-                if (rx_buffer[0] == 0x00 && rx_buffer[1] == 0x01)
-                {
-                    // Turn on yellow LED
-                    led_yellow.on();
+                // Turn on yellow LED
+                led_yellow.on();
 
-                    // Transmit the radio frame over Serial
-                    serial.write(radioBuffer_ptr, radioBuffer_len);
+                // Transmit the radio frame over Serial
+                serial.write(radioBuffer_ptr, radioBuffer_len);
 
-                    // Delay for 1 millisecond
-                    vTaskDelay(1 / portTICK_RATE_MS);
+                // Delay for 1 millisecond
+                vTaskDelay(1 / portTICK_RATE_MS);
 
-                    // Turn off yellow LED
-                    led_yellow.off();
-                }
+                // Turn off yellow LED
+                led_yellow.off();
             }
         }
 
