@@ -120,12 +120,12 @@ void I2c::unlockFromInterrupt(void)
     semaphore_.giveFromInterrupt();
 }
 
-bool I2c::readByte(uint8_t address, uint8_t* buffer)
+bool I2c::readByte(uint8_t device, uint8_t* buffer)
 {
     uint32_t delayTicks = I2C_MAX_DELAY_TICKS;
 
     // Read operation
-    I2CMasterSlaveAddrSet(address, true);
+    I2CMasterSlaveAddrSet(device, true);
 
     // Single read operation
     I2CMasterControl(I2C_MASTER_CMD_SINGLE_RECEIVE);
@@ -146,12 +146,12 @@ bool I2c::readByte(uint8_t address, uint8_t* buffer)
     return true;
 }
 
-bool I2c::readByte(uint8_t address, uint8_t* buffer, uint8_t size)
+bool I2c::readByte(uint8_t device, uint8_t* buffer, uint8_t size)
 {
     uint32_t delayTicks = I2C_MAX_DELAY_TICKS;
 
     // Read operation
-    I2CMasterSlaveAddrSet(address, true);
+    I2CMasterSlaveAddrSet(device, true);
 
     // Burst read operation
     I2CMasterControl(I2C_MASTER_CMD_BURST_RECEIVE_START);
@@ -170,23 +170,24 @@ bool I2c::readByte(uint8_t address, uint8_t* buffer, uint8_t size)
         }
 
         // Read data from I2C
-        *buffer++ = I2CMasterDataGet();
+        uint8_t data = I2CMasterDataGet();
+        *buffer++ = data;
         size--;
 
         // Check if it's the last byte
-        if (size == 1) I2CMasterControl(I2C_MASTER_CMD_BURST_RECEIVE_FINISH);
+        if (size <= 1) I2CMasterControl(I2C_MASTER_CMD_BURST_RECEIVE_FINISH);
         else           I2CMasterControl(I2C_MASTER_CMD_BURST_RECEIVE_CONT);
     }
 
     return true;
 }
 
-bool I2c::writeByte(uint8_t address, uint8_t byte)
+bool I2c::writeByte(uint8_t device, uint8_t byte)
 {
     uint32_t delayTicks = I2C_MAX_DELAY_TICKS;
 
     // Write operation
-    I2CMasterSlaveAddrSet(address, false);
+    I2CMasterSlaveAddrSet(device, false);
 
     // Write data to I2C
     I2CMasterDataPut(byte);
@@ -207,12 +208,12 @@ bool I2c::writeByte(uint8_t address, uint8_t byte)
     return true;
 }
 
-bool I2c::writeByte(uint8_t address, uint8_t* buffer, uint8_t size)
+bool I2c::writeByte(uint8_t device, uint8_t* buffer, uint8_t size)
 {
     uint32_t delayTicks = I2C_MAX_DELAY_TICKS;
 
     // Write operation
-    I2CMasterSlaveAddrSet(address, false);
+    I2CMasterSlaveAddrSet(device, false);
 
     // Write data to I2C
     I2CMasterDataPut(*buffer++);
@@ -237,16 +238,16 @@ bool I2c::writeByte(uint8_t address, uint8_t* buffer, uint8_t size)
         I2CMasterDataPut(*buffer++);
         size--;
 
-        // Check if it's the last byte
-        if (size == 0) I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_FINISH);
-        else           I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_CONT);
-
         // Wait until complete or timeout
         while (I2CMasterBusy())
         {
             // Check timeout status and return if expired
             if (board.isExpiredTicks(delayTicks)) return false;
         }
+
+        // Check if it's the last byte
+        if (size == 0) I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_FINISH);
+        else           I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_CONT);
     }
 
     return true;

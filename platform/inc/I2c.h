@@ -34,10 +34,10 @@ public:
     void lock(void);
     void unlock(void);
     void unlockFromInterrupt(void);
-    bool readByte(uint8_t address, uint8_t* buffer);
-    bool readByte(uint8_t address, uint8_t* buffer, uint8_t size);
-    bool writeByte(uint8_t address, uint8_t byte);
-    bool writeByte(uint8_t address, uint8_t* buffer, uint8_t size);
+    bool readByte(uint8_t device, uint8_t* buffer);
+    bool readByte(uint8_t device, uint8_t* buffer, uint8_t size);
+    bool writeByte(uint8_t device, uint8_t byte);
+    bool writeByte(uint8_t device, uint8_t* buffer, uint8_t size);
 protected:
     void interruptHandler(void);
 private:
