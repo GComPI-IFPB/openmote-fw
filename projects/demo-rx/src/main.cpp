@@ -36,6 +36,8 @@
 #define GREEN_LED_TASK_STACK_SIZE           ( 128 )
 #define RECEIVE_TASK_STACK_SIZE             ( 1024 )
 
+#define SERIAL_BUFFER_LENGTH                ( 256 )
+
 /*================================ typedef ==================================*/
 
 /*=============================== prototypes ================================*/
@@ -46,6 +48,8 @@ static void prvReceiveTask(void *pvParameters);
 static void radio_rx_init(void);
 static void radio_rx_done(void);
 
+static uint16_t prepare_serial(uint8_t* buffer_ptr, uint8_t* packet_ptr, uint16_t packet_length, int8_t rssi);
+
 /*=============================== variables =================================*/
 
 PlainCallback radio_rx_init_cb(&radio_rx_init);
@@ -54,6 +58,8 @@ PlainCallback radio_rx_done_cb(&radio_rx_done);
 static SemaphoreBinary semaphore(false);
 
 static Serial serial(uart);
+
+static uint8_t serial_buffer[SERIAL_BUFFER_LENGTH];
 
 /*================================= public ==================================*/
 
@@ -88,7 +94,7 @@ static void prvReceiveTask(void *pvParameters)
 
     int8_t rssi;
     uint8_t lqi;
-    uint8_t crc;
+    bool crc;
 
     RadioResult result;
 
@@ -115,15 +121,22 @@ static void prvReceiveTask(void *pvParameters)
 
             // Get packet from the radio
             result = radio.getPacket(radioBuffer_ptr, &radioBuffer_len, &rssi, &lqi, &crc);
-            if (result == RadioResult_Success)
+
+            // If reception is sucessful and packet CRC matches
+            if (result == RadioResult_Success && crc == true)
             {
+                uint16_t length;
+
                 radio.off();
 
                 // Turn on yellow LED
                 led_yellow.on();
 
+                // Prepare serial buffer
+                length = prepare_serial(serial_buffer, radioBuffer_ptr, radioBuffer_len, rssi);
+
                 // Transmit the radio frame over Serial
-                serial.write(radioBuffer_ptr, radioBuffer_len);
+                serial.write(serial_buffer, length);
 
                 // Delay for 1 millisecond
                 vTaskDelay(1 / portTICK_RATE_MS);
@@ -161,4 +174,23 @@ static void radio_rx_done(void)
 {
     led_orange.off();
     semaphore.giveFromInterrupt();
+}
+
+static uint16_t prepare_serial(uint8_t* buffer_ptr, uint8_t* packet_ptr, uint16_t packet_length, int8_t rssi)
+{
+    uint16_t length;
+
+    // Copy radio packet payload
+    for (uint8_t i = 0; i < packet_length; i++)
+    {
+        buffer_ptr[i] = packet_ptr[i];
+    }
+
+    // Update buffer length
+    length = packet_length;
+
+    // Copy RSSI value
+    buffer_ptr[length++] = rssi;
+
+    return length;
 }

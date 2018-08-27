@@ -50,7 +50,7 @@ def program():
 
             # Try to decode message
             try:
-                address, counter, t, h, p = struct.unpack('>6sIhhh', message)
+                address, counter, t, h, p, rssi = struct.unpack('>6sIhhhb', message)
                 address = address.hex()
                 t = t / 10.0
                 h = h / 10.0
@@ -60,7 +60,7 @@ def program():
 
             try:
                 # Create MQTT message
-                mqtt_message = json.dumps({"address": address, "counter": counter, "temp": t, "humidity": h, "pressure": p})
+                mqtt_message = json.dumps({"address": address, "counter": counter, "temp": t, "humidity": h, "pressure": p, "rssi": rssi})
 
                 # Send MQTT message
                 mqtt.send_message(mqtt_topic, mqtt_message)
