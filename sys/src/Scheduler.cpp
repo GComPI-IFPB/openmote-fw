@@ -32,6 +32,11 @@ void Scheduler::run(void)
     vTaskStartScheduler();
 }
 
+void Scheduler::delay_ms(uint16_t ms)
+{
+    vTaskDelay(ms / portTICK_RATE_MS);
+}
+
 /*=============================== protected =================================*/
 
 /*================================ private ==================================*/
