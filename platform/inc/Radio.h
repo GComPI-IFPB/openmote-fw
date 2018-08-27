@@ -57,7 +57,7 @@ public:
     void transmit(void);
     void receive(void);
     RadioResult loadPacket(uint8_t* data, uint8_t length);
-    RadioResult getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uint8_t* lqi, uint8_t* crc);
+    RadioResult getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uint8_t* lqi, bool* crc);
 protected:
     void interruptHandler(void);
     void errorHandler(void);

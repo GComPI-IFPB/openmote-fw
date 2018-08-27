@@ -324,7 +324,7 @@ RadioResult Radio::loadPacket(uint8_t* data, uint8_t length)
  * - *[1B]      RSSI (signed 2s complement)
  * - *[1B]      CRC_OK (1 bit) + LQI (7 bits)
  */
-RadioResult Radio::getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uint8_t* lqi, uint8_t* crc)
+RadioResult Radio::getPacket(uint8_t* buffer, uint8_t* length, int8_t* rssi, uint8_t* lqi, bool* crc)
 {
     uint8_t packetLength;
     uint8_t scratch;
