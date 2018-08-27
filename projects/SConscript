@@ -5,7 +5,7 @@ Import('env')
 localEnv = env.Clone()
 
 if (not localEnv['project'].startswith('test')):
-	script     = os.path.join('#', 'projects', localEnv['project'], 'SConscript')
+	script     = os.path.join('#', 'projects', localEnv['project'], src, 'SConscript')
 	build_dir  = os.path.join('#', 'build', localEnv['board'], 'projects', localEnv['project'])
 	output_dir = os.path.join('#', 'projects', localEnv['project'])
 
