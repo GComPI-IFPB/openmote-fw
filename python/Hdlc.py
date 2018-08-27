@@ -1,13 +1,4 @@
-'''
-@file       Hdlc.py
-@author     Pere Tuset-Peiro  (peretuset@openmote.com)
-@version    v0.1
-@date       May, 2015
-@brief      
-
-@copyright  Copyright 2015, OpenMote Technologies, S.L.
-            This file is licensed under the GNU General Public License v2.
-'''
+# -*- coding: utf-8 -*-
 
 # Import Python libraries
 import logging
@@ -19,10 +10,10 @@ import Crc16 as Crc16
 logger = logging.getLogger(__name__)
 
 class Hdlc(object):
-    HDLC_FLAG           = '\x7E'
-    HDLC_FLAG_ESCAPED   = '\x5E'
-    HDLC_ESCAPE         = '\x7D'
-    HDLC_ESCAPE_ESCAPED = '\x5D'
+    HDLC_FLAG           = b'\x7e'
+    HDLC_FLAG_ESCAPED   = b'\x5e'
+    HDLC_ESCAPE         = b'\x7d'
+    HDLC_ESCAPE_ESCAPED = b'\x5d'
     
     def __init__(self):
         pass
@@ -57,33 +48,47 @@ class Hdlc(object):
         # Check if the input contains HDLC_FLAG
         assert input[0] == self.HDLC_FLAG
         assert input[-1] == self.HDLC_FLAG
-        
-        # Make a copy of the original input
-        output = input[1:-1]
-        
-        # Replace the HDLC flags
-        output = output.replace(self.HDLC_ESCAPE + self.HDLC_FLAG_ESCAPED, self.HDLC_FLAG)
-        output = output.replace(self.HDLC_ESCAPE + self.HDLC_ESCAPE_ESCAPED, self.HDLC_ESCAPE)
+
+        # Remove HDLC header and footer
+        input = input[1:-1]
+
+        # Replace inline HDLC flags
+        try:
+            output = []
+            for (x, y) in zip(input[0::2], input[1::2]):
+                if ((x == self.HDLC_ESCAPE and y == self.HDLC_FLAG_ESCAPED) or 
+                    (x == self.HDLC_ESCAPE and y == self.HDLC_ESCAPE_ESCAPED)):
+                    output.append(self.HDLC_FLAG)
+                else:
+                    output.append(x), output.append(y)
+        except:
+            logging.error("dehldicfy: Error replacing HDLC flags.")
         
         # Check output input size
         if (len(output) < 2):
-            logging.error("dehldicfy: Invalid frame length!")
+            logging.error("dehldicfy: Invalid frame length.")
         
         # Get the CRC checksum
-        crc_value = int(output[-2:].encode('hex'), 16)
+        try:
+            crc_value = int.from_bytes(b''.join(output[-2:]), 'big')
+        except Exception as e:
+            logger.error('dehldicfy: CRC value error.')
         
         # Compute the CRC checksum
-        crc_engine = Crc16.Crc16()
-        for o in output[:-2]:
-            crc_engine.push(o)
-        crc_result = crc_engine.get()
-        
+        try:
+            crc_engine = Crc16.Crc16()
+            for o in output[:-2]:
+                crc_engine.push(o)
+            crc_result = crc_engine.get()
+        except:
+            logger.error('dehldicfy: CRC checksum error.')    
+
         # Check CRC checksum
         if (crc_value != crc_result):
-            logging.error("dehldicfy: CRC value does not match!")
+            logging.error("dehldicfy: CRC values do not match.")
+            return None
         
         # Remove the CRC checksum
         output = output[:-2]
         
         return output
-    

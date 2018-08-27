@@ -1,19 +1,11 @@
-'''
-@file       Serial.py
-@author     Pere Tuset-Peiro  (peretuset@openmote.com)
-@version    v0.1
-@date       May, 2015
-@brief      
-
-@copyright  Copyright 2015, OpenMote Technologies, S.L.
-            This file is licensed under the GNU General Public License v2.
-'''
+# -*- coding: utf-8 -*-
 
 # Import Python libraries
 import serial
 import threading
 import time
 import logging
+import binascii
 
 # Import OpenMote libraries
 from Hdlc import Hdlc
@@ -21,15 +13,11 @@ from Hdlc import Hdlc
 # Import logging configuration
 logger = logging.getLogger(__name__)
 
-High = True
-Low  = False
-
 class Serial(threading.Thread):
     
-    def __init__(self, serial_name = None, baud_rate = None, bsl_mode = False):
+    def __init__(self, serial_name = None, baud_rate = None):
         assert serial_name != None, logger.error("Serial port not defined.")
         assert baud_rate   != None, logger.error("Serial baudrate not defined.")
-        assert bsl_mode    != None, logger.error("Bootloader mode not defined.")
         
         logger.info('init: Creating the Serial object.')
         
@@ -46,22 +34,22 @@ class Serial(threading.Thread):
         self.serial_port = None
         self.serial_name = serial_name
         self.baud_rate   = baud_rate
-        self.time_out    = 1.0
-        self.bsl_mode    = bsl_mode
+        self.time_out    = 0.1
                 
         # HDLC driver
         self.hdlc = Hdlc()
         
         # Receive variables
-        self.receive_buffer    = ''
-        self.receive_message   = ''
+        self.receive_buffer    = []
+        self.receive_message   = []
         self.receive_condition = threading.Condition()
         self.is_receiving      = False
-        self.last_rx_byte      = 0
+        self.rx_byte           = ''
+        self.last_rx_byte      = ''
         
         # Transmit variables 
-        self.transmit_buffer    = ''
-        self.transmit_message   = ''
+        self.transmit_buffer    = []
+        self.transmit_message   = []
         self.transmit_condition = threading.Condition()
         
         try:
@@ -75,12 +63,10 @@ class Serial(threading.Thread):
             raise Exception
         else:
             logger.info('init: Serial object created.')
-            if (self.bsl_mode == "true"):
-                self.bsl_start()
     
-    # Runs the MoteProbe thread
+    # Runs the thread
     def run(self):
-        logger.info("run: Starting the Serial object.")
+        logger.info("run: Starting the Serial.")
         
         if (self.serial_port == None):
             return
@@ -93,34 +79,41 @@ class Serial(threading.Thread):
         while (not self.stop_event.isSet()): 
             try:
                 # Try to receive a byte from the serial port (blocking)
-                self.rx_byte = self.serial_port.read(size = 1)
+                rx = self.serial_port.read(size = 1)
+                if (len(rx) > 0):
+                    self.rx_byte = rx
             except:
                 logger.error('run: Error while receiving from the serial port on %s.', self.serial_port)
                 # Terminate the thread
                 self.stop()
                 # Break the loop
                 break
-            
+
             # Start of frame
             if ((not self.is_receiving) and 
                 (self.last_rx_byte == self.hdlc.HDLC_FLAG) and
                 (self.rx_byte != self.hdlc.HDLC_FLAG)):
+                logger.debug('Start of HDLC frame.')
                 
                 self.is_receiving = True
-                self.receive_buffer = self.hdlc.HDLC_FLAG
-                self.receive_buffer += self.rx_byte
+                self.receive_buffer = []
+                self.receive_buffer.append(self.hdlc.HDLC_FLAG)
+                self.receive_buffer.append(self.rx_byte)
                 
             # Middle of HDLC frame
             elif ((self.is_receiving) and
                   (self.rx_byte != self.hdlc.HDLC_FLAG)):
-                self.receive_buffer += self.rx_byte
+                logger.debug('Middle of HDLC frame.')
+                
+                self.receive_buffer.append(self.rx_byte)
                 
             # End of HDLC frame 
             elif ((self.is_receiving) and
                   (self.rx_byte == self.hdlc.HDLC_FLAG)):
-                
+                logger.debug('End of HDLC frame.')
+
                 # Receive the last byte
-                self.receive_buffer += self.rx_byte
+                self.receive_buffer.append(self.rx_byte)
                 
                 # Reset the variables
                 self.is_receiving = False
@@ -132,8 +125,8 @@ class Serial(threading.Thread):
                     self.receive_message = self.hdlc.dehdlcify(self.receive_buffer)
                 except:
                     logger.error('run: Error while de-HDLCifying the frame received from the Serial port.')
-                    self.receive_buffer  = ''
-                    self.receive_message = ''
+                    self.receive_buffer  = []
+                    self.receive_message = []
                 else:
                      # Acquire the transmit condition
                     self.receive_condition.acquire()                   
@@ -145,7 +138,7 @@ class Serial(threading.Thread):
                     self.receive_condition.release()
                     
                     # Reset the receive buffer
-                    self.receive_buffer = ''
+                    self.receive_buffer = []
             
             else:
                 # Acquire the transmit condition
@@ -164,7 +157,7 @@ class Serial(threading.Thread):
                     self.serial_port.write(self.transmit_buffer)
                     
                     # Empty the transmit message and buffer
-                    self.transmit_message = ''
+                    self.transmit_message = []
                 
                 # Release the transmit condition
                 self.transmit_condition.release()
@@ -178,14 +171,11 @@ class Serial(threading.Thread):
 
         # Terminates the thread
         self.stop_event.set()
-        
-        if (self.serial_port != None and self.bsl_mode == "true"):
-            self.bsl_stop()
     
     # Receive a message
     def receive(self):
         status  = True
-        message = None
+        message = []
         length  = 0
         
         # Acquire the receive condition
@@ -196,13 +186,12 @@ class Serial(threading.Thread):
 
         # If we really got a message, copy it!
         if (not self.is_receiving and self.receive_message):
-            message = self.receive_message
-            length  = len(self.receive_message)
-        
+            message = b''.join(self.receive_message)
+            length  = len(message)
             logger.info('receive: Received a message with %d bytes.', length)
         
         # Reset the receive message
-        self.receive_message = ''
+        self.receive_message = []
         
         # Release the receive condition
         self.receive_condition.release()
@@ -211,7 +200,7 @@ class Serial(threading.Thread):
         status = self.stop_event.isSet()
         
         # Return the received message and length
-        return (status, message, length)
+        return (message, length)
     
     # Transmit a message
     def transmit(self, message):

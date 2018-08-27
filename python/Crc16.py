@@ -1,13 +1,4 @@
-'''
-@file       Crc16.py
-@author     Pere Tuset-Peiro  (peretuset@openmote.com)
-@version    v0.1
-@date       May, 2015
-@brief      
-
-@copyright  Copyright 2015, OpenMote Technologies, S.L.
-            This file is licensed under the GNU General Public License v2.
-'''
+# -*- coding: utf-8 -*-
 
 class Crc16(object):
     __crc16_table = [
@@ -50,7 +41,7 @@ class Crc16(object):
     def get(self):
         return self.crc
 
-    def push(self, byte):    
+    def push(self, byte):
         tbl_idx = ((self.crc >> 8) ^ ord(byte)) & 0xFF;
         self.crc = (self.__crc16_table[tbl_idx] ^ (self.crc << 8)) & 0xFFFF;
     
