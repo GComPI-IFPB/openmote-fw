@@ -2,6 +2,7 @@
 
 # Import Python libraries
 import logging
+import itertools
 
 # Import OpenMote libraries
 import Crc16 as Crc16
@@ -55,23 +56,25 @@ class Hdlc(object):
         # Replace inline HDLC flags
         try:
             output = []
-            for (x, y) in zip(input[0::2], input[1::2]):
+            for (x, y) in itertools.zip_longest(input[0::2], input[1::2]):
                 if ((x == self.HDLC_ESCAPE and y == self.HDLC_FLAG_ESCAPED) or 
                     (x == self.HDLC_ESCAPE and y == self.HDLC_ESCAPE_ESCAPED)):
                     output.append(self.HDLC_FLAG)
                 else:
-                    output.append(x), output.append(y)
+                    output.append(x)
+                    if (y != None):
+                        output.append(y)
         except:
-            logging.error("dehldicfy: Error replacing HDLC flags.")
-        
+            logger.error("dehldicfy: Error replacing HDLC flags.")
+
         # Check output input size
         if (len(output) < 2):
-            logging.error("dehldicfy: Invalid frame length.")
+            logger.error("dehldicfy: Invalid frame length.")
         
         # Get the CRC checksum
         try:
             crc_value = int.from_bytes(b''.join(output[-2:]), 'big')
-        except Exception as e:
+        except:
             logger.error('dehldicfy: CRC value error.')
         
         # Compute the CRC checksum
@@ -80,12 +83,15 @@ class Hdlc(object):
             for o in output[:-2]:
                 crc_engine.push(o)
             crc_result = crc_engine.get()
+            
         except:
             logger.error('dehldicfy: CRC checksum error.')    
+            logger.error("dehldicfy: Packet CRC value: {}.".format(hex(crc_value)))
+            logger.error("dehldicfy: Calculated CRC value: {}.".format(hex(crc_result)))
 
         # Check CRC checksum
         if (crc_value != crc_result):
-            logging.error("dehldicfy: CRC values do not match.")
+            logger.error("dehldicfy: CRC values do not match.")
             return None
         
         # Remove the CRC checksum
