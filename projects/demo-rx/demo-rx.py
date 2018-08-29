@@ -17,10 +17,10 @@ import Bootload
 
 logger = logging.getLogger(__name__)
 
-uart_name = 'COM22'
+uart_name = '/dev/ttyUSB1'
 uart_speed = 115200
 
-mqtt_address = "34.247.253.111"
+mqtt_address = "127.0.0.1"
 mqtt_port    = 1883
 mqtt_topic   = "test"
 
@@ -33,15 +33,15 @@ def signal_handler(sig, frame):
     finished = True
 
 def program():
-    global finished 
+    global finished
 
+    # Create Bootload manager
     bootload = Bootload.Bootload(uart_name, uart_speed, bsl_file)
     result = bootload.start()
 
+    # If bootload was unsucessul, quit
     if (not result):
         sys.exit()
-
-    time.sleep(2)
 
     # Create Serial manager
     serial = Serial.Serial(uart_name, uart_speed)
@@ -51,7 +51,7 @@ def program():
     mqtt = MqttClient.MqttClient(mqtt_address, mqtt_port)
     mqtt.start()
 
-    while(not finished):
+    while (not finished):
         # Try to receive a Serial message
         message, length = serial.receive()
 
@@ -75,7 +75,7 @@ def program():
 
                 # Send MQTT message
                 mqtt.send_message(mqtt_topic, mqtt_message)
-            except: 
+            except:
                 logger.error("program: Error sending MQTT packet.")
 
         # Check for finished condition
@@ -87,13 +87,13 @@ def program():
 
 def main():
     # Set-up logging back-end
-    logging.basicConfig(filename='demo-rx.txt', filemode='w', level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG)
 
     # Set-up signal handler
     signal.signal(signal.SIGINT, signal_handler)
 
     # Run program
     program()
-    
+
 if __name__ == "__main__":
     main()
