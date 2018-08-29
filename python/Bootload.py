@@ -32,17 +32,17 @@ class Bootload(object):
         self.script_args = self.bsl_params
 
     def start(self):
-        result = False
+        # Build bootload command
+        cmd = self.python + " " + self.script_cmd + " " + self.script_args
 
-        logger.info("start: Executing the bootload process.")
+        logger.info("start: Executing the bootload command '{}'.".format(cmd))
 
         try:
-            cmd = self.python + " " + self.script_cmd + " " + self.script_args
+            # Execute bootload command
             subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=True)
-            resut = True
+
+            logger.info("start: Executed the bootload command successfully.")
+
+            return True
         except:
             logger.error("start: Error executing the bootload process.")
-
-        logger.info("start: Executed the bootload process successfully.")
-
-        return result
