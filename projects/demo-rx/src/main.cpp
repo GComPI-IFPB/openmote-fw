@@ -36,6 +36,7 @@
 #define GREEN_LED_TASK_STACK_SIZE           ( 128 )
 #define RECEIVE_TASK_STACK_SIZE             ( 1024 )
 
+#define RADIO_BUFFER_LENGTH                 ( 127 )
 #define SERIAL_BUFFER_LENGTH                ( 256 )
 
 /*================================ typedef ==================================*/
@@ -59,6 +60,7 @@ static SemaphoreBinary semaphore(false);
 
 static Serial serial(uart);
 
+static uint8_t radio_buffer[RADIO_BUFFER_LENGTH];
 static uint8_t serial_buffer[SERIAL_BUFFER_LENGTH];
 
 /*================================= public ==================================*/
@@ -73,6 +75,9 @@ int main(void)
 
     // Init the serial
     serial.init();
+
+    // Initialize watchdog
+    watchdog.init();
 
     // Create FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", GREEN_LED_TASK_STACK_SIZE, NULL, GREEN_LED_TASK_PRIORITY, NULL);
@@ -90,16 +95,15 @@ float pressure;
 
 static void prvReceiveTask(void *pvParameters)
 {
-    static uint8_t rx_buffer[127];
-
+    RadioResult result;
     int8_t rssi;
     uint8_t lqi;
     bool crc;
 
-    RadioResult result;
-
+    // Set radio receive callbacks
     radio.setRxCallbacks(&radio_rx_init_cb, &radio_rx_done_cb);
 
+    // Enable radio and interrupts
     radio.enable();
     radio.enableInterrupts();
 
@@ -108,16 +112,18 @@ static void prvReceiveTask(void *pvParameters)
         // Turn on red LED
         led_red.on();
 
+        // Turn on radio
         radio.on();
 
+        // Put radio in receive moed
         radio.receive();
-        if (semaphore.take())
-        {
-            uint8_t* radioBuffer_ptr;
-            uint8_t radioBuffer_len;
 
-            radioBuffer_ptr = rx_buffer;
-            radioBuffer_len = sizeof(rx_buffer);
+        // Wait until we receive a packet or 250 milliseconds
+        if (semaphore.take(250))
+        {
+            // Setup variables
+            uint8_t* radioBuffer_ptr = radio_buffer;
+            uint8_t radioBuffer_len = sizeof(radio_buffer);
 
             // Get packet from the radio
             result = radio.getPacket(radioBuffer_ptr, &radioBuffer_len, &rssi, &lqi, &crc);
@@ -127,6 +133,7 @@ static void prvReceiveTask(void *pvParameters)
             {
                 uint16_t length;
 
+                // Turn radio off
                 radio.off();
 
                 // Turn on yellow LED
@@ -138,13 +145,13 @@ static void prvReceiveTask(void *pvParameters)
                 // Transmit the radio frame over Serial
                 serial.write(serial_buffer, length);
 
-                // Delay for 1 millisecond
-                vTaskDelay(1 / portTICK_RATE_MS);
-
                 // Turn off yellow LED
                 led_yellow.off();
             }
         }
+
+        // Walk the dog
+        watchdog.walk();
 
         // Turn off red LED
         led_red.off();
@@ -157,22 +164,26 @@ static void prvGreenLedTask(void *pvParameters)
     while (true) {
         // Turn off green LED for 999 ms
         led_green.off();
-        vTaskDelay(999 / portTICK_RATE_MS);
+        Scheduler::delay_ms(999);
 
         // Turn on green LED for 1 ms
         led_green.on();
-        vTaskDelay(1 / portTICK_RATE_MS);
+        Scheduler::delay_ms(1);
     }
 }
 
 static void radio_rx_init(void)
 {
+    // Turn on orange LED
     led_orange.on();
 }
 
 static void radio_rx_done(void)
 {
+    // Turn off orange LED
     led_orange.off();
+
+    // Notify we have received a packet
     semaphore.giveFromInterrupt();
 }
 

@@ -37,10 +37,10 @@
 #define GREEN_LED_TASK_STACK_SIZE           ( 128 )
 #define TRANSMIT_TASK_STACK_SIZE            ( 1024 )
 
-#define TX_BUFFER_LENGTH                    ( 125 )
+#define TX_BUFFER_LENGTH                    ( 127 )
 #define EUI48_ADDDRESS_LENGTH               ( 6 )
 
-#define BME280_I2C_ADDRESS                  ( 0x00 )
+#define BME280_I2C_ADDRESS                  ( BME280_I2C_ADDR_PRIM )
 
 /*================================ typedef ==================================*/
 
@@ -66,6 +66,8 @@ SemaphoreBinary semaphore(false);
 
 Bme280 bme280(i2c, BME280_I2C_ADDRESS);
 
+static bool board_slept;
+
 /*================================= public ==================================*/
 
 int main(void)
@@ -84,31 +86,40 @@ int main(void)
     Scheduler::run();
 }
 
-static bool slept;
-
 TickType_t board_sleep(TickType_t xModifiableIdleTime)
 {
-    slept = false;
-
-    /* Check if radio is active */
+    // Check if board can go to sleep
     if (radio.canSleep() && i2c.canSleep())
     {
+        // If so, put Radio and I2C to sleep
         i2c.sleep();
         radio.sleep();
-        slept = true;
-        return xModifiableIdleTime;
+
+        // Remember that the board went to sleep
+        board_slept = true;
+    }
+    else
+    {
+        // If not, remember that the board did NOT went to sleep
+        board_slept = false;
+
+        // And update the time to ensure it does NOT got to sleep
+        xModifiableIdleTime = 0;
     }
 
-    return 0;
+    return xModifiableIdleTime;
 }
 
 TickType_t board_wakeup(TickType_t xModifiableIdleTime)
 {
-    if (slept)
+    // Check if the board went to sleep
+    if (board_slept)
     {
+        // If so, wakeup Radio and I2C
         radio.wakeup();
         i2c.wakeup();
     }
+
     return xModifiableIdleTime;
 }
 
@@ -118,27 +129,26 @@ static void prvTransmitTask(void *pvParameters)
 {
     uint8_t tx_buffer[TX_BUFFER_LENGTH];
     uint8_t eui48_address[EUI48_ADDDRESS_LENGTH];
-    uint16_t packet_counter;
 
     RadioResult result;
 
-    /* Get EUI48 address */
+    uint16_t packet_counter = 0;
+
+    // Get EUI48 address
     board.getEUI48(eui48_address);
 
-    /* Set radio transmit callbacks */
+    // Set radio transmit callbacks
     radio.setTxCallbacks(&radio_tx_init_cb, &radio_tx_done_cb);
 
-    /* Enable radio */
+    // Enable radio and interrupts
     radio.enable();
     radio.enableInterrupts();
 
-    /* Initialize BME280 sensor */
+    // Initialize BME280 sensor
     bme280.init();
 
     // Delay for 100 milliseconds
     Scheduler::delay_ms(100);
-
-    packet_counter = 0;
 
     // Forever
     while (true) {
@@ -148,40 +158,40 @@ static void prvTransmitTask(void *pvParameters)
         // Turn on red LED
         led_red.on();
 
-        /* Read temperature, humidity and pressure */
+        // Read temperature, humidity and pressure
         bme280.read(&data);
         uint16_t temperature = (uint16_t) (data.temperature * 10.0f);
         uint16_t humidity = (uint16_t) (data.humidity * 10.0f);
         uint16_t pressure = (uint16_t) (data.pressure * 10.0f);
 
-        /* Prepare packet */
+        // Prepare packet
         tx_buffer_len = prepare_packet(tx_buffer, eui48_address, packet_counter, temperature, pressure, humidity);
 
-        /* Turn on radio */
+        // Turn on radio
         radio.on();
 
-        /* Load packet to radio */
+        // Load packet to radio
         result = radio.loadPacket(tx_buffer, tx_buffer_len);
         if (result == RadioResult_Success)
         {
-            /* Transmit packet */
+            // Transmit packet
             radio.transmit();
 
-            /* Wait until packet has been transamitted */
+            // Wait until packet has been transamitted
             semaphore.take();
         }
 
-        /* Turn off radio */
+        // Turn off radio
         radio.off();
 
-        /* Increment packet counter */
+        // Increment packet counter
         packet_counter++;
 
         // Turn off red LED
         led_red.off();
 
-        // Delay for 10 seconds
-        Scheduler::delay_ms(10000);
+        // Delay for 60 seconds
+        Scheduler::delay_ms(60000);
     }
 }
 
@@ -201,12 +211,16 @@ static void prvGreenLedTask(void *pvParameters)
 
 static void radio_tx_init(void)
 {
+    // Turn on orange LED
     led_orange.on();
 }
 
 static void radio_tx_done(void)
 {
+    // Turn off orange LED
     led_orange.off();
+
+    // Notify we have transmitted a packet
     semaphore.giveFromInterrupt();
 }
 
@@ -215,14 +229,14 @@ static uint16_t prepare_packet(uint8_t* packet_ptr, uint8_t* eui48_address, uint
     uint16_t packet_length = 0;
     uint8_t i;
 
-    /* Copy MAC adress */
+    // Copy MAC adress
     for (i = 0; i < EUI48_ADDDRESS_LENGTH; i++)
     {
         packet_ptr[i] = eui48_address[i];
     }
     packet_length = i;
 
-    /* Copy packet counter */
+    // Copy packet counter
     i = packet_length;
     packet_ptr[i++] = (uint8_t)((packet_counter & 0xFF000000) >> 24);
     packet_ptr[i++] = (uint8_t)((packet_counter & 0x00FF0000) >> 16);
@@ -230,7 +244,7 @@ static uint16_t prepare_packet(uint8_t* packet_ptr, uint8_t* eui48_address, uint
     packet_ptr[i++] = (uint8_t)((packet_counter & 0x000000FF) >> 0);
     packet_length = i;
 
-    /* Copy sensor data */
+    // Copy sensor data
     i = packet_length;
     packet_ptr[i++] = (uint8_t) ((temperature & 0xFF00) >> 8);
     packet_ptr[i++] = (uint8_t) ((temperature & 0x00FF) >> 0);
