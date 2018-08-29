@@ -13,6 +13,7 @@ import time
 
 import Serial
 import MqttClient
+import Bootload
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,8 @@ mqtt_address = "34.247.253.111"
 mqtt_port    = 1883
 mqtt_topic   = "test"
 
+bsl_file     = "demo-rx.bin"
+
 finished = False
 
 def signal_handler(sig, frame):
@@ -31,6 +34,14 @@ def signal_handler(sig, frame):
 
 def program():
     global finished 
+
+    bootload = Bootload.Bootload(uart_name, uart_speed, bsl_file)
+    result = bootload.start()
+
+    if (not result):
+        sys.exit()
+
+    time.sleep(2)
 
     # Create Serial manager
     serial = Serial.Serial(uart_name, uart_speed)
