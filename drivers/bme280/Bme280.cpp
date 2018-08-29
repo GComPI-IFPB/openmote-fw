@@ -37,7 +37,7 @@ bool Bme280::init(void)
     int8_t result;
 
     /* Set-up device */
-    dev.dev_id = BME280_I2C_ADDR_PRIM;
+    dev.dev_id = address_;
     dev.intf = BME280_I2C_INTF;
     dev.bme280 = (void *) this;
 
