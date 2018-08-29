@@ -41,7 +41,7 @@ def program():
 
     # If bootload was unsucessul, quit
     if (not result):
-        sys.exit()
+        sys.exit("Could not complete bootload process.")
 
     # Create Serial manager
     serial = Serial.Serial(uart_name, uart_speed)
