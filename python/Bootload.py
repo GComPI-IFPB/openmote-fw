@@ -3,7 +3,7 @@
 @author     Pere Tuset-Peiro  (peretuset@openmote.com)
 @version    v0.1
 @date       May, 2015
-@brief      
+@brief
 
 @copyright  Copyright 2015, OpenMote Technologies, S.L.
             This file is licensed under the GNU General Public License v2.
@@ -32,11 +32,17 @@ class Bootload(object):
         self.script_args = self.bsl_params
 
     def start(self):
+        result = False
+
+        logger.info("start: Executing the bootload process.")
+
         try:
             cmd = self.python + " " + self.script_cmd + " " + self.script_args
-            status = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=True) 
-            return True
+            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=True)
+            resut = True
         except:
-            logger.error("start: Executing the bootload process.")
-        
-        return False
+            logger.error("start: Error executing the bootload process.")
+
+        logger.info("start: Executed the bootload process successfully.")
+
+        return result
