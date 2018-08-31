@@ -13,6 +13,7 @@
 #define HDLC_H_
 
 #include <stdint.h>
+
 #include "CircularBuffer.hpp"
 
 #include "Crc16.hpp"

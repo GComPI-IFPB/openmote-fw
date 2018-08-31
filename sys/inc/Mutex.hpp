@@ -14,7 +14,6 @@
 
 #include "FreeRTOS.h"
 #include "semphr.h"
-#include "Task.hpp"
 
 class Mutex
 {
