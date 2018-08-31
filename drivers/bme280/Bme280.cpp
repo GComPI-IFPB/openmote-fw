@@ -11,7 +11,9 @@
 
 /*================================ include ==================================*/
 
-#include "Bme280.h"
+#include "Task.hpp"
+
+#include "Bme280.hpp"
 
 #include "bme280_bosch.h"
 
@@ -168,5 +170,5 @@ error:
 
 void Bme280::delay_ms(uint16_t ms)
 {
-    vTaskDelay(ms / portTICK_RATE_MS);
+    Task::delay(ms);
 }

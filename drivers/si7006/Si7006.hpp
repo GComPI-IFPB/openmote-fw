@@ -12,7 +12,7 @@
 #ifndef SI7006_H_
 #define SI7006_H_
 
-#include "I2c.h"
+#include "I2c.hpp"
 
 class Si7006
 {

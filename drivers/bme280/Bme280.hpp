@@ -15,8 +15,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "I2c.h"
-
+#include "../../platform/inc/I2c.hpp"
 #include "bme280_defs.h"
 
 struct Bme280Data

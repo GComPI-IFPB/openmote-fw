@@ -12,11 +12,11 @@
 #ifndef AT86RF215_H_
 #define AT86RF215_H_
 
-#include "Gpio.h"
-#include "Spi.h"
-#include "Callback.h"
-
 #include "At86rf215_regs.h"
+
+#include "Gpio.hpp"
+#include "Spi.hpp"
+#include "Callback.hpp"
 
 class At86rf215
 {

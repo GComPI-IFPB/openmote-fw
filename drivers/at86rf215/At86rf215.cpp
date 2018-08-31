@@ -11,10 +11,10 @@
 
 /*================================ include ==================================*/
 
-#include "Board.h"
-
-#include "At86rf215.h"
+#include "At86rf215.hpp"
 #include "At86rf215_regs.h"
+
+#include "Platform.hpp"
 
 #include "platform_types.h"
 

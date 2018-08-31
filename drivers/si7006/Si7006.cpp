@@ -11,7 +11,8 @@
 
 /*================================ include ==================================*/
 
-#include "Si7006.h"
+#include "Si7006.hpp"
+#include "Task.hpp"
 
 #include "platform_types.h"
 
@@ -279,7 +280,7 @@ void Si7006::isInitialized(void)
     if (!isInitialized)
     {
         // Wait until sensor is available
-        vTaskDelay(SI7006_DELAY_MS / portTICK_RATE_MS);
+        Task::delay(SI7006_DELAY_MS);
 
         // The sensor is now initialized
         isInitialized = true;

@@ -48,7 +48,7 @@
 /*! @file bme280.c
     @brief Sensor driver for BME280 sensor */
 
-#include "Bme280.h"
+#include "Bme280.hpp""
 #include "bme280_bosch.h"
 
 /**\name Internal macros */
