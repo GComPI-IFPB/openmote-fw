@@ -1,5 +1,5 @@
 /**
- * @file       Board.h
+ * @file       Platform.h
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,12 +9,12 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef BOARD_H_
-#define BOARD_H_
+#ifndef PLATFORM_H_
+#define PLATFORM_H_
 
 #include <stdint.h>
 
-#include "Callback.h"
+#include "Callback.hpp"
 
 enum SleepMode : uint8_t;
 
@@ -42,4 +42,4 @@ private:
     PlainCallback flashEraseCallback_;
 };
 
-#endif /* BOARD_H_ */
+#endif /* PLATFORM_H_ */

@@ -14,8 +14,8 @@
 
 #include <stdint.h>
 
-#include "Callback.h"
-#include "Mutex.h"
+#include "Callback.hpp"
+#include "Mutex.hpp"
 
 class Gpio;
 struct SpiConfig;

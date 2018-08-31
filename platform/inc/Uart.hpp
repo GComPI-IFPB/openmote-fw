@@ -14,8 +14,8 @@
 
 #include <stdint.h>
 
-#include "Callback.h"
-#include "Semaphore.h"
+#include "Callback.hpp"
+#include "Semaphore.hpp"
 
 class Gpio;
 struct UartConfig;

@@ -11,9 +11,8 @@
 
 /*================================ include ==================================*/
 
-#include "RadioTimer.h"
-#include "InterruptHandler.h"
-
+#include <InterruptHandler.hpp>
+#include <RadioTimer.hpp>
 #include "cc2538_include.h"
 
 /*================================ define ===================================*/

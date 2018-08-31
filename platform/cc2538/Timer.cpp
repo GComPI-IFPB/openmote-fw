@@ -11,10 +11,9 @@
 
 /*================================ include ==================================*/
 
-#include "Board.h"
-#include "Timer.h"
-#include "InterruptHandler.h"
-
+#include <Board.hpp>
+#include <InterruptHandler.hpp>
+#include <Timer.hpp>
 #include "cc2538_include.h"
 #include "platform_types.h"
 

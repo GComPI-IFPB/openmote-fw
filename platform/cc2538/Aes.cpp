@@ -11,14 +11,15 @@
 
 /*================================ include ==================================*/
 
-#include "string.h"
+#include <Aes.hpp>
+#include <string.h>
+
+#include "Semaphore.hpp"
 
 #include "cc2538_include.h"
 #include "platform_types.h"
 
-#include "Aes.h"
 
-#include "Semaphore.h"
 
 /*================================ define ===================================*/
 

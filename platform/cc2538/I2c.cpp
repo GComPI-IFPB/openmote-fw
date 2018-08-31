@@ -11,10 +11,9 @@
 
 /*================================ include ==================================*/
 
-#include "Board.h"
-#include "Gpio.h"
-#include "I2c.h"
-
+#include <Board.hpp>
+#include <Gpio.hpp>
+#include <I2c.hpp>
 #include "cc2538_include.h"
 #include "platform_types.h"
 

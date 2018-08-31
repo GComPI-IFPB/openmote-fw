@@ -11,19 +11,17 @@
 
 /*================================ include ==================================*/
 
-#include "InterruptHandler.h"
-
-#include "Aes.h"
-#include "Gpio.h"
-#include "Timer.h"
-#include "Uart.h"
-#include "I2c.h"
-#include "Spi.h"
-#include "Radio.h"
-#include "SleepTimer.h"
-#include "RadioTimer.h"
-#include "SysTick.h"
-
+#include <Aes.hpp>
+#include <Gpio.hpp>
+#include <I2c.hpp>
+#include <InterruptHandler.hpp>
+#include <Radio.hpp>
+#include <RadioTimer.hpp>
+#include <SleepTimer.hpp>
+#include <Spi.hpp>
+#include <SysTick.hpp>
+#include <Timer.hpp>
+#include <Uart.hpp>
 #include "cc2538_include.h"
 #include "platform_types.h"
 

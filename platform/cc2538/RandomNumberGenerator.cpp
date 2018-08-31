@@ -11,8 +11,7 @@
 
 /*================================ include ==================================*/
 
-#include "RandomNumberGenerator.h"
-
+#include <RandomNumberGenerator.hpp>
 #include "cc2538_include.h"
 #include "cc2538_defines.h"
 

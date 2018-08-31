@@ -1,5 +1,5 @@
 /**
- * @file       TemperatureSensor.cpp
+ * @file       TemperatureSensor.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       January, 2016
@@ -11,9 +11,10 @@
 
 /*================================ include ==================================*/
 
+#include "TemperatureSensor.hpp"
+
 #include "cc2538_include.h"
 
-#include "TemperatureSensor.h"
 
 /*================================ define ===================================*/
 

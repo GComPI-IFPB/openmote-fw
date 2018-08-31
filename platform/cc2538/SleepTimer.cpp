@@ -11,9 +11,8 @@
 
 /*================================ include ==================================*/
 
-#include "SleepTimer.h"
-#include "InterruptHandler.h"
-
+#include <InterruptHandler.hpp>
+#include <SleepTimer.hpp>
 #include "cc2538_include.h"
 
 /*================================ define ===================================*/

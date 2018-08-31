@@ -14,8 +14,8 @@
 
 #include <stdint.h>
 
-#include "Callback.h"
-#include "Timer.h"
+#include "Callback.hpp"
+#include "Timer.hpp"
 
 struct GpioConfig;
 struct AdcConfig;

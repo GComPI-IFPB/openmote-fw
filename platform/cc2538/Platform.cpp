@@ -11,10 +11,9 @@
 
 /*================================ include ==================================*/
 
+#include <Gpio.hpp>
+#include <Platform.hpp>
 #include <string.h>
-
-#include "Board.h"
-#include "Gpio.h"
 
 #include "cc2538_include.h"
 #include "platform_types.h"

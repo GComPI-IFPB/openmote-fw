@@ -11,8 +11,7 @@
 
 /*================================ include ==================================*/
 
-#include "Gpio.h"
-
+#include <Gpio.hpp>
 #include "cc2538_include.h"
 #include "platform_types.h"
 
