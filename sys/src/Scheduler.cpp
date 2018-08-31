@@ -11,7 +11,10 @@
 
 /*================================ include ==================================*/
 
-#include "Scheduler.h"
+#include "Scheduler.hpp"
+
+#include "FreeRTOS.h"
+#include "task.h"
 
 /*================================ define ===================================*/
 

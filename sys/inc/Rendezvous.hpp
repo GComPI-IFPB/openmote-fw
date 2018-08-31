@@ -12,6 +12,8 @@
 #ifndef RENDEZVOUS_H_
 #define RENDEZVOUS_H_
 
+#include <stdint.h>
+
 #include "FreeRTOS.h"
 #include "event_groups.h"
 

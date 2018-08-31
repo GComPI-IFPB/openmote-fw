@@ -13,8 +13,8 @@
 #define MUTEX_H_
 
 #include "FreeRTOS.h"
-#include "task.h"
 #include "semphr.h"
+#include "Task.hpp"
 
 class Mutex
 {

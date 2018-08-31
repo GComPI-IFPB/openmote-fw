@@ -12,7 +12,7 @@
 #ifndef CIRCULAR_BUFFER_H_
 #define CIRCULAR_BUFFER_H_
 
-#include "Buffer.h"
+#include "Buffer.hpp"
 
 class CircularBuffer : public Buffer
 {

@@ -13,9 +13,10 @@
 
 #include <string.h>
 
-#include "CriticalSection.h"
-#include "Logging.h"
-#include "Uart.h"
+#include "CriticalSection.hpp"
+#include "Logging.hpp"
+
+#include "Uart.hpp"
 
 /*================================ define ===================================*/
 

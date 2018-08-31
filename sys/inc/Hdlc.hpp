@@ -13,9 +13,9 @@
 #define HDLC_H_
 
 #include <stdint.h>
+#include "CircularBuffer.hpp"
 
-#include "CircularBuffer.h"
-#include "Crc16.h"
+#include "Crc16.hpp"
 
 enum HdlcResult : int32_t
 {

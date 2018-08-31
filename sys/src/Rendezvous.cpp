@@ -11,9 +11,8 @@
 
 /*================================ include ==================================*/
 
-#include "Rendezvous.h"
-
-#include "CriticalSection.h"
+#include "CriticalSection.hpp"
+#include "Rendezvous.hpp"
 
 /*================================ define ===================================*/
 

@@ -14,7 +14,7 @@
 
 #include <stdint.h>
 
-#include "Mutex.h"
+#include "Mutex.hpp"
 
 class Queue
 {

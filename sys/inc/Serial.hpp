@@ -14,10 +14,10 @@
 
 #include <stdint.h>
 
-#include "Uart.h"
+#include "Uart.hpp"
 
-#include "CircularBuffer.h"
-#include "Hdlc.h"
+#include "CircularBuffer.hpp"
+#include "Hdlc.hpp"
 
 class Serial;
 

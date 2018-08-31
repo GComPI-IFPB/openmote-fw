@@ -12,9 +12,7 @@
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
+#include <stdint.h>
 
 class Scheduler
 {

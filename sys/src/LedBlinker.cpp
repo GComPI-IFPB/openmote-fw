@@ -11,9 +11,9 @@
 
 /*================================ include ==================================*/
 
-#include "board.h"
+#include <Gpio.hpp>
+#include "LedBlinker.hpp"
 
-#include "LedBlinker.h"
 
 /*================================ define ===================================*/
 

@@ -14,10 +14,10 @@
 
 #include <stdint.h>
 
-#include "Callback.h"
-#include "CircularBuffer.h"
-#include "LinkedList.h"
-#include "Mutex.h"
+#include "Callback.hpp"
+#include "CircularBuffer.hpp"
+
+#include "Mutex.hpp"
 
 class Logging;
 class Uart;
@@ -33,7 +33,7 @@ enum LogLevel {
 
 typedef GenericCallback<Logging> LoggingCallback;
 
-class Logging : public Item<Logging>
+class Logging
 {
 
 friend class LoggingManager;
