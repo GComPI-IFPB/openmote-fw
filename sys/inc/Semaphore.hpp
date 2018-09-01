@@ -1,5 +1,5 @@
 /**
- * @file       Semaphore.h
+ * @file       Semaphore.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,11 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef SEMAPHORE_H_
-#define SEMAPHORE_H_
+#ifndef SEMAPHORE_HPP_
+#define SEMAPHORE_HPP_
+
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -43,4 +46,4 @@ public:
     SemaphoreCounting(uint32_t initialCount, uint32_t maxCount);
 };
 
-#endif /* SEMAPHORE_H_ */
+#endif /* SEMAPHORE_HPP_ */

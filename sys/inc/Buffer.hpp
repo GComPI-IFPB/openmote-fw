@@ -1,5 +1,5 @@
 /**
- * @file       Buffer.h
+ * @file       Buffer.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,10 +9,11 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef BUFFER_H_
-#define BUFFER_H_
+#ifndef BUFFER_HPP_
+#define BUFFER_HPP_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "Mutex.hpp"
 
@@ -38,4 +39,4 @@ private:
     uint8_t* tail_;
 };
 
-#endif /* BUFFER_H_ */
+#endif /* BUFFER_HPP_ */

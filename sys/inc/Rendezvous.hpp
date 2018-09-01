@@ -1,5 +1,5 @@
 /**
- * @file       Rendezvous.h
+ * @file       Rendezvous.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,10 +9,11 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef RENDEZVOUS_H_
-#define RENDEZVOUS_H_
+#ifndef RENDEZVOUS_HPP_
+#define RENDEZVOUS_HPP_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "FreeRTOS.h"
 #include "event_groups.h"
@@ -35,4 +36,4 @@ protected:
     uint32_t maxId_;
 };
 
-#endif /* RENDEZVOUS_H_ */
+#endif /* RENDEZVOUS_HPP_ */

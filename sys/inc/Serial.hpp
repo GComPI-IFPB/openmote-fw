@@ -1,5 +1,5 @@
 /**
- * @file       Serial.h
+ * @file       Serial.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,10 +9,11 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef SERIAL_H_
-#define SERIAL_H_
+#ifndef SERIAL_HPP_
+#define SERIAL_HPP_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "Uart.hpp"
 
@@ -50,4 +51,4 @@ private:
     SerialCallback txCallback_;
 };
 
-#endif /* SERIAL_H_ */
+#endif /* SERIAL_HPP_ */

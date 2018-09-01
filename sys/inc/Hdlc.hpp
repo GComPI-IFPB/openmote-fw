@@ -1,5 +1,5 @@
 /**
- * @file       Hdlc.h
+ * @file       Hdlc.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,13 +9,13 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef HDLC_H_
-#define HDLC_H_
+#ifndef HDLC_HPP_
+#define HDLC_HPP_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "CircularBuffer.hpp"
-
 #include "Crc16.hpp"
 
 enum HdlcResult : int32_t
@@ -61,4 +61,4 @@ private:
     Crc16 txCrc;
 };
 
-#endif /* HDLC_H_ */
+#endif /* HDLC_HPP_ */

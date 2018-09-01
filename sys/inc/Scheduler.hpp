@@ -1,5 +1,5 @@
 /**
- * @file       Scheduler.h
+ * @file       Scheduler.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2016
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef SCHEDULER_H_
-#define SCHEDULER_H_
+#ifndef SCHEDULER_HPP_
+#define SCHEDULER_HPP_
 
 #include <stdint.h>
 
@@ -23,4 +23,4 @@ private:
 	Scheduler();
 };
 
-#endif /* SCHEDULER_H_ */
+#endif /* SCHEDULER_HPP_ */

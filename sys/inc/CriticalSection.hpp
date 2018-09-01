@@ -1,5 +1,5 @@
 /**
- * @file       CriticalSection.h
+ * @file       CriticalSection.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef CRITICAL_SECTION_H_
-#define CRITICAL_SECTION_H_
+#ifndef CRITICAL_SECTION_HPP_
+#define CRITICAL_SECTION_HPP_
 
 #include <stdint.h>
 
@@ -25,4 +25,4 @@ private:
     lock_t lock;
 };
 
-#endif /* CRITICAL_SECTION_H_ */
+#endif /* CRITICAL_SECTION_HPP_ */

@@ -1,5 +1,5 @@
 /**
- * @file       Crc16.h
+ * @file       Crc16.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef CRC16_H_
-#define CRC16_H_
+#ifndef CRC16_HPP_
+#define CRC16_HPP_
 
 #include <stdint.h>
 
@@ -26,4 +26,4 @@ private:
     uint16_t crc;
 };
 
-#endif /* CRC16_H_ */
+#endif /* CRC16_HPP_ */

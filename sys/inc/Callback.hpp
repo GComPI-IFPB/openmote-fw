@@ -1,5 +1,5 @@
 /**
- * @file       Callback.h
+ * @file       Callback.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef CALLBACK_H_
-#define CALLBACK_H_
+#ifndef CALLBACK_HPP_
+#define CALLBACK_HPP_
 
 /*****************************************************************************/
 
@@ -52,4 +52,4 @@ private:
 
 /*****************************************************************************/
 
-#endif /* CALLBACK_H_ */
+#endif /* CALLBACK_HPP_ */

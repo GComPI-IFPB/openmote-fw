@@ -1,5 +1,5 @@
 /**
- * @file       Logging.h
+ * @file       Logging.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2016
@@ -9,14 +9,14 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef LOGGING_H_
-#define LOGGING_H_
+#ifndef LOGGING_HPP_
+#define LOGGING_HPP_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "Callback.hpp"
 #include "CircularBuffer.hpp"
-
 #include "Mutex.hpp"
 
 class Logging;
@@ -63,4 +63,4 @@ private:
 	bool initialized_;
 };
 
-#endif /* LOGGING_H_ */
+#endif /* LOGGING_HPP_ */

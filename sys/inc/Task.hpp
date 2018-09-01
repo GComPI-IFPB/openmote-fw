@@ -1,5 +1,5 @@
 /**
- * @file       Task.h
+ * @file       Task.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2016
@@ -9,8 +9,10 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef TASK_H_
-#define TASK_H_
+#ifndef TASK_HPP_
+#define TASK_HPP_
+
+#include <stdint.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -30,4 +32,4 @@ protected:
 	uint8_t priority_;
 };
 
-#endif /* TASK_H_ */
+#endif /* TASK_HPP_ */

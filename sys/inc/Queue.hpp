@@ -1,5 +1,5 @@
 /**
- * @file       Queue.h
+ * @file       Queue.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef QUEUE_H_
-#define QUEUE_H_
+#ifndef QUEUE_HPP_
+#define QUEUE_HPP_
 
 #include <stdint.h>
 
@@ -41,4 +41,4 @@ private:
     uint8_t* write_;
 };
 
-#endif /* CIRCULAR_BUFFER_H_ */
+#endif /* QUEUE_HPP_ */

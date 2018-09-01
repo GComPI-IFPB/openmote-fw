@@ -1,5 +1,5 @@
 /**
- * @file       CircularBuffer.h
+ * @file       CircularBuffer.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,11 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef CIRCULAR_BUFFER_H_
-#define CIRCULAR_BUFFER_H_
+#ifndef CIRCULAR_BUFFER_HPP_
+#define CIRCULAR_BUFFER_HPP_
+
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "Buffer.hpp"
 
@@ -29,4 +32,4 @@ public:
 private:
 };
 
-#endif /* CIRCULAR_BUFFER_H_ */
+#endif /* CIRCULAR_BUFFER_HPP_ */

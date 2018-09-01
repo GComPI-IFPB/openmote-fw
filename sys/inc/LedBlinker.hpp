@@ -1,5 +1,5 @@
 /**
- * @file       LedBlinker.h
+ * @file       LedBlinker.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2016
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef LED_BLINKER_
-#define LED_BLINKER_
+#ifndef LED_BLINKER_HPP_
+#define LED_BLINKER_HPP_
 
 #include "Task.hpp"
 
@@ -25,7 +25,8 @@ protected:
     void run(void);
 private:
     GpioOut& gpio_;
-    uint32_t timeOn_, period_;
+    uint32_t timeOn_;
+    uint32_t period_;
 };
 
-#endif /* LED_BLINKER_ */
+#endif /* LED_BLINKER_HPP_ */
