@@ -49,16 +49,19 @@ bool Bme280::init(void)
     	return false;
     }
 
-    /* Set recommended configuration */
+    /* Prepare recommended configuration */
     dev.settings.osr_h = BME280_OVERSAMPLING_1X;
     dev.settings.osr_p = BME280_OVERSAMPLING_16X;
     dev.settings.osr_t = BME280_OVERSAMPLING_2X;
     dev.settings.filter = BME280_FILTER_COEFF_16;
 
+    /* Prepare measurement settings */
     settings_sel  = BME280_OSR_PRESS_SEL;
     settings_sel |= BME280_OSR_TEMP_SEL;
     settings_sel |= BME280_OSR_HUM_SEL;
     settings_sel |= BME280_FILTER_SEL;
+
+    /* Set sensor settings */
     result = bme280_set_sensor_settings(settings_sel, &dev);
     if (result < 0)
     {
@@ -88,6 +91,7 @@ bool Bme280::read(Bme280Data* data)
         return false;
     }
 
+    /* Return sensor values */
     data->temperature = comp_data.temperature / 100.0f;
     data->humidity = comp_data.humidity / 1024.0f;
     data->pressure = comp_data.pressure / 100.0f;

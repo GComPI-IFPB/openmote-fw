@@ -1,5 +1,5 @@
 /**
- * @file       Bme280.h
+ * @file       Bme280.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,13 +9,13 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef BME280_H_
-#define BME280_H_
+#ifndef BME280_HPP_
+#define BME280_HPP_
 
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../../platform/inc/I2c.hpp"
+#include "I2c.hpp"
 #include "bme280_defs.h"
 
 struct Bme280Data
@@ -42,4 +42,4 @@ private:
     struct bme280_dev dev;
 };
 
-#endif /* BME280_H_ */
+#endif /* BME280_HPP_ */
