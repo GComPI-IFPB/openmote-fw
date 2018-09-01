@@ -1,5 +1,5 @@
 /**
- * @file       RadioTimer.h
+ * @file       RadioTimer.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef RADIO_TIMER_H_
-#define RADIO_TIMER_H_
+#ifndef RADIO_TIMER_HPP_
+#define RADIO_TIMER_HPP_
 
 #include <stdint.h>
 
@@ -49,4 +49,4 @@ private:
     Callback* compare_;
 };
 
-#endif /* RADIO_H_ */
+#endif /* RADIO_TIMER_HPP_ */

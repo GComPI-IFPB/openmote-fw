@@ -1,5 +1,5 @@
 /**
- * @file       RandomNumberGenerator.h
+ * @file       RandomNumberGenerator.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef RANDOM_NUMBER_GENERATOR_H_
-#define RANDOM_NUMBER_GENERATOR_H_
+#ifndef RANDOM_NUMBER_GENERATOR_HPP_
+#define RANDOM_NUMBER_GENERATOR_HPP_
 
 #include <stdint.h>
 
@@ -22,4 +22,4 @@ public:
     uint16_t get(void);
 };
 
-#endif /* RANDOM_NUMBER_GENERATOR_H_ */
+#endif /* RANDOM_NUMBER_GENERATOR_HPP_ */

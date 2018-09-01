@@ -1,5 +1,5 @@
 /**
- * @file       Radio.h
+ * @file       Radio.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef RADIO_H_
-#define RADIO_H_
+#ifndef RADIO_HPP_
+#define RADIO_HPP_
 
 #include <stdint.h>
 
@@ -70,4 +70,4 @@ protected:
     Callback* txDone_;
 };
 
-#endif /* RADIO_H_ */
+#endif /* RADIO_HPP_ */

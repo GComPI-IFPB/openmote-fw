@@ -1,5 +1,5 @@
 /**
- * @file       Aes.h
+ * @file       Aes.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2016
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef AES_H_
-#define AES_H_
+#ifndef AES_HPP_
+#define AES_HPP_
 
 #include <stdint.h>
 
@@ -36,4 +36,4 @@ private:
 	uint8_t key_[16];
 };
 
-#endif /* AES_H_ */
+#endif /* AES_HPP_ */

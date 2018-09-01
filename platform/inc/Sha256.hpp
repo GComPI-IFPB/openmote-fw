@@ -1,5 +1,5 @@
 /**
- * @file       Sha256.h
+ * @file       Sha256.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2016
@@ -9,11 +9,11 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef SHA_256_H_
-#define SHA_256_H_
+#ifndef SHA_256_HPP_
+#define SHA_256_HPP_
 
 class Sha256 {
 
 };
 
-#endif /* SHA_256_H_ */
+#endif /* SHA_256_HPP_ */

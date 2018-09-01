@@ -1,5 +1,5 @@
 /**
- * @file       Uart.h
+ * @file       Uart.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef UART_H_
-#define UART_H_
+#ifndef UART_HPP_
+#define UART_HPP_
 
 #include <stdint.h>
 
@@ -64,4 +64,4 @@ private:
     Callback* tx_callback_;
 };
 
-#endif /* UART_H_ */
+#endif /* UART_HPP_ */

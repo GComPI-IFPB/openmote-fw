@@ -1,5 +1,5 @@
 /**
- * @file       SleepTimer.h
+ * @file       SleepTimer.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef SLEEP_TIMER_H_
-#define SLEEP_TIMER_H_
+#ifndef SLEEP_TIMER_HPP_
+#define SLEEP_TIMER_HPP_
 
 #include <stdint.h>
 
@@ -41,4 +41,4 @@ private:
     Callback* callback_;
 };
 
-#endif /* SLEEP_TIMER_H_ */
+#endif /* SLEEP_TIMER_HPP_ */

@@ -1,5 +1,5 @@
 /**
- * @file       SysTick.h
+ * @file       SysTick.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef SYSTICK_H_
-#define SYSTICK_H_
+#ifndef SYSTICK_HPP_
+#define SYSTICK_HPP_
 
 #include <stdint.h>
 
@@ -39,4 +39,4 @@ private:
     Callback* callback_;
 };
 
-#endif /* SYSTICK_H_ */
+#endif /* SYSTICK_HPP_ */

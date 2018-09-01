@@ -1,5 +1,5 @@
 /**
- * @file       Watchdog.h
+ * @file       Watchdog.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef WATCHDOG_H_
-#define WATCHDOG_H_
+#ifndef WATCHDOG_HPP_
+#define WATCHDOG_HPP_
 
 #include <stdint.h>
 
@@ -24,4 +24,4 @@ private:
     uint32_t interval_;
 };
 
-#endif /* WATCHDOG_H_ */
+#endif /* WATCHDOG_HPP_ */

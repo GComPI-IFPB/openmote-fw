@@ -1,5 +1,5 @@
 /**
- * @file       InterruptHandler.h
+ * @file       InterruptHandler.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef INTERRUPT_HANDLER_H_
-#define INTERRUPT_HANDLER_H_
+#ifndef INTERRUPT_HANDLER_HPP_
+#define INTERRUPT_HANDLER_HPP_
 
 class Aes;
 class GpioIn;
@@ -96,4 +96,4 @@ private:
     static GpioAdc* Adc_interruptVector_;
 };
 
-#endif /* INTERRUPT_HANDLER_H */
+#endif /* INTERRUPT_HANDLER_HPP_ */

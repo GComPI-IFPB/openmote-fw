@@ -1,5 +1,5 @@
 /**
- * @file       Platform.h
+ * @file       Platform.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef PLATFORM_H_
-#define PLATFORM_H_
+#ifndef PLATFORM_HPP_
+#define PLATFORM_HPP_
 
 #include <stdint.h>
 
@@ -42,4 +42,4 @@ private:
     PlainCallback flashEraseCallback_;
 };
 
-#endif /* PLATFORM_H_ */
+#endif /* PLATFORM_HPP_ */

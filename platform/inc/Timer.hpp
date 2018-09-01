@@ -1,5 +1,5 @@
 /**
- * @file       Timer.h
+ * @file       Timer.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef TIMER_H_
-#define TIMER_H_
+#ifndef TIMER_HPP_
+#define TIMER_HPP_
 
 #include <stdint.h>
 
@@ -49,4 +49,4 @@ protected:
     Callback* callback_;
 };
 
-#endif /* TIMER_H_ */
+#endif /* TIMER_HPP_ */

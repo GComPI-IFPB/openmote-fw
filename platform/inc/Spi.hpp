@@ -1,5 +1,5 @@
 /**
- * @file       Spi.h
+ * @file       Spi.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef SPI_H_
-#define SPI_H_
+#ifndef SPI_HPP_
+#define SPI_HPP_
 
 #include <stdint.h>
 
@@ -53,4 +53,4 @@ private:
     Callback* tx_callback_;
 };
 
-#endif /* SPI_H_ */
+#endif /* SPI_HPP_ */

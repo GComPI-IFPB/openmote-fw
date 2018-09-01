@@ -1,5 +1,5 @@
 /**
- * @file       Gpio.h
+ * @file       Gpio.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef GPIO_H_
-#define GPIO_H_
+#ifndef GPIO_HPP_
+#define GPIO_HPP_
 
 #include <stdint.h>
 
@@ -122,4 +122,4 @@ private:
 
 /*****************************************************************************/
 
-#endif /* GPIO_H_ */
+#endif /* GPIO_HPP_ */
