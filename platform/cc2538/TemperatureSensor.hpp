@@ -1,5 +1,5 @@
 /**
- * @file       TemperatureSensor.h
+ * @file       TemperatureSensor.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       January, 2016
@@ -9,10 +9,11 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef TEMPERATURE_SENSOR_H_
-#define TEMPERATURE_SENSOR_H_
+#ifndef TEMPERATURE_SENSOR_HPP_
+#define TEMPERATURE_SENSOR_HPP_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 class TemperatureSensor
 {
@@ -31,5 +32,5 @@ private:
     uint16_t temperature;
 };
 
-#endif /* TEMPERATURE_SENSOR_H_ */
+#endif /* TEMPERATURE_SENSOR_HPP_ */
 
