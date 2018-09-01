@@ -1,5 +1,5 @@
 /**
- * @file       At86rf215_regs.h
+ * @file       At86rf215_regs.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2016
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef AT86RF215_REGS_H_
-#define AT86RF215_REGS_H_
+#ifndef AT86RF215_REGS_HPP_
+#define AT86RF215_REGS_HPP_
 
 #define AT86RF215_READ_CMD              ( 0x00 )
 #define AT86RF215_WRITE_CMD             ( 0x80 )
@@ -143,4 +143,4 @@
 #define AT86RF215_RF09_EDV_ADDR         ( 0x0110 )
 #define AT86RF215_RF24_EDV_ADDR         ( 0x0210 )
 
-#endif /* AT86RF215_REGS_H_7*/
+#endif /* AT86RF215_REGS_HPP_ */

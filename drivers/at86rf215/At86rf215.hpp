@@ -1,5 +1,5 @@
 /**
- * @file       At86rf215.h
+ * @file       At86rf215.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2016
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef AT86RF215_H_
-#define AT86RF215_H_
+#ifndef AT86RF215_HPP_
+#define AT86RF215_HPP_
 
 #include "At86rf215_regs.h"
 
@@ -120,4 +120,4 @@ private:
     uint8_t bbc0_irqm, bbc1_irqm;
 };
 
-#endif /* AT86RF215_H_ */
+#endif /* AT86RF215_HPP_ */

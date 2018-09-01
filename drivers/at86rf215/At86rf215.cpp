@@ -20,6 +20,11 @@
 
 /*================================ define ===================================*/
 
+#define AT86RF215_RSSI_MAX_VALUE    ( 127 )
+
+#define AT86RF215_ED_MIN_VALUE      ( -127 )
+#define AT86RF215_ED_MAX_VALUE      ( 4 )
+
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
@@ -111,6 +116,8 @@ void At86rf215::receive(RadioCore rc)
 
 bool At86rf215::check(void)
 {
+    bool status = false;
+
     uint8_t pn;
     uint8_t ver;
 
@@ -123,18 +130,11 @@ bool At86rf215::check(void)
         if (ver == AT86RF215_VN_1_1 ||
             ver == AT86RF215_VN_1_3)
         {
-            return true;
+            status = true;
         }
-        else
-        {
-            return false;
-        }
+    }
 
-    }
-    else
-    {
-        return false;
-    }
+    return status;
 }
 
 void At86rf215::setRxCallbacks(RadioCore rc, Callback* rxInit, Callback* rxDone)
@@ -187,7 +187,7 @@ bool At86rf215::getRSSI(RadioCore rc, int8_t* rssi)
 		return false;
 	}
 
-	if (value == 127) 
+	if (value == AT86RF215_RSSI_MAX_VALUE)
 	{
 		*rssi = 0;
 		return false;
@@ -213,7 +213,7 @@ bool At86rf215::getED(RadioCore rc, int8_t* ed)
 		return false;
 	}
 
-	if (value < -127 || value > 4) 
+	if (value < AT86RF215_ED_MIN_VALUE || value > AT86RF215_ED_MAX_VALUE)
 	{
 		*ed = 0;
 		return false;
@@ -282,7 +282,7 @@ void At86rf215::interruptHandler_rf09(uint8_t rf_irqs, uint8_t bbc_irqs)
 
     if (tx09Init_ != nullptr)
     {
-        // tx09Init_->execute();
+        /* tx09Init_->execute(); */
     }
 
 	/* Transmitter end of frame */
@@ -311,7 +311,7 @@ void At86rf215::interruptHandler_rf24(uint8_t rf_irqs, uint8_t bbc_irqs)
 
     if (tx24Init_ != nullptr)
     {
-        // tx24Init_->execute();
+        /* tx24Init_->execute(); */
     }
 
 	/* Transmitter end of frame */
@@ -343,11 +343,17 @@ void At86rf215::goToState(RadioCore rc, RadioCommand cmd, RadioState target)
 {
 	RadioState current;
 
+	/* Write command to radio core */
 	writeCmd(rc, cmd);
 
+	/* Repeat until the core is at target state */
 	do {
-		board.delayMilliseconds(1);
-		current = getState(rc);
+	    /* Read radio core state */
+	    current = getState(rc);
+	    if (target != current)
+	    {
+	        board.delayMilliseconds(1);
+	    }
 	} while (target != current);
 }
 
@@ -367,22 +373,25 @@ void At86rf215::singleAccessRead(uint16_t address, uint8_t* value)
     uint8_t spi_transaction[3];
     uint8_t address_hi, address_lo;
 
+    /* Prepare device address */
     address_hi = (uint8_t) ((address & 0xFF00) >> 8);
     address_lo = (uint8_t) ((address & 0x00FF) >> 0);
 
+    /* Prepare buffer for SPI transaction */
     spi_transaction[0] = AT86RF215_READ_CMD | address_hi;
     spi_transaction[1] = address_lo;
     spi_transaction[2] = 0x00;
 
-    // Activate CS
+    /* Activate CS */
     cs_.low();
 
-    // Write the SPI transaction
+    /* Write the SPI transaction */
     spi_.rwByte(spi_transaction, 3, spi_transaction, 3);
 
-    // Deactivate CS
+    /* Deactivate CS */
     cs_.high();
 
+    /* Return transaction value */
     *value = spi_transaction[2];
 }
 
@@ -391,20 +400,22 @@ void At86rf215::singleAccessWrite(uint16_t address, uint8_t value)
     uint8_t spi_transaction[3];
     uint8_t address_hi, address_lo;
 
+    /* Prepare device address */
     address_hi = (uint8_t) ((address & 0xFF00) >> 8);
     address_lo = (uint8_t) ((address & 0x00FF) >> 0);
 
+    /* Prepare buffer for SPI transaction */
     spi_transaction[0] = AT86RF215_WRITE_CMD | address_hi;
     spi_transaction[1] = address_lo;
     spi_transaction[2] = value;
 
-    // Activate CS
+    /* Activate CS */
     cs_.low();
 
-    // Write the SPI transaction
+    /* Write the SPI transaction */
     spi_.rwByte(spi_transaction, 3, spi_transaction, 3);
 
-    // Deactivate CS
+    /* Deactivate CS */
     cs_.high();
 }
 
@@ -412,23 +423,26 @@ void At86rf215::blockAccessRead(uint16_t address, uint8_t* values, uint16_t leng
 {
     uint8_t address_hi, address_lo;
 
+    /* Prepare device address */
     address_hi = (uint8_t) ((address & 0xFF00) >> 8);
     address_lo = (uint8_t) ((address & 0x00FF) >> 0);
 
+    /* Prepare buffer for SPI transaction */
     values[0] = AT86RF215_READ_CMD | address_hi;
     values[1] = address_lo;
 
-    // Activate CS
+    /* Activate CS */
     cs_.low();
 
+    /* Repeat until completed */
     for (uint16_t i = 0; i < length; i++)
     {
-        // Read byte to the SPI interface
+        /* Read byte to the SPI interface */
         uint8_t b = spi_.rwByte(values[i]);
         values[i] = b;
     }
 
-    // Deactivate CS
+    /* Deactivate CS */
     cs_.high();
 }
 
@@ -436,21 +450,23 @@ void At86rf215::blockAccessWrite(uint16_t address, uint8_t* values, uint16_t len
 {
     uint8_t address_hi, address_lo;
 
+    /* Prepare device address */
     address_hi = (uint8_t) ((address & 0xFF00) >> 8);
     address_lo = (uint8_t) ((address & 0x00FF) >> 0);
 
+    /* Prepare buffer for SPI transaction */
     values[0] = AT86RF215_WRITE_CMD | address_hi;
     values[1] = address_lo;
 
-    // Activate CS
+    /* Activate CS */
     cs_.low();
 
     for (uint16_t i = 0; i < length; i++)
     {
-        // Write byte to the SPI interface
+        /* Write byte to the SPI interface */
         spi_.rwByte(values[i]);
     }
 
-    // Deactivate CS
+    /* Deactivate CS */
     cs_.high();
 }
