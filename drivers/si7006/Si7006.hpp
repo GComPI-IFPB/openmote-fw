@@ -1,5 +1,5 @@
 /**
- * @file       Si7006.h
+ * @file       Si7006.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef SI7006_H_
-#define SI7006_H_
+#ifndef SI7006_HPP_
+#define SI7006_HPP_
 
 #include "I2c.hpp"
 
@@ -39,4 +39,4 @@ private:
     uint16_t humidity;
 };
 
-#endif /* SI7006_H_ */
+#endif /* SI7006_HPP_ */
