@@ -1,5 +1,5 @@
 /**
- * @file       board.h
+ * @file       Board.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef BOARD_OPENMOTE_H_
-#define BOARD_OPENMOTE_H_
+#ifndef BOARD_HPP_
+#define BOARD_HPP_
 
 /*================================ include ==================================*/
 
@@ -118,4 +118,4 @@ extern GpioOut antenna_cc2538;
 
 /*================================ private ==================================*/
 
-#endif /* BOARD_OPENMOTE_H_ */
+#endif /* BOARD_HPP_ */

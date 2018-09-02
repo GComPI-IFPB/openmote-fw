@@ -1,5 +1,5 @@
 /**
- * @file       board.cpp
+ * @file       Board.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
