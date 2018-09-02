@@ -20,6 +20,12 @@
 #define OPT3001_I2C_ADDR_PRIM       ( 0x47 )
 #define OPT3001_I2C_ADDR_SEC        ( 0x48 )
 
+struct Opt3001Data
+{
+    uint16_t raw;
+    float lux;
+};
+
 class Opt3001
 {
 

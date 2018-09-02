@@ -49,10 +49,6 @@
 #define DATA_RDY_BIT_MSB                ( 0x00 )
 #define DATA_RDY_BIT_LSB                ( 0x80 )
 
-#define INTEGRATION_TIME_100MS          ( 100 )
-#define INTEGRATION_TIME_800MS          ( 800 )
-#define CONVERSION_TIME_MS              ( 5 )
-
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
