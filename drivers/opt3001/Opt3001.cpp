@@ -27,25 +27,31 @@
 #define REG_LOW_LIMIT                   ( 0x02 )
 #define REG_HIGH_LIMIT                  ( 0x03 )
 
+/* Manufacturer/device values */
 #define REG_MANUFACTURER_ID             ( 0x7E )
 #define REG_DEVICE_ID                   ( 0x7F )
 
 /* Register values */
-#define MANUFACTURER_ID                 ( 0x5449 )
-#define DEVICE_ID                       ( 0x3001 )
-#define CONFIG_RESET                    ( 0xC810 )
-#define CONFIG_TEST                     ( 0xCC10 )
-#define CONFIG_ENABLE                   ( 0x10C4 )
-#define CONFIG_DISABLE                  ( 0x10C0 )
+#define MANUFACTURER_ID_MSB             ( 0x54 )
+#define MANUFACTURER_ID_LSB             ( 0x49 )
+#define DEVICE_ID_MSB                   ( 0x30 )
+#define DEVICE_ID_LSB                   ( 0x01 )
+#define CONFIG_RESET_MSB                ( 0xC8 )
+#define CONFIG_RESET_LSB                ( 0x10 )
+#define CONFIG_TEST_MSB                 ( 0xCC )
+#define CONFIG_TEST_LSB                 ( 0x10 )
+#define CONFIG_ENABLE_MSB               ( 0x10 )
+#define CONFIG_ENABLE_LSB               ( 0xC4 )
+#define CONFIG_DISABLE_MSB              ( 0x10 )
+#define CONFIG_DISABLE_LSB              ( 0xC0 )
 
 /* Bit values */
-#define DATA_RDY_BIT                    ( 0x0080 )
+#define DATA_RDY_BIT_MSB                ( 0x00 )
+#define DATA_RDY_BIT_LSB                ( 0x80 )
 
-/* Register length */
-#define REGISTER_LENGTH                 ( 2 )
-
-/* Sensor data size */
-#define DATA_LENGTH                     ( 2 )
+#define INTEGRATION_TIME_100MS          ( 100 )
+#define INTEGRATION_TIME_800MS          ( 800 )
+#define CONVERSION_TIME_MS              ( 5 )
 
 /*================================ typedef ==================================*/
 
@@ -62,18 +68,29 @@ Opt3001::Opt3001(I2c& i2c, uint8_t address):
 
 bool Opt3001::init(void)
 {
+    bool success;
 
+    success = disable();
+
+    return success;
 }
 
 bool Opt3001::enable(void)
 {
-    uint16_t val = CONFIG_ENABLE;
+    uint8_t scratch[3];
+    bool success;
+
+    /* Prepare write buffer */
+    scratch[0] = REG_CONFIGURATION;
+    scratch[1] = CONFIG_ENABLE_MSB;
+    scratch[2] = CONFIG_ENABLE_LSB;
 
     /* Obtain the mutex of the I2C driver */
     i2c_.lock();
 
-    // i2c_write(OPT3001_I2C_ADDRESS, REG_CONFIGURATION, (uint8_t*)&val, REGISTER_LENGTH);
-    if (false)
+    /* Write the enable configuration */
+    success = i2c_.writeByte(address_, scratch, sizeof(scratch));
+    if (!success)
     {
         goto error;
     }
@@ -90,13 +107,20 @@ error:
 
 bool Opt3001::disable(void)
 {
-    uint16_t val = CONFIG_DISABLE;
+    uint8_t scratch[3];
+    bool success;
+
+    /* Prepare write buffer */
+    scratch[0] = REG_CONFIGURATION;
+    scratch[1] = CONFIG_DISABLE_MSB;
+    scratch[2] = CONFIG_DISABLE_LSB;
 
     /* Obtain the mutex of the I2C driver */
     i2c_.lock();
 
-    // i2c_write(address_, REG_CONFIGURATION, (uint8_t*)&val, REGISTER_LENGTH);
-    if (false)
+    /* Write the disable configuration */
+    success = i2c_.writeByte(address_, scratch, sizeof(scratch));
+    if (!success)
     {
         goto error;
     }
@@ -113,31 +137,49 @@ error:
 
 bool Opt3001::read(uint16_t* raw)
 {
-    int8_t success;
-    uint16_t val;
+    uint8_t scratch[2];
+    bool success;
 
     /* Obtain the mutex of the I2C driver */
     i2c_.lock();
 
-    // success = i2c_read(address_, REG_CONFIGURATION, (uint8_t *)&val, REGISTER_LENGTH);
-    if (success < 0)
+    /* Set the read register */
+    success = i2c_.writeByte(address_, REG_CONFIGURATION);
+    if (!success)
     {
         goto error;
     }
 
-    success = (val & DATA_RDY_BIT) == DATA_RDY_BIT;
-    if (success)
-    {
-        // success = i2c_read(address_, REG_RESULT, (uint8_t *)&val, REGISTER_LENGTH);
-    }
-
-    if (success < 0)
+    /* Read the register */
+    success = i2c_.readByte(address_, scratch, sizeof(scratch));
+    if (!success)
     {
         goto error;
     }
 
-    // Swap bytes
-    *raw = (val << 8) | (val >> 8 & 0xFF);
+    /* Check if data is ready */
+    success = ((scratch[1] & DATA_RDY_BIT_LSB) == DATA_RDY_BIT_LSB);
+    if (!success)
+    {
+        goto error;
+    }
+
+    /* Set the read register */
+    success = i2c_.writeByte(address_, REG_CONFIGURATION);
+    if (!success)
+    {
+        goto error;
+    }
+
+    /* Read the data register */
+    success = i2c_.readByte(address_, scratch, sizeof(scratch));
+    if (!success)
+    {
+        goto error;
+    }
+
+    /* Copy result */
+    *raw  = ((scratch[0] << 8) | (scratch[1] << 0));
 
     /* Release the mutex of the I2C driver */
     i2c_.unlock();
@@ -162,38 +204,50 @@ void Opt3001::convert(uint16_t raw, float* lux)
 
 bool Opt3001::test(void)
 {
-    uint8_t scratch[3];
-    uint16_t val;
+    uint8_t scratch[2];
+    bool success;
 
     /* Obtain the mutex of the I2C driver */
     i2c_.lock();
 
-    /* Prepare I2C buffer */
-    scratch[0] = REG_MANUFACTURER_ID;
-    scratch[1] = 0x00;
-    scratch[2] = 0x00;
-
-    /* Perform I2C read transaction */
-    i2c_.readByte(address_, scratch, 3);
-
-    /* Check manufacturer ID */
-    val = (scratch[1] << 8) | (scratch[2] << 0);
-    if (val != MANUFACTURER_ID)
+    /* Set the read register */
+    success = i2c_.writeByte(address_, REG_MANUFACTURER_ID);
+    if (!success)
     {
         goto error;
     }
 
-    /* Prepare I2C buffer */
-    scratch[0] = REG_DEVICE_ID;
-    scratch[1] = 0x00;
-    scratch[2] = 0x00;
+    /* Perform I2C read transaction */
+    success = i2c_.readByte(address_, scratch, sizeof(scratch));
+    if (!success)
+    {
+        goto error;
+    }
+
+    /* Check manufacturer ID */
+    if ((scratch[0] != MANUFACTURER_ID_MSB) ||
+        (scratch[1] != MANUFACTURER_ID_LSB))
+    {
+        goto error;
+    }
+
+    /* Set the read register */
+    success = i2c_.writeByte(address_, REG_DEVICE_ID);
+    if (!success)
+    {
+        goto error;
+    }
 
     /* Perform I2C read transaction */
-    i2c_.readByte(address_, scratch, 3);
+    success = i2c_.readByte(address_, scratch, sizeof(scratch));
+    if (!success)
+    {
+        goto error;
+    }
 
     /* Check device ID */
-    val = (scratch[1] << 8) | (scratch[2] << 0);
-    if (val != DEVICE_ID)
+    if ((scratch[0] != DEVICE_ID_MSB) ||
+        (scratch[1] != DEVICE_ID_LSB))
     {
         goto error;
     }
