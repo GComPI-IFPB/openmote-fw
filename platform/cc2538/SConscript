@@ -8,7 +8,6 @@ localEnv = env.Clone()
 
 source = [
     'Aes.cpp',
-    'Board.cpp',
     'cc2538_startup.c',
     'Gpio.cpp',
     'GpioAdc.cpp',
@@ -18,6 +17,7 @@ source = [
     'GpioPwm.cpp',
     'I2c.cpp',
     'InterruptHandler.cpp',
+    'Platform.cpp',
     'Radio.cpp',
     'RadioTimer.cpp',
     'RandomNumberGenerator.cpp',

@@ -186,9 +186,9 @@
 #define I2C_PERIPHERAL          ( SYS_CTRL_PERIPH_I2C )
 #define I2C_BAUDRATE            ( 400000 )
 #define I2C_SCL_BASE            ( GPIO_B_BASE )
-#define I2C_SCL_PIN             ( GPIO_PIN_1 )
+#define I2C_SCL_PIN             ( GPIO_PIN_5 )
 #define I2C_SDA_BASE            ( GPIO_B_BASE )
-#define I2C_SDA_PIN             ( GPIO_PIN_0 )
+#define I2C_SDA_PIN             ( GPIO_PIN_4 )
 
 #define AT86RF215_PWR_BASE      ( GPIO_C_BASE )
 #define AT86RF215_PWR_PIN       ( GPIO_PIN_0 )

@@ -5,7 +5,7 @@ Import('env')
 localEnv = env.Clone()
 
 source = [
-    'board.cpp',
+    'Board.cpp',
 ]
 
 common = localEnv.Object(source=source)

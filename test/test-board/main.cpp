@@ -11,12 +11,12 @@
 
 /*================================ include ==================================*/
 
-#include "board.h"
+#include "Board.hpp"
 
-#include "LedBlinker.h"
+#include "LedBlinker.hpp"
 
-#include "Scheduler.h"
-#include "Task.h"
+#include "Scheduler.hpp"
+#include "Task.hpp"
 
 /*================================ define ===================================*/
 

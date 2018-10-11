@@ -84,7 +84,7 @@ kernel    = boards[board]["kernel"]
 
 linker    = os.path.join(".", 'platform', platform, boards[board]["linker"])
 
-lib_name = ['board', 'drivers', 'net', 'platform', 'sys', 'kernel']
+lib_name = ['board', 'drivers', 'platform', 'sys', 'kernel']
 lib_path = [os.path.join('#', 'bin', board),
             os.path.join('#', 'platform', platform)]
 
@@ -304,10 +304,12 @@ env.Append(
         os.path.join('#','kernel', kernel, cpu),
         os.path.join('#','projects', project),
         os.path.join('#','board', board),
+        os.path.join('#','drivers'),
         os.path.join('#','drivers', 'inc'),
         os.path.join('#','drivers', 'at86rf215'),
         os.path.join('#','drivers', 'si7006'),
-        os.path.join('#','net', 'sniffer'),
+        os.path.join('#','drivers', 'bme280'),
+        os.path.join('#','drivers', 'opt3001'),
         os.path.join('#','sys', 'inc'),
         os.path.join('#','sys', 'src'),
         os.path.join('#', 'test', project)
