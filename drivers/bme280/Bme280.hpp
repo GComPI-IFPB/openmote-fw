@@ -30,6 +30,7 @@ class Bme280
 public:
     Bme280(I2c& i2c, uint8_t address);
     bool init(void);
+    bool reset(void);
     bool read(Bme280Data* data);
 public:
     int8_t i2c_read(uint8_t dev_id, uint8_t reg_addr, uint8_t* buffer, uint16_t length);

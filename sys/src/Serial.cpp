@@ -152,7 +152,7 @@ void Serial::rxCallback(void)
     // Get the HDLC status
     status = hdlc_.getRxStatus();
 
-     // If HDLC frame is completed
+    // If HDLC frame is completed
     if (status == HdlcStatus_Done)
     {
         // Close the HDLC frame

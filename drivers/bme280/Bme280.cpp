@@ -71,6 +71,20 @@ bool Bme280::init(void)
     return true;
 }
 
+bool Bme280::reset(void)
+{
+    int8_t status;
+
+    /* Perform software reset */
+    status = bme280_soft_reset(&dev);
+    if (status != 0)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 bool Bme280::read(Bme280Data* data)
 {
     struct bme280_data comp_data;
@@ -78,7 +92,7 @@ bool Bme280::read(Bme280Data* data)
 
 	/* Set BME280 in normal operation mode */
     result = bme280_set_sensor_mode(BME280_FORCED_MODE, &dev);
-    if (result < 0) {
+    if (result != 0) {
         return false;
     }
 
@@ -87,11 +101,11 @@ bool Bme280::read(Bme280Data* data)
 
     /* Convert BME280 measurement */
     result = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev);
-    if (result < 0) {
+    if (result != 0) {
         return false;
     }
 
-    /* Return sensor values */
+    /* Scale and return sensor values */
     data->temperature = comp_data.temperature / 100.0f;
     data->humidity = comp_data.humidity / 1024.0f;
     data->pressure = comp_data.pressure / 100.0f;
