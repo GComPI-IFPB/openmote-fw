@@ -14,19 +14,18 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "board.h"
 #include "platform_types.h"
 
-#include "Board.h"
-#include "Gpio.h"
-#include "Uart.h"
+#include "Board.hpp"
+#include "Gpio.hpp"
+#include "Uart.hpp"
 
-#include "Serial.h"
+#include "Serial.hpp"
 
-#include "Callback.h"
-#include "Scheduler.h"
-#include "Semaphore.h"
-#include "Task.h"
+#include "Callback.hpp"
+#include "Scheduler.hpp"
+#include "Semaphore.hpp"
+#include "Task.hpp"
 
 /*================================ define ===================================*/
 

@@ -11,23 +11,24 @@
 
 /*================================ include ==================================*/
 
+#include "Callback.hpp"
+#include "Gpio.hpp"
+#include "I2c.hpp"
+#include "Scheduler.hpp"
+#include "Semaphore.hpp"
+#include "Spi.hpp"
+
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "board.h"
+#include "Platform.hpp"
 #include "platform_types.h"
 
-#include "Board.h"
-#include "Gpio.h"
-#include "Spi.h"
-#include "I2c.h"
+#include "Board.hpp"
+#include "Task.hpp"
 
-#include "Callback.h"
-#include "Scheduler.h"
-#include "Semaphore.h"
-#include "Task.h"
-
-#include "bme280/Bme280.h"
+#include "bme280/Bme280.hpp"
+#include "opt3001/Opt3001.hpp"
 
 /*================================ define ===================================*/
 
@@ -41,8 +42,16 @@
 #define EUI48_ADDDRESS_LENGTH               ( 6 )
 
 #define BME280_I2C_ADDRESS                  ( BME280_I2C_ADDR_PRIM )
+#define OPT3001_I2C_ADDRESS                 ( OPT3001_I2C_ADDR_PRIM )
 
 /*================================ typedef ==================================*/
+
+typedef struct {
+    uint16_t temperature;
+    uint16_t humidity;
+    uint16_t pressure;
+    uint16_t light;
+} SensorData;
 
 /*=============================== prototypes ================================*/
 
@@ -52,7 +61,7 @@ extern "C" TickType_t board_wakeup(TickType_t xModifiableIdleTime);
 static void prvGreenLedTask(void *pvParameters);
 static void prvTransmitTask(void *pvParameters);
 
-static uint16_t prepare_packet(uint8_t* packet_ptr, uint8_t* eui48_address, uint32_t packet_counter, uint16_t temperature, uint16_t pressure, uint16_t humidity);
+static uint16_t prepare_packet(uint8_t* packet_ptr, uint8_t* eui48_address, uint32_t packet_counter, SensorData sensor_data);
 
 static void radio_tx_init(void);
 static void radio_tx_done(void);
@@ -65,6 +74,7 @@ PlainCallback radio_tx_done_cb(&radio_tx_done);
 SemaphoreBinary semaphore(false);
 
 Bme280 bme280(i2c, BME280_I2C_ADDRESS);
+Opt3001 opt3001(i2c, OPT3001_I2C_ADDRESS);
 
 static bool board_slept;
 
@@ -144,45 +154,80 @@ static void prvTransmitTask(void *pvParameters)
     radio.enable();
     radio.enableInterrupts();
 
-    // Initialize BME280 sensor
+    // Delay for 100 milliseconds
+    Scheduler::delay_ms(100);
+
+    // Initialize BME280 and OPT3001 sensors
     bme280.init();
+    // opt3001.init();
 
     // Delay for 100 milliseconds
     Scheduler::delay_ms(100);
 
     // Forever
     while (true) {
-        Bme280Data data;
+        SensorData sensor_data;
+        Bme280Data bme280_data;
+        // Opt3001Data opt3001_data;
         uint16_t tx_buffer_len;
+        bool status;
 
         // Turn on red LED
         led_red.on();
 
+        /* Turn on OPT3001 sensor */
+        // opt3001.enable();
+        // Delay for 100 milliseconds
+        // Scheduler::delay_ms(100);
+
         // Read temperature, humidity and pressure
-        bme280.read(&data);
-        uint16_t temperature = (uint16_t) (data.temperature * 10.0f);
-        uint16_t humidity = (uint16_t) (data.humidity * 10.0f);
-        uint16_t pressure = (uint16_t) (data.pressure * 10.0f);
-
-        // Prepare packet
-        tx_buffer_len = prepare_packet(tx_buffer, eui48_address, packet_counter, temperature, pressure, humidity);
-
-        // Turn on radio
-        radio.on();
-
-        // Load packet to radio
-        result = radio.loadPacket(tx_buffer, tx_buffer_len);
-        if (result == RadioResult_Success)
+        status = bme280.read(&bme280_data);
+        if (!status)
         {
-            // Transmit packet
-            radio.transmit();
+            /* Reset BME280 */
+            bme280.reset();
 
-            // Wait until packet has been transamitted
-            semaphore.take();
+            /* Re-iºnitialize BME280 */
+            bme280.init();
         }
 
-        // Turn off radio
-        radio.off();
+        // Read light
+        // status = opt3001.read(&opt3001_data.raw);
+        // if (status)
+        // {
+        //     opt3001.convert(opt3001_data.raw, &opt3001_data.lux);
+        // }
+
+        // Convert sensor data
+        if (status)
+        {
+            // Fill-in sensor data
+            sensor_data.temperature = (uint16_t) (bme280_data.temperature * 10.0f);
+            sensor_data.humidity    = (uint16_t) (bme280_data.humidity * 10.0f);
+            sensor_data.pressure    = (uint16_t) (bme280_data.pressure * 10.0f);
+            // sensor_data.light       = (uint16_t) (opt3001_data.lux * 10.0f);
+
+            // Prepare radio packet
+            tx_buffer_len = prepare_packet(tx_buffer, eui48_address, packet_counter, sensor_data);
+
+            // Turn on radio
+            radio.on();
+
+            // Load packet to radio
+            result = radio.loadPacket(tx_buffer, tx_buffer_len);
+            if (result == RadioResult_Success)
+            {
+                // Transmit packet
+                radio.transmit();
+
+                // Wait until packet has been transmitted
+                semaphore.take();
+            }
+
+            // Turn off radio
+            radio.off();
+        }
+
 
         // Increment packet counter
         packet_counter++;
@@ -191,7 +236,7 @@ static void prvTransmitTask(void *pvParameters)
         led_red.off();
 
         // Delay for 60 seconds
-        Scheduler::delay_ms(60000);
+        Scheduler::delay_ms(10000);
     }
 }
 
@@ -224,7 +269,7 @@ static void radio_tx_done(void)
     semaphore.giveFromInterrupt();
 }
 
-static uint16_t prepare_packet(uint8_t* packet_ptr, uint8_t* eui48_address, uint32_t packet_counter, uint16_t temperature, uint16_t pressure, uint16_t humidity)
+static uint16_t prepare_packet(uint8_t* packet_ptr, uint8_t* eui48_address, uint32_t packet_counter, SensorData sensor_data)
 {
     uint16_t packet_length = 0;
     uint8_t i;
@@ -246,12 +291,14 @@ static uint16_t prepare_packet(uint8_t* packet_ptr, uint8_t* eui48_address, uint
 
     // Copy sensor data
     i = packet_length;
-    packet_ptr[i++] = (uint8_t) ((temperature & 0xFF00) >> 8);
-    packet_ptr[i++] = (uint8_t) ((temperature & 0x00FF) >> 0);
-    packet_ptr[i++] = (uint8_t) ((humidity & 0xFF00) >> 8);
-    packet_ptr[i++] = (uint8_t) ((humidity & 0x00FF) >> 0);
-    packet_ptr[i++] = (uint8_t) ((pressure & 0xFF00) >> 8);
-    packet_ptr[i++] = (uint8_t) ((pressure & 0x00FF) >> 0);
+    packet_ptr[i++] = (uint8_t) ((sensor_data.temperature & 0xFF00) >> 8);
+    packet_ptr[i++] = (uint8_t) ((sensor_data.temperature & 0x00FF) >> 0);
+    packet_ptr[i++] = (uint8_t) ((sensor_data.humidity & 0xFF00) >> 8);
+    packet_ptr[i++] = (uint8_t) ((sensor_data.humidity & 0x00FF) >> 0);
+    packet_ptr[i++] = (uint8_t) ((sensor_data.pressure & 0xFF00) >> 8);
+    packet_ptr[i++] = (uint8_t) ((sensor_data.pressure & 0x00FF) >> 0);
+    //packet_ptr[i++] = (uint8_t) ((sensor_data.light & 0xFF00) >> 8);
+    //packet_ptr[i++] = (uint8_t) ((sensor_data.light & 0x00FF) >> 0);
     packet_length = i;
 
     return packet_length;
