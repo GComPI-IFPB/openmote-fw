@@ -16,12 +16,13 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "board.h"
+#include "Board.hpp"
+
 #include "platform_types.h"
 
-#include "Scheduler.h"
-#include "Semaphore.h"
-#include "Task.h"
+#include "Scheduler.hpp"
+#include "Semaphore.hpp"
+#include "Task.hpp"
 
 /*================================ define ===================================*/
 
