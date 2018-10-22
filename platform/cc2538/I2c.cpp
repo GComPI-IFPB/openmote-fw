@@ -237,16 +237,16 @@ bool I2c::writeByte(uint8_t device, uint8_t* buffer, uint8_t size)
         I2CMasterDataPut(*buffer++);
         size--;
 
+        // Check if it's the last byte
+        if (size == 0) I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_FINISH);
+        else           I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_CONT);
+
         // Wait until complete or timeout
         while (I2CMasterBusy())
         {
             // Check timeout status and return if expired
             if (board.isExpiredTicks(delayTicks)) return false;
         }
-
-        // Check if it's the last byte
-        if (size == 0) I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_FINISH);
-        else           I2CMasterControl(I2C_MASTER_CMD_BURST_SEND_CONT);
     }
 
     return true;

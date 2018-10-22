@@ -17,8 +17,10 @@
 
 #include "I2c.hpp"
 
-#define OPT3001_I2C_ADDR_PRIM       ( 0x47 )
-#define OPT3001_I2C_ADDR_SEC        ( 0x48 )
+#define OPT3001_I2C_ADDR_GND        ( 0x44 )
+#define OPT3001_I2C_ADDR_VCC        ( 0x45 )
+#define OPT3001_I2C_ADDR_SDA        ( 0x46 )
+#define OPT3001_I2C_ADDR_SCL        ( 0x47 )
 
 struct Opt3001Data
 {

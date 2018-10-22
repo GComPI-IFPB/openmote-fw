@@ -26,7 +26,6 @@
 #include "Watchdog.hpp"
 
 #include "at86rf215/At86rf215.hpp"
-#include "si7006/Si7006.hpp"
 
 #include "cc2538_include.h"
 #include "platform_types.h"
@@ -186,9 +185,9 @@
 #define I2C_PERIPHERAL          ( SYS_CTRL_PERIPH_I2C )
 #define I2C_BAUDRATE            ( 400000 )
 #define I2C_SCL_BASE            ( GPIO_B_BASE )
-#define I2C_SCL_PIN             ( GPIO_PIN_5 )
+#define I2C_SCL_PIN             ( GPIO_PIN_1 )
 #define I2C_SDA_BASE            ( GPIO_B_BASE )
-#define I2C_SDA_PIN             ( GPIO_PIN_4 )
+#define I2C_SDA_PIN             ( GPIO_PIN_0 )
 
 #define AT86RF215_PWR_BASE      ( GPIO_C_BASE )
 #define AT86RF215_PWR_PIN       ( GPIO_PIN_0 )
@@ -253,18 +252,18 @@ GpioOut led_yellow(led_yellow_cfg);
 // GpioPwm led_yellow(led_yellow_cfg, timer3a_cfg);
 
 // Debug 
-GpioConfig debug0_cfg = {DEBUG0_PORT, DEBUG0_PIN, 0, 0, 0};
-GpioConfig debug1_cfg = {DEBUG1_PORT, DEBUG1_PIN, 0, 0, 0};
-GpioConfig debug2_cfg = {DEBUG2_PORT, DEBUG2_PIN, 0, 0, 0};
-GpioConfig debug3_cfg = {DEBUG3_PORT, DEBUG3_PIN, 0, 0, 0};
-GpioIn debug0(debug0_cfg);
-GpioIn debug1(debug1_cfg);
-GpioIn debug2(debug2_cfg);
-GpioIn debug3(debug3_cfg);
+// GpioConfig debug0_cfg = {DEBUG0_PORT, DEBUG0_PIN, 0, 0, 0};
+// GpioConfig debug1_cfg = {DEBUG1_PORT, DEBUG1_PIN, 0, 0, 0};
+// GpioConfig debug2_cfg = {DEBUG2_PORT, DEBUG2_PIN, 0, 0, 0};
+// GpioConfig debug3_cfg = {DEBUG3_PORT, DEBUG3_PIN, 0, 0, 0};
+// GpioOut debug0(debug0_cfg);
+// GpioOut debug1(debug1_cfg);
+// GpioOut debug2(debug2_cfg);
+// GpioOut debug3(debug3_cfg);
 
 // Adc 
-GpioConfig gpio_adc_cfg = {DEBUG5_PORT, DEBUG5_PIN, 0, 0, 0};
-AdcConfig adc_cfg = {DEBUG5_ADC_RES, DEBUG5_ADC_REF, DEBUG5_ADC_CHAN};
+// GpioConfig gpio_adc_cfg = {DEBUG5_PORT, DEBUG5_PIN, 0, 0, 0};
+// AdcConfig adc_cfg = {DEBUG5_ADC_RES, DEBUG5_ADC_REF, DEBUG5_ADC_CHAN};
 // GpioAdc gpio_adc(gpio_adc_cfg, adc_cfg);
 
 // Button
@@ -322,9 +321,6 @@ Radio radio;
 // AES module
 Aes aes;
 
-// Temperature + Relative humidity sensor
-Si7006 si7006(i2c);
-
 // CC2538 temperature sensor
 TemperatureSensor temp;
 
@@ -348,10 +344,6 @@ void Board::init(void) {
 	led_yellow.off();
 	led_orange.off();
 	led_red.off();
-
-	// uart.sleep();
-	// spi.sleep();
-	// i2c.sleep();
 
 	antenna_at86rf215.high();
 	antenna_cc2538.low();

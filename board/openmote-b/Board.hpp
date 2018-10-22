@@ -28,8 +28,6 @@
 #include "Watchdog.hpp"
 
 #include "at86rf215/At86rf215.hpp"
-#include "si7006/Si7006.hpp"
-
 
 /*================================ define ===================================*/
 
@@ -54,10 +52,10 @@ extern GpioOut led_yellow;
 // extern GpioPwm led_yellow;
 
 // Debug
-extern GpioOut debug0;
-extern GpioOut debug1;
-extern GpioOut debug2;
-extern GpioOut debug3;
+// extern GpioOut debug0;
+// extern GpioOut debug1;
+// extern GpioOut debug2;
+// extern GpioOut debug3;
 
 // Adc
 extern GpioAdc gpio_adc; 
@@ -99,9 +97,6 @@ extern Aes aes;
 // CC2538 Temperature sensor
 extern TemperatureSensor temp;
 
-// Temperature + Relative humidity sensor
-extern Si7006 si7006;
-
 // AT86RF215 radio transceiver
 extern GpioOut at86rf215_pwr;
 extern GpioOut at86rf215_rst;
@@ -109,6 +104,7 @@ extern GpioOut at86rf215_csn;
 extern GpioIn at86rf215_irq;
 extern At86rf215 at86rf215;
 
+// Antenna switch
 extern GpioOut antenna_at86rf215;
 extern GpioOut antenna_cc2538;
 

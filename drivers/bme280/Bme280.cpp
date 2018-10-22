@@ -97,7 +97,7 @@ bool Bme280::read(Bme280Data* data)
     }
 
     /* Wait for measurement to complete */
-    delay_ms(64);
+    delay_ms(96);
 
     /* Convert BME280 measurement */
     result = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev);

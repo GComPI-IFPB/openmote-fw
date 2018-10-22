@@ -41,8 +41,11 @@
 #define TX_BUFFER_LENGTH                    ( 127 )
 #define EUI48_ADDDRESS_LENGTH               ( 6 )
 
+#define SENSORS_CTRL_PORT                   ( GPIO_A_BASE )
+#define SENSORS_CTRL_PIN                    ( GPIO_PIN_7 )
+
 #define BME280_I2C_ADDRESS                  ( BME280_I2C_ADDR_PRIM )
-#define OPT3001_I2C_ADDRESS                 ( OPT3001_I2C_ADDR_PRIM )
+#define OPT3001_I2C_ADDRESS                 ( OPT3001_I2C_ADDR_GND )
 
 /*================================ typedef ==================================*/
 
@@ -68,13 +71,16 @@ static void radio_tx_done(void);
 
 /*=============================== variables =================================*/
 
+GpioConfig sensors_pwr_cfg = {SENSORS_CTRL_PORT, SENSORS_CTRL_PIN, 0, 0, 0};
+GpioOut sensors_pwr_ctrl(sensors_pwr_cfg);
+
+Bme280 bme280(i2c, BME280_I2C_ADDRESS);
+Opt3001 opt3001(i2c, OPT3001_I2C_ADDRESS);
+
 PlainCallback radio_tx_init_cb(&radio_tx_init);
 PlainCallback radio_tx_done_cb(&radio_tx_done);
 
 SemaphoreBinary semaphore(false);
-
-Bme280 bme280(i2c, BME280_I2C_ADDRESS);
-Opt3001 opt3001(i2c, OPT3001_I2C_ADDRESS);
 
 static bool board_slept;
 
@@ -87,6 +93,9 @@ int main(void)
 
     // Enable I2C
     i2c.enable();
+
+    // Turn on the sensors board
+    sensors_pwr_ctrl.high();
 
     // Create FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "Green", GREEN_LED_TASK_STACK_SIZE, NULL, GREEN_LED_TASK_PRIORITY, NULL);
@@ -159,7 +168,8 @@ static void prvTransmitTask(void *pvParameters)
 
     // Initialize BME280 and OPT3001 sensors
     bme280.init();
-    // opt3001.init();
+    opt3001.init();
+    opt3001.enable();
 
     // Delay for 100 milliseconds
     Scheduler::delay_ms(100);
@@ -168,17 +178,12 @@ static void prvTransmitTask(void *pvParameters)
     while (true) {
         SensorData sensor_data;
         Bme280Data bme280_data;
-        // Opt3001Data opt3001_data;
+        Opt3001Data opt3001_data;
         uint16_t tx_buffer_len;
         bool status;
 
         // Turn on red LED
         led_red.on();
-
-        /* Turn on OPT3001 sensor */
-        // opt3001.enable();
-        // Delay for 100 milliseconds
-        // Scheduler::delay_ms(100);
 
         // Read temperature, humidity and pressure
         status = bme280.read(&bme280_data);
@@ -187,16 +192,16 @@ static void prvTransmitTask(void *pvParameters)
             /* Reset BME280 */
             bme280.reset();
 
-            /* Re-iºnitialize BME280 */
+            /* Re-initialize BME280 */
             bme280.init();
         }
 
         // Read light
-        // status = opt3001.read(&opt3001_data.raw);
-        // if (status)
-        // {
-        //     opt3001.convert(opt3001_data.raw, &opt3001_data.lux);
-        // }
+        status = opt3001.read(&opt3001_data.raw);
+        if (status)
+        {
+            opt3001.convert(opt3001_data.raw, &opt3001_data.lux);
+        }
 
         // Convert sensor data
         if (status)
@@ -205,7 +210,7 @@ static void prvTransmitTask(void *pvParameters)
             sensor_data.temperature = (uint16_t) (bme280_data.temperature * 10.0f);
             sensor_data.humidity    = (uint16_t) (bme280_data.humidity * 10.0f);
             sensor_data.pressure    = (uint16_t) (bme280_data.pressure * 10.0f);
-            // sensor_data.light       = (uint16_t) (opt3001_data.lux * 10.0f);
+            sensor_data.light       = (uint16_t) (opt3001_data.lux * 10.0f);
 
             // Prepare radio packet
             tx_buffer_len = prepare_packet(tx_buffer, eui48_address, packet_counter, sensor_data);
@@ -297,8 +302,8 @@ static uint16_t prepare_packet(uint8_t* packet_ptr, uint8_t* eui48_address, uint
     packet_ptr[i++] = (uint8_t) ((sensor_data.humidity & 0x00FF) >> 0);
     packet_ptr[i++] = (uint8_t) ((sensor_data.pressure & 0xFF00) >> 8);
     packet_ptr[i++] = (uint8_t) ((sensor_data.pressure & 0x00FF) >> 0);
-    //packet_ptr[i++] = (uint8_t) ((sensor_data.light & 0xFF00) >> 8);
-    //packet_ptr[i++] = (uint8_t) ((sensor_data.light & 0x00FF) >> 0);
+    packet_ptr[i++] = (uint8_t) ((sensor_data.light & 0xFF00) >> 8);
+    packet_ptr[i++] = (uint8_t) ((sensor_data.light & 0x00FF) >> 0);
     packet_length = i;
 
     return packet_length;

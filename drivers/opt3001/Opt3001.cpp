@@ -40,10 +40,10 @@
 #define CONFIG_RESET_LSB                ( 0x10 )
 #define CONFIG_TEST_MSB                 ( 0xCC )
 #define CONFIG_TEST_LSB                 ( 0x10 )
-#define CONFIG_ENABLE_MSB               ( 0x10 )
-#define CONFIG_ENABLE_LSB               ( 0xC4 )
-#define CONFIG_DISABLE_MSB              ( 0x10 )
-#define CONFIG_DISABLE_LSB              ( 0xC0 )
+#define CONFIG_ENABLE_MSB               ( 0xC4 )
+#define CONFIG_ENABLE_LSB               ( 0x10 )
+#define CONFIG_DISABLE_MSB              ( 0xC0 )
+#define CONFIG_DISABLE_LSB              ( 0x10 )
 
 /* Bit values */
 #define DATA_RDY_BIT_MSB                ( 0x00 )
@@ -161,7 +161,7 @@ bool Opt3001::read(uint16_t* raw)
     }
 
     /* Set the read register */
-    success = i2c_.writeByte(address_, REG_CONFIGURATION);
+    success = i2c_.writeByte(address_, REG_RESULT);
     if (!success)
     {
         goto error;
@@ -190,7 +190,8 @@ error:
 
 void Opt3001::convert(uint16_t raw, float* lux)
 {
-    uint16_t e, m;
+    uint16_t e;
+    uint16_t m;
 
     m = raw & 0x0FFF;
     e = (raw & 0xF000) >> 12;
