@@ -12,17 +12,17 @@
 #ifndef LED_BLINKER_HPP_
 #define LED_BLINKER_HPP_
 
-#include "Task.hpp"
+#include "Thread.hpp"
 
 class GpioOut;
 
-class LedBlinker : protected Task
+class LedBlinker : protected Thread
 {
 public:
     LedBlinker(const char* const name, uint16_t size, uint8_t priority, GpioOut& gpio);
     void setTime(uint32_t timeOn, uint32_t period);
 protected:
-    void run(void);
+    virtual void run(void);
 private:
     GpioOut& gpio_;
     uint32_t timeOn_;

@@ -16,7 +16,7 @@
 #include <stdbool.h>
 
 #include "Callback.hpp"
-#include "CircularBuffer.hpp"
+#include "Buffer.hpp"
 #include "Mutex.hpp"
 
 class Logging;
@@ -56,7 +56,7 @@ private:
 	LoggingCallback txCallback_;
 
 	uint8_t transmit_buffer_[256];
-    CircularBuffer txBuffer_;
+  Buffer txBuffer_;
 	
 	LogLevel level_;
 

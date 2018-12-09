@@ -2,7 +2,7 @@
  * @file       Semaphore.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2015
+ * @date       November, 2018
  * @brief
  *
  * @copyright  Copyright 2015, OpenMote Technologies, S.L.

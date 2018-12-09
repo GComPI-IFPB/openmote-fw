@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "CircularBuffer.hpp"
+#include "Buffer.hpp"
 #include "Crc16.hpp"
 
 enum HdlcResult : int32_t
@@ -34,7 +34,7 @@ enum HdlcStatus : int32_t
 class Hdlc
 {
 public:
-    Hdlc(CircularBuffer& rxCircularBuffer, CircularBuffer& txCircularBuffer);
+    Hdlc(Buffer& rxBuffer, Buffer& txBuffer);
 
     HdlcResult rxOpen(void);
     HdlcResult rxPut(uint8_t byte);
@@ -50,8 +50,8 @@ private:
     HdlcResult rxParse(uint8_t byte);
 
 private:
-    CircularBuffer& rxCircularBuffer_;
-    CircularBuffer& txCircularBuffer_;
+    Buffer& rxBuffer_;
+    Buffer& txBuffer_;
 
     HdlcStatus rxStatus;
     uint8_t rxLastByte;

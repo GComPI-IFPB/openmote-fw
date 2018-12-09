@@ -40,17 +40,17 @@ void Logging::init(void)
 	CriticalSection cs;
 
 	if (!initialized_) {
-		// Enable the UART
+		/* Enable the UART */
 		uart_.enable();
 
-		// Register UART callbacks
-	    uart_.setTxCallback(&txCallback_);
+		/* Register UART callbacks */
+	  uart_.setTxCallback(&txCallback_);
 
-	    // Enable UART interrupts
-	    uart_.enableInterrupts();
+	  /* Enable UART interrupts */
+	  uart_.enableInterrupts();
 
-		// Mark as initialized
-	    initialized_ = true;
+		/* Mark as initialized */
+	  initialized_ = true;
 	}
 }
 
@@ -67,28 +67,28 @@ void Logging::log(char const * message)
 	uint8_t byte;
 	uint32_t length;
 
-	// Take the logging mutex
+	/* Take the logging mutex */
 	mutex_.take();
 
-	// Take the UART lock
+	/* Take the UART lock */
 	uart_.txLock();
 
-	// Count number of characters
+	/* Count number of characters */
 	length = strlen(message);
 
-	// Reset the transmit buffer
+	/* Reset the transmit buffer */
 	txBuffer_.reset();
 
-	// Write characters into transmit buffer
+	/* Write characters into transmit buffer */
 	txBuffer_.write((uint8_t *) message, length);
 
- 	// Read first byte from the UART transmit buffer
-    status = txBuffer_.read(&byte);
-    if (status == true) {
-		uart_.writeByte(byte);
-    } else {
-    	uart_.txUnlock();
-    }
+ 	/* Read first byte from the UART transmit buffer */
+  status = txBuffer_.read(&byte);
+  if (status == true) {
+    uart_.writeByte(byte);
+  } else {
+    uart_.txUnlock();
+  }
 }
 
 void Logging::call(char const * message)
@@ -127,16 +127,16 @@ void Logging::txCallback(void)
 {
 	uint8_t byte;
 
-    // Read byte from the UART transmit buffer
+    /* Read byte from the UART transmit buffer */
     if (txBuffer_.read(&byte) == true) {
-        // Write byte to the UART
+        /* Write byte to the UART */
         uart_.writeByte(byte);
     }
     else {
-        // Once done, free the UART lock
+        /* Once done, free the UART lock */
         uart_.txUnlockFromInterrupt();
 
-        // Give the logging mutex
+        /* Give the logging mutex */
         mutex_.give();
     }
 }

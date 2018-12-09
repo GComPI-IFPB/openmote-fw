@@ -57,8 +57,8 @@ bool Rendezvous::getId(RendezvousId* id)
 
 bool Rendezvous::sync(RendezvousId id)
 {
-    xEventGroupSync(handle_, id, maxId_, portMAX_DELAY);
-    return true;
+  xEventGroupSync(handle_, id, maxId_, portMAX_DELAY);
+  return true;
 }
 
 bool Rendezvous::sync(RendezvousId id, uint32_t milliseconds)

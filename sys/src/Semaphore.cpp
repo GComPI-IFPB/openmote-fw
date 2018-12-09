@@ -29,67 +29,67 @@ Semaphore::Semaphore(void)
 
 Semaphore::~Semaphore(void)
 {
-    vSemaphoreDelete(semaphore_);
+  vSemaphoreDelete(semaphore_);
 }
 
 bool Semaphore::isTaken(void)
 {
-    uint32_t count;
+  uint32_t count;
 
-    count = uxSemaphoreGetCount(semaphore_);
+  count = uxSemaphoreGetCount(semaphore_);
 
-    /* If semaphore is available */
-    if (count == 1)
-    {
-        return false;
-    }
+  /* If semaphore is available */
+  if (count == 1)
+  {
+    return false;
+  }
 
-    return true;
+  return true;
 }
 
 bool Semaphore::take(void)
 {
-    bool status = (xSemaphoreTake(semaphore_, portMAX_DELAY) == pdTRUE);
-    return status;
+  bool status = (xSemaphoreTake(semaphore_, portMAX_DELAY) == pdTRUE);
+  return status;
 }
 
 bool Semaphore::take(uint32_t milliseconds)
 {
-    TickType_t timeout = milliseconds / portTICK_RATE_MS;
-    bool status = (xSemaphoreTake(semaphore_, timeout) == pdTRUE);
-    return status;
+  TickType_t timeout = milliseconds / portTICK_RATE_MS;
+  bool status = (xSemaphoreTake(semaphore_, timeout) == pdTRUE);
+  return status;
 }
 
 void Semaphore::give(void)
 {
-    xSemaphoreGive(semaphore_);
+  xSemaphoreGive(semaphore_);
 }
 
 void Semaphore::giveFromInterrupt(void)
 {
-    priorityTaskWoken_ = pdFALSE;
-    xSemaphoreGiveFromISR(semaphore_, &priorityTaskWoken_);
-    portYIELD_FROM_ISR(priorityTaskWoken_);
+  priorityTaskWoken_ = pdFALSE;
+  xSemaphoreGiveFromISR(semaphore_, &priorityTaskWoken_);
+  portYIELD_FROM_ISR(priorityTaskWoken_);
 }
 
 SemaphoreBinary::SemaphoreBinary(bool given)
 {
-    semaphore_ = xSemaphoreCreateBinary();
-    if (semaphore_ == NULL) {
-        while(true);
-    }
-    
-    if (given) {
-        Semaphore::give();
-    }
+  semaphore_ = xSemaphoreCreateBinary();
+  if (semaphore_ == NULL) {
+      while(true);
+  }
+  
+  if (given) {
+      Semaphore::give();
+  }
 }
 
 SemaphoreCounting::SemaphoreCounting(uint32_t initialCount, uint32_t maxCount)
 {
-    semaphore_ = xSemaphoreCreateCounting(maxCount, initialCount);
-    if (semaphore_ == NULL) {
-        while(true);
-    }
+  semaphore_ = xSemaphoreCreateCounting(maxCount, initialCount);
+  if (semaphore_ == NULL) {
+    while(true);
+  }
 }
 
 /*=============================== protected =================================*/

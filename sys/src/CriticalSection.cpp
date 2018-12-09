@@ -1,5 +1,5 @@
 /**
- * @file       SemaphoreBinary.cpp
+ * @file       CriticalSection.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -15,23 +15,6 @@
 
 /*================================ define ===================================*/
 
-#define enterCriticalSection(lock)          \
-  do {                                      \
-    asm (                                   \
-        "mrs r0, PRIMASK\n\t"               \
-        "cpsid I\n\t"                       \
-        "strb r0, %[output]"                \
-        : [output] "=m" (lock) :: "r0");    \
-  } while(0)
-
-#define exitCriticalSection(lock)           \
-  do {                                      \
-    asm (                                   \
-        "ldrb r0, %[input]\n\t"             \
-        "msr PRIMASK,r0;\n\t"               \
-        ::[input] "m" (lock) : "r0");       \
-  } while(0)
-
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
@@ -42,12 +25,12 @@
 
 CriticalSection::CriticalSection(void)
 {
-    enterCriticalSection(lock);
+  taskENTER_CRITICAL();
 }
 
 CriticalSection::~CriticalSection(void)
 {
-    exitCriticalSection(lock);
+  taskEXIT_CRITICAL();
 }
 
 /*=============================== protected =================================*/

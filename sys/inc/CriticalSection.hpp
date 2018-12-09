@@ -12,17 +12,14 @@
 #ifndef CRITICAL_SECTION_HPP_
 #define CRITICAL_SECTION_HPP_
 
-#include <stdint.h>
-
-typedef uint32_t lock_t;
+#include "FreeRTOS.h"
+#include "task.h"
 
 class CriticalSection
 {
 public:
     CriticalSection(void);
     ~CriticalSection(void);
-private:
-    lock_t lock;
 };
 
 #endif /* CRITICAL_SECTION_HPP_ */

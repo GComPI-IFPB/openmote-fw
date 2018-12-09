@@ -18,6 +18,7 @@ class Scheduler
 {
 public:
     static void run();
+    static void yield();
     static void delay_ms(uint16_t ms);
 private:
 	Scheduler();

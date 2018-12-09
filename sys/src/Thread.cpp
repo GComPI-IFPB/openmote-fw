@@ -1,5 +1,5 @@
  /**
- * @file       Task.cpp
+ * @file       Thread.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       November, 2018
@@ -11,7 +11,7 @@
 
 /*================================ include ==================================*/
 
-#include "Task.hpp"
+#include "Thread.hpp"
 
 /*================================ define ===================================*/
 
@@ -23,21 +23,20 @@
 
 /*================================= public ==================================*/
 
-Task::Task(const char* const name, const uint16_t size, uint8_t priority, TaskFunction_t function, void * const parameters):
-  name_(name), priority_(priority), function_(function), parameters_(parameters)
+Thread::Thread(const char* const name, const uint16_t size, uint8_t priority):
+  name_(name), priority_(priority)
 {
-  xTaskCreate(Task::init, name_, size, this, priority_, &handle_);
+  xTaskCreate(Thread::init, name_, size, this, priority_, &handle_);
 }
 
-void Task::init(void * params)
+void Thread::init(void * params)
 {
   if (params != nullptr)
   {
-    Task* task = (Task *)params;
-    task->function_(task->parameters_);
+    Thread* task = (Thread *)params;
+    task->run();
   }
 }
-
 
 /*=============================== protected =================================*/
 

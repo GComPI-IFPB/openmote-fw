@@ -17,7 +17,7 @@
 
 #include "Uart.hpp"
 
-#include "CircularBuffer.hpp"
+#include "Buffer.hpp"
 #include "Hdlc.hpp"
 
 class Serial;
@@ -40,10 +40,10 @@ private:
     Uart& uart_;
 
     uint8_t receive_buffer_[256];
-    CircularBuffer rxBuffer_;
+    Buffer rxBuffer_;
 
     uint8_t transmit_buffer_[256];
-    CircularBuffer txBuffer_;
+    Buffer txBuffer_;
 
     Hdlc hdlc_;
 

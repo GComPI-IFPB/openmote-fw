@@ -32,18 +32,18 @@ Buffer::Buffer(uint8_t* buffer, uint32_t length):
 
 void Buffer::reset(void)
 {
-    // Try to acquire the mutex
+    /* Try to acquire the mutex */
     if (!rmutex_.take())
     {
         while(true);
     }
 
-    // Reset the circular buffer
+    /* Reset the circular buffer */
     head_ = buffer_;
     tail_ = buffer_;
     count_ = 0;
 
-    // Free the mutex
+    /* Free the mutex */
     rmutex_.give();
 }
 
@@ -51,16 +51,16 @@ bool Buffer::isEmpty(void)
 {
     bool status;
 
-    // Try to acquire the mutex
+    /* Try to acquire the mutex */
     if (!rmutex_.take())
     {
         while (true);
     }
 
-    // Get the status
+    /* Get the status */
     status = (count_ == 0);
 
-    // Free the mutex
+    /* Free the mutex */
     rmutex_.give();
 
     return status;
@@ -70,15 +70,16 @@ bool Buffer::isFull(void)
 {
     bool status;
 
+    /* Try to acquire the mutex */
     if (!rmutex_.take())
     {
         while (true);
     }
 
-    // Get the status
+    /* Get the status */
     status = (count_ == length_);
 
-    // Free the mutex
+    /* Free the mutex */
     rmutex_.give();
 
     return status;
@@ -88,15 +89,16 @@ uint32_t Buffer::getSize(void)
 {
     uint32_t count;
 
+    /* Try to acquire the mutex */
     if (!rmutex_.take())
     {
         while (true);
     }
 
-    // Copy the value
+    /* Copy the value */
     count = count_;
 
-    // Free the mutex
+    /* Free the mutex */
     rmutex_.give();
 
     return count;
@@ -104,31 +106,31 @@ uint32_t Buffer::getSize(void)
 
 bool Buffer::read(uint8_t* data)
 {
-    // Try to acquire the mutex
+    /* Try to acquire the mutex */
     if (!rmutex_.take())
     {
         while (true);
     }
 
-    // Check if buffer is empty
+    /* Check if buffer is empty */
     if (!isEmpty())
     {
-        // Read data in and count it
+        /* Read data in and count it */
         *data = *tail_++;
         count_ -= 1;
 
-        // Free the mutex
+        /* Free the mutex */
         rmutex_.give();
 
-        // Return success
+        /* Return success */
         return true;
     }
     else
     {
-        // Free the mutex
+        /* Free the mutex */
         rmutex_.give();
 
-        // Return error
+        /* Return error */
         return false;
     }
 }
@@ -137,10 +139,10 @@ bool Buffer::read(uint8_t* buffer, uint32_t length)
 {
     bool status = false;
 
-    // For each byte
+    /* For each byte */
     while (length--)
     {
-        // Try to read the byte
+        /* Try to read the byte */
         status = read(buffer++);
         if (!status)
         {
@@ -148,37 +150,37 @@ bool Buffer::read(uint8_t* buffer, uint32_t length)
         }
     }
 
-    // Return status
+    /* Return status */
     return status;
 }
 
 bool Buffer::write(uint8_t data)
 {
-    // Try to acquire the mutex
+    /* Free the mutex */
     if (!rmutex_.take())
     {
         while (true);
     }
 
-    // Check if buffer is full
+    /* Check if buffer is full */
     if (!isFull())
     {
-        // Write data in and count it
+        /* Write data in and count it */
         *head_++ = data;
         count_ += 1;
 
-        // Free the mutex
+        /* Free the mutex */
         rmutex_.give();
 
-        // Return success
+        /* Return success */
         return true;
     }
     else
     {
-        // Free the mutex
+        /* Free the mutex */
         rmutex_.give();
 
-        // Return error
+        /* Return error */
         return false;
     }
 }
@@ -187,10 +189,10 @@ bool Buffer::write(const uint8_t *data, uint32_t length)
 {
     bool status = false;
 
-    // For each byte
+    /* For each byte */
     while (length--)
     {
-        // Try to write the byte
+        /* Try to write the byte */
         status = write(*data++);
         if (!status)
         {
@@ -198,7 +200,7 @@ bool Buffer::write(const uint8_t *data, uint32_t length)
         }
     }
 
-    // Return status
+    /* Return status */
     return status;
 }
 

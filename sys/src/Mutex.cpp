@@ -25,64 +25,64 @@
 
 Mutex::Mutex()
 {
-    mutex_ = xSemaphoreCreateMutex();
-    if (mutex_ == NULL) {
-        while (true);
-    }
+  mutex_ = xSemaphoreCreateMutex();
+  if (mutex_ == NULL) {
+    while (true);
+  }
 }
 
 Mutex::~Mutex()
 {
-    vSemaphoreDelete(mutex_);
+  vSemaphoreDelete(mutex_);
 }
 
 bool Mutex::take(void)
 {
-    bool status = (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE);
-    return status;
+  bool status = (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE);
+  return status;
 }
 
 bool Mutex::take(uint32_t milliseconds)
 {
-    TickType_t timeout = milliseconds / portTICK_RATE_MS;
-    bool status = (xSemaphoreTake(mutex_, timeout) == pdTRUE);
-    return status;
+  TickType_t timeout = milliseconds / portTICK_RATE_MS;
+  bool status = (xSemaphoreTake(mutex_, timeout) == pdTRUE);
+  return status;
 }
 
 void Mutex::give(void)
 {
-    xSemaphoreGive(mutex_);
+  xSemaphoreGive(mutex_);
 }
 
 MutexRecursive::MutexRecursive()
 {
-    mutex_ = xSemaphoreCreateRecursiveMutex();
-    if (mutex_ == NULL) {
-        while (true);
-    }
+  mutex_ = xSemaphoreCreateRecursiveMutex();
+  if (mutex_ == NULL) {
+    while (true);
+  }
 }
 
 MutexRecursive::~MutexRecursive()
 {
-    vSemaphoreDelete(mutex_);
+  vSemaphoreDelete(mutex_);
 }
 
 bool MutexRecursive::take(void)
 {
-    bool status = (xSemaphoreTakeRecursive(mutex_, portMAX_DELAY) == pdTRUE);
-    return status;
+  bool status = (xSemaphoreTakeRecursive(mutex_, portMAX_DELAY) == pdTRUE);
+  return status;
 }
 
 bool MutexRecursive::take(uint32_t milliseconds)
 {
-    TickType_t timeout = milliseconds / portTICK_RATE_MS;
-    bool status = (xSemaphoreTakeRecursive(mutex_, timeout) == pdTRUE);
-    return status;
+  TickType_t timeout = milliseconds / portTICK_RATE_MS;
+  bool status = (xSemaphoreTakeRecursive(mutex_, timeout) == pdTRUE);
+  return status;
 }
 
 void MutexRecursive::give()
 {
-    xSemaphoreGiveRecursive(mutex_);
+  xSemaphoreGiveRecursive(mutex_);
 }
 
 /*=============================== protected =================================*/

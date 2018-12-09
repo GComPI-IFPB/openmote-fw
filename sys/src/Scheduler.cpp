@@ -32,12 +32,17 @@ Scheduler::Scheduler()
 
 void Scheduler::run(void)
 {
-    vTaskStartScheduler();
+  vTaskStartScheduler();
+}
+
+void Scheduler::yield(void)
+{
+  taskYIELD();
 }
 
 void Scheduler::delay_ms(uint16_t ms)
 {
-    vTaskDelay(ms / portTICK_RATE_MS);
+  vTaskDelay(ms / portTICK_RATE_MS);
 }
 
 /*=============================== protected =================================*/
