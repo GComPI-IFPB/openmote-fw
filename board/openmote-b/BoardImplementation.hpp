@@ -19,7 +19,6 @@
 #include "Aes.hpp"
 #include "Gpio.hpp"
 #include "I2c.hpp"
-#include "Platform.hpp"
 #include "Radio.hpp"
 #include "RadioTimer.hpp"
 #include "RandomNumberGenerator.hpp"
