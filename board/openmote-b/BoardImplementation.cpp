@@ -1,15 +1,17 @@
 /**
- * @file       Board.cpp
+ * @file       BoardImplementation.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2015
+ * @date       November, 2018
  * @brief
  *
- * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ * @copyright  Copyright 2018, OpenMote Technologies, S.L.
  *             This file is licensed under the GNU General Public License v2.
  */
 
 /*================================ include ==================================*/
+
+#include "Board.hpp"
 
 #include "Aes.hpp"
 #include "Gpio.hpp"
@@ -20,22 +22,21 @@
 #include "RandomNumberGenerator.hpp"
 #include "SleepTimer.hpp"
 #include "Spi.hpp"
-#include "TemperatureSensor.hpp"
 #include "Timer.hpp"
 #include "Uart.hpp"
 #include "Watchdog.hpp"
 
+#include "TemperatureSensor.hpp"
+
 #include "at86rf215/At86rf215.hpp"
 
-#include "cc2538_include.h"
+#include "platform_includes.h"
 #include "platform_types.h"
 
 /*================================ define ===================================*/
 
-#define BOARD_HAS_32MHz_XTAL    ( TRUE )
-#define BOARD_USE_32MHz_XTAL    ( TRUE )
-#define BOARD_HAS_32kHz_XTAL    ( TRUE )
-#define BOARD_USE_32kHz_XTAL    ( TRUE )
+#define BOARD_USE_32MHZ_XTAL    ( true )
+#define BOARD_USE_32KHZ_XTAL    ( true )
 #define SYSTEM_CLOCK_DIVIDER    ( SYS_CTRL_SYSDIV_32MHZ )
 #define PERIPH_CLOCK_DIVIDER    ( SYS_CTRL_SYSDIV_16MHZ )
 #define WATCHDOG_INTERVAL       ( WATCHDOG_INTERVAL_32768 )
@@ -206,11 +207,14 @@
 
 /*=============================== variables =================================*/
 
-// Board management
-Board board;
+/* Board management */
+BoardParams board_parms = {BOARD_USE_32MHZ_XTAL, BOARD_USE_32KHZ_XTAL, SYSTEM_CLOCK_DIVIDER, PERIPH_CLOCK_DIVIDER};
+BoardImplementation board;
+
+/* Watchdog */
 Watchdog watchdog(WATCHDOG_INTERVAL);
 
-// Timers
+/* Timers */
 TimerConfig timer0a_cfg = {TIMER0A_PERIPHERAL, TIMER0A_BASE, TIMER0A_SOURCE, TIMER0A_CONFIG, TIMER0A_INTERRUPT, TIMER0A_INTERRUPT_MODE};
 Timer timer0a(timer0a_cfg);
 TimerConfig timer0b_cfg = {TIMER0B_PERIPHERAL, TIMER0B_BASE, TIMER0B_SOURCE, TIMER0B_CONFIG, TIMER0B_INTERRUPT, TIMER0B_INTERRUPT_MODE};
@@ -231,7 +235,7 @@ Timer timer3a(timer3a_cfg);
 TimerConfig timer3b_cfg = {TIMER3B_PERIPHERAL, TIMER3B_BASE, TIMER3B_SOURCE, TIMER3B_CONFIG, TIMER3B_INTERRUPT, TIMER3B_INTERRUPT_MODE};
 Timer timer3b(timer3b_cfg);
 
-// Leds
+/* LEDs */
 GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, 0, 0, 1};
 GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 1};
 GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN, 0, 0, 1};
@@ -241,7 +245,7 @@ GpioOut led_orange(led_orange_cfg);
 GpioOut led_red(led_red_cfg);
 GpioOut led_yellow(led_yellow_cfg);
 
-// PWM Leds
+/* LEDs with PWM */
 // GpioConfig led_green_cfg = {LED_GREEN_PORT, LED_GREEN_PIN, LED_GREEN_IOC, 0, 1};
 // GpioConfig led_orange_cfg = {LED_ORANGE_PORT, LED_ORANGE_PIN, LED_ORANGE_IOC, 0, 1};
 // GpioConfig led_red_cfg = {LED_RED_PORT, LED_RED_PIN, LED_RED_IOC, 0, 1};
@@ -251,7 +255,7 @@ GpioOut led_yellow(led_yellow_cfg);
 // GpioPwm led_red(led_red_cfg, timer2a_cfg);
 // GpioPwm led_yellow(led_yellow_cfg, timer3a_cfg);
 
-// Debug 
+/* Debug pins */ 
 // GpioConfig debug0_cfg = {DEBUG0_PORT, DEBUG0_PIN, 0, 0, 0};
 // GpioConfig debug1_cfg = {DEBUG1_PORT, DEBUG1_PIN, 0, 0, 0};
 // GpioConfig debug2_cfg = {DEBUG2_PORT, DEBUG2_PIN, 0, 0, 0};
@@ -261,32 +265,32 @@ GpioOut led_yellow(led_yellow_cfg);
 // GpioOut debug2(debug2_cfg);
 // GpioOut debug3(debug3_cfg);
 
-// Adc 
+/* Adc */ 
 // GpioConfig gpio_adc_cfg = {DEBUG5_PORT, DEBUG5_PIN, 0, 0, 0};
 // AdcConfig adc_cfg = {DEBUG5_ADC_RES, DEBUG5_ADC_REF, DEBUG5_ADC_CHAN};
 // GpioAdc gpio_adc(gpio_adc_cfg, adc_cfg);
 
-// Button
+/* Buttons */
 GpioConfig button_user_cfg = {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0};
-GpioIn button_user(button_user_cfg);
+GpioInPow button_user(button_user_cfg);
 
-// Bootload
-GpioConfig gpio_boot_cfg = {BOOTLOAD_PORT, BOOTLOAD_PIN, 0, 0, 0};
-GpioIn gpio_boot(gpio_boot_cfg);
+/* Bootload */
+// GpioConfig gpio_boot_cfg = {BOOTLOAD_PORT, BOOTLOAD_PIN, 0, 0, 0};
+// GpioIn gpio_boot(gpio_boot_cfg);
 
-// Antenna
+/* Antenna pins */
 GpioConfig antenna_at86rf215_cfg = {ANTENNA_AT86RF215_PORT, ANTENNA_AT86RF215_PIN, 0, 0, 0};
 GpioConfig antenna_cc2538_cfg = {ANTENNA_CC2538_PORT, ANTENNA_CC2538_PIN, 0, 0, 0};
 GpioOut antenna_at86rf215(antenna_at86rf215_cfg);
 GpioOut antenna_cc2538(antenna_cc2538_cfg);
 
-// SleepTimer
+/* SleepTimer */
 SleepTimer sleepTimer(SLEEP_TIMER_INTERRUPT);
 
-// RadioTimer
+/* RadioTimer */
 RadioTimer radioTimer(RADIO_TIMER_INTERRUPT);
 
-// I2C peripheral
+/* I2C peripheral */
 GpioConfig i2c_scl_cfg = {I2C_SCL_BASE, I2C_SCL_PIN, 0, 0, 0};
 GpioConfig i2c_sda_cfg = {I2C_SDA_BASE, I2C_SDA_PIN, 0, 0, 0};
 I2cConfig i2c_cfg      = {I2C_PERIPHERAL, I2C_BAUDRATE};
@@ -294,7 +298,7 @@ Gpio i2c_scl(i2c_scl_cfg);
 Gpio i2c_sda(i2c_sda_cfg);
 I2c i2c(i2c_scl, i2c_sda, i2c_cfg);
 
-// SPI peripheral
+/* SPI peripheral */
 GpioConfig spi_miso_cfg = {SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC, 0, 0};
 GpioConfig spi_mosi_cfg = {SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC, 0, 0};
 GpioConfig spi_clk_cfg  = {SPI_CLK_BASE, SPI_CLK_PIN, SPI_CLK_IOC, 0, 0};
@@ -304,7 +308,7 @@ Gpio spi_mosi(spi_mosi_cfg);
 Gpio spi_clk(spi_clk_cfg);
 Spi spi(spi_miso, spi_mosi, spi_clk, spi_cfg);
 
-// UART peripheral
+/* UART peripheral */
 GpioConfig uart_rx_cfg = {UART_RX_PORT, UART_RX_PIN, UART_RX_IOC, 0, 0};
 GpioConfig uart_tx_cfg = {UART_TX_PORT, UART_TX_PIN, UART_TX_IOC, 0, 0};
 UartConfig uart_cfg = {UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INT, UART_BAUDRATE, UART_MODE};
@@ -312,19 +316,19 @@ Gpio uart_rx(uart_rx_cfg);
 Gpio uart_tx(uart_tx_cfg);
 Uart uart(uart_rx, uart_tx, uart_cfg);
 
-// Random Number Generator peripheral
+/* Random Number Generator */
 RandomNumberGenerator rng;
 
-// IEEE 802.15.4 radio
+/* IEEE 802.15.4 radio */
 Radio radio;
 
-// AES module
+/* AES module */
 Aes aes;
 
-// CC2538 temperature sensor
+/* CC2538 temperature sensor */
 TemperatureSensor temp;
 
-// AT86RF215 radio transceiver
+/* AT86RF215 radio transceiver */
 GpioConfig at86rf215_pwr_cfg = {AT86RF215_PWR_BASE, AT86RF215_PWR_PIN, 0, 0, 0};
 GpioConfig at86rf215_rst_cfg = {AT86RF215_RST_BASE, AT86RF215_RST_PIN, 0, 0, 0};
 GpioConfig at86rf215_csn_cfg = {AT86RF215_CSn_BASE, AT86RF215_CSn_PIN, 0, 0, 0};
@@ -339,14 +343,21 @@ At86rf215 at86rf215(spi, at86rf215_pwr, at86rf215_rst, at86rf215_csn, at86rf215_
 
 /*================================= public ==================================*/
 
-void Board::init(void) {
-	led_green.off();
-	led_yellow.off();
-	led_orange.off();
-	led_red.off();
+/* Each BoardImplementation needs to provide its own init function */
+void BoardImplementation::init(void)
+{
+  /* Initialize basic board parameters */
+  Board::init(&board_parms); 
 
-	antenna_at86rf215.high();
-	antenna_cc2538.low();
+  /* Make sure LEDs are off */
+  led_green.off();
+  led_yellow.off();
+  led_orange.off();
+  led_red.off();
+
+  /* Ensure 2.4 GHz antenna for CC2538 is used */
+  antenna_at86rf215.high();
+  antenna_cc2538.low();
 }
 
 /*================================ private ==================================*/

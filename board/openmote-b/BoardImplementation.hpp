@@ -1,18 +1,20 @@
 /**
- * @file       Board.hpp
+ * @file       BoardImplementation.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2015
+ * @date       November, 2018
  * @brief
  *
- * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ * @copyright  Copyright 2018, OpenMote Technologies, S.L.
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef BOARD_HPP_
-#define BOARD_HPP_
+#ifndef BOARD_IMPLEMENTATION_HPP_
+#define BOARD_IMPLEMENTATION_HPP_
 
 /*================================ include ==================================*/
+
+#include "Board.hpp"
 
 #include "Aes.hpp"
 #include "Gpio.hpp"
@@ -23,9 +25,10 @@
 #include "RandomNumberGenerator.hpp"
 #include "SleepTimer.hpp"
 #include "Spi.hpp"
-#include "TemperatureSensor.hpp"
 #include "Uart.hpp"
 #include "Watchdog.hpp"
+
+#include "TemperatureSensor.hpp"
 
 #include "at86rf215/At86rf215.hpp"
 
@@ -35,12 +38,10 @@
 
 /*=============================== variables =================================*/
 
-// Board management
-extern Board board;
-extern Watchdog watchdog;
-extern RandomNumberGenerator rng;
+/* Board management */
+extern BoardImplementation board;
 
-// Leds
+/* LEDs */
 extern GpioOut led_green;
 extern GpioOut led_orange;
 extern GpioOut led_red;
@@ -51,19 +52,19 @@ extern GpioOut led_yellow;
 // extern GpioPwm led_red;
 // extern GpioPwm led_yellow;
 
-// Debug
+/* Debug pins */
 // extern GpioOut debug0;
 // extern GpioOut debug1;
 // extern GpioOut debug2;
 // extern GpioOut debug3;
 
-// Adc
+/* Adc */
 extern GpioAdc gpio_adc; 
 
-// Button
+/* Buttons */
 extern GpioInPow button_user;
 
-// Timer
+/* Timers */
 extern Timer timer0a;
 extern Timer timer0b;
 extern Timer timer1a;
@@ -73,38 +74,44 @@ extern Timer timer2b;
 extern Timer timer3a;
 extern Timer timer3b;
 
-// SleepTimer
+/* SleepTimer */
 extern SleepTimer sleepTimer;
 
-// RadioTimer
+/* RadioTimer */
 extern RadioTimer radioTimer;
 
 // I2C peripheral
 extern I2c i2c;
 
-// SPI peripheral
+/* SPI peripheral */
 extern Spi spi;
 
-// UART peripheral
+/* UART peripheral */
 extern Uart uart;
 
-// IEEE 802.15.4 radio
+/* IEEE 802.15.4 radio */
 extern Radio radio;
 
-// AES module
+/* AES module */
 extern Aes aes;
 
-// CC2538 Temperature sensor
+/* Watchdog */
+extern Watchdog watchdog;
+
+/* Random Number Generator */
+extern RandomNumberGenerator rng;
+
+/* CC2538 Temperature sensor */
 extern TemperatureSensor temp;
 
-// AT86RF215 radio transceiver
+/* AT86RF215 radio transceiver */
 extern GpioOut at86rf215_pwr;
 extern GpioOut at86rf215_rst;
 extern GpioOut at86rf215_csn;
 extern GpioIn at86rf215_irq;
 extern At86rf215 at86rf215;
 
-// Antenna switch
+/* Antenna switch */
 extern GpioOut antenna_at86rf215;
 extern GpioOut antenna_cc2538;
 
@@ -114,4 +121,4 @@ extern GpioOut antenna_cc2538;
 
 /*================================ private ==================================*/
 
-#endif /* BOARD_HPP_ */
+#endif /* BOARD_IMPLEMENTATION_HPP_ */
