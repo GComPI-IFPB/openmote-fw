@@ -1,7 +1,7 @@
 ###############################################################################
 
 # Project name and files to compile
-PROJECT_NAME = libcc2538
+PROJECT_NAME = driverlib
 PROJECT_HOME = .
 
 ###############################################################################
@@ -37,8 +37,8 @@ MAKEFLAGS = -j1
 ###############################################################################
 
 # Define the Platform path
-PLATFORM_SRC = $(PROJECT_HOME)/src
-PLATFORM_INC = $(PROJECT_HOME)/inc
+PLATFORM_SRC = $(PROJECT_HOME)/../src
+PLATFORM_INC = $(PROJECT_HOME)/../inc
 
 # Append to the include path
 INC_PATH += -I $(PLATFORM_SRC)
@@ -71,7 +71,7 @@ BIN_TARGET = $(addprefix $(BIN_PATH)/, $(BIN_FILES))
 .DEFAULT_GOAL = library
 
 .PHONY: library
-library: pre build post move
+library: pre build post
 
 pre:
 	@echo "Building '$(PROJECT_NAME)' library..."
@@ -81,10 +81,6 @@ build: $(BIN_TARGET)
 
 post: $(PROJECT_NAME).a
 	@echo "Archiving '$(PROJECT_NAME)' done."
-
-move: $(PROJECT_NAME).a
-	@mv $(PROJECT_NAME).a ../
-	@rm -rf $(BIN_PATH)
 
 .PHONY: clean
 clean:
