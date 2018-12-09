@@ -2,18 +2,19 @@
  * @file       GpioPwm.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2015
+ * @date       November, 2018
  * @brief
  *
- * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ * @copyright  Copyright 2018, OpenMote Technologies, S.L.
  *             This file is licensed under the GNU General Public License v2.
  */
 
 /*================================ include ==================================*/
 
-#include <Gpio.hpp>
-#include <InterruptHandler.hpp>
-#include "cc2538_include.h"
+#include "Gpio.hpp"
+#include "InterruptHandler.hpp"
+
+#include "platform_includes.h"
 #include "platform_types.h"
 
 /*================================ define ===================================*/
@@ -27,22 +28,21 @@
 /*================================= public ==================================*/
 
 GpioPwm::GpioPwm(GpioConfig& gpioConfig, TimerConfig& timerConfig):
-    GpioOut(gpioConfig), Timer(timerConfig)
+  GpioOut(gpioConfig), Timer(timerConfig)
 {
-
 }
 
 void GpioPwm::init(bool level)
 {
-    Timer::init();
+  Timer::init();
 
-    TimerControlLevel(Timer::config_.base, Timer::config_.source, level);
+  TimerControlLevel(Timer::config_.base, Timer::config_.source, level);
 
-    IOCPinConfigPeriphOutput(GpioOut::config_.port, GpioOut::config_.pin, GpioOut::config_.ioc);
+  IOCPinConfigPeriphOutput(GpioOut::config_.port, GpioOut::config_.pin, GpioOut::config_.ioc);
 
-    GPIOPinTypeTimer(GpioOut::config_.port, GpioOut::config_.pin);
+  GPIOPinTypeTimer(GpioOut::config_.port, GpioOut::config_.pin);
 
-    IOCPadConfigSet(GpioOut::config_.port, GpioOut::config_.pin, IOC_OVERRIDE_OE);
+  IOCPadConfigSet(GpioOut::config_.port, GpioOut::config_.pin, IOC_OVERRIDE_OE);
 }
 
 void GpioPwm::setCallback(Callback* callback)
@@ -52,7 +52,7 @@ void GpioPwm::setCallback(Callback* callback)
 
 void GpioPwm::clearCallback(void)
 {
-    Timer::clearCallback();
+  Timer::clearCallback();
 }
 
 void GpioPwm::enableInterrupts(void)
@@ -68,7 +68,7 @@ void GpioPwm::disableInterrupts(void)
 void GpioPwm::setFrequency(uint16_t frequency)
 {
 	Timer::setPrescaler(1);
-    Timer::setFrequency(frequency);
+  Timer::setFrequency(frequency);
 }
 
 void GpioPwm::setDutyCycle(uint16_t dutyCycle)

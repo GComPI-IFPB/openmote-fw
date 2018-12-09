@@ -1,17 +1,17 @@
 /**
- * @file       Sha256.cpp
+ * @file       platform_sha256.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2016
+ * @date       November, 2018
  * @brief
  *
- * @copyright  Copyright 2016, OpenMote Technologies, S.L.
+ * @copyright  Copyright 2018, OpenMote Technologies, S.L.
  *             This file is licensed under the GNU General Public License v2.
  */
 
 /*================================ include ==================================*/
 
-#include <Sha256.hpp>
+#include "Sha256.hpp"
 
 /*================================ define ===================================*/
 

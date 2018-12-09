@@ -17,11 +17,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "cc2538_include.h"
+#include "platform_includes.h"
 
 /*================================ define ===================================*/
 
 /*================================ typedef ==================================*/
+#ifdef __cplusplus
 
 /**
  * SleepMode_None:   ~2 mA,   0 + 0 us,   wake-up from any interrupt source (e.g. UART)
@@ -88,6 +89,15 @@ struct UartConfig {
 	uint32_t baudrate;
 	uint32_t mode;
 };
+
+#endif 
+
+typedef struct {
+  bool bExternalOsc32k;
+  bool bInternalOsc32M;
+  uint32_t SysClkDivider;
+  uint32_t IOClkDivider;
+} BoardParams;
 
 /*=============================== variables =================================*/
 

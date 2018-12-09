@@ -1,11 +1,11 @@
 /**
- * @file       cc2538_startup.c
+ * @file       cc2538_startup_gcc.c
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2015
+ * @date       October, 2018
  * @brief
  *
- * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ * @copyright  Copyright 2018, OpenMote Technologies, S.L.
  *             This file is licensed under the GNU General Public License v2.
  */
 

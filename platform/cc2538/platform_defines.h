@@ -1,5 +1,5 @@
 /**
- * @file       cc2538_include.h
+ * @file       platform_defines.h
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,8 +9,8 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef CC2538_DEFINES_H_
-#define CC2538_DEFINES_H_
+#ifndef PLATFORM_DEFINES_H_
+#define PLATFORM_DEFINES_H_
 
 /*================================ include ==================================*/
 
@@ -83,4 +83,4 @@
 
 /*================================ private ==================================*/
 
-#endif  /* CC2538_DEFINES_H_ */
+#endif  /* PLATFORM_DEFINES_H_ */

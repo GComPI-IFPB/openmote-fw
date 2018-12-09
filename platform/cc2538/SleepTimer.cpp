@@ -1,19 +1,20 @@
 /**
- * @file       SleepTimer.cpp
+ * @file       platform_sleep_timer.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2015
+ * @date       November, 2018
  * @brief
  *
- * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ * @copyright  Copyright 2018, OpenMote Technologies, S.L.
  *             This file is licensed under the GNU General Public License v2.
  */
 
 /*================================ include ==================================*/
 
-#include <InterruptHandler.hpp>
-#include <SleepTimer.hpp>
-#include "cc2538_include.h"
+#include "InterruptHandler.hpp"
+#include "SleepTimer.hpp"
+
+#include "platform_includes.h"
 
 /*================================ define ===================================*/
 
@@ -32,18 +33,18 @@ SleepTimer::SleepTimer(uint32_t interrupt):
 
 void SleepTimer::start(uint32_t counts)
 {
-    uint32_t current;
+  uint32_t current;
 
-    // Get current counter
-    current = SleepModeTimerCountGet();
+  /* Get current counter */
+  current = SleepModeTimerCountGet();
 
-    // Set future timeout
-    SleepModeTimerCompareSet(current + counts);
+  /* Set future timeout */
+  SleepModeTimerCompareSet(current + counts);
 }
 
 void SleepTimer::stop(void)
 {
-    // Nothing to do here, SleepTimer cannot be stopped
+  /* Nothing to do here, SleepTimer cannot be stopped */
 }
 
 uint32_t SleepTimer::sleep(void)
@@ -53,52 +54,51 @@ uint32_t SleepTimer::sleep(void)
 
 void SleepTimer::wakeup(uint32_t ticks)
 {
-
 }
 
 uint32_t SleepTimer::getCounter(void)
 {
-    // Get current counter
-    return SleepModeTimerCountGet();
+  /* Get current counter */
+  return SleepModeTimerCountGet();
 }
 
 bool SleepTimer::isExpired(uint32_t future)
 {
-    uint32_t current;
-    int32_t delta;
+  uint32_t current;
+  int32_t delta;
 
-    // Get current counter
-    current = SleepModeTimerCountGet();
+  /* Get current counter */
+  current = SleepModeTimerCountGet();
 
-    // Calculate delta
-    delta = (int32_t) (current - future);
+  /* Calculate delta */
+  delta = (int32_t) (current - future);
 
-    // Return true if expired
-    return (delta < 0);
+  /* Return true if expired */
+  return (delta < 0);
 }
 
 void SleepTimer::setCallback(Callback* callback)
 {
-    callback_ = callback;
+  callback_ = callback;
 }
 
 void SleepTimer::clearCallback(void)
 {
-    callback_ = nullptr;
+  callback_ = nullptr;
 }
 
 void SleepTimer::enableInterrupts(void)
 {
-    InterruptHandler::getInstance().setInterruptHandler(this);
+  InterruptHandler::getInstance().setInterruptHandler(this);
 
-    IntEnable(interrupt_);
+  IntEnable(interrupt_);
 }
 
 void SleepTimer::disableInterrupts(void)
 {
-    IntDisable(interrupt_);
+  IntDisable(interrupt_);
 
-    InterruptHandler::getInstance().clearInterruptHandler(this);
+  InterruptHandler::getInstance().clearInterruptHandler(this);
 }
 
 /*=============================== protected =================================*/
@@ -107,8 +107,8 @@ void SleepTimer::disableInterrupts(void)
 
 void SleepTimer::interruptHandler(void)
 {
-    if (callback_ != nullptr)
-    {
-        callback_->execute();
-    }
+  if (callback_ != nullptr)
+  {
+    callback_->execute();
+  }
 }

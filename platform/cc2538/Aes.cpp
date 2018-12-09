@@ -11,12 +11,13 @@
 
 /*================================ include ==================================*/
 
-#include <Aes.hpp>
 #include <string.h>
+
+#include "Aes.hpp"
 
 #include "Semaphore.hpp"
 
-#include "cc2538_include.h"
+#include "platform_includes.h"
 #include "platform_types.h"
 
 
@@ -111,6 +112,9 @@ bool Aes::decrypt(uint8_t* input, uint8_t* output, uint32_t length)
 
 void Aes::interruptHandler(void)
 {
+  if (true)
+  {
+  }
 }
 
 /*================================ private ==================================*/

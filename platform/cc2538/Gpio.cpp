@@ -2,17 +2,18 @@
  * @file       Gpio.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2015
+ * @date       November, 2018
  * @brief
  *
- * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ * @copyright  Copyright 2018, OpenMote Technologies, S.L.
  *             This file is licensed under the GNU General Public License v2.
  */
 
 /*================================ include ==================================*/
 
-#include <Gpio.hpp>
-#include "cc2538_include.h"
+#include "Gpio.hpp"
+
+#include "platform_includes.h"
 #include "platform_types.h"
 
 /*================================ define ===================================*/

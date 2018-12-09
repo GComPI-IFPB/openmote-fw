@@ -1,20 +1,21 @@
 /**
- * @file       Timer.cpp
+ * @file       platform_timer.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2015
+ * @date       November, 2018
  * @brief
  *
- * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ * @copyright  Copyright 2018, OpenMote Technologies, S.L.
  *             This file is licensed under the GNU General Public License v2.
  */
 
 /*================================ include ==================================*/
 
-#include <Board.hpp>
-#include <InterruptHandler.hpp>
-#include <Timer.hpp>
-#include "cc2538_include.h"
+#include "BoardImplementation.hpp"
+#include "InterruptHandler.hpp"
+#include "Timer.hpp"
+
+#include "platform_includes.h"
 #include "platform_types.h"
 
 /*================================ define ===================================*/
@@ -24,8 +25,6 @@
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
-
-extern Board board;
 
 /*=============================== prototypes ================================*/
 
@@ -38,18 +37,18 @@ Timer::Timer(TimerConfig& config):
 
 void Timer::init(void)
 {
-    // Disable peripheral previous to configuring it
+    /* Disable peripheral previous to configuring it */
     TimerDisable(config_.base, config_.source);
 
-    // Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3)
+    /* Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3) */
     SysCtrlPeripheralEnable(config_.peripheral);
     SysCtrlPeripheralSleepEnable(config_.peripheral);
     SysCtrlPeripheralDeepSleepDisable(config_.peripheral);
 
-    // Configure the peripheral
+    /* Configure the peripheral */
     TimerConfigure(config_.base, config_.config);
 
-    // Set the prescaler
+    /* Set the prescaler */
     setPrescaler(prescaler_);
 }
 
@@ -67,7 +66,7 @@ void Timer::setPrescaler(uint32_t prescaler)
 
     prescaler_ = prescaler;
 
-    // Configure the prescaler
+    /* Configure the prescaler */
     TimerPrescaleSet(config_.base, config_.source, prescaler_);
 }
 
@@ -112,25 +111,25 @@ void Timer::enableInterrupts(void)
 {
     InterruptHandler::getInstance().setInterruptHandler(this);
 
-    // Clear Timer interrupts
+    /* Clear Timer interrupts */
     // TimerIntClear(config_.base, config_.interrupt_mode);
 
-    // Enable Timer interrupts
+    /* Enable Timer interrupts */
     TimerIntEnable(config_.base, config_.interrupt_mode);
 
-    // Set the Timer interrupt priority
+    /* Set the Timer interrupt priority */
     // IntPrioritySet(config_.interrupt, (7 << 5));
 
-    // Enable the Timer interrupt
+    /* Enable the Timer interrupt */
     IntEnable(config_.interrupt);
 }
 
 void Timer::disableInterrupts(void)
 {
-    // Diisable Timer interrupts
+    /* Disable Timer interrupts */
     TimerIntDisable(config_.base, config_.interrupt_mode);
 
-    // Disable the Timer interrupt
+    /* Disable the Timer interrupt */
     IntDisable(config_.interrupt);
 }
 

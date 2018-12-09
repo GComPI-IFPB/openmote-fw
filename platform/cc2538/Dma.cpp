@@ -1,5 +1,5 @@
 /**
- * @file       platform_systick.cpp
+ * @file       Dma.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       November, 2018
@@ -11,10 +11,12 @@
 
 /*================================ include ==================================*/
 
-#include "InterruptHandler.hpp"
-#include "SysTick.hpp"
+#include "Board.hpp"
+#include "Gpio.hpp"
+#include "Dma.hpp"
 
 #include "platform_includes.h"
+#include "platform_types.h"
 
 /*================================ define ===================================*/
 
@@ -22,61 +24,21 @@
 
 /*=============================== variables =================================*/
 
+#pragma data_alignment=1024
+unsigned char ucDMAControlTable[1024];
+
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/
 
-SysTick::SysTick(uint32_t period):
-  period_(period)
-{
+Dma::Dma()
+{  
 }
 
-void SysTick::init(void)
+void Dma::init(void)
 {
-  SysTickPeriodSet(period_);
-}
-
-void SysTick::start(void)
-{
-  SysTickEnable();
-}
-
-void SysTick::stop(void)
-{
-  SysTickDisable();
-}
-
-void SysTick::setCallback(Callback* callback)
-{
-  callback_ = callback;
-}
-
-void SysTick::clearCallback(void)
-{
-  callback_ = nullptr;
-}
-
-void SysTick::enableInterrupts(void)
-{
-  InterruptHandler::getInstance().setInterruptHandler(this);
-
-  /* Enable SysTick interrupts */
-  SysTickIntEnable();
-}
-
-void SysTick::disableInterrupts(void)
-{
-  SysTickIntDisable();
 }
 
 /*=============================== protected =================================*/
-
-void SysTick::interruptHandler(void)
-{
-  if (callback_ != nullptr)
-  {
-    callback_->execute();
-  }
-}
 
 /*================================ private ==================================*/
