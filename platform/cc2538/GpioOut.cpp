@@ -32,14 +32,17 @@ GpioOut::GpioOut(GpioConfig& config):
   /* Set the pin as output */
   GPIOPinTypeGPIOOutput(config_.port, config_.pin);
 
+  /* By default the pin is off */
   off();
 }
 
 void GpioOut::on(void)
 {
   if (config_.invert) {
+    /* Write a zero to set pin high */
     GPIOPinWrite(config_.port, config_.pin, 0);
   } else {
+    /* Write a one to set pin high */
     GPIOPinWrite(config_.port, config_.pin, config_.pin);
   }
 }
@@ -47,8 +50,10 @@ void GpioOut::on(void)
 void GpioOut::off(void)
 {
   if (config_.invert) {
+    /* Write a one to set pin off */
     GPIOPinWrite(config_.port, config_.pin, config_.pin);
   } else {
+    /* Write a zero to set pin off */
     GPIOPinWrite(config_.port, config_.pin, 0);
   }
 }
@@ -67,11 +72,13 @@ void GpioOut::toggle(void)
 
 void GpioOut::high(void)
 {
+  /* Write a one to set pin high */
   GPIOPinWrite(config_.port, config_.pin, config_.pin);
 }
 
 void GpioOut::low(void)
 {
+  /* Write a zero to set pin low */
   GPIOPinWrite(config_.port, config_.pin, 0);
 }
 

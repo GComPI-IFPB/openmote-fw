@@ -55,7 +55,7 @@ Board::Board():
 
 void Board::init(BoardParams* params)
 { 
-  /* Configure the 32 kHz clock pins, PD6 and PD7, for crystal operation */
+  /* Configure the 32 kHz clock pins (PD6, PD7) for crystal operation */
   GPIODirModeSet(GPIO_D_BASE, GPIO_PIN_6, GPIO_DIR_MODE_IN);
   GPIODirModeSet(GPIO_D_BASE, GPIO_PIN_7, GPIO_DIR_MODE_IN);
   IOCPadConfigSet(GPIO_D_BASE, GPIO_PIN_6, IOC_OVERRIDE_ANA);
@@ -74,7 +74,7 @@ void Board::init(BoardParams* params)
       ;
   }
 
-  /* If using the 32.768 kHz oscillator wait until it becomes stable */
+  /* If using the 32 kHz oscillator wait until it becomes stable */
   if (params->bExternalOsc32k == true)
   {
     while(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_SYNC_32K)
@@ -92,22 +92,26 @@ void Board::reset(void)
 
 uint32_t Board::getClock(void)
 {
+  /* Return the current CPU clock */
   return SysCtrlClockGet();
 }
 
 void Board::setSleepMode(SleepMode sleepMode)
 {
-   sleepMode_ = sleepMode;
+  /* Set the current sleep mode */
+  sleepMode_ = sleepMode;
 }
 
 void Board::sleep(void)
 {
   if (sleepMode_ == SleepMode_None)
   {
+    /* Put the board to sleep */
     SysCtrlSleep();
   }
   else
   {
+    /* Put the board to deep sleep */
     SysCtrlPowerModeSet(sleepMode_);
     SysCtrlDeepSleep();
   }
@@ -118,7 +122,7 @@ void Board::wakeup(void)
   /* Wake-up peripherals */
   if (sleepMode_ != SleepMode_None)
   {
-    
+    /* To-Do */
   }
 }
 
@@ -157,24 +161,28 @@ bool Board::isExpiredTicks(uint32_t future)
 
 void Board::delayMilliseconds(uint32_t milliseconds)
 {
-  uint32_t future, current;
+  uint32_t current, timeout;
 
+  /* Get the current number of ticks */
   current = getCurrentTicks();
-  future = current + 32 * milliseconds;
+  
+  /* Calculate the time in the future */
+  timeout = current + Board::BOARD_TICKS_PER_US * milliseconds;
 
-  while(!isExpiredTicks(future))
+  /* Active-wait until we reach the timeout */
+  while(!isExpiredTicks(timeout))
       ;
 }
 
 void Board::enableFlashErase(void)
 {
-  uint32_t delayTicks = BOARD_BUTTON_DELAY_TICKS;
+  uint32_t timeout;
 
   /* Calculate timeout */
-  delayTicks += getCurrentTicks();
+  timeout = BOARD_BUTTON_DELAY_TICKS + getCurrentTicks();
 
-  /* Wait until timeout */
-  while (!isExpiredTicks(delayTicks));
+  /* Active-wait until we reach the timeout */
+  while (!isExpiredTicks(timeout));
 
   /* Set the callback and enable interrupt */
   button_user.setCallback(&flashEraseCallback_);
