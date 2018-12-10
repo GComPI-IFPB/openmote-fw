@@ -22,11 +22,11 @@ OBJSIZE = arm-none-eabi-size
 CFLAGS += -mthumb -mcpu=cortex-m3 -mlittle-endian
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fshort-enums -fomit-frame-pointer
-CFLAGS += -std=gnu99
+CFLAGS += -std=c99
 CFLAGS += -Wall -pedantic -Wstrict-prototypes
-CFLAGS += -O0
+CFLAGS += -Os
 CFLAGS += -g -ggdb
-CFLAGS += -DNO_CLOCK_DIVIDER_RESTORE
+# CFLAGS += -DNO_CLOCK_DIVIDER_RESTORE
 
 # C archiver flags
 ARFLAGS = r
@@ -50,18 +50,21 @@ VPATH += $(PLATFORM_SRC) $(PLATFORM_INC)
 ###############################################################################
 
 # Include the Makefiles in the various subdirectories in the current folder
-include $(PLATFORM_SRC)/Makefile.include
+# include $(PLATFORM_SRC)/Makefile.include
+SRC_FILES := $(shell find $(PLATFORM_SRC) -name '*.c')
 
 ###############################################################################
 
 # Define the name and path where the temporary object files are stored
 BIN_PATH = bin
 
+TMP_FILES = $(notdir ${SRC_FILES})
+
 # Coverts the source files (c and cpp) to object files (o) to be used as targets
-TMP_FILES += $(patsubst %.c, %.o, ${SRC_FILES})
+TMP_FILES2 = $(patsubst %.c, %.o, ${TMP_FILES})
 
 # Filters out the source files (c and cpp) from the object files (o) to be compiled
-BIN_FILES = $(filter-out %.c %.h, $(TMP_FILES))
+BIN_FILES = $(filter-out %.c %.h, $(TMP_FILES2))
 
 # Adds the path to where the object files need to be stored
 BIN_TARGET = $(addprefix $(BIN_PATH)/, $(BIN_FILES))
