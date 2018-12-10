@@ -11,6 +11,7 @@
 
 /*================================ include ==================================*/
 
+#include "Scheduler.hpp"
 #include "Task.hpp"
 
 #include "Bme280.hpp"
@@ -34,7 +35,6 @@ Bme280::Bme280(I2c& i2c, uint8_t address):
 
 bool Bme280::init(void)
 {
-    struct bme280_settings settings;
     uint8_t settings_sel;
     int8_t result;
 
@@ -188,5 +188,5 @@ error:
 
 void Bme280::delay_ms(uint16_t ms)
 {
-    Task::delay(ms);
+    Scheduler::delay_ms(ms);
 }
