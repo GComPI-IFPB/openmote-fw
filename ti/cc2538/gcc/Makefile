@@ -1,7 +1,7 @@
 ###############################################################################
 
 # Project name and files to compile
-PROJECT_NAME = driverlib
+PROJECT_NAME = libdriverlib
 PROJECT_HOME = .
 
 ###############################################################################
@@ -20,13 +20,16 @@ OBJSIZE = arm-none-eabi-size
 
 # C compiler flags
 CFLAGS += -mthumb -mcpu=cortex-m3 -mlittle-endian
-CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
-CFLAGS += -fshort-enums -fomit-frame-pointer
+CFLAGS += -ffunction-sections
+CFLAGS += -fdata-sections
+CFLAGS += -fstrict-aliasing
+CFLAGS += -fshort-enums
+CFLAGS += -fomit-frame-pointer
+CFLAGS += -Wstrict-prototypes
 CFLAGS += -std=c99
-CFLAGS += -Wall -pedantic -Wstrict-prototypes
-CFLAGS += -Os
+CFLAGS += -Wall -pedantic
+CFLAGS += -O0
 CFLAGS += -g -ggdb
-# CFLAGS += -DNO_CLOCK_DIVIDER_RESTORE
 
 # C archiver flags
 ARFLAGS = r
@@ -90,7 +93,7 @@ clean:
 	@echo "Cleaning '$(PROJECT_NAME)' done."
 	@rm -rf $(BIN_PATH)
 	@rm -f $(PROJECT_NAME).a
-	
+
 ###############################################################################
 
 # Target to compile C files into object files
