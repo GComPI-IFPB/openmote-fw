@@ -11,7 +11,7 @@ Import('env')
 verbose = env['verbose']
 board   = env['board']
 project = env['project']
-kernel  = env['kernel']
+compiler = env['compiler']
 
 ################################################################################
 
@@ -20,7 +20,6 @@ openmote_b = {
     'platform'  : 'cc2538',
     'cpu'       : 'cortex-m3',
     'toolchain' : 'arm-none-eabi',
-    'kernel'    : kernel,
     'linker'    : 'cc2538sf53' + '.lds'
 }
 
@@ -80,24 +79,23 @@ build_dir = os.path.join("#/build", board)
 platform  = boards[board]["platform"]
 cpu       = boards[board]["cpu"]
 toolchain = boards[board]["toolchain"]
-kernel    = boards[board]["kernel"]
 
 linker    = os.path.join(".", 'platform', platform, boards[board]["linker"])
 
-lib_name = ['board', 'drivers', 'platform', 'sys', 'kernel']
+lib_name = ['board', 'drivers', 'platform', 'sys', 'freertos']
 lib_path = [os.path.join('#', 'bin', board),
             os.path.join('#', 'platform', platform)]
 
 env['board']     = board
 env['platform']  = platform
 env['cpu']       = cpu
+env['compiler']  = compiler
 env['toolchain'] = toolchain
-env['kernel']    = kernel
 env['linker']    = linker
 env['lib_name']  = lib_name
 env['lib_path']  = lib_path
 
-library_folders = ['board', 'drivers', 'kernel', 'net', 'sys', 'platform']
+library_folders = ['board', 'drivers', 'freertos', 'sys', 'platform']
 project_folders = ['projects', 'test']
 
 src_folders = project_folders + library_folders
@@ -299,9 +297,9 @@ env.Append(
     CPPPATH = [
         os.path.join('#','platform', 'inc'),
         os.path.join('#','platform', platform),
-        os.path.join('#','kernel', kernel, 'common'),
-        os.path.join('#','kernel', kernel, 'inc'),
-        os.path.join('#','kernel', kernel, cpu),
+        os.path.join('#','freertos', 'common'),
+        os.path.join('#','freertos', 'inc'),
+        os.path.join('#','freertos', cpu, compiler),
         os.path.join('#','projects', project),
         os.path.join('#','board', board),
         os.path.join('#','drivers'),
@@ -321,12 +319,15 @@ env.Append(
 if (platform == 'cc2538'):
     env.Append(
         CPPPATH = [
-            os.path.join('#','platform', platform, 'libcc2538'),
-            os.path.join('#','platform', platform, 'libcc2538', 'inc'),
-            os.path.join('#','platform', platform, 'libcc2538', 'src')
+          os.path.join('#'),
+          os.path.join('#','ti'),
+          os.path.join('#','ti', platform, 'inc'),
+          os.path.join('#','ti', platform, 'src'),
+          os.path.join('#','projects', project, 'src'),
         ]
     )
-    lib_name += [platform]
+    env.Append(LIBPATH = ["driverlib"])
+    env.Append(LINKFLAGS = [os.path.join('#', 'ti', platform, compiler)])
 else:
     raise SystemError("Error, platform not valid!")
 

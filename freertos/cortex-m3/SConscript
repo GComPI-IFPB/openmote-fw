@@ -5,7 +5,7 @@ Import('env')
 localEnv = env.Clone()
 
 source = [
-    'port.c'
+    os.path.join(localEnv['compiler'], 'port.c')
 ]
 
 common = localEnv.Object(source=source)

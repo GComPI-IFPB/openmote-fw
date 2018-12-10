@@ -6,8 +6,8 @@ cmd_options = {
                             'test-aes', 'test-board', 'test-crc', 'test-openmote','test-openmote-b', 'test-radio-at86rf215', 
                             'test-radio-cc2538', 'test-radiotimer', 'test-rendezvous', 'test-serial',
                             'test-sleeptimer', 'test-spi', 'test-pwm', 'test-task', 'test-timer', 'test-uart'],
-    'kernel'    :          ['freertos'],
-    'verbose'   :          ['0','1']
+    'verbose'   :          ['0','1'],
+    'compiler'  :          ['iar','gcc']
 }
 
 def validate_option(key, value, env):
@@ -33,17 +33,17 @@ cmd_vars.AddVariables(
         None,                                              # converter
     ),
     (
-        'kernel',                                          # key
-        '',                                                # help
-        None,                                              # default
-        validate_option,                                   # validator
-        None,                                              # converter
-    ),
-    (
         'bootload',                                        # key
         '',                                                # help
         '',                                                # default
         None,                                              # validator
+        None,                                              # converter
+    ),
+    (
+        'compiler',                                        # key
+        '',                                                # help
+        '',                                                # default
+        validate_option,                                   # validator
         None,                                              # converter
     ),
     (

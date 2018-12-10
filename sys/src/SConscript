@@ -6,13 +6,11 @@ localEnv = env.Clone()
 
 source = [
     'Buffer.cpp',
-    'CircularBuffer.cpp',
     'CriticalSection.cpp',
     'Crc16.cpp',
     'Hdlc.cpp',
     'LedBlinker.cpp',
     'Mutex.cpp',
-    'Queue.cpp',
     'Rendezvous.cpp',
     'Scheduler.cpp',
     'Semaphore.cpp',

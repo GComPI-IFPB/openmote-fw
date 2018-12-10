@@ -8,16 +8,14 @@ localEnv = env.Clone()
 
 source = [
     'Aes.cpp',
-    'cc2538_startup.c',
+    'Board.cpp',
     'Gpio.cpp',
     'GpioAdc.cpp',
     'GpioIn.cpp',
-    'GpioInPow.cpp',
     'GpioOut.cpp',
     'GpioPwm.cpp',
     'I2c.cpp',
     'InterruptHandler.cpp',
-    'Platform.cpp',
     'Radio.cpp',
     'RadioTimer.cpp',
     'RandomNumberGenerator.cpp',
@@ -28,6 +26,7 @@ source = [
     'Timer.cpp',
     'Uart.cpp',
     'Watchdog.cpp',
+    'cc2538_startup_'+ localEnv['compiler'] +'.c',
 ]
 
 common = localEnv.Object(source=source)
