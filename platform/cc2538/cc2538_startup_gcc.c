@@ -13,7 +13,7 @@
 
 #include <stdint.h>
 
-#include "cc2538_include.h"
+#include "platform_includes.h"
 
 /*================================ define ===================================*/
 

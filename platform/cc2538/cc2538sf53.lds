@@ -6,7 +6,7 @@
  * Indicate the architecture and format
  */
 OUTPUT_ARCH(arm)
-OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+OUTPUT_FORMAT("elf32-littlearm")
 
 /**
  * Indicate the entry point to the linker.
