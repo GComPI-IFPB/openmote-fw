@@ -81,72 +81,74 @@ const lock_page_cca_t lock_page_cca =
 __attribute__ ((section(".vectors"), used))
 void (* const interrupt_vector[])(void) =
 {
-   (void (*)(void))((uint32_t)&_stack + sizeof(_stack)), // Stack pointer
-   reset_handler,                                        // Reset handler
-   nmi_handler,                                          // The NMI handler
-   hardfault_handler,                                    // The hard fault handler
-   default_handler,                                      // 4 The MPU fault handler
-   default_handler,                                      // 5 The bus fault handler
-   default_handler,                                      // 6 The usage fault handler
-   0, 0, 0, 0,                                           // 7-10 Reserved
-   vPortSVCHandler,                                      // 11 SVCall handler
-   default_handler,                                      // 12 Debug monitor handler
-   0,                                                    // 13 Reserved
-   xPortPendSVHandler,                                   // 14 The PendSV handler
-   xPortSysTickHandler,                                  // 15 The SysTick handler
-   default_handler,                                      // 16 GPIO Port A
-   default_handler,                                      // 17 GPIO Port B
-   default_handler,                                      // 18 GPIO Port C
-   default_handler,                                      // 19 GPIO Port D
-   0,                                                    // 20 Reserved
-   default_handler,                                      // 21 UART0 Rx and Tx
-   default_handler,                                      // 22 UART1 Rx and Tx
-   default_handler,                                      // 23 SSI0 Rx and Tx
-   default_handler,                                      // 24 I2C Master and Slave
-   0, 0, 0, 0, 0,                                        // 25-29 Reserved
-   default_handler,                                      // 30 ADC Sequence 0
-   0, 0, 0,                                              // 31-33 Reserved
-   default_handler,                                      // 34 Watchdog timer, timer 0
-   default_handler,                                      // 35 Timer 0 subtimer A
-   default_handler,                                      // 36 Timer 0 subtimer B
-   default_handler,                                      // 37 Timer 1 subtimer A
-   default_handler,                                      // 38 Timer 1 subtimer B
-   default_handler,                                      // 39 Timer 2 subtimer A
-   default_handler,                                      // 40 Timer 2 subtimer B
-   default_handler,                                      // 41 Analog Comparator 0
-   default_handler,                                      // 42 RFCore Rx/Tx
-   default_handler,                                      // 43 RFCore Error
-   default_handler,                                      // 44 IcePick
-   default_handler,                                      // 45 FLASH Control
-   default_handler,                                      // 46 AES
-   default_handler,                                      // 47 PKA
-   default_handler,                                      // 48 Sleep Timer
-   default_handler,                                      // 49 MacTimer
-   default_handler,                                      // 50 SSI1 Rx and Tx
-   default_handler,                                      // 51 Timer 3 subtimer A
-   default_handler,                                      // 52 Timer 3 subtimer B
-   0, 0, 0, 0, 0, 0, 0,                                  // 53-59 Reserved
-   default_handler,                                      // 60 USB
-   0,                                                    // 61 Reserved
-   default_handler,                                      // 62 uDMA
-   default_handler,                                      // 63 uDMA Error
-   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 64-73 Reserved
-   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 74-83 Reserved
-   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 84-93 Reserved
-   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 94-103 Reserved
-   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 104-113 Reserved
-   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 114-123 Reserved
-   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 124-133 Reserved
-   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 134-143 Reserved
-   0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 144-143 Reserved
-   0, 0,                                                 // 154-155 Reserved
-   default_handler,                                      // 156 USB
-   default_handler,                                      // 157 RFCORE RX/TX
-   default_handler,                                      // 158 RFCORE Error
-   default_handler,                                      // 159 AES
-   default_handler,                                      // 160 PKA
-   default_handler,                                      // 161 SMTimer
-   default_handler                                       // 162 MACTimer
+  (void (*)(void))((uint32_t)&_stack + sizeof(_stack)), // Stack pointer
+  reset_handler,                                        // Reset handler
+  nmi_handler,                                          // The NMI handler
+  hardfault_handler,                                    // The hard fault handler
+  default_handler,                                      // 4 The MPU fault handler
+  default_handler,                                      // 5 The bus fault handler
+  default_handler,                                      // 6 The usage fault handler
+  0, 0, 0, 0,                                           // 7-10 Reserved
+  vPortSVCHandler,                                      // 11 SVCall handler
+  default_handler,                                      // 12 Debug monitor handler
+  0,                                                    // 13 Reserved
+  xPortPendSVHandler,                                   // 14 The PendSV handler
+  xPortSysTickHandler,                                  // 15 The SysTick handler
+  default_handler,                                      // 16 GPIO Port A
+  default_handler,                                      // 17 GPIO Port B
+  default_handler,                                      // 18 GPIO Port C
+  default_handler,                                      // 19 GPIO Port D
+  0,                                                    // 20 Reserved
+  default_handler,                                      // 21 UART0 Rx and Tx
+  default_handler,                                      // 22 UART1 Rx and Tx
+  default_handler,                                      // 23 SSI0 Rx and Tx
+  default_handler,                                      // 24 I2C Master and Slave
+  0, 0, 0, 0, 0,                                        // 25-29 Reserved
+  default_handler,                                      // 30 ADC Sequence 0
+  0, 0, 0,                                              // 31-33 Reserved
+  default_handler,                                      // 34 Watchdog timer, timer 0
+  default_handler,                                      // 35 Timer 0 subtimer A
+  default_handler,                                      // 36 Timer 0 subtimer B
+  default_handler,                                      // 37 Timer 1 subtimer A
+  default_handler,                                      // 38 Timer 1 subtimer B
+  default_handler,                                      // 39 Timer 2 subtimer A
+  default_handler,                                      // 40 Timer 2 subtimer B
+  default_handler,                                      // 41 Analog Comparator 0
+  default_handler,                                      // 42 RFCore Rx/Tx
+  default_handler,                                      // 43 RFCore Error
+  default_handler,                                      // 44 IcePick
+  default_handler,                                      // 45 FLASH Control
+  default_handler,                                      // 46 AES
+  default_handler,                                      // 47 PKA
+  default_handler,                                      // 48 Sleep Timer
+  default_handler,                                      // 49 MacTimer
+  default_handler,                                      // 50 SSI1 Rx and Tx
+  default_handler,                                      // 51 Timer 3 subtimer A
+  default_handler,                                      // 52 Timer 3 subtimer B
+  0, 0, 0, 0, 0, 0, 0,                                  // 53-59 Reserved
+  default_handler,                                      // 60 USB
+  0,                                                    // 61 Reserved
+  default_handler,                                      // 62 uDMA
+  default_handler,                                      // 63 uDMA Error
+#ifndef CC2538_USE_ALTERNATE_INTERRUPT_MAP
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 64-73 Reserved
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 74-83 Reserved
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 84-93 Reserved
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 94-103 Reserved
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 104-113 Reserved
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 114-123 Reserved
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 124-133 Reserved
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 134-143 Reserved
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                         // 144-143 Reserved
+  0, 0,                                                 // 154-155 Reserved
+  default_handler,                                      // 156 USB
+  default_handler,                                      // 157 RFCORE RX/TX
+  default_handler,                                      // 158 RFCORE Error
+  default_handler,                                      // 159 AES
+  default_handler,                                      // 160 PKA
+  default_handler,                                      // 161 SMTimer
+  default_handler                                       // 162 MACTimer
+#endif
 };
 
 bool bExternalOsc32k;
