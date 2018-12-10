@@ -14,7 +14,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "Board.hpp"
+#include "BoardImplementation.hpp"
 
 #include "Gpio.hpp"
 
@@ -97,3 +97,4 @@ static void prvGreenLedTask(void *pvParameters)
         vTaskDelay(1 / portTICK_RATE_MS);
     }
 }
+
