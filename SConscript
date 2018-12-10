@@ -83,8 +83,7 @@ toolchain = boards[board]["toolchain"]
 linker    = os.path.join(".", 'platform', platform, boards[board]["linker"])
 
 lib_name = ['board', 'drivers', 'platform', 'sys', 'freertos']
-lib_path = [os.path.join('#', 'bin', board),
-            os.path.join('#', 'platform', platform)]
+lib_path = [os.path.join('#', 'bin', board)]
 
 env['board']     = board
 env['platform']  = platform
@@ -326,8 +325,8 @@ if (platform == 'cc2538'):
           os.path.join('#','projects', project, 'src'),
         ]
     )
-    env.Append(LIBPATH = ["driverlib"])
-    env.Append(LINKFLAGS = [os.path.join('#', 'ti', platform, compiler)])
+    env['lib_path'] += [os.path.join('#', 'ti', platform, compiler)]
+    env['lib_name'] += ['driverlib']
 else:
     raise SystemError("Error, platform not valid!")
 
