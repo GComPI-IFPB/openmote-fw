@@ -28,16 +28,16 @@
 
 #ifndef HWREG
 #define HWREG(x)                                                              \
-        (*((volatile unsigned long *)(x)))
+  (*((volatile unsigned long *)(x)))
 #endif
 
 /*================================ typedef ==================================*/
 
 typedef struct
 {
-    uint32_t bootloader_config;
-    uint32_t image_is_valid;
-    uint32_t image_vector_address;
+  uint32_t bootloader_config;
+  uint32_t image_is_valid;
+  uint32_t image_vector_address;
 } lock_page_cca_t;
 
 /*=============================== prototypes ================================*/
@@ -45,18 +45,18 @@ typedef struct
 static void system_init(void);
 static void system_exit(void);
 
-void reset_handler(void);
-void nmi_handler(void);
-void hardfault_handler(void);
-void default_handler(void);
-
-extern int main (void);
-
 extern void __libc_init_array(void);
+
+extern int main(void);
 
 extern void vPortSVCHandler(void);
 extern void xPortPendSVHandler(void);
 extern void xPortSysTickHandler(void);
+
+void reset_handler(void);
+void nmi_handler(void);
+void hardfault_handler(void);
+void default_handler(void);
 
 /*=============================== variables =================================*/
 
@@ -151,129 +151,95 @@ void (* const interrupt_vector[])(void) =
 #endif
 };
 
-bool bExternalOsc32k;
-bool bInternalOsc;
-
 /*================================= public ==================================*/
 
-void
-nmi_handler(void)
+void nmi_handler(void)
 {
-    reset_handler();
-    while(1)
-    {
-        __asm("nop");
-    }
+  reset_handler();
+  while(1)
+  {
+    __asm("nop");
+  }
 }
 
-void
-hardfault_handler(void)
+void hardfault_handler(void)
 {
-    while(1)
-    {
-        __asm("nop");
-    }
+  while(1)
+  {
+    __asm("nop");
+  }
 }
 
-void
-default_handler(void)
+void default_handler(void)
 {
-    while(1)
-    {
-        __asm("nop");
-    }
+  while(1)
+  {
+    __asm("nop");
+  }
 }
 
-void
-reset_handler(void)
+void reset_handler(void)
 {
-    volatile uint32_t *src, *dst;
+  volatile uint32_t *src, *dst;
 
-    /* Workaround for PM debug issue */
-    HWREG(SYS_CTRL_EMUOVR) = 0xFF;
+  /* Workaround for PM debug issue */
+  HWREG(SYS_CTRL_EMUOVR) = 0xFF;
 
     /* Workaround for system reset issue while using the XDS110 probe */
 #ifdef DEBUG
-    volatile uint32_t* pStopAtResetIsr = (uint32_t*)0x20003000;
-    volatile uint32_t* pIsAtResetIsr = (uint32_t*)0x20003004;
+  volatile uint32_t* pStopAtResetIsr = (uint32_t*)0x20003000;
+  volatile uint32_t* pIsAtResetIsr = (uint32_t*)0x20003004;
 
-    /* Signal to GEL script that reset ISR is reached */
-    *pIsAtResetIsr = 0xAABBAABB;
+  /* Signal to GEL script that reset ISR is reached */
+  *pIsAtResetIsr = 0xAABBAABB;
 
-    /* Wait until GEL script writes a value different than 0xA5F01248 to avoid uncontrolled code execution */
-    volatile uint32_t ui32Timeout = 2000000;
-    while((*pStopAtResetIsr == 0xA5F01248) && (ui32Timeout--));
-    *pIsAtResetIsr = 0x0;
+  /* Wait until GEL script writes a value different than 0xA5F01248 to avoid uncontrolled code execution */
+  volatile uint32_t ui32Timeout = 2000000;
+  while((*pStopAtResetIsr == 0xA5F01248) && (ui32Timeout--));
+  *pIsAtResetIsr = 0x0;
 #endif
 
-    /* Copy the data segment initializers from flash to SRAM */
-    for (src = &_text_end, dst = &_data_start; dst < &_data_end; )
-    {
-        *dst++ = *src++;
-    }
+  /* Copy the data segment initializers from flash to SRAM */
+  for (src = &_text_end, dst = &_data_start; dst < &_data_end; )
+  {
+      *dst++ = *src++;
+  }
 
-    /* Initialize the BSS section to zero */
-    for (dst = &_bss_start; dst < &_bss_end; *dst++)
-    {
-        *dst = 0;
-    }
+  /* Initialize the BSS section to zero */
+  for (dst = &_bss_start; dst < &_bss_end; *dst++)
+  {
+      *dst = 0;
+  }
 
-    /* Initialize the system */
-    system_init();
+  /* Initialize the system */
+  system_init();
 
-    /* Initialize standard C library */
-    __libc_init_array();
+  /* Initialize standard C library */
+  __libc_init_array();
 
-   /* Call the application's entry point */
-   main();
+  /* Call the application's entry point */
+  main();
 
-   /* End here if return from main() */
-   system_exit();
+  /* End here if return from main() */
+  system_exit();
 }
 
 /*================================ private ==================================*/
 
 static void system_init(void)
 {
-    /* Set GPIOs as input */
-    GPIOPinTypeGPIOInput(GPIO_A_BASE, 0xFF);
-    GPIOPinTypeGPIOInput(GPIO_B_BASE, 0xFF);
-    GPIOPinTypeGPIOInput(GPIO_C_BASE, 0xFF);
-    GPIOPinTypeGPIOInput(GPIO_D_BASE, 0xFF);
-
-    /* Configure the 32 kHz clock pins, PD6 and PD7, for crystal operation */
-    GPIODirModeSet(GPIO_D_BASE, 0x40, GPIO_DIR_MODE_IN);
-    GPIODirModeSet(GPIO_D_BASE, 0x80, GPIO_DIR_MODE_IN);
-    IOCPadConfigSet(GPIO_D_BASE, 0x40, IOC_OVERRIDE_ANA);
-    IOCPadConfigSet(GPIO_D_BASE, 0x80, IOC_OVERRIDE_ANA);
-
-    /* Set the system clocks */
-    bExternalOsc32k = true;
-    bInternalOsc = false;
-    SysCtrlClockSet(bExternalOsc32k, bInternalOsc, SYS_CTRL_SYSDIV_32MHZ);
-
-    /* Set the peripherals clock */
-    SysCtrlIOClockSet(SYS_CTRL_SYSDIV_16MHZ);
-
-    /* If using the 32 MHz crystal wait until it becomes stable */
-    if (!bInternalOsc)
-    {
-        while (!((HWREG(SYS_CTRL_CLOCK_STA)) & (SYS_CTRL_CLOCK_STA_XOSC_STB)));
-    }
-
-    /* If using the 32.768 kHz oscillator wait until it becomes stable */
-    if (bExternalOsc32k)
-    {
-        while(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_SYNC_32K);
-        while(!(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_SYNC_32K));
-    }
+  /* Set GPIOs as input */
+  GPIOPinTypeGPIOInput(GPIO_A_BASE, 0xFF);
+  GPIOPinTypeGPIOInput(GPIO_B_BASE, 0xFF);
+  GPIOPinTypeGPIOInput(GPIO_C_BASE, 0xFF);
+  GPIOPinTypeGPIOInput(GPIO_D_BASE, 0xFF);
 }
 
 static void system_exit(void)
 {
-    while (true)
-    {
-        /* Put the board in deep sleep */
-        SysCtrlDeepSleep();
-    }
+  while (true)
+  {
+    /* Put the board in deep sleep */
+    SysCtrlDeepSleep();
+  }
 }
