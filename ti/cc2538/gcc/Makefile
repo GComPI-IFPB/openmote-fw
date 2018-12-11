@@ -28,7 +28,7 @@ CFLAGS += -fomit-frame-pointer
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -std=c99
 CFLAGS += -Wall -pedantic
-CFLAGS += -O0
+CFLAGS += -Os
 CFLAGS += -g -ggdb
 
 # C archiver flags
