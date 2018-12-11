@@ -31,7 +31,7 @@
 
 #define FLASH_START_ADDR                ( 0x00200000 )
 #define BOOTLOADER_BACKDOOR_DISABLE     ( 0xEFFFFFFF )
-#define BOOTLOADER_BACKDOOR_ENABLE      ( 0x6FFFFFFF )
+#define BOOTLOADER_BACKDOOR_ENABLE      ( 0xF6FFFFFF )
 
 /* Macro for hardware access, both direct and via the bit-band region. */
 #ifndef HWREG
