@@ -4,13 +4,13 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'freertos-tickless'
+target = 'demo-tx'
 source = ['main.cpp', 'cc2538_lowpower.c']
 
 main = localEnv.Program(
     target = target,
     source = source,
-    LIBS = env['lib_name'],
+    LIBS = env['lib_name'] + ['m'],
     LIBPATH = env['lib_path']
 )
 

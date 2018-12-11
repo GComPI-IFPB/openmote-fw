@@ -11,21 +11,20 @@
 
 /*================================ include ==================================*/
 
-#include "Callback.hpp"
-#include "Gpio.hpp"
-#include "I2c.hpp"
-#include "Scheduler.hpp"
-#include "Semaphore.hpp"
-#include "Spi.hpp"
-
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "Platform.hpp"
+#include "BoardImplementation.hpp"
 #include "platform_types.h"
 
-#include "Board.hpp"
+#include "Gpio.hpp"
+#include "I2c.hpp"
+#include "Spi.hpp"
+
+#include "Callback.hpp"
 #include "Task.hpp"
+#include "Scheduler.hpp"
+#include "Semaphore.hpp"
 
 #include "bme280/Bme280.hpp"
 #include "opt3001/Opt3001.hpp"
