@@ -154,10 +154,8 @@ error:
 int8_t Bme280::i2c_write(uint8_t dev_id, uint8_t reg_addr, uint8_t* buffer, uint16_t length)
 {
     uint8_t scratch[32];
-    bool status;
-
-    uint8_t* scratch_ptr = scratch;
     uint8_t scratch_len  = 0;
+    bool status;
 
     // Obtain the mutex of the I2C driver
     i2c_.lock();

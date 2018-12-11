@@ -6,6 +6,7 @@ localEnv = env.Clone()
 
 source = [
     'Bme280.cpp',
+    'bme280_bosch.cpp'
 ]
 
 localEnv.Append(
