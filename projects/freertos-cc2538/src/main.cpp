@@ -47,15 +47,15 @@ static PlainCallback userCallback(buttonCallback);
 
 int main(void)
 {
-    // Initialize the board
-    board.init();
+  // Initialize the board
+  board.init();
 
-    // Create two FreeRTOS tasks
-    xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-    xTaskCreate(prvButtonTask, (const char *) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
+  // Create two FreeRTOS tasks
+  xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
+  xTaskCreate(prvButtonTask, (const char *) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
 
-    // Start the scheduler
-    Scheduler::run();
+  // Start the scheduler
+  Scheduler::run();
 }
 
 /*================================ private ==================================*/
@@ -63,38 +63,38 @@ int main(void)
 static void buttonCallback(void)
 {
 	// Give the buttonSemaphore from the interrupt
-    buttonSemaphore.giveFromInterrupt();
+  buttonSemaphore.giveFromInterrupt();
 }
 
 static void prvButtonTask(void *pvParameters)
 {
-    // Configure the user button
-    button_user.setCallback(&userCallback);
-    button_user.enableInterrupts();
+  // Configure the user button
+  button_user.setCallback(&userCallback);
+  button_user.enableInterrupts();
 
-    buttonSemaphore.take();
+  buttonSemaphore.take();
 
-    // Forever
-    while (true) {
-        // Take the buttonSemaphore, block until available
-        if (buttonSemaphore.take()) {
-            // Toggle the red LED
-            led_red.toggle();
-        }
+  // Forever
+  while (true) {
+    // Take the buttonSemaphore, block until available
+    if (buttonSemaphore.take()) {
+        // Toggle the red LED
+        led_red.toggle();
     }
+  }
 }
 
 static void prvGreenLedTask(void *pvParameters)
 {
-    // Forever
-    while (true) {
-        // Turn off green LED for 999 ms
-        led_green.off();
-        vTaskDelay(999 / portTICK_RATE_MS);
-
-        // Turn on green LED for 1 ms
-        led_green.on();
-        vTaskDelay(1 / portTICK_RATE_MS);
-    }
+  // Forever
+  while (true) {
+    // Turn on green LED for 10 ms
+    led_green.on();
+    vTaskDelay(10 / portTICK_RATE_MS);
+    
+    // Turn off green LED for 990 ms
+    led_green.off();
+    vTaskDelay(990 / portTICK_RATE_MS);
+  }
 }
 

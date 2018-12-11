@@ -15,7 +15,7 @@
 
 #define configMINIMAL_STACK_SIZE              ( ( uint16_t ) 128 )
 #define configMAX_TASK_NAME_LEN               ( 12 )
-#define configTOTAL_HEAP_SIZE                 ( ( size_t ) ( 8 * 1024 ) )
+#define configTOTAL_HEAP_SIZE                 ( ( size_t ) ( 4 * 1024 ) )
 
 #define configUSE_TICKLESS_IDLE               ( 0 )
 #if (configUSE_TICKLESS_IDLE == 0)
@@ -100,11 +100,5 @@ to all Cortex-M ports, and do not rely on any particular library functions. */
 /* !!!! configMAX_SYSCALL_INTERRUPT_PRIORITY must not be set to zero !!!!
 See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY  ( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << (8 - configPRIO_BITS) )
-
-/* Definitions that map the FreeRTOS port interrupt handlers to their CMSIS
-standard names. */
-#define xPortPendSVHandler  PendSVIntHandler
-#define vPortSVCHandler     SVCallIntHandler
-#define xPortSysTickHandler SysTickIntHandler
 
 #endif /* FREERTOS_CONFIG_H */
