@@ -14,9 +14,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "platform_types.h"
+#include "BoardImplementation.hpp"
 
-#include "Board.hpp"
 #include "Gpio.hpp"
 #include "Uart.hpp"
 
