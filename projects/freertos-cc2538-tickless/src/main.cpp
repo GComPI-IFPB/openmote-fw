@@ -2,7 +2,7 @@
  * @file       main.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2015
+ * @date       November, 2018
  * @brief
  *
  * @copyright  Copyright 2015, OpenMote Technologies, S.L.
@@ -14,11 +14,9 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "platform_types.h"
+#include "BoardImplementation.hpp"
 
-#include "Board.hpp"
 #include "Gpio.hpp"
-#include "Spi.hpp"
 
 #include "Callback.hpp"
 #include "Scheduler.hpp"
@@ -27,8 +25,13 @@
 
 /*================================ define ===================================*/
 
+#define GREEN_LED_TASK_NAME                 ( "LedTask" )
+#define GREEN_LED_STACK_SIZE                ( 128 )
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
-#define USER_BUTTON_TASK_PRIORITY           ( tskIDLE_PRIORITY + 1 )
+
+#define BUTTON_TASK_NAME                    ( "ButtonTask" )
+#define BUTTON_STACK_SIZE                   ( 128 )
+#define BUTTON_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 
 /*================================ typedef ==================================*/
 
@@ -38,77 +41,76 @@ extern "C" TickType_t board_sleep(TickType_t xModifiableIdleTime);
 extern "C" TickType_t board_wakeup(TickType_t xModifiableIdleTime);
 
 static void prvGreenLedTask(void *pvParameters);
-static void prvUserButtonTask(void *pvParameters);
+static void prvButtonTask(void *pvParameters);
 
 static void buttonCallback(void);
 
 /*=============================== variables =================================*/
 
-static SemaphoreBinary buttonSemaphore;
-
+static SemaphoreBinary buttonSemaphore(false);
 static PlainCallback userCallback(buttonCallback);
+
+static Task task1(GREEN_LED_TASK_NAME, GREEN_LED_STACK_SIZE, GREEN_LED_TASK_PRIORITY, prvGreenLedTask, nullptr);
+static Task task2(BUTTON_TASK_NAME, BUTTON_STACK_SIZE, BUTTON_TASK_PRIORITY, prvButtonTask, nullptr);
 
 /*================================= public ==================================*/
 
 int main(void)
-{
-    // Initialize the board
-    board.init();
-
-    // Create two FreeRTOS tasks
-    xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-    xTaskCreate(prvUserButtonTask, (const char *) "Button", 128, NULL, USER_BUTTON_TASK_PRIORITY, NULL);
-
-    // Start the scheduler
-    Scheduler::run();
+{ 
+  /* Initialize the board */
+  board.init();
+  
+  /* Start the scheduler */
+  Scheduler::run();
 }
 
 TickType_t board_sleep(TickType_t xModifiableIdleTime)
 {
-    return xModifiableIdleTime;
+  /* FreeRTOS callback before sleep */
+  return xModifiableIdleTime;
 }
 
 TickType_t board_wakeup(TickType_t xModifiableIdleTime)
 {
-    return xModifiableIdleTime;
+  /* FreeRTOS callback after sleep */
+  return xModifiableIdleTime;
 }
 
 /*================================ private ==================================*/
 
 static void buttonCallback(void)
-{  
-    // Give the buttonSemaphore from the interrupt
-    buttonSemaphore.giveFromInterrupt();
+{
+	/* Give the buttonSemaphore from the interrupt */
+  buttonSemaphore.giveFromInterrupt();
 }
 
-static void prvUserButtonTask(void *pvParameters)
+static void prvButtonTask(void *pvParameters)
 {
-    // Set the button callback and enable interrupts
-    button_user.setCallback(&userCallback);
-    button_user.enableInterrupts();
+  /* Configure the user button */
+  button_user.setCallback(&userCallback);
+  button_user.enableInterrupts();
 
-    buttonSemaphore.take();
-
-    // Forever
-    while (true) {
-        // Take the buttonSemaphore, block until available
-        if (buttonSemaphore.take()) {
-            // Toggle the red LED
-            led_red.toggle();
-        }
+  /* Forever */
+  while (true) {
+    /* Take the buttonSemaphore, block until available */
+    if (buttonSemaphore.take()) {
+      /* Toggle the red LED */
+      led_red.toggle();
     }
+  }
 }
 
 static void prvGreenLedTask(void *pvParameters)
 {
-    // Forever
-    while (true) {
-        // Turn off green LED for 9999 ms
-        led_green.off();
-        vTaskDelay(9999 / portTICK_RATE_MS);
-
-        // Turn on green LED for 1 ms
-        led_green.on();
-        vTaskDelay(1 / portTICK_RATE_MS);
-    }
+  /* Forever */
+  while (true)
+  {
+    /* Turn on green LED for 10 ms */
+    led_green.on();
+    Scheduler::delay_ms(10);
+    
+    /* Turn off green LED for 990 ms */
+    led_green.off();
+    Scheduler::delay_ms(990);
+  }
 }
