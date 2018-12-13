@@ -1,8 +1,6 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
-#include "platform_includes.h"
-
 /* Constants related to the behaviour or the scheduler. */
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION ( 1 )
 #define configUSE_PREEMPTION                  ( 1 )
