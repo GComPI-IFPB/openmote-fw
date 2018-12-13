@@ -12,6 +12,7 @@
 /*================================ include ==================================*/
 
 #include "BoardImplementation.hpp"
+
 #include "Gpio.hpp"
 #include "I2c.hpp"
 
