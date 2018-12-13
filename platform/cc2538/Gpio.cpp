@@ -30,7 +30,8 @@ Gpio::Gpio(GpioConfig& config) : config_(config)
 {
 }
 
-bool Gpio::operator==(const Gpio& other) {
+bool Gpio::operator==(const Gpio& other)
+{
 	return (config_ == other.config_);
 }
 
