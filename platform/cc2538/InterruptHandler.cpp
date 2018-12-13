@@ -490,9 +490,6 @@ InterruptHandler::InterruptHandler()
 
   /* Register the ADC interrupt handler */
   IntRegister(INT_ADC0, Adc_InterruptHandler);
-
-  /* Enable the alternative interrupt map */
-  IntAltMapEnable();
 }
 
 inline void InterruptHandler::GPIOA_InterruptHandler(void)
