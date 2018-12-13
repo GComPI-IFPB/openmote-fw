@@ -142,6 +142,11 @@ __root const lockPageCCA_t __cca @ ".flashcca" =
   FLASH_START_ADDR              // Vector table located at flash start address
 };
 
+/* FreeRTOS callbacks */
+extern void vPortSVCHandler(void);
+extern void xPortPendSVHandler(void);
+extern void xPortSysTickHandler(void);
+
 /* The entry point for the application startup code */
 extern void __iar_program_start(void);
 
@@ -162,11 +167,11 @@ __root void (* const __vector_table[])(void) @ ".intvec" =
     IntDefaultHandler,                      // 5 The bus fault handler
     IntDefaultHandler,                      // 6 The usage fault handler
     0,0,0,0,                                // 7-10 Reserved
-    SVCallIntHandler,                       // 11 SVCall handler
+    vPortSVCHandler,                        // 11 SVCall handler
     IntDefaultHandler,                      // 12 Debug monitor handler
     0,                                      // 13 Reserved
-    PendSVIntHandler,                       // 14 The PendSV handler
-    SysTickIntHandler,                      // 15 The SysTick handler
+    xPortPendSVHandler,                     // 14 The PendSV handler
+    xPortSysTickHandler,                    // 15 The SysTick handler
     GPIOAIntHandler,                        // 16 GPIO Port A
     GPIOBIntHandler,                        // 17 GPIO Port B
     GPIOCIntHandler,                        // 18 GPIO Port C
