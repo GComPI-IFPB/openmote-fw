@@ -16,19 +16,18 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "board.h"
+#include "BoardImplementation.hpp"
 
-#include "Aes.h"
-#include "Board.h"
-#include "Gpio.h"
-#include "Spi.h"
+#include "Aes.hpp"
+#include "Gpio.hpp"
+#include "Spi.hpp"
 
-#include "Callback.h"
-#include "Scheduler.h"
-#include "Task.h"
+#include "Callback.hpp"
+#include "Scheduler.hpp"
+#include "Task.hpp"
 
-#include "Serial.h"
-#include "SnifferSerial.h"
+#include "Serial.hpp"
+#include "SnifferSerial.hpp"
 
 /*================================ define ===================================*/
 

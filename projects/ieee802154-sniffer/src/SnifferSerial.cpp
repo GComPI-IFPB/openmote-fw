@@ -13,7 +13,7 @@
 
 #include <string.h>
 
-#include "SnifferSerial.h"
+#include "SnifferSerial.hpp"
 
 /*================================ define ===================================*/
 

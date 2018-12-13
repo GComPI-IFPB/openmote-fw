@@ -13,8 +13,8 @@
 
 #include <string.h>
 
-#include "SnifferCommon.h"
-#include "Gpio.h"
+#include "SnifferCommon.hpp"
+#include "Gpio.hpp"
 
 /*================================ define ===================================*/
 

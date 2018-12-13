@@ -1,5 +1,5 @@
 /**
- * @file       Sniffer.h
+ * @file       SnifferCommon.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -12,11 +12,13 @@
 #ifndef SNIFFER_COMMON_H_
 #define SNIFFER_COMMON_H_
 
-#include "Aes.h"
-#include "Board.h"
-#include "Callback.h"
-#include "Semaphore.h"
-#include "Radio.h"
+#include "BoardImplementation.hpp"
+
+#include "Aes.hpp"
+#include "Radio.hpp"
+
+#include "Callback.hpp"
+#include "Semaphore.hpp"
 
 class SnifferCommon;
 
@@ -64,7 +66,7 @@ protected:
 
     int8_t  rssi;
     uint8_t lqi;
-    uint8_t crc;
+    bool crc;
 
     bool decrypt;
 };

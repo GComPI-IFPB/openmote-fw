@@ -1,5 +1,5 @@
 /**
- * @file       SnifferSerial.h
+ * @file       SnifferSerial.hpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       May, 2015
@@ -9,11 +9,12 @@
  *             This file is licensed under the GNU General Public License v2.
  */
 
-#ifndef SNIFFER_SERIAL_H_
-#define SNIFFER_SERIAL_H_
+#ifndef SNIFFER_SERIAL_HPP_
+#define SNIFFER_SERIAL_HPP_
 
-#include "SnifferCommon.h"
-#include "Serial.h"
+#include "SnifferCommon.hpp"
+
+#include "Serial.hpp"
 
 class SnifferSerial : public SnifferCommon
 {
