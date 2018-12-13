@@ -39,7 +39,7 @@ Aes::Aes(void)
 void Aes::enable(void)
 {
 	SysCtrlPeripheralReset(SYS_CTRL_PERIPH_AES);
-    SysCtrlPeripheralEnable(SYS_CTRL_PERIPH_AES);
+  SysCtrlPeripheralEnable(SYS_CTRL_PERIPH_AES);
 }
 
 void Aes::reset(void)
