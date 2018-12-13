@@ -14,7 +14,7 @@
 #include "At86rf215.hpp"
 #include "At86rf215_regs.h"
 
-#include "Board.hpp"
+#include "BoardImplementation.hpp"
 
 #include "platform_types.h"
 
@@ -25,11 +25,11 @@
 #define AT86RF215_ED_MIN_VALUE      ( -127 )
 #define AT86RF215_ED_MAX_VALUE      ( 4 )
 
+#define AT86RF215_DELAY_MS          ( 1 )
+
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
-
-extern BoardImplementation board;
 
 uint8_t rf09_irqm, rf24_irqm;
 uint8_t bbc0_irqm, bbc1_irqm;
@@ -53,26 +53,26 @@ void At86rf215::on(void)
 {
   cs_.high();
   rst_.low();
-  board.delayMilliseconds(10);
+  board.delayMilliseconds(AT86RF215_DELAY_MS);
   pwr_.high();
-  board.delayMilliseconds(10);
+  board.delayMilliseconds(AT86RF215_DELAY_MS);
 }
 
 void At86rf215::off(void)
 {
   cs_.high();
   rst_.high();
-  board.delayMilliseconds(10);
+  board.delayMilliseconds(AT86RF215_DELAY_MS);
   pwr_.low();
-  board.delayMilliseconds(10);
+  board.delayMilliseconds(AT86RF215_DELAY_MS);
 }
 
 void At86rf215::hardReset(void)
 {
   rst_.high();
-  board.delayMilliseconds(10);
+  board.delayMilliseconds(AT86RF215_DELAY_MS);
   rst_.low();
-  board.delayMilliseconds(10);
+  board.delayMilliseconds(AT86RF215_DELAY_MS);
 }
 
 void At86rf215::softReset(RadioCore rc)
@@ -380,7 +380,7 @@ void At86rf215::singleAccessRead(uint16_t address, uint8_t* value)
 {
   uint8_t spi_transaction[3];
   uint8_t address_hi, address_lo;
-
+     
   /* Prepare device address */
   address_hi = (uint8_t) ((address & 0xFF00) >> 8);
   address_lo = (uint8_t) ((address & 0x00FF) >> 0);
