@@ -41,10 +41,12 @@ void I2c::enable(uint32_t baudrate)
   bool status;
 
   /* Store baudrate in configuration */
-  if (baudrate != 0) {
+  if (baudrate != 0)
+  {
     config_.baudrate = baudrate;
   }
 
+  /* Get SCL and SDA config */
   GpioConfig& scl = scl_.getGpioConfig();
   GpioConfig& sda = sda_.getGpioConfig();
 
