@@ -29,7 +29,7 @@
 
 /*=============================== variables =================================*/
 
-extern Board board;
+extern BoardImplementation board;
 
 uint8_t rf09_irqm, rf24_irqm;
 uint8_t bbc0_irqm, bbc1_irqm;
@@ -44,22 +44,27 @@ At86rf215::At86rf215(Spi& spi, GpioOut& pwr, GpioOut& rst, GpioOut& cs, GpioIn& 
 
 {
   irq_.setCallback(&callback_);
+  cs_.high();
+  rst_.high();
   pwr_.low();
-  rst_.low();
 }
 
 void At86rf215::on(void)
 {
+  cs_.high();
+  rst_.low();
+  board.delayMilliseconds(10);
   pwr_.high();
   board.delayMilliseconds(10);
-  rst_.high();
 }
 
 void At86rf215::off(void)
 {
+  cs_.high();
   rst_.high();
   board.delayMilliseconds(10);
-  pwr_.off();
+  pwr_.low();
+  board.delayMilliseconds(10);
 }
 
 void At86rf215::hardReset(void)
@@ -67,6 +72,7 @@ void At86rf215::hardReset(void)
   rst_.high();
   board.delayMilliseconds(10);
   rst_.low();
+  board.delayMilliseconds(10);
 }
 
 void At86rf215::softReset(RadioCore rc)
