@@ -124,7 +124,7 @@ void Uart::enableInterrupts(void)
   UARTIntEnable(config_.base, UART_INT_RX | UART_INT_TX | UART_INT_RT);
 
   /* Set the UART interrupt priority */
-  IntPrioritySet(config_.interrupt, (7 << 5));
+  IntPrioritySet(config_.interrupt, 0xF0);
 
   /* Enable the UART interrupt */
   IntEnable(config_.interrupt);
