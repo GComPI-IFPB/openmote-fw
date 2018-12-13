@@ -35,6 +35,7 @@ Spi::Spi(Gpio& miso, Gpio& mosi, Gpio& clk, SpiConfig& config):
 
 void Spi::enable(uint32_t baudrate)
 {
+  /* Get MISO, MOSI and CLK config */
   GpioConfig& miso = miso_.getGpioConfig();
   GpioConfig& mosi = mosi_.getGpioConfig();
   GpioConfig& clk  = clk_.getGpioConfig();
@@ -52,36 +53,49 @@ void Spi::enable(uint32_t baudrate)
   /* Reset peripheral previous to configuring it */
   SSIDisable(config_.base);
 
-  /* Set IO clock as SPI0 clock source */
+  /* Set IO clock as SPI clock source */
   SSIClockSourceSet(config_.base, config_.clock);
 
-  /* Configure the MISO, MOSI, CLK and nCS pins as peripheral */
+  /* Configure the MISO, MOSI and CLK pins as peripheral */
   IOCPinConfigPeriphInput(miso.port, miso.pin, miso.ioc);
   IOCPinConfigPeriphOutput(mosi.port, mosi.pin, mosi.ioc);
   IOCPinConfigPeriphOutput(clk.port, clk.pin, clk.ioc);
-
-  /* Configure MISO, MOSI, CLK and nCS GPIOs */
+  
+  /* Configure MISO, MOSI and CLK GPIOs */
   GPIOPinTypeSSI(miso.port, miso.pin);
   GPIOPinTypeSSI(mosi.port, mosi.pin);
   GPIOPinTypeSSI(clk.port, clk.pin);
+  
+  /* Configure the SPI clock according to its input */
+  if (config_.clock == SSI_CLOCK_SYSTEM)
+  {
+    
+    SSIConfigSetExpClk(config_.base, SysCtrlClockGet(), config_.protocol, \
+                       config_.mode, config_.baudrate, config_.datawidth);
+  }
+  else if (config_.clock == SSI_CLOCK_PIOSC)
+  {
+    SSIConfigSetExpClk(config_.base, SysCtrlIOClockGet(), config_.protocol, \
+                       config_.mode, config_.baudrate, config_.datawidth);
+  }
+  else
+  {
+    while(true)
+      ;
+  }
 
-  /* Configure the SPI0 clock */
-  SSIConfigSetExpClk(config_.base, SysCtrlIOClockGet(), config_.protocol, \
-                     config_.mode, config_.baudrate, config_.datawidth);
-  
-  /* Set SPI interrupt priority */
-  IntPrioritySet(config_.interrupt, 0xF0);
-  
   /* Enable the SPI module */
   SSIEnable(config_.base);
 }
 
 void Spi::sleep(void)
 {
+  /* Get MISO, MOSI and CLK config */
   GpioConfig& miso = miso_.getGpioConfig();
   GpioConfig& mosi = mosi_.getGpioConfig();
   GpioConfig& clk  = clk_.getGpioConfig();
 
+  /* Disable the SPI module */
   SSIDisable(config_.base);
 
   /* Configure the MISO, MOSI and CLK pins as output */
@@ -113,6 +127,9 @@ void Spi::enableInterrupts(void)
   /* Enable the SPI interrupt */
   SSIIntEnable(config_.base, (SSI_TXFF | SSI_RXFF | SSI_RXTO | SSI_RXOR));
 
+  /* Set the SPI interrupt priority */
+  IntPrioritySet(config_.interrupt, 0xF0);
+  
   /* Enable the SPI interrupt */
   IntEnable(config_.interrupt);
 }
@@ -145,8 +162,6 @@ uint8_t Spi::rwByte(uint8_t byte)
 
 bool Spi::rwByte(uint8_t* readBuffer, uint32_t readLength, uint8_t* writeBuffer, uint32_t writeLength)
 {
-  uint32_t data;
-
   if ((readLength == 0) || (writeLength == 0) || (readLength != writeLength))
   {
     return false;
@@ -154,8 +169,13 @@ bool Spi::rwByte(uint8_t* readBuffer, uint32_t readLength, uint8_t* writeBuffer,
 
   for (uint32_t i =  0; i < readLength; i++)
   {
+    uint32_t data;
+    uint8_t byte;
+    
+    byte = readBuffer[i];
+    
     /* Push a byte */
-    SSIDataPut(config_.base, readBuffer[i]);
+    SSIDataPut(config_.base, byte);
 
     /* Wait until it is complete */
     while(SSIBusy(config_.base))
