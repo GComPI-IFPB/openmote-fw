@@ -12,6 +12,7 @@
 /*================================ include ==================================*/
 
 #include "BoardImplementation.hpp"
+
 #include "InterruptHandler.hpp"
 #include "Timer.hpp"
 
@@ -112,13 +113,13 @@ void Timer::enableInterrupts(void)
     InterruptHandler::getInstance().setInterruptHandler(this);
 
     /* Clear Timer interrupts */
-    // TimerIntClear(config_.base, config_.interrupt_mode);
+    TimerIntClear(config_.base, config_.interrupt_mode);
 
     /* Enable Timer interrupts */
     TimerIntEnable(config_.base, config_.interrupt_mode);
 
     /* Set the Timer interrupt priority */
-    // IntPrioritySet(config_.interrupt, (7 << 5));
+    IntPrioritySet(config_.interrupt, 0xF0);
 
     /* Enable the Timer interrupt */
     IntEnable(config_.interrupt);
