@@ -30,7 +30,8 @@
 
 Uart::Uart(Gpio& rx, Gpio& tx, UartConfig& config):
   rx_(rx), tx_(tx), config_(config), \
-  rxSemaphore_(false), txSemaphore_(true)
+  rxSemaphore_(false), txSemaphore_(true), \
+  rx_callback_(nullptr), tx_callback_(nullptr)
 {
 }
 
