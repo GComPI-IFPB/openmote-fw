@@ -43,17 +43,14 @@ const uint32_t BOARD_BUTTON_DELAY_TICKS = (BOARD_BUTTON_DELAY_US / Board::BOARD_
 
 /*=============================== prototypes ================================*/
 
-static void flashEraseCallback(void);
-
 /*================================= public ==================================*/
 
 Board::Board():
-    sleepMode_(SleepMode_None), \
-    flashEraseCallback_(&flashEraseCallback)
+    sleepMode_(SleepMode_None)
 {
 }
 
-void Board::init(BoardParams* params)
+void Board::init(BoardParams& params)
 { 
   /* Configure the 32 kHz clock pins (PD6, PD7) for crystal operation */
   GPIODirModeSet(GPIO_D_BASE, GPIO_PIN_6, GPIO_DIR_MODE_IN);
@@ -62,20 +59,20 @@ void Board::init(BoardParams* params)
   IOCPadConfigSet(GPIO_D_BASE, GPIO_PIN_7, IOC_OVERRIDE_ANA);
 
   /* Set the system clocks */
-  SysCtrlClockSet(params->bExternalOsc32k, params->bInternalOsc32M, params->SysClkDivider);
+  SysCtrlClockSet(params.bExternalOsc32k, params.bInternalOsc32M, params.SysClkDivider);
 
   /* Set the peripherals clock */
-  SysCtrlIOClockSet(params->IOClkDivider);
+  SysCtrlIOClockSet(params.IOClkDivider);
 
   /* If using the 32 MHz crystal wait until it becomes stable */
-  if (params->bInternalOsc32M == false)
+  if (params.bInternalOsc32M == false)
   {
     while (!((HWREG(SYS_CTRL_CLOCK_STA)) & (SYS_CTRL_CLOCK_STA_XOSC_STB)))
       ;
   }
 
   /* If using the 32 kHz oscillator wait until it becomes stable */
-  if (params->bExternalOsc32k == true)
+  if (params.bExternalOsc32k == true)
   {
     while(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_SYNC_32K)
       ;
@@ -174,21 +171,6 @@ void Board::delayMilliseconds(uint32_t milliseconds)
       ;
 }
 
-void Board::enableFlashErase(void)
-{
-  uint32_t timeout;
-
-  /* Calculate timeout */
-  timeout = BOARD_BUTTON_DELAY_TICKS + getCurrentTicks();
-
-  /* Active-wait until we reach the timeout */
-  while (!isExpiredTicks(timeout));
-
-  /* Set the callback and enable interrupt */
-  button_user.setCallback(&flashEraseCallback_);
-  button_user.enableInterrupts();
-}
-
 void Board::getEUI48(uint8_t* address)
 {
   uint8_t temp[8];
@@ -219,15 +201,3 @@ void Board::getEUI64(uint8_t* address)
 /*=============================== protected =================================*/
 
 /*================================ private ==================================*/
-
-static void flashEraseCallback(void)
-{
-  /* Disable global interrupts */
-  IntMasterDisable();
-
-  /* Erase CCA page in Flash */
-  FlashMainPageErase(CC2538_FLASH_CCA_ADDRESS);
-
-  /* Force a software reset */
-  SysCtrlReset();
-}

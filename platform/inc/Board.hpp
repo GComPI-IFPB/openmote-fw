@@ -23,7 +23,7 @@ enum SleepMode : uint8_t;
 class Board {
 public:
   Board();
-  void init(BoardParams* params);
+  void init(BoardParams& boardParams);
   void reset(void);
   uint32_t getClock(void);
   void setSleepMode(SleepMode sleepMode);
@@ -31,7 +31,6 @@ public:
   void wakeup(void);
   void enableInterrupts(void);
   void disableInterrupts(void);
-  void enableFlashErase(void);
   uint32_t getCurrentTicks(void);
   bool isExpiredTicks(uint32_t futureTicks);
   void delayMilliseconds(uint32_t milliseconds);
@@ -43,13 +42,14 @@ public:
   static const uint32_t BOARD_TICKS_PER_US;
 private:
   SleepMode sleepMode_;
-  PlainCallback flashEraseCallback_;
 };
 
 class BoardImplementation : public Board {
 public:
-  BoardImplementation(){};
+  BoardImplementation(BoardParams &params);
   void init(void);
+private:
+  BoardParams& boardParams_;
 };
 
 #endif /* BOARD_HPP_ */
