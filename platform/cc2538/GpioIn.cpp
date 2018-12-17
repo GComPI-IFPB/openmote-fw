@@ -44,7 +44,7 @@ GpioIn::GpioIn(GpioConfig& config):
 }
 
 GpioInPow::GpioInPow(GpioConfig& config):
-  GpioIn(config)
+  Gpio(config)
 {
   /* Set the pin as input */
   GPIOPinTypeGPIOInput(config_.port, config_.pin);

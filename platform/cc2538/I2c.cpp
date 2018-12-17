@@ -28,6 +28,8 @@
 const uint32_t I2C_MAX_DELAY_US    = 100000;
 const uint32_t I2C_MAX_DELAY_TICKS = I2C_MAX_DELAY_US / Board::BOARD_TICKS_PER_US;
 
+extern BoardImplementation board;
+
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/

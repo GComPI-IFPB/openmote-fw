@@ -492,7 +492,7 @@ InterruptHandler::InterruptHandler()
   IntRegister(INT_ADC0, Adc_InterruptHandler);
 }
 
-inline void InterruptHandler::GPIOA_InterruptHandler(void)
+void InterruptHandler::GPIOA_InterruptHandler(void)
 {
   uint32_t status;
 
@@ -550,7 +550,7 @@ inline void InterruptHandler::GPIOA_InterruptHandler(void)
   }
 }
 
-inline void InterruptHandler::GPIOB_InterruptHandler(void)
+void InterruptHandler::GPIOB_InterruptHandler(void)
 {
   uint32_t status;
 
@@ -608,7 +608,7 @@ inline void InterruptHandler::GPIOB_InterruptHandler(void)
   }
 }
 
-inline void InterruptHandler::GPIOC_InterruptHandler(void)
+void InterruptHandler::GPIOC_InterruptHandler(void)
 {
   uint32_t status;
 
@@ -666,7 +666,7 @@ inline void InterruptHandler::GPIOC_InterruptHandler(void)
   }
 }
 
-inline void InterruptHandler::GPIOD_InterruptHandler(void)
+void InterruptHandler::GPIOD_InterruptHandler(void)
 {
   uint32_t status;
 
@@ -724,7 +724,7 @@ inline void InterruptHandler::GPIOD_InterruptHandler(void)
   }
 }
 
-inline void InterruptHandler::TIMER0_InterruptHandler(void)
+void InterruptHandler::TIMER0_InterruptHandler(void)
 {
   uint32_t status;
 
@@ -748,7 +748,7 @@ inline void InterruptHandler::TIMER0_InterruptHandler(void)
   }
 }
 
-inline void InterruptHandler::TIMER1_InterruptHandler(void)
+void InterruptHandler::TIMER1_InterruptHandler(void)
 {
   uint32_t status;
 
@@ -772,7 +772,7 @@ inline void InterruptHandler::TIMER1_InterruptHandler(void)
   }
 }
 
-inline void InterruptHandler::TIMER2_InterruptHandler(void)
+void InterruptHandler::TIMER2_InterruptHandler(void)
 {
   uint32_t status;
 
@@ -796,7 +796,7 @@ inline void InterruptHandler::TIMER2_InterruptHandler(void)
   }
 }
 
-inline void InterruptHandler::TIMER3_InterruptHandler(void)
+void InterruptHandler::TIMER3_InterruptHandler(void)
 {
   uint32_t status;
 
@@ -820,73 +820,73 @@ inline void InterruptHandler::TIMER3_InterruptHandler(void)
   }
 }
 
-inline void InterruptHandler::UART0_InterruptHandler(void)
+void InterruptHandler::UART0_InterruptHandler(void)
 {
   /* Call the UART interrupt handler */
   UART0_interruptVector_->interruptHandler();
 }
 
-inline void InterruptHandler::UART1_InterruptHandler(void)
+void InterruptHandler::UART1_InterruptHandler(void)
 {
   /* Call the UART interrupt handler */
   UART1_interruptVector_->interruptHandler();
 }
 
-inline void InterruptHandler::I2C_InterruptHandler(void)
+void InterruptHandler::I2C_InterruptHandler(void)
 {
   /* Call the I2C interrupt handler */
   I2C_interruptVector_->interruptHandler();
 }
 
-inline void InterruptHandler::SPI0_InterruptHandler(void)
+void InterruptHandler::SPI0_InterruptHandler(void)
 {
   /* Call the SPI interrupt handler */
   SPI0_interruptVector_->interruptHandler();
 }
 
-inline void InterruptHandler::SPI1_InterruptHandler(void)
+void InterruptHandler::SPI1_InterruptHandler(void)
 {
   /* Call the SPI interrupt handler */
   SPI1_interruptVector_->interruptHandler();
 }
 
-inline void InterruptHandler::SysTick_InterruptHandler(void)
+void InterruptHandler::SysTick_InterruptHandler(void)
 {
   /* Call the SPI interrupt handler */
   SysTick_interruptVector_->interruptHandler();
 }
 
-inline void InterruptHandler::RFCore_InterruptHandler(void)
+void InterruptHandler::RFCore_InterruptHandler(void)
 {
   /* Call the RF CORE interrupt handler */
   Radio_interruptVector_->interruptHandler();
 }
 
-inline void InterruptHandler::RFError_InterruptHandler(void)
+void InterruptHandler::RFError_InterruptHandler(void)
 {
   /* Call the RF ERROR interrupt handler */
   Radio_interruptVector_->errorHandler();
 }
 
-inline void InterruptHandler::SleepTimer_InterruptHandler(void)
+void InterruptHandler::SleepTimer_InterruptHandler(void)
 {
   /* Call the SleepTimer interrupt handler */
   SleepTimer_interruptVector_->interruptHandler();
 }
 
-inline void InterruptHandler::RadioTimer_InterruptHandler(void)
+void InterruptHandler::RadioTimer_InterruptHandler(void)
 {
   /* Call the RadioTimer interrupt handler */
   RadioTimer_interruptVector_->interruptHandler();
 }
 
-inline void InterruptHandler::Aes_InterruptHandler(void)
+void InterruptHandler::Aes_InterruptHandler(void)
 {
   /* Call the AES interrupt handler */
   Aes_interruptVector_->interruptHandler();
 }
 
-inline void InterruptHandler::Adc_InterruptHandler(void)
+void InterruptHandler::Adc_InterruptHandler(void)
 {
   /* Call the AES interrupt handler */
   Adc_interruptVector_->interruptHandler();
