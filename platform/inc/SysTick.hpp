@@ -16,7 +16,6 @@
 
 #include "Callback.hpp"
 
-
 class SysTick
 {
 
