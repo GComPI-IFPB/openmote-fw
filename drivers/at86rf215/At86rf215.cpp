@@ -31,6 +31,8 @@
 
 /*=============================== variables =================================*/
 
+extern BoardImplementation board;
+
 uint8_t rf09_irqm, rf24_irqm;
 uint8_t bbc0_irqm, bbc1_irqm;
 
