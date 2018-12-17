@@ -53,12 +53,22 @@ protected:
 
 /*****************************************************************************/
 
-class GpioInPow : public GpioIn
+class GpioInPow : public Gpio
 {
+
+friend class InterruptHandler;
+  
 public:
     GpioInPow(GpioConfig& config);
+    bool read(void);
+    void setCallback(Callback* callback);
+    void clearCallback(void);
     void enableInterrupts(void);
     void disableInterrupts(void);
+protected:
+    void interruptHandler(void);
+protected:
+    Callback* callback_;
 };
 
 /*****************************************************************************/
