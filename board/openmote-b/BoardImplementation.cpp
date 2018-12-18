@@ -273,14 +273,14 @@ static Gpio uart_rx {uart_rx_cfg};
 static Gpio uart_tx {uart_tx_cfg};
 
 static GpioConfig at86rf215_pwr_cfg {AT86RF215_PWR_BASE, AT86RF215_PWR_PIN, 0, 0, 0};
-static GpioConfig at86rf215_rst_cfg {AT86RF215_RST_BASE, AT86RF215_RST_PIN, 0, 0, 0};
-static GpioConfig at86rf215_csn_cfg {AT86RF215_CSn_BASE, AT86RF215_CSn_PIN, 0, 0, 0};
+static GpioConfig at86rf215_rst_cfg {AT86RF215_RST_BASE, AT86RF215_RST_PIN, 0, 0, 1};
+static GpioConfig at86rf215_csn_cfg {AT86RF215_CSn_BASE, AT86RF215_CSn_PIN, 0, 0, 1};
 static GpioConfig at86rf215_irq_cfg {AT86RF215_IRQ_BASE, AT86RF215_IRQ_PIN, 0, AT86RF215_IRQ_EDGE, 0};
 
 static GpioOut at86rf215_pwr {at86rf215_pwr_cfg};
 static GpioOut at86rf215_rst {at86rf215_rst_cfg};
 static GpioOut at86rf215_csn {at86rf215_csn_cfg};
-static GpioIn at86rf215_irq  {at86rf215_irq_cfg};
+static GpioIn  at86rf215_irq {at86rf215_irq_cfg};
 
 /*=============================== variables =================================*/
 
@@ -294,7 +294,7 @@ GpioOut led_red {led_red_cfg};
 GpioOut led_yellow {led_yellow_cfg};
 
 /* User button */
-// GpioInPow button_user {button_user_cfg};
+GpioInPow button_user {button_user_cfg};
 
 /* Debug pins */
 // GpioOut debug0(debug0_cfg);
