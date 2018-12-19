@@ -23,8 +23,6 @@
 
 /*================================ typedef ==================================*/
 
-#ifdef __cplusplus
-
 /**
  * SleepMode_None:   ~2 mA,   0 + 0 us,   wake-up from any interrupt source (e.g. UART)
  * SleepMode_1:    ~600 uA, 0.5 + 4 us,   wake-up from Gpio, Sleep timer, USB resume
@@ -32,10 +30,10 @@
  * SleepMode_3:    ~0.8 uA, 136 + 136 us, wake-up from Gpio
  */
 enum SleepMode : uint8_t {
-    SleepMode_None = SYS_CTRL_PM_NOACTION,
-    SleepMode_1    = SYS_CTRL_PM_1,
-    SleepMode_2    = SYS_CTRL_PM_2,
-    SleepMode_3    = SYS_CTRL_PM_3
+  SleepMode_None = SYS_CTRL_PM_NOACTION,
+  SleepMode_1    = SYS_CTRL_PM_1,
+  SleepMode_2    = SYS_CTRL_PM_2,
+  SleepMode_3    = SYS_CTRL_PM_3
 };
 
 struct AdcConfig {
@@ -47,10 +45,10 @@ struct AdcConfig {
 struct GpioConfig {
 	bool operator==(const GpioConfig& other) {return (port == other.port) && (pin == other.pin);}
 	uint32_t port;
-	uint8_t pin;
+	uint32_t pin;
 	uint32_t ioc;
 	uint32_t edge;
-	bool invert;
+	uint32_t invert;
 };
 
 struct TimerConfig {
@@ -90,8 +88,6 @@ struct UartConfig {
 	uint32_t baudrate;
 	uint32_t mode;
 };
-
-#endif 
 
 typedef struct {
   bool bExternalOsc32k;
