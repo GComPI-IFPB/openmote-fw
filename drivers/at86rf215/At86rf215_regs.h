@@ -60,6 +60,7 @@
 #define AT86RF215_RF09_STATE_ADDR       ( 0x0102 )
 #define AT86RF215_RF24_STATE_ADDR       ( 0x0202 )
 
+#define AT86RF215_RFn_STATE_ERROR       ( 0 << 0 )
 #define AT86RF215_RFn_STATE_TRXOFF      ( 2 << 0 )
 #define AT86RF215_RFn_STATE_TXPREP      ( 3 << 0 )
 #define AT86RF215_RFn_STATE_TX          ( 4 << 0 )

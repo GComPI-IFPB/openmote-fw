@@ -126,8 +126,8 @@ bool At86rf215::check(void)
 {
   bool status = false;
 
-  uint8_t pn;
-  uint8_t ver;
+  uint8_t pn = 0;
+  uint8_t ver = 0;
 
   singleAccessRead(AT86RF215_PN_ADDR, &pn);
 
@@ -344,6 +344,10 @@ At86rf215::RadioState At86rf215::getState(RadioCore rc)
 	{
 		singleAccessRead(AT86RF215_RF24_STATE_ADDR, (uint8_t*) &state);	
 	}
+  else
+  {
+    state = STATE_ERROR;
+  }
 
 	return state;
 }
