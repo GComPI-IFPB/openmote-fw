@@ -17,13 +17,13 @@
 class Crc16
 {
 public:
-    Crc16();
-    void init(void);
-    uint16_t get(void);
-    void set(uint8_t byte);
-    bool check(void);
+  Crc16();
+  void init(void);
+  uint16_t get(void);
+  void set(uint8_t byte);
+  bool check(void);
 private:
-    uint16_t crc;
+  uint16_t crc_;
 };
 
 #endif /* CRC16_HPP_ */

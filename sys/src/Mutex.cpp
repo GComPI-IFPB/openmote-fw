@@ -23,29 +23,33 @@
 
 /*================================= public ==================================*/
 
-Mutex::Mutex()
+Mutex::Mutex(void)
 {
   mutex_ = xSemaphoreCreateMutex();
-  if (mutex_ == NULL) {
-    while (true);
+  if (mutex_ == NULL)
+  {
+    while (true)
+      ;
   }
 }
 
-Mutex::~Mutex()
+Mutex::~Mutex(void)
 {
   vSemaphoreDelete(mutex_);
 }
 
 bool Mutex::take(void)
 {
-  bool status = (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE);
+  bool status;
+  status = (xSemaphoreTake(mutex_, portMAX_DELAY) == pdTRUE);
   return status;
 }
 
 bool Mutex::take(uint32_t milliseconds)
 {
+  bool status;
   TickType_t timeout = milliseconds / portTICK_RATE_MS;
-  bool status = (xSemaphoreTake(mutex_, timeout) == pdTRUE);
+  status = (xSemaphoreTake(mutex_, timeout) == pdTRUE);
   return status;
 }
 
@@ -54,33 +58,37 @@ void Mutex::give(void)
   xSemaphoreGive(mutex_);
 }
 
-MutexRecursive::MutexRecursive()
+MutexRecursive::MutexRecursive(void)
 {
   mutex_ = xSemaphoreCreateRecursiveMutex();
-  if (mutex_ == NULL) {
-    while (true);
+  if (mutex_ == NULL)
+  {
+    while (true)
+      ;
   }
 }
 
-MutexRecursive::~MutexRecursive()
+MutexRecursive::~MutexRecursive(void)
 {
   vSemaphoreDelete(mutex_);
 }
 
 bool MutexRecursive::take(void)
 {
-  bool status = (xSemaphoreTakeRecursive(mutex_, portMAX_DELAY) == pdTRUE);
+  bool status;
+  status = (xSemaphoreTakeRecursive(mutex_, portMAX_DELAY) == pdTRUE);
   return status;
 }
 
 bool MutexRecursive::take(uint32_t milliseconds)
 {
+  bool status;
   TickType_t timeout = milliseconds / portTICK_RATE_MS;
-  bool status = (xSemaphoreTakeRecursive(mutex_, timeout) == pdTRUE);
+  status = (xSemaphoreTakeRecursive(mutex_, timeout) == pdTRUE);
   return status;
 }
 
-void MutexRecursive::give()
+void MutexRecursive::give(void)
 {
   xSemaphoreGiveRecursive(mutex_);
 }

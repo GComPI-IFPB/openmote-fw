@@ -21,7 +21,7 @@ typedef void(*callback_t)(void);
 class Callback
 {
 public:
-    virtual void execute(void) = 0;
+  virtual void execute(void) = 0;
 };
 
 /*****************************************************************************/
@@ -30,13 +30,13 @@ template<typename T>
 class GenericCallback : public Callback
 {
 public:
-    GenericCallback(T* object_ = nullptr, \
-                   void(T:: *method_)(void) = nullptr):
-                   object(object_), method(method_){}
-    void execute(void) {(object->*method)();}
+  GenericCallback(T* object_ = nullptr, \
+                 void(T:: *method_)(void) = nullptr):
+                 object(object_), method(method_){}
+  void execute(void) {(object->*method)();}
 private:
-    T* object;
-    void(T:: *method)(void);
+  T* object;
+  void(T:: *method)(void);
 };
 
 /*****************************************************************************/
@@ -44,10 +44,10 @@ private:
 class PlainCallback : public Callback
 {
 public:
-    PlainCallback(callback_t callback_){callback = callback_;}
-    void execute(void){callback();}
+  PlainCallback(callback_t callback_){callback = callback_;}
+  void execute(void){callback();}
 private:
-    callback_t callback;
+  callback_t callback;
 };
 
 /*****************************************************************************/

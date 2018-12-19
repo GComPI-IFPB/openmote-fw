@@ -29,8 +29,8 @@
 /*================================= public ==================================*/
 
 Logging::Logging(Uart& uart) :
-	uart_(uart), txCallback_(this, &Logging::txCallback), \
-	txBuffer_(transmit_buffer_, sizeof(transmit_buffer_)), \
+	uart_(uart), txCallback_(this, &Logging::txCallback),
+  transmit_buffer_{0}, txBuffer_(transmit_buffer_, sizeof(transmit_buffer_)),
 	level_(LogLevel::None), initialized_(false)
 {
 }
@@ -39,18 +39,19 @@ void Logging::init(void)
 {
 	CriticalSection cs;
 
-	if (!initialized_) {
-		/* Enable the UART */
-		uart_.enable();
+	if (!initialized_)
+  {
+    /* Enable the UART */
+    uart_.enable();
 
-		/* Register UART callbacks */
-	  uart_.setTxCallback(&txCallback_);
+    /* Register UART callbacks */
+    uart_.setTxCallback(&txCallback_);
 
-	  /* Enable UART interrupts */
-	  uart_.enableInterrupts();
+    /* Enable UART interrupts */
+    uart_.enableInterrupts();
 
-		/* Mark as initialized */
-	  initialized_ = true;
+    /* Mark as initialized */
+    initialized_ = true;
 	}
 }
 
@@ -84,37 +85,44 @@ void Logging::log(char const * message)
 
  	/* Read first byte from the UART transmit buffer */
   status = txBuffer_.read(&byte);
-  if (status == true) {
+  if (status == true)
+  {
     uart_.writeByte(byte);
-  } else {
+  }
+  else
+  {
     uart_.txUnlock();
   }
 }
 
 void Logging::call(char const * message)
 {
-	if (level_ >= LogLevel::Call) {
+	if (level_ >= LogLevel::Call)
+  {
 		log(message);
 	}
 }
 
 void Logging::info(char const * message)
 {
-	if (level_ >= LogLevel::Info) {
+	if (level_ >= LogLevel::Info)
+  {
 		log(message);
 	}
 }
 
 void Logging::warn(char const * message)
 {
-	if (level_ >= LogLevel::Warn) {
+	if (level_ >= LogLevel::Warn)
+  {
 		log(message);
 	}
 }
 
 void Logging::error(char const * message)
 {
-	if (level_ >= LogLevel::Error) {
+	if (level_ >= LogLevel::Error)
+  {
 		log(message);
 	}
 }
@@ -127,16 +135,18 @@ void Logging::txCallback(void)
 {
 	uint8_t byte;
 
-    /* Read byte from the UART transmit buffer */
-    if (txBuffer_.read(&byte) == true) {
-        /* Write byte to the UART */
-        uart_.writeByte(byte);
-    }
-    else {
-        /* Once done, free the UART lock */
-        uart_.txUnlockFromInterrupt();
+  /* Read byte from the UART transmit buffer */
+  if (txBuffer_.read(&byte) == true)
+  {
+    /* Write byte to the UART */
+    uart_.writeByte(byte);
+  }
+  else
+  {
+    /* Once done, free the UART lock */
+    uart_.txUnlockFromInterrupt();
 
-        /* Give the logging mutex */
-        mutex_.give();
-    }
+    /* Give the logging mutex */
+    mutex_.give();
+  }
 }

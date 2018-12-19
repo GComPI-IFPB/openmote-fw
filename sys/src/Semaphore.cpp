@@ -23,7 +23,8 @@
 
 /*================================= public ==================================*/
 
-Semaphore::Semaphore(void)
+Semaphore::Semaphore(void):
+  semaphore_(nullptr), priorityTaskWoken_(pdFALSE)
 {
 }
 
@@ -75,11 +76,13 @@ void Semaphore::giveFromInterrupt(void)
 SemaphoreBinary::SemaphoreBinary(bool given)
 {
   semaphore_ = xSemaphoreCreateBinary();
-  if (semaphore_ == NULL) {
+  if (semaphore_ == NULL)
+  {
       while(true);
   }
   
-  if (given) {
+  if (given)
+  {
       Semaphore::give();
   }
 }
@@ -87,7 +90,8 @@ SemaphoreBinary::SemaphoreBinary(bool given)
 SemaphoreCounting::SemaphoreCounting(uint32_t initialCount, uint32_t maxCount)
 {
   semaphore_ = xSemaphoreCreateCounting(maxCount, initialCount);
-  if (semaphore_ == NULL) {
+  if (semaphore_ == NULL)
+  {
     while(true);
   }
 }

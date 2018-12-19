@@ -18,25 +18,25 @@
 class Mutex
 {
 public:
-    Mutex();
-    ~Mutex();
-    bool take(void);
-    bool take(uint32_t milliseconds);
-    void give(void);
+  Mutex(void);
+  ~Mutex(void);
+  bool take(void);
+  bool take(uint32_t milliseconds);
+  void give(void);
 private:
-    SemaphoreHandle_t mutex_;
+  SemaphoreHandle_t mutex_;
 };
 
 class MutexRecursive
 {
 public:
-    MutexRecursive();
-    ~MutexRecursive();
-    bool take(void);
-    bool take(uint32_t milliseconds);
-    void give(void);
+  MutexRecursive(void);
+  ~MutexRecursive(void);
+  bool take(void);
+  bool take(uint32_t milliseconds);
+  void give(void);
 private:
-    SemaphoreHandle_t mutex_;
+  SemaphoreHandle_t mutex_;
 };
 
 #endif /* MUTEX_H_ */

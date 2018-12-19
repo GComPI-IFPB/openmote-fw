@@ -22,28 +22,28 @@
 class Semaphore
 {
 public:
-    Semaphore();
-    ~Semaphore();
-    bool isTaken(void);
-    bool take(void);
-    bool take(uint32_t milliseconds);
-    void give(void);
-    void giveFromInterrupt(void);
+  Semaphore(void);
+  ~Semaphore(void);
+  bool isTaken(void);
+  bool take(void);
+  bool take(uint32_t milliseconds);
+  void give(void);
+  void giveFromInterrupt(void);
 protected:
-    SemaphoreHandle_t semaphore_;
-    BaseType_t priorityTaskWoken_;
+  SemaphoreHandle_t semaphore_;
+  BaseType_t priorityTaskWoken_;
 };
 
 class SemaphoreBinary : public Semaphore
 {
 public:
-    SemaphoreBinary(bool given = true);
+  SemaphoreBinary(bool given = true);
 };
 
 class SemaphoreCounting : public Semaphore
 {
 public:
-    SemaphoreCounting(uint32_t initialCount, uint32_t maxCount);
+  SemaphoreCounting(uint32_t initialCount, uint32_t maxCount);
 };
 
 #endif /* SEMAPHORE_HPP_ */

@@ -23,17 +23,17 @@ typedef uint32_t RendezvousId;
 class Rendezvous
 {
 public:
-    Rendezvous();
-    ~Rendezvous();
-    bool getId(RendezvousId* id);
-    bool sync(RendezvousId id);
-    bool sync(RendezvousId id, uint32_t milliseconds);
+  Rendezvous(void);
+  ~Rendezvous(void);
+  bool getId(RendezvousId* id);
+  bool sync(RendezvousId id);
+  bool sync(RendezvousId id, uint32_t milliseconds);
 protected:
-    EventGroupHandle_t handle_;
+  EventGroupHandle_t handle_;
 
-    uint32_t counter_;
-    uint32_t lastId_;
-    uint32_t maxId_;
+  uint32_t counter_;
+  uint32_t lastId_;
+  uint32_t maxId_;
 };
 
 #endif /* RENDEZVOUS_HPP_ */

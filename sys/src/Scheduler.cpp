@@ -26,7 +26,7 @@
 
 /*================================= public ==================================*/
 
-Scheduler::Scheduler()
+Scheduler::Scheduler(void)
 {
 }
 

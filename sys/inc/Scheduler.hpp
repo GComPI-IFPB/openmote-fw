@@ -17,11 +17,11 @@
 class Scheduler
 {
 public:
-    static void run();
-    static void yield();
-    static void delay_ms(uint16_t ms);
+  static void run(void);
+  static void yield(void);
+  static void delay_ms(uint16_t ms);
 private:
-	Scheduler();
+	Scheduler(void);
 };
 
 #endif /* SCHEDULER_HPP_ */

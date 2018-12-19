@@ -20,45 +20,45 @@
 
 enum HdlcResult : int32_t
 {
-    HdlcResult_Error = -1,
-    HdlcResult_Ok    =  0,
+  HdlcResult_Error = -1,
+  HdlcResult_Ok    =  0,
 };
 
 enum HdlcStatus : int32_t
 {
-    HdlcStatus_Idle  =  1,
-    HdlcStatus_Busy  =  2,
-    HdlcStatus_Done  =  3,
+  HdlcStatus_Idle  =  1,
+  HdlcStatus_Busy  =  2,
+  HdlcStatus_Done  =  3,
 };
 
 class Hdlc
 {
 public:
-    Hdlc(Buffer& rxBuffer, Buffer& txBuffer);
+  Hdlc(Buffer& rxBuffer, Buffer& txBuffer);
 
-    HdlcResult rxOpen(void);
-    HdlcResult rxPut(uint8_t byte);
-    HdlcResult rxClose(void);
-    HdlcStatus getRxStatus(void);
+  HdlcResult rxOpen(void);
+  HdlcResult rxPut(uint8_t byte);
+  HdlcResult rxClose(void);
+  HdlcStatus getRxStatus(void);
 
-    HdlcResult txOpen(void);
-    HdlcResult txPut(uint8_t byte);
-    HdlcResult txPut(uint8_t* buffer, int32_t size);
-    HdlcResult txClose(void);
-
-private:
-    HdlcResult rxParse(uint8_t byte);
+  HdlcResult txOpen(void);
+  HdlcResult txPut(uint8_t byte);
+  HdlcResult txPut(uint8_t* buffer, int32_t size);
+  HdlcResult txClose(void);
 
 private:
-    Buffer& rxBuffer_;
-    Buffer& txBuffer_;
+  HdlcResult rxParse(uint8_t byte);
 
-    HdlcStatus rxStatus;
-    uint8_t rxLastByte;
-    bool rxIsEscaping;
+private:
+  Buffer& rxBuffer_;
+  Buffer& txBuffer_;
 
-    Crc16 rxCrc;
-    Crc16 txCrc;
+  HdlcStatus rxStatus;
+  uint8_t rxLastByte;
+  bool rxIsEscaping;
+
+  Crc16 rxCrc;
+  Crc16 txCrc;
 };
 
 #endif /* HDLC_HPP_ */

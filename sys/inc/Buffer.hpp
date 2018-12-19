@@ -20,23 +20,23 @@
 class Buffer
 {
 public:
-    Buffer(uint8_t* buffer, uint32_t length);
-    void reset(void);
-    uint32_t getSize(void);
-    bool isEmpty(void);
-    bool isFull(void);
-    bool read(uint8_t* data);
-    bool read(uint8_t* buffer, uint32_t length);
-    bool write(uint8_t data);
-    bool write(const uint8_t* data, uint32_t length);
+  Buffer(uint8_t* buffer, uint32_t length);
+  void reset(void);
+  uint32_t getSize(void);
+  bool isEmpty(void);
+  bool isFull(void);
+  bool read(uint8_t* data);
+  bool read(uint8_t* buffer, uint32_t length);
+  bool write(uint8_t data);
+  bool write(const uint8_t* data, uint32_t length);
 private:
-    MutexRecursive rmutex_;
+  MutexRecursive rmutex_;
 
-    uint8_t* buffer_;
-    uint32_t length_;
-    uint32_t count_;
-    uint8_t* head_;
-    uint8_t* tail_;
+  uint8_t* buffer_;
+  uint32_t length_;
+  uint32_t count_;
+  uint8_t* head_;
+  uint8_t* tail_;
 };
 
 #endif /* BUFFER_HPP_ */

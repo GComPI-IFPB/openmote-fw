@@ -28,7 +28,7 @@
 /*================================= public ==================================*/
 
 LedBlinker::LedBlinker(const char * const name, uint16_t size, uint8_t priority, GpioOut& gpio):
-	Thread(name, size, priority), gpio_(gpio)
+	Thread(name, size, priority), gpio_(gpio), period_(0), timeOn_(0)
 {
 }
 
@@ -41,7 +41,8 @@ void LedBlinker::setTime(uint32_t timeOn, uint32_t period)
 void LedBlinker::run(void) 
 {
   /* Forever */
-  while (true) {
+  while (true)
+  {
     /* Turn LED on and wait */
     gpio_.on();
     Scheduler::delay_ms(timeOn_);

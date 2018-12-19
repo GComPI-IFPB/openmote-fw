@@ -30,7 +30,8 @@ Rendezvous::Rendezvous(void):
 	counter_(0), lastId_(0), maxId_(0)
 {
   handle_ = xEventGroupCreate();
-  if (handle_ == NULL) {
+  if (handle_ == NULL)
+  {
     while(true);
   }
 }
@@ -44,7 +45,8 @@ bool Rendezvous::getId(RendezvousId* id)
 {
   CriticalSection cs;
 
-  if (counter_ < MAX_RENDEZVOUS_TASKS && id != NULL) {
+  if (counter_ < MAX_RENDEZVOUS_TASKS && id != NULL)
+  {
     lastId_ = 1 << (counter_);
     *id = lastId_;
     counter_++;
@@ -66,12 +68,10 @@ bool Rendezvous::sync(RendezvousId id, uint32_t milliseconds)
 	EventBits_t uxReturn;
 
 	TickType_t timeout = milliseconds / portTICK_RATE_MS;
-	uxReturn = xEventGroupSync(handle_,
-                             id,
-                             maxId_,
-                             timeout);
+	uxReturn = xEventGroupSync(handle_, id, maxId_, timeout);
 
-  if ((uxReturn & maxId_) == maxId_) {
+  if ((uxReturn & maxId_) == maxId_)
+  {
       return true;
   }
 

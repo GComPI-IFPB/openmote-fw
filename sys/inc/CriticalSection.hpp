@@ -18,8 +18,8 @@
 class CriticalSection
 {
 public:
-    CriticalSection(void);
-    ~CriticalSection(void);
+  CriticalSection(void);
+  ~CriticalSection(void);
 };
 
 #endif /* CRITICAL_SECTION_HPP_ */

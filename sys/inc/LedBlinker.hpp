@@ -19,14 +19,14 @@ class GpioOut;
 class LedBlinker : protected Thread
 {
 public:
-    LedBlinker(const char* const name, uint16_t size, uint8_t priority, GpioOut& gpio);
-    void setTime(uint32_t timeOn, uint32_t period);
+  LedBlinker(const char* const name, uint16_t size, uint8_t priority, GpioOut& gpio);
+  void setTime(uint32_t timeOn, uint32_t period);
 protected:
-    virtual void run(void);
+  virtual void run(void);
 private:
-    GpioOut& gpio_;
-    uint32_t timeOn_;
-    uint32_t period_;
+  GpioOut& gpio_;
+  uint32_t timeOn_;
+  uint32_t period_;
 };
 
 #endif /* LED_BLINKER_HPP_ */
