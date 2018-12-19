@@ -35,10 +35,9 @@
 /*================================ define ===================================*/
 
 #define BOARD_USE_32KHZ_XTAL    ( true )
-#define BOARD_USE_32MHZ_OSC     ( false )
-#define SYSTEM_CLOCK_DIVIDER    ( SYS_CTRL_SYSDIV_32MHZ )
+#define BOARD_USE_32MHZ_OSC     ( true )
+#define SYSTEM_CLOCK_DIVIDER    ( SYS_CTRL_SYSDIV_16MHZ )
 #define PERIPH_CLOCK_DIVIDER    ( SYS_CTRL_SYSDIV_16MHZ )
-#define WATCHDOG_INTERVAL       ( WATCHDOG_INTERVAL_32768 )
 
 #define LED_RED_PORT            ( GPIO_C_BASE )
 #define LED_RED_PIN             ( GPIO_PIN_4 )
@@ -189,6 +188,8 @@
 #define I2C_SDA_BASE            ( GPIO_B_BASE )
 #define I2C_SDA_PIN             ( GPIO_PIN_0 )
 
+#define WATCHDOG_INTERVAL       ( WATCHDOG_INTERVAL_32768 )
+
 #define AT86RF215_PWR_BASE      ( GPIO_C_BASE )
 #define AT86RF215_PWR_PIN       ( GPIO_PIN_0 )
 
@@ -210,9 +211,9 @@
 static BoardParams board_params {BOARD_USE_32KHZ_XTAL, BOARD_USE_32MHZ_OSC, SYSTEM_CLOCK_DIVIDER, PERIPH_CLOCK_DIVIDER};
 
 /* LEDs */
-static GpioConfig led_green_cfg  {LED_GREEN_PORT, LED_GREEN_PIN, 0, 0, 1};
+static GpioConfig led_green_cfg  {LED_GREEN_PORT,  LED_GREEN_PIN,  0, 0, 1};
 static GpioConfig led_orange_cfg {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 1};
-static GpioConfig led_red_cfg    {LED_RED_PORT, LED_RED_PIN, 0, 0, 1};
+static GpioConfig led_red_cfg    {LED_RED_PORT,    LED_RED_PIN,    0, 0, 1};
 static GpioConfig led_yellow_cfg {LED_YELLOW_PORT, LED_YELLOW_PIN, 0, 0, 1};
 
 /* Debug pins */ 
@@ -231,7 +232,7 @@ static GpioConfig button_user_cfg {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_
 
 /* Antenna pins */
 static GpioConfig antenna_at86rf215_cfg {ANTENNA_AT86RF215_PORT, ANTENNA_AT86RF215_PIN, 0, 0, 0};
-static GpioConfig antenna_cc2538_cfg    {ANTENNA_CC2538_PORT, ANTENNA_CC2538_PIN, 0, 0, 0};
+static GpioConfig antenna_cc2538_cfg    {ANTENNA_CC2538_PORT,    ANTENNA_CC2538_PIN,    0, 0, 0};
 
 /* Timers */
 // static TimerConfig timer0a_cfg {TIMER0A_PERIPHERAL, TIMER0A_BASE, TIMER0A_SOURCE, TIMER0A_CONFIG, TIMER0A_INTERRUPT, TIMER0A_INTERRUPT_MODE};
@@ -251,7 +252,7 @@ static I2cConfig i2c_cfg      {I2C_PERIPHERAL, I2C_BAUDRATE};
 /* SPI peripheral */
 static GpioConfig spi_miso_cfg {SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC, 0, 0};
 static GpioConfig spi_mosi_cfg {SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC, 0, 0};
-static GpioConfig spi_clk_cfg  {SPI_CLK_BASE, SPI_CLK_PIN, SPI_CLK_IOC, 0, 0};
+static GpioConfig spi_clk_cfg  {SPI_CLK_BASE,  SPI_CLK_PIN,  SPI_CLK_IOC,  0, 0};
 static SpiConfig spi_cfg       {SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, SPI_INT, SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE};
 
 /* UART peripheral */
@@ -285,7 +286,7 @@ static GpioIn  at86rf215_irq {at86rf215_irq_cfg};
 /*=============================== variables =================================*/
 
 /* Board */
-BoardImplementation board(board_params);
+BoardImplementation board {board_params};
 
 /* LEDs */
 GpioOut led_green {led_green_cfg};
