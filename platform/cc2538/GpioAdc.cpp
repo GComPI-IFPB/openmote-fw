@@ -28,7 +28,7 @@
 /*================================= public ==================================*/
 
 GpioAdc::GpioAdc(GpioConfig& gpioConfig, AdcConfig& adcConfig):
-    Gpio(gpioConfig), adcConfig_(adcConfig)
+    Gpio(gpioConfig), callback_(nullptr), adcConfig_(adcConfig)
 {
   /* Configure pin as hardware */
   GPIODirModeSet(config_.port, config_.pin, GPIO_DIR_MODE_HW);

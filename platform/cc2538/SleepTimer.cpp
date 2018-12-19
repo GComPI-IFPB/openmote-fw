@@ -27,7 +27,7 @@
 /*================================= public ==================================*/
 
 SleepTimer::SleepTimer(uint32_t interrupt):
-    interrupt_(interrupt)
+    interrupt_(interrupt), callback_(nullptr)
 {
 }
 

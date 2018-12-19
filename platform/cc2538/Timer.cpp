@@ -21,6 +21,7 @@
 
 /*================================ define ===================================*/
 
+#define DEFAULT_FREQUENCY     ( 0 ) 
 #define DEFAULT_PRESCALER     ( 255 )
 
 /*================================ typedef ==================================*/
@@ -34,7 +35,8 @@ extern BoardImplementation board;
 /*================================= public ==================================*/
 
 Timer::Timer(TimerConfig& config):
-    config_(config), prescaler_(DEFAULT_PRESCALER)    
+    config_(config), callback_(nullptr),
+    frequency_(DEFAULT_FREQUENCY), prescaler_(DEFAULT_PRESCALER)    
 {
 }
 

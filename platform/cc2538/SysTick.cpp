@@ -27,7 +27,7 @@
 /*================================= public ==================================*/
 
 SysTick::SysTick(uint32_t period):
-  period_(period)
+  period_(period), callback_(nullptr)
 {
 }
 

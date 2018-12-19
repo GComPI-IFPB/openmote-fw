@@ -28,7 +28,7 @@
 /*================================= public ==================================*/
 
 GpioIn::GpioIn(GpioConfig& config):
-  Gpio(config)
+  Gpio(config), callback_(nullptr)
 {
   /* Set the pin as input */
   GPIOPinTypeGPIOInput(config_.port, config_.pin);
@@ -137,7 +137,8 @@ void GpioInPow::disableInterrupts(void)
 void GpioIn::interruptHandler(void)
 {
   /* Call the interrupt handler if it is NOT null */
-  if (callback_ != nullptr) {
+  if (callback_ != nullptr)
+  {
       callback_->execute();
   }
 }

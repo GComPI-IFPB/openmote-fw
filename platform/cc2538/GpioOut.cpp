@@ -38,21 +38,27 @@ GpioOut::GpioOut(GpioConfig& config):
 
 void GpioOut::on(void)
 {
-  if (config_.invert) {
-    /* Write a zero to set pin high */
+  if (config_.invert == 1)
+  {
+    /* Write a zero to set pin on */
     GPIOPinWrite(config_.port, config_.pin, 0);
-  } else {
-    /* Write a one to set pin high */
+  }
+  else
+  {
+    /* Write a one to set pin on */
     GPIOPinWrite(config_.port, config_.pin, config_.pin);
   }
 }
 
 void GpioOut::off(void)
 {
-  if (config_.invert) {
+  if (config_.invert == 1)
+  {
     /* Write a one to set pin off */
     GPIOPinWrite(config_.port, config_.pin, config_.pin);
-  } else {
+  }
+  else
+  {
     /* Write a zero to set pin off */
     GPIOPinWrite(config_.port, config_.pin, 0);
   }

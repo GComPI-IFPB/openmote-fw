@@ -29,7 +29,7 @@ public:
   uint16_t getTemperatureRaw(void);
   float getTemperature(void);
 private:
-  uint16_t temperature;
+  uint16_t temperature_;
 };
 
 #endif /* TEMPERATURE_SENSOR_HPP_ */
