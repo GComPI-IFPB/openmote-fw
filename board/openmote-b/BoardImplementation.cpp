@@ -35,8 +35,8 @@
 /*================================ define ===================================*/
 
 #define BOARD_USE_32KHZ_XTAL    ( true )
-#define BOARD_USE_32MHZ_OSC     ( true )
-#define SYSTEM_CLOCK_DIVIDER    ( SYS_CTRL_SYSDIV_16MHZ )
+#define BOARD_USE_32MHZ_OSC     ( false )
+#define SYSTEM_CLOCK_DIVIDER    ( SYS_CTRL_SYSDIV_32MHZ )
 #define PERIPH_CLOCK_DIVIDER    ( SYS_CTRL_SYSDIV_16MHZ )
 
 #define LED_RED_PORT            ( GPIO_C_BASE )
