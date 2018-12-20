@@ -41,7 +41,7 @@ static void buttonCallback(void);
 
 static SemaphoreBinary buttonSemaphore;
 
-static PlainCallback userCallback(buttonCallback);
+static PlainCallback userCallback {buttonCallback};
 
 /*================================= public ==================================*/
 
@@ -75,9 +75,11 @@ static void prvButtonTask(void *pvParameters)
   buttonSemaphore.take();
 
   // Forever
-  while (true) {
+  while (true)
+  {
     // Take the buttonSemaphore, block until available
-    if (buttonSemaphore.take()) {
+    if (buttonSemaphore.take())
+    {
         // Toggle the red LED
         led_red.toggle();
     }
@@ -87,7 +89,8 @@ static void prvButtonTask(void *pvParameters)
 static void prvGreenLedTask(void *pvParameters)
 {
   // Forever
-  while (true) {
+  while (true)
+  {
     // Turn on green LED for 10 ms
     led_green.on();
     vTaskDelay(10 / portTICK_RATE_MS);
