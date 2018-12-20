@@ -43,16 +43,15 @@ static SemaphoreBinary buttonSemaphore;
 
 static PlainCallback userCallback {buttonCallback};
 
+static Task heartbeatTask{(const char *) "Green", 128, GREEN_LED_TASK_PRIORITY, prvGreenLedTask, nullptr};
+static Task buttonTask{(const char *) "Button", 128, BUTTON_TASK_PRIORITY, prvButtonTask, nullptr};
+
 /*================================= public ==================================*/
 
 int main(void)
 {
   // Initialize the board
   board.init();
-
-  // Create two FreeRTOS tasks
-  xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-  xTaskCreate(prvButtonTask, (const char *) "Button", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
 
   // Start the scheduler
   Scheduler::run();
@@ -91,13 +90,12 @@ static void prvGreenLedTask(void *pvParameters)
   // Forever
   while (true)
   {
-    // Turn on green LED for 10 ms
+    // Turn on green LED for 100 ms
     led_green.on();
-    vTaskDelay(10 / portTICK_RATE_MS);
+    Scheduler::delay_ms(100);
     
-    // Turn off green LED for 990 ms
+    // Turn off green LED for 900 ms
     led_green.off();
-    vTaskDelay(990 / portTICK_RATE_MS);
+    Scheduler::delay_ms(900);
   }
 }
-
