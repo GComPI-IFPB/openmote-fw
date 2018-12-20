@@ -220,6 +220,7 @@
                 <debug>1</debug>
                 <option>
                     <name>CCDefines</name>
+                    <state>CC2538_USE_ALTERNATE_INTERRUPT_MAP</state>
                     <state>DEBUG</state>
                 </option>
                 <option>
@@ -938,7 +939,7 @@
                 </option>
                 <option>
                     <name>IlinkOptExceptionsAllow</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>IlinkOptExceptionsForce</name>
@@ -954,7 +955,7 @@
                 </option>
                 <option>
                     <name>IlinkOptUseVfe</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>IlinkOptForceVfe</name>
@@ -2398,18 +2399,6 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\src\main.cpp</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\src\SnifferCommon.cpp</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\src\SnifferCommon.hpp</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\src\SnifferSerial.cpp</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\..\src\SnifferSerial.hpp</name>
         </file>
     </group>
     <group>

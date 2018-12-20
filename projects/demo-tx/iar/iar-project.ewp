@@ -220,6 +220,7 @@
                 <debug>1</debug>
                 <option>
                     <name>CCDefines</name>
+                    <state>CC2538_USE_ALTERNATE_INTERRUPT_MAP</state>
                     <state>DEBUG</state>
                 </option>
                 <option>
@@ -938,7 +939,7 @@
                 </option>
                 <option>
                     <name>IlinkOptExceptionsAllow</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>IlinkOptExceptionsForce</name>
@@ -954,7 +955,7 @@
                 </option>
                 <option>
                     <name>IlinkOptUseVfe</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>IlinkOptForceVfe</name>
@@ -2393,9 +2394,6 @@
     </group>
     <group>
         <name>project</name>
-        <file>
-            <name>$PROJ_DIR$\..\src\cc2538_lowpower.c</name>
-        </file>
         <file>
             <name>$PROJ_DIR$\..\src\FreeRTOSConfig.h</name>
         </file>
