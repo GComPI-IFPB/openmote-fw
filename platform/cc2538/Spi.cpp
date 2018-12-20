@@ -29,7 +29,8 @@
 /*================================= public ==================================*/
 
 Spi::Spi(Gpio& miso, Gpio& mosi, Gpio& clk, SpiConfig& config):
-  miso_(miso), mosi_(mosi), clk_(clk), config_(config)
+  miso_(miso), mosi_(mosi), clk_(clk), config_(config),
+  rx_callback_(nullptr), tx_callback_(nullptr)
 {
 }
 
@@ -69,13 +70,14 @@ void Spi::enable(uint32_t baudrate)
   /* Configure the SPI clock according to its input */
   if (config_.clock == SSI_CLOCK_SYSTEM)
   {
-    
-    SSIConfigSetExpClk(config_.base, SysCtrlClockGet(), config_.protocol, \
+    uint32_t clock = SysCtrlClockGet();
+    SSIConfigSetExpClk(config_.base, clock, config_.protocol, \
                        config_.mode, config_.baudrate, config_.datawidth);
   }
   else if (config_.clock == SSI_CLOCK_PIOSC)
   {
-    SSIConfigSetExpClk(config_.base, SysCtrlIOClockGet(), config_.protocol, \
+    uint32_t clock = SysCtrlIOClockGet();
+    SSIConfigSetExpClk(config_.base, clock, config_.protocol, \
                        config_.mode, config_.baudrate, config_.datawidth);
   }
   else
