@@ -29,21 +29,27 @@
  * SleepMode_2:    ~1.5 uA, 136 + 136 us, wake-up from Gpio, Sleep timer
  * SleepMode_3:    ~0.8 uA, 136 + 136 us, wake-up from Gpio
  */
-enum SleepMode : uint8_t {
+enum SleepMode : uint8_t
+{
   SleepMode_None = SYS_CTRL_PM_NOACTION,
   SleepMode_1    = SYS_CTRL_PM_1,
   SleepMode_2    = SYS_CTRL_PM_2,
   SleepMode_3    = SYS_CTRL_PM_3
 };
 
-struct AdcConfig {
+class AdcConfig
+{
+public:
 	uint32_t resolution;
 	uint32_t reference;
 	uint32_t channel;
 };
 
-struct GpioConfig {
+class GpioConfig
+{
+public:
 	bool operator==(const GpioConfig& other) {return (port == other.port) && (pin == other.pin);}
+public:
 	uint32_t port;
 	uint32_t pin;
 	uint32_t ioc;
@@ -51,8 +57,11 @@ struct GpioConfig {
 	uint32_t invert;
 };
 
-struct TimerConfig {
+class TimerConfig
+{
+public:
 	bool operator==(const TimerConfig& other) {return (peripheral == other.peripheral);}
+public:
 	uint32_t peripheral;
 	uint32_t base;
 	uint32_t source;
@@ -61,14 +70,20 @@ struct TimerConfig {
 	uint32_t interrupt_mode;
 };
 
-struct I2cConfig {
+class I2cConfig
+{
+public:
 	bool operator==(const I2cConfig& other) {return (peripheral == other.peripheral);}
+public:
 	uint32_t peripheral;
 	uint32_t baudrate;
 };
 
-struct SpiConfig {
+class SpiConfig
+{
+public:
 	bool operator==(const SpiConfig& other) {return (peripheral == other.peripheral);}
+public:
 	uint32_t peripheral;
 	uint32_t base;
 	uint32_t clock;
@@ -79,8 +94,11 @@ struct SpiConfig {
 	uint32_t baudrate;
 };
 
-struct UartConfig {
+class UartConfig
+{
+public:
 	bool operator==(const UartConfig& other) {return (peripheral == other.peripheral);}
+public:
 	uint32_t peripheral;
 	uint32_t base;
 	uint32_t clock;
@@ -89,7 +107,8 @@ struct UartConfig {
 	uint32_t mode;
 };
 
-typedef struct {
+typedef struct
+{
   bool bExternalOsc32k;
   bool bInternalOsc32M;
   uint32_t SysClkDivider;
