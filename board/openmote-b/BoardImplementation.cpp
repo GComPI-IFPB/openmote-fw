@@ -298,10 +298,10 @@ GpioOut led_yellow {led_yellow_cfg};
 GpioInPow button_user {button_user_cfg};
 
 /* Debug pins */
-// GpioOut debug0(debug0_cfg);
-// GpioOut debug1(debug1_cfg);
-// GpioOut debug2(debug2_cfg);
-// GpioOut debug3(debug3_cfg);
+GpioOut debug0 {debug0_cfg};
+GpioOut debug1 {debug1_cfg};
+GpioOut debug2 {debug2_cfg};
+GpioOut debug3 {debug3_cfg};
 
 // Timer timer0a(timer0a_cfg);
 // Timer timer0b(timer0b_cfg);

@@ -37,6 +37,57 @@
 
 /*=============================== variables =================================*/
 
+/* Board */
+extern BoardImplementation board;
+
+/* LEDs */
+extern GpioOut led_green;
+extern GpioOut led_orange;
+extern GpioOut led_red;
+extern GpioOut led_yellow;
+
+/* User button */
+extern GpioInPow button_user;
+
+/* Debug pins */
+extern GpioOut debug0;
+extern GpioOut debug1;
+extern GpioOut debug2;
+extern GpioOut debug3;
+
+/* SleepTimer */
+extern SleepTimer sleepTimer;
+
+/* RadioTimer */
+extern RadioTimer radioTimer;
+
+/* Watchdog */
+extern Watchdog watchdog;
+
+/* I2C */
+extern I2c i2c;
+
+/* UART */
+extern Uart uart;
+
+/* SPI */
+extern Spi spi;
+
+/* Random Number Generator */
+extern RandomNumberGenerator rng;
+
+/* IEEE 802.15.4 radio */
+extern Radio radio;
+
+/* AES module */
+extern Aes aes;
+
+/* CC2538 temperature sensor */
+extern TemperatureSensor temp;
+
+/* AT86RF215 radio transceiver */
+extern At86rf215 at86rf215;
+
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/
