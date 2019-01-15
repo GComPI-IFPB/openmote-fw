@@ -42,11 +42,11 @@ protected:
     void interruptHandler(void);
 protected:
     TimerConfig& config_;
-
+    
+    Callback* callback_;
+    
     uint32_t frequency_;
     uint32_t prescaler_;
-
-    Callback* callback_;
 };
 
 #endif /* TIMER_HPP_ */

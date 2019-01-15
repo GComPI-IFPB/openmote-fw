@@ -25,8 +25,8 @@ protected:
   virtual void run(void);
 private:
   GpioOut& gpio_;
-  uint32_t timeOn_;
   uint32_t period_;
+  uint32_t timeOn_;
 };
 
 #endif /* LED_BLINKER_HPP_ */

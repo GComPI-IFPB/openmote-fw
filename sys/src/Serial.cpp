@@ -27,9 +27,8 @@ static const uint8_t CRC_LENGTH = 2;    // Length of the CRC
 
 Serial::Serial(Uart& uart):
   uart_(uart),
-  receive_buffer_{0}, transmit_buffer_{0},
-  rxBuffer_(receive_buffer_, sizeof(receive_buffer_)),
-  txBuffer_(transmit_buffer_, sizeof(transmit_buffer_)),
+  receive_buffer_{0}, rxBuffer_(receive_buffer_, sizeof(receive_buffer_)),
+  transmit_buffer_{0}, txBuffer_(transmit_buffer_, sizeof(transmit_buffer_)),
   hdlc_(rxBuffer_, txBuffer_),
   rxCallback_(this, &Serial::rxCallback), txCallback_(this, &Serial::txCallback)
 {

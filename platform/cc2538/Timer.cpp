@@ -35,8 +35,8 @@ extern BoardImplementation board;
 /*================================= public ==================================*/
 
 Timer::Timer(TimerConfig& config):
-    config_(config), callback_(nullptr),
-    frequency_(DEFAULT_FREQUENCY), prescaler_(DEFAULT_PRESCALER)    
+    config_(config), callback_(nullptr), 
+    frequency_(DEFAULT_FREQUENCY), prescaler_(DEFAULT_PRESCALER)
 {
 }
 

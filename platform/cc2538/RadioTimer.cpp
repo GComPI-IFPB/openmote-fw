@@ -43,7 +43,7 @@
 /*================================= public ==================================*/
 
 RadioTimer::RadioTimer(uint32_t interrupt):
-  interrupt_(interrupt), compare_(0), period_(0)
+  interrupt_(interrupt), period_(0), compare_(0)
 {
 }
 
