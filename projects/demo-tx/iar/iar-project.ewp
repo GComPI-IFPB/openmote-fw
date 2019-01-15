@@ -2395,6 +2395,9 @@
     <group>
         <name>project</name>
         <file>
+            <name>$PROJ_DIR$\..\src\cc2538_lowpower.c</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\..\src\FreeRTOSConfig.h</name>
         </file>
         <file>
