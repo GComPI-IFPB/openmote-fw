@@ -832,7 +832,7 @@
                 </option>
                 <option>
                     <name>IlinkAdditionalLibs</name>
-                    <state>$PROJ_DIR$/../../../ti/cc2538/iar/driverlib.lib</state>
+                    <state>$PROJ_DIR$/../../../ti/cc2538/libcc2538_iar.a</state>
                 </option>
                 <option>
                     <name>IlinkOverrideProgramEntryLabel</name>
