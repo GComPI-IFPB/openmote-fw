@@ -8,9 +8,9 @@ import glob
 
 Import('env')
 
-verbose = env['verbose']
-board   = env['board']
-project = env['project']
+verbose  = env['verbose']
+board    = env['board']
+project  = env['project']
 compiler = env['compiler']
 
 ################################################################################
@@ -20,7 +20,9 @@ openmote_b = {
     'platform'  : 'cc2538',
     'cpu'       : 'cortex-m3',
     'toolchain' : 'arm-none-eabi',
-    'linker'    : 'cc2538sf53' + '.lds'
+    'linker'    : 'cc2538sf53' + '.lds',
+    'lib_path'  : 'ti',
+    'lib_name'  : 'cc2538_' + compiler
 }
 
 boards = {
@@ -29,23 +31,181 @@ boards = {
 
 ################################################################################
 
+board = boards[board]
+
+name      = board["name"]
+platform  = board["platform"]
+cpu       = board["cpu"]
+toolchain = board["toolchain"]
+
+build_dir = os.path.join("#/build", name)
+
+linker    = os.path.join(".", 'platform', platform, board["linker"])
+
+lib_name = ['board', 'drivers', 'platform', 'sys', 'freertos']
+lib_path = [os.path.join('#', 'bin', name)]
+
+env['name']      = name
+env['platform']  = platform
+env['cpu']       = cpu
+env['compiler']  = compiler
+env['toolchain'] = toolchain
+env['linker']    = linker
+env['lib_name']  = lib_name
+env['lib_path']  = lib_path
+
+library_folders = ['board', 'drivers', 'freertos', 'sys', 'platform']
+project_folders = ['projects', 'test']
+
+src_folders = project_folders + library_folders
+
+################################################################################
+
+if name not in boards.keys():
+    raise SystemError("Error, target not defined!")
+
+if verbose:
+    print("Building project={0} for board={1} using platform={2} and toolchain={3}.".format(project, name, platform, toolchain))
+
+################################################################################
+
+if not verbose:
+   env[    'CCCOMSTR']  = "Compiling          $SOURCE"
+   env[   'CXXCOMSTR']  = "Compiling          $SOURCE"
+   env[  'SHCCCOMSTR']  = "Compiling (shared) $TARGET"
+   env[    'ARCOMSTR']  = "Archiving          $TARGET"
+   env['RANLIBCOMSTR']  = "Indexing           $TARGET"
+   env[  'LINKCOMSTR']  = "Linking            $TARGET"
+   env['SHLINKCOMSTR']  = "Linking (shared)   $TARGET"
+   env[  'INSTALLSTR']  = "Installing         $TARGET"
+
+################################################################################
+
+if (cpu == 'cortex-m3'):
+    env.Replace(CC          = toolchain + '-gcc')
+    env.Replace(CXX         = toolchain + '-g++')
+    env.Replace(AS          = toolchain + '-as')
+    env.Replace(OBJCOPY     = toolchain + '-objcopy')
+    env.Replace(OBJDUMP     = toolchain + '-objdump')
+    env.Replace(AR          = toolchain + '-ar')
+    env.Replace(RANLIB      = toolchain + '-ranlib')
+    env.Replace(NM          = toolchain + '-nm')
+    env.Replace(SIZE        = toolchain + '-size')
+
+    env.Append(CFLAGS       = '-mthumb')
+    env.Append(CFLAGS       = '-mcpu=cortex-m3')
+    env.Append(CFLAGS       = '-ffunction-sections')
+    env.Append(CFLAGS       = '-fdata-sections')
+    env.Append(CFLAGS       = '-fstrict-aliasing')
+    env.Append(CFLAGS       = '-fshort-enums')
+    env.Append(CFLAGS       = '-fomit-frame-pointer')
+    env.Append(CFLAGS       = '-Wstrict-prototypes')
+    env.Append(CFLAGS       = '-std=c99')
+    env.Append(CFLAGS       = '-Wall')
+    env.Append(CFLAGS       = '-pedantic')
+    env.Append(CFLAGS       = '-Og')
+    env.Append(CFLAGS       = '-g')
+    env.Append(CFLAGS       = '-ggdb')
+
+    env.Append(CXXFLAGS     = '-mthumb')
+    env.Append(CXXFLAGS     = '-mcpu=cortex-m3')
+    env.Append(CXXFLAGS     = '-ffunction-sections')
+    env.Append(CXXFLAGS     = '-fdata-sections')
+    env.Append(CXXFLAGS     = '-fstrict-aliasing')
+    env.Append(CXXFLAGS     = '-fshort-enums')
+    env.Append(CXXFLAGS     = '-fomit-frame-pointer')
+    env.Append(CXXFLAGS     = '-fno-unwind-tables')
+    env.Append(CXXFLAGS     = '-specs=nano.specs')
+    env.Append(CXXFLAGS     = '-specs=nosys.specs')
+    env.Append(CXXFLAGS     = '-nostdlib')
+    env.Append(CXXFLAGS     = '-fno-rtti')
+    env.Append(CXXFLAGS     = '-fno-exceptions')
+    env.Append(CXXFLAGS     = '-std=c++11')
+    env.Append(CXXFLAGS     = '-Wall')
+    env.Append(CXXFLAGS     = '-pedantic')
+    env.Append(CXXFLAGS     = '-Og')
+    env.Append(CXXFLAGS     = '-g')
+    env.Append(CXXFLAGS     = '-ggdb')
+
+    env.Append(LINKFLAGS    = '-mcpu=cortex-m3')
+    env.Append(LINKFLAGS    = '-mthumb')
+    env.Append(LINKFLAGS    = '-mlittle-endian')
+    env.Append(LINKFLAGS    = '-Wl,--gc-sections')
+    env.Append(LINKFLAGS    = '-Wl,--defsym')
+    env.Append(LINKFLAGS    = '-Wl,__cxa_pure_virtual=0')
+    env.Append(LINKFLAGS    = '-specs=nano.specs')
+    env.Append(LINKFLAGS    = '-specs=nosys.specs')
+    env.Append(LINKFLAGS    = '-nodefaultlibs')
+    env.Append(LINKFLAGS    = '-T' + linker)
+else:
+    raise SystemError("Error, cpu not valid!")
+
+################################################################################
+
+env.Append(
+    CPPPATH = [
+        os.path.join('#','platform', 'inc'),
+        os.path.join('#','platform', platform),
+        os.path.join('#','freertos', 'common'),
+        os.path.join('#','freertos', 'inc'),
+        os.path.join('#','freertos', cpu, compiler),
+        os.path.join('#','projects', project),
+        os.path.join('#','projects', project, 'src'),
+        os.path.join('#','board', name),
+        os.path.join('#','drivers'),
+        os.path.join('#','drivers', 'inc'),
+        os.path.join('#','drivers', 'at86rf215'),
+        os.path.join('#','drivers', 'si7006'),
+        os.path.join('#','drivers', 'bme280'),
+        os.path.join('#','drivers', 'opt3001'),
+        os.path.join('#','sys', 'inc'),
+        os.path.join('#','sys', 'src'),
+        os.path.join('#', 'test', project)
+    ]
+)
+
+################################################################################
+
+if (platform == 'cc2538'):
+    env.Append(
+        CPPPATH = [
+          os.path.join('#'),
+          os.path.join('#','ti'),
+          os.path.join('#','ti', platform, 'inc'),
+          os.path.join('#','ti', platform, 'src'),
+        ]
+    )
+
+    env.Append(
+        CPPDEFINES = [
+        'CC2538_USE_ALTERNATE_INTERRUPT_MAP',
+        'ENABLE_ASSERT']
+    )
+    
+    env['lib_path'] += [os.path.join('#', board['lib_path'], board['platform'])]
+    env['lib_name'] += [board['lib_name']]
+else:
+    raise SystemError("Error, platform not valid!")
+
+################################################################################
+
 # Convert ELF to HEX
 elf2iHexFunc = Builder(
-   action = 'arm-none-eabi-objcopy --output-target=ihex $SOURCE $TARGET',
+   action = toolchain + '-objcopy' + ' ' + '--output-target=ihex $SOURCE $TARGET',
    suffix = '.hex',
 )
 env.Append(BUILDERS = {'Elf2iHex' : elf2iHexFunc})
 
 # Convert ELF to BIN
 elf2BinFunc = Builder(
-   action = 'arm-none-eabi-objcopy --output-target=binary $SOURCE $TARGET',
+   action = toolchain + '-objcopy' + ' ' + '--output-target=binary $SOURCE $TARGET',
    suffix = '.bin',
 )
 env.Append(BUILDERS = {'Elf2iBin' : elf2BinFunc})
 
 # Print sizes
 printSizeFunc = Builder(
-    action = 'arm-none-eabi-size $SOURCE',
+    action = toolchain + '-size' + ' ' + '$SOURCE',
     suffix = '.phonysize',
 )
 env.Append(BUILDERS = {'PrintSize' : printSizeFunc})
@@ -74,33 +234,6 @@ env.AddMethod(postBuildLoad, 'PostBuildLoad')
 
 ################################################################################
 
-build_dir = os.path.join("#/build", board)
-
-platform  = boards[board]["platform"]
-cpu       = boards[board]["cpu"]
-toolchain = boards[board]["toolchain"]
-
-linker    = os.path.join(".", 'platform', platform, boards[board]["linker"])
-
-lib_name = ['board', 'drivers', 'platform', 'sys', 'freertos']
-lib_path = [os.path.join('#', 'bin', board)]
-
-env['board']     = board
-env['platform']  = platform
-env['cpu']       = cpu
-env['compiler']  = compiler
-env['toolchain'] = toolchain
-env['linker']    = linker
-env['lib_name']  = lib_name
-env['lib_path']  = lib_path
-
-library_folders = ['board', 'drivers', 'freertos', 'sys', 'platform']
-project_folders = ['projects', 'test']
-
-src_folders = project_folders + library_folders
-
-################################################################################
-
 class OpenMoteCC2538_bootloadThread(threading.Thread):
     def __init__(self, port, binary, semaphore):       
         # Initialize parent class
@@ -116,13 +249,13 @@ class OpenMoteCC2538_bootloadThread(threading.Thread):
         self.bsl_params   = ' -e -w --bootloader-invert-lines -b 400000 -p '
     
     def run(self):
-        print 'Starting bootloading on {0}'.format(self.port)
+        print('Starting bootloading on {0}'.format(self.port))
         command = 'python ' + os.path.join(self.bsl_path, self.bsl_name) + self.bsl_params + '{0} {1}'.format(self.port, self.binary)
         if (verbose):
-			subprocess.Popen(command, shell = True).communicate()
+            subprocess.Popen(command, shell = True).communicate()
         else:
-        	subprocess.Popen(command, shell = True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-        print 'Done bootloading on {0}'.format(self.port)
+            subprocess.Popen(command, shell = True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        print('Done bootloading on {0}'.format(self.port))
         
         # Indicate done
         self.semaphore.release()
@@ -210,129 +343,6 @@ def BootloadFunc():
 
 if env['bootload']:
     env.Append(BUILDERS = {'Bootload' : BootloadFunc()})
-
-################################################################################
-
-if board not in boards.keys():
-    raise SystemError("Error, target not defined!")
-
-if verbose:
-    print("Building project={0} for board={1} using platform={2} and toolchain={3}.".format(project, board, platform, toolchain))
-
-################################################################################
-
-if (cpu == 'cortex-m3'):
-    env.Replace(CC          = toolchain + '-gcc')
-    env.Replace(CXX         = toolchain + '-g++')
-    env.Replace(AS          = toolchain + '-as')
-    env.Replace(OBJCOPY     = toolchain + '-objcopy')
-    env.Replace(OBJDUMP     = toolchain + '-objdump')
-    env.Replace(AR          = toolchain + '-ar')
-    env.Replace(RANLIB      = toolchain + '-ranlib')
-    env.Replace(NM          = toolchain + '-nm')
-    env.Replace(SIZE        = toolchain + '-size')
-
-    env.Append(CFLAGS       = '-mthumb')
-    env.Append(CFLAGS       = '-mcpu=cortex-m3')
-    env.Append(CFLAGS       = '-mlittle-endian')
-    env.Append(CFLAGS       = '-ffunction-sections')
-    env.Append(CFLAGS       = '-fdata-sections')
-    env.Append(CFLAGS       = '-fstrict-aliasing')
-    env.Append(CFLAGS       = '-fshort-enums')
-    env.Append(CFLAGS       = '-fomit-frame-pointer')
-    env.Append(CFLAGS       = '-Wstrict-prototypes')
-    env.Append(CFLAGS       = '-std=c99')
-    env.Append(CFLAGS       = '-Wall')
-    env.Append(CFLAGS       = '-pedantic')
-    env.Append(CFLAGS       = '-Os')
-    env.Append(CFLAGS       = '-g')
-    env.Append(CFLAGS       = '-ggdb')
-
-    env.Append(CXXFLAGS     = '-mthumb')
-    env.Append(CXXFLAGS     = '-mcpu=cortex-m3')
-    env.Append(CXXFLAGS     = '-mlittle-endian')
-    env.Append(CXXFLAGS     = '-ffunction-sections')
-    env.Append(CXXFLAGS     = '-fdata-sections')
-    env.Append(CXXFLAGS     = '-fstrict-aliasing')
-    env.Append(CXXFLAGS     = '-fshort-enums')
-    env.Append(CXXFLAGS     = '-fomit-frame-pointer')
-    env.Append(CXXFLAGS     = '-fno-unwind-tables')
-    env.Append(CXXFLAGS     = '-specs=nano.specs')
-    env.Append(CXXFLAGS     = '-specs=nosys.specs')
-    env.Append(CXXFLAGS     = '-nostdlib')
-    env.Append(CXXFLAGS     = '-fno-rtti')
-    env.Append(CXXFLAGS     = '-fno-exceptions')
-    env.Append(CXXFLAGS     = '-std=c++11')
-    env.Append(CXXFLAGS     = '-Wall')
-    env.Append(CXXFLAGS     = '-pedantic')
-    env.Append(CXXFLAGS     = '-Os')
-    env.Append(CXXFLAGS     = '-g')
-    env.Append(CXXFLAGS     = '-ggdb')
-
-    env.Append(LINKFLAGS    = '-mcpu=cortex-m3')
-    env.Append(LINKFLAGS    = '-mthumb')
-    env.Append(LINKFLAGS    = '-mlittle-endian')
-    env.Append(LINKFLAGS    = '-Wl,--gc-sections')
-    env.Append(LINKFLAGS    = '-Wl,--defsym')
-    env.Append(LINKFLAGS    = '-Wl,__cxa_pure_virtual=0')
-    env.Append(LINKFLAGS    = '-specs=nano.specs')
-    env.Append(LINKFLAGS    = '-specs=nosys.specs')
-    env.Append(LINKFLAGS    = '-nodefaultlibs')
-    env.Append(LINKFLAGS    = '-T' + linker)
-else:
-    raise SystemError("Error, cpu not valid!")
-
-################################################################################
-
-if not verbose:
-   env[    'CCCOMSTR']  = "Compiling          $SOURCE"
-   env[   'CXXCOMSTR']  = "Compiling          $SOURCE"
-   env[  'SHCCCOMSTR']  = "Compiling (shared) $TARGET"
-   env[    'ARCOMSTR']  = "Archiving          $TARGET"
-   env['RANLIBCOMSTR']  = "Indexing           $TARGET"
-   env[  'LINKCOMSTR']  = "Linking            $TARGET"
-   env['SHLINKCOMSTR']  = "Linking (shared)   $TARGET"
-   env[  'INSTALLSTR']  = "Installing         $TARGET"
-
-################################################################################
-
-env.Append(
-    CPPPATH = [
-        os.path.join('#','platform', 'inc'),
-        os.path.join('#','platform', platform),
-        os.path.join('#','freertos', 'common'),
-        os.path.join('#','freertos', 'inc'),
-        os.path.join('#','freertos', cpu, compiler),
-        os.path.join('#','projects', project),
-        os.path.join('#','board', board),
-        os.path.join('#','drivers'),
-        os.path.join('#','drivers', 'inc'),
-        os.path.join('#','drivers', 'at86rf215'),
-        os.path.join('#','drivers', 'si7006'),
-        os.path.join('#','drivers', 'bme280'),
-        os.path.join('#','drivers', 'opt3001'),
-        os.path.join('#','sys', 'inc'),
-        os.path.join('#','sys', 'src'),
-        os.path.join('#', 'test', project)
-    ]
-)
-
-################################################################################
-
-if (platform == 'cc2538'):
-    env.Append(
-        CPPPATH = [
-          os.path.join('#'),
-          os.path.join('#','ti'),
-          os.path.join('#','ti', platform, 'inc'),
-          os.path.join('#','ti', platform, 'src'),
-          os.path.join('#','projects', project, 'src'),
-        ]
-    )
-    env['lib_path'] += [os.path.join('#', 'ti', platform, compiler)]
-    env['lib_name'] += ['driverlib']
-else:
-    raise SystemError("Error, platform not valid!")
 
 ################################################################################
 

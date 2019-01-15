@@ -4,8 +4,14 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'freertos-tickless'
-source = ['main.cpp', 'cc2538_lowpower.c']
+project   = 'freertos-tickless'
+extension = '.elf'
+
+target = project + extension
+source = [
+    'main.cpp',
+    'cc2538_lowpower.c'
+]
 
 main = localEnv.Program(
     target = target,

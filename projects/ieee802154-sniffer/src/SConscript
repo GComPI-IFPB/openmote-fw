@@ -4,8 +4,15 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'ieee802154-sniffer.elf'
-source = ['main.cpp']
+project   = 'ieee802154-sniffer'
+extension = '.elf'
+
+target = project + extension
+source = [
+	'main.cpp',
+	'SnifferCommon.cpp',
+	'SnifferSerial.cpp'
+]
 
 output = localEnv.Program(
     target = target,

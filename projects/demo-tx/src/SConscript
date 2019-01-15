@@ -4,8 +4,14 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'demo-tx'
-source = ['main.cpp', 'cc2538_lowpower.c']
+project   = 'demo-tx'
+extension = '.elf'
+
+target = project + extension
+source = [
+	'main.cpp',
+	'cc2538_lowpower.c'
+]
 
 main = localEnv.Program(
     target = target,

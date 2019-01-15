@@ -4,7 +4,10 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'demo-rx'
+project   = 'demo-rx'
+extension = '.elf'
+
+target = project + extension
 source = ['main.cpp']
 
 main = localEnv.Program(

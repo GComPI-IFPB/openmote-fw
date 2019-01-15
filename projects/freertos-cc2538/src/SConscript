@@ -4,8 +4,13 @@ Import('env')
 
 localEnv = env.Clone()
 
-target = 'freertos-cc2538'
-source = ['main.cpp']
+project   = 'freertos-cc2538'
+extension = '.elf'
+
+target = project + extension
+source = [
+    'main.cpp'
+]
 
 main = localEnv.Program(
     target = target,

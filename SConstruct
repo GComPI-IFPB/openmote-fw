@@ -6,8 +6,9 @@ cmd_options = {
                             'test-aes', 'test-board', 'test-crc', 'test-openmote','test-openmote-b', 'test-radio-at86rf215', 
                             'test-radio-cc2538', 'test-radiotimer', 'test-rendezvous', 'test-serial',
                             'test-sleeptimer', 'test-spi', 'test-pwm', 'test-task', 'test-timer', 'test-uart'],
-    'verbose'   :          ['0','1'],
-    'compiler'  :          ['iar','gcc']
+    'compiler'  :          ['gcc'],
+    'verbose'   :          ['0','1']
+    
 }
 
 def validate_option(key, value, env):
@@ -42,7 +43,7 @@ cmd_vars.AddVariables(
     (
         'compiler',                                        # key
         '',                                                # help
-        '',                                                # default
+        cmd_options['verbose'][0],                         # default
         validate_option,                                   # validator
         None,                                              # converter
     ),
@@ -63,7 +64,7 @@ cmd_vars.AddVariables(
 )
 
 path = ["/bin", "/usr/bin", "/opt/gcc-arm-none-eabi/bin"]
-env = Environment(variables = cmd_vars, ENV = {"PATH" : path})
+env = DefaultEnvironment(ENV = os.environ, tools=['cc', 'c++', 'ar', 'gnulink'], variables = cmd_vars)
 
 Export('env')
 
@@ -71,4 +72,3 @@ env.SConscript(
     'SConscript',
     exports = ['env'],
 )
-
