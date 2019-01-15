@@ -1,6 +1,16 @@
-# Directories
+# SCons
+*.dblite
 bin/
 build/
+
+# IAR
+Debug/
+Release/
+*.dep
+*.ewd
+*.ewp
+*.ewt
+settings
 
 # Files
 *~
@@ -15,10 +25,3 @@ build/
 *.pyc
 *.dblite
 *.txt
-
-# Code Composer Studio
-Debug/
-Release/
-.config/
-.launches/
-.xdchelp
