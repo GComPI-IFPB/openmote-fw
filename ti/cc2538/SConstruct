@@ -1,0 +1,66 @@
+import os
+import sys
+import glob
+
+################################################################################
+
+env = DefaultEnvironment(ENV = os.environ, tools=['cc', 'c++', 'ar', 'gnulink'])
+
+################################################################################
+
+build_dir = 'build'
+toolchain = 'arm-none-eabi'
+src_dirs = ['src/SConscript']
+verbose = True
+
+################################################################################
+
+env.Replace(CC          = toolchain + '-gcc')
+env.Replace(CXX         = toolchain + '-g++')
+env.Replace(AS          = toolchain + '-as')
+env.Replace(OBJCOPY     = toolchain + '-objcopy')
+env.Replace(OBJDUMP     = toolchain + '-objdump')
+env.Replace(AR          = toolchain + '-ar')
+env.Replace(RANLIB      = toolchain + '-ranlib')
+env.Replace(NM          = toolchain + '-nm')
+env.Replace(SIZE        = toolchain + '-size')
+
+env.Append(CFLAGS       = '-mthumb')
+env.Append(CFLAGS       = '-mcpu=cortex-m3')
+env.Append(CFLAGS       = '-ffunction-sections')
+env.Append(CFLAGS       = '-fdata-sections')
+env.Append(CFLAGS       = '-fstrict-aliasing')
+env.Append(CFLAGS       = '-fshort-enums')
+env.Append(CFLAGS       = '-fomit-frame-pointer')
+env.Append(CFLAGS       = '-Wstrict-prototypes')
+env.Append(CFLAGS       = '-std=c99')
+env.Append(CFLAGS       = '-Wall')
+env.Append(CFLAGS       = '-pedantic')
+env.Append(CFLAGS       = '-Og')
+env.Append(CFLAGS       = '-g')
+env.Append(CFLAGS       = '-ggdb')
+
+################################################################################
+
+if not verbose:
+   env[    'CCCOMSTR']  = "Compiling          $SOURCE"
+   env[   'CXXCOMSTR']  = "Compiling          $SOURCE"
+   env[  'SHCCCOMSTR']  = "Compiling (shared) $TARGET"
+   env[    'ARCOMSTR']  = "Archiving          $TARGET"
+   env['RANLIBCOMSTR']  = "Indexing           $TARGET"
+   env[  'LINKCOMSTR']  = "Linking            $TARGET"
+   env['SHLINKCOMSTR']  = "Linking (shared)   $TARGET"
+   env[  'INSTALLSTR']  = "Installing         $TARGET"
+
+################################################################################
+
+env.Append(CPPDEFINES=['CC2538_USE_ALTERNATE_INTERRUPT_MAP', 'ENABLE_ASSERT'])
+
+env.Append(
+    CPPPATH = [
+        os.path.join('#','inc'),
+        os.path.join('#','src'),
+    ]
+)
+
+SConscript(src_dirs, variant_dir = build_dir, duplicate = 0, exports = {'env':env})

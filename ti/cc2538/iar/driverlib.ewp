@@ -1027,7 +1027,7 @@
                 </option>
                 <option>
                     <name>IarchiveOutput</name>
-                    <state>$PROJ_DIR$\driverlib.lib</state>
+                    <state>$PROJ_DIR$\..\libcc2538_iar.lib</state>
                 </option>
             </data>
         </settings>
