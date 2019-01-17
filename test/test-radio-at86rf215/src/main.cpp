@@ -17,13 +17,13 @@
 #include "task.h"
 #include "semphr.h"
 
-#include "board.h"
+#include "BoardImplementation.hpp"
 
-#include "Callback.h"
-#include "Scheduler.h"
-#include "Semaphore.h"
-#include "Serial.h"
-#include "Task.h"
+#include "Callback.hpp"
+#include "Scheduler.hpp"
+#include "Semaphore.hpp"
+#include "Serial.hpp"
+#include "Task.hpp"
 
 /*================================ define ===================================*/
 

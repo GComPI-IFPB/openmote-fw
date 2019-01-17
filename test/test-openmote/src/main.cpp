@@ -16,9 +16,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "Board.hpp"
-
-#include "platform_types.h"
+#include "BoardImplementation.hpp"
 
 #include "Scheduler.hpp"
 #include "Semaphore.hpp"
@@ -65,15 +63,11 @@ int main(void) {
     // Enable the SPI interface
     spi.enable(SPI_BAUDRATE);
 
-    // Enable the I2C interface
-    i2c.enable();
-
     // Enable general interrupts
     board.enableInterrupts();
 
     // Create the FreeRTOS tasks
     xTaskCreate(prvGreenLedTask, (const char *) "GreenLed", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-    xTaskCreate(prvTemperatureTask, (const char *) "Temperature", 128, NULL, TEMPERATURE_TASK_PRIORITY, NULL);
     xTaskCreate(prvRadioTask, (const char *) "Radio", 128, NULL, RADIO_TASK_PRIORITY, NULL);
     xTaskCreate(prvButtonTask, (const char *) "ButtonTask", 128, NULL, BUTTON_TASK_PRIORITY, NULL);
 
@@ -82,40 +76,6 @@ int main(void) {
 }
 
 /*================================ private ==================================*/
-
-static void prvTemperatureTask(void *pvParameters)
-{
-    uint16_t temperature;
-    uint16_t humidity;
-
-    if (si7006.isPresent() == true)
-    {
-        si7006.enable();
-
-        while (true)
-        {
-            led_orange.on();
-
-            si7006.readTemperature();
-            temperature = si7006.getTemperatureRaw();
-
-            si7006.readHumidity();
-            humidity = si7006.getHumidityRaw();
-
-            uart_buffer[0] = (uint8_t)((temperature & 0x00FF) >> 0);
-            uart_buffer[1] = (uint8_t)((temperature & 0xFF00) >> 8);
-            uart_buffer[2] = (uint8_t)((humidity & 0x00FF) >> 0);
-            uart_buffer[3] = (uint8_t)((humidity & 0xFF00) >> 8);
-            uart_len = 4;
-
-            uart.writeByte(uart_buffer, uart_len);
-
-            led_orange.off();
-
-            Task::delay(1000);
-        }
-    }
-}
 
 static void prvRadioTask(void *pvParameters)
 {
@@ -137,12 +97,12 @@ static void prvRadioTask(void *pvParameters)
         // Turn AT86RF215 radio off
         at86rf215.off();
 
-        Task::delay(100);
+        Scheduler::delay_ms(100);
 
         led_yellow.off();
         led_red.off();
 
-        Task::delay(900);
+        Scheduler::delay_ms(900);
     }
 }
 
@@ -153,11 +113,11 @@ static void prvGreenLedTask(void *pvParameters)
     {
         // Turn off green LED for 1000 ms
         led_green.off();
-        Task::delay(1000);
+        Scheduler::delay_ms(1000);
 
         // Turn on green LED for 1000 ms
         led_green.on();
-        Task::delay(1000);
+        Scheduler::delay_ms(1000);
     }
 }
 
