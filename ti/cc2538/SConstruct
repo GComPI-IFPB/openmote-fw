@@ -80,7 +80,8 @@ if not verbose:
 env.Append(
     CPPDEFINES = [
         'CC2538_USE_ALTERNATE_INTERRUPT_MAP',
-        'ENABLE_ASSERT']
+        'ENABLE_ASSERT'
+    ]
 )
 
 env.Append(

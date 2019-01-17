@@ -179,7 +179,8 @@ if (platform == 'cc2538'):
     env.Append(
         CPPDEFINES = [
         'CC2538_USE_ALTERNATE_INTERRUPT_MAP',
-        'ENABLE_ASSERT']
+        'DEBUG'
+        ]
     )
     
     env['lib_path'] += [os.path.join('#', board['lib_path'], board['platform'])]
