@@ -199,6 +199,11 @@ void reset_handler(void)
   *pIsAtResetIsr = 0x0;
 #endif
 
+#ifdef CC2538_USE_ALTERNATE_INTERRUPT_MAP
+  /* Enable alternate interrupt mapping */
+  HWREG(SYS_CTRL_I_MAP) |= 1;
+#endif
+
   /* Copy the data segment initializers from flash to SRAM */
   for (src = &_text_end, dst = &_data_start; dst < &_data_end; )
   {
