@@ -8,7 +8,6 @@ cmd_options = {
                             'test-sleeptimer', 'test-spi', 'test-pwm', 'test-task', 'test-timer', 'test-uart'],
     'compiler'  :          ['gcc'],
     'verbose'   :          ['0','1']
-    
 }
 
 def validate_option(key, value, env):
@@ -63,7 +62,7 @@ cmd_vars.AddVariables(
     )
 )
 
-path = ["/bin", "/usr/bin", "/opt/gcc-arm-none-eabi/bin"]
+# Define default environment to support GCC
 env = DefaultEnvironment(ENV = os.environ, tools=['cc', 'c++', 'ar', 'gnulink'], variables = cmd_vars)
 
 Export('env')

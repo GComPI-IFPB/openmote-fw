@@ -3,6 +3,7 @@ import sys
 import threading
 import subprocess
 import glob
+import multiprocessing
 
 ################################################################################
 
@@ -12,6 +13,14 @@ verbose  = env['verbose']
 board    = env['board']
 project  = env['project']
 compiler = env['compiler']
+
+################################################################################
+
+num_jobs = multiprocessing.cpu_count()
+SetOption("num_jobs", num_jobs)
+if verbose:
+    num_jobs = GetOption("num_jobs")
+    print("Running SCons with {} threads.".format(num_jobs)) 
 
 ################################################################################
 
@@ -54,10 +63,11 @@ env['linker']    = linker
 env['lib_name']  = lib_name
 env['lib_path']  = lib_path
 
-library_folders = ['board', 'drivers', 'freertos', 'sys', 'platform']
-project_folders = ['projects', 'test']
-
-src_folders = project_folders + library_folders
+src_folders = ['board', 'drivers', 'freertos', 'sys', 'platform']
+if env['project'].startswith('test'):
+    src_folders += ['test']
+else:
+    src_folders += ['projects']
 
 ################################################################################
 
@@ -144,13 +154,6 @@ else:
 
 env.Append(
     CPPPATH = [
-        os.path.join('#','platform', 'inc'),
-        os.path.join('#','platform', platform),
-        os.path.join('#','freertos', 'common'),
-        os.path.join('#','freertos', 'inc'),
-        os.path.join('#','freertos', cpu, compiler),
-        os.path.join('#','projects', project),
-        os.path.join('#','projects', project, 'src'),
         os.path.join('#','board', name),
         os.path.join('#','drivers'),
         os.path.join('#','drivers', 'inc'),
@@ -158,11 +161,30 @@ env.Append(
         os.path.join('#','drivers', 'si7006'),
         os.path.join('#','drivers', 'bme280'),
         os.path.join('#','drivers', 'opt3001'),
+        os.path.join('#','freertos', 'common'),
+        os.path.join('#','freertos', 'inc'),
+        os.path.join('#','freertos', cpu, compiler),
+        os.path.join('#','platform', 'inc'),
+        os.path.join('#','platform', platform),
         os.path.join('#','sys', 'inc'),
         os.path.join('#','sys', 'src'),
-        os.path.join('#', 'test', project)
     ]
 )
+
+if env['project'].startswith('test'):
+    env.Append(
+        CPPPATH = [
+            os.path.join('#', 'test', project, 'src')
+        ]
+    )
+else:
+    env.Append(
+        CPPPATH = [
+            os.path.join('#','projects', project),
+            os.path.join('#','projects', project, 'src'),
+        ]
+    )
+
 
 ################################################################################
 

@@ -4,18 +4,17 @@ Import('env')
 
 localEnv = env.Clone()
 
-if (not localEnv['project'].startswith('test')):
-	script     = os.path.join('#', 'projects', localEnv['project'], 'src', 'SConscript')
-	build_dir  = os.path.join('#', 'build', localEnv['board'], 'projects', localEnv['project'])
-	output_dir = os.path.join('#', 'projects', localEnv['project'])
+script     = os.path.join('#', 'projects', localEnv['project'], 'src', 'SConscript')
+build_dir  = os.path.join('#', 'build', localEnv['board'], 'projects', localEnv['project'])
+output_dir = os.path.join('#', 'projects', localEnv['project'])
 
-	project = localEnv.SConscript(
-	    script,
-	    variant_dir = build_dir,
-	    duplicate = 0,
-	    exports = {'env': env},
-	)
+project = localEnv.SConscript(
+    script,
+    variant_dir = build_dir,
+    duplicate = 0,
+    exports = {'env': env},
+)
 
-	env.PostBuildSize(project)
-	env.PostBuildBin(project)
-	env.PostBuildLoad(project)
+env.PostBuildSize(project)
+env.PostBuildBin(project)
+env.PostBuildLoad(project)
