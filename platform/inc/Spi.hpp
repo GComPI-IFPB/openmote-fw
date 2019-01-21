@@ -30,12 +30,16 @@ public:
     void enable(uint32_t baudrate = 0);
     void sleep(void);
     void wakeup(void);
+    void initDma(void);
+    void enableDma(void);
+    void disableDma(void);
     void setRxCallback(Callback* callback);
     void setTxCallback(Callback* callback);
     void enableInterrupts(void);
     void disableInterrupts(void);
     uint8_t rwByte(uint8_t byte);
-    bool rwByte(uint8_t* readBuffer, uint32_t readLength, uint8_t* writeBuffer, uint32_t writeLength);
+    bool rwByte(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* receiveBuffer, uint32_t receiveLength);
+    bool rwByteDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* receiveBuffer, uint32_t receiveLength);
 protected:
     SpiConfig& getConfig(void);
     void interruptHandler(void);

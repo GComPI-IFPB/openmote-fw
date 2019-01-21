@@ -1,5 +1,5 @@
 /**
- * @file       platform_spi.cpp
+ * @file       Spi.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       November, 2018
@@ -20,9 +20,23 @@
 
 /*================================ define ===================================*/
 
+#define SSI_PRIO                    ( 0xF0 )
+
+#define SSI_DATA                    (void *)(config_.base + SSI_O_DR)
+
+#define UDMA_CH10_SSI0RX_MASK       (1 << UDMA_CH10_SSI0RX)
+#define UDMA_CH11_SSI0TX_MASK       (1 << UDMA_CH11_SSI0TX)
+
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
+
+#if defined(__IAR_SYSTEMS_ICC__)
+#pragma data_alignment=1024
+unsigned char ucDMAControlTable[1024];
+#else
+unsigned char ucDMAControlTable[1024] __attribute__ ((aligned(1024)));
+#endif
 
 /*=============================== prototypes ================================*/
 
@@ -121,6 +135,37 @@ void Spi::setTxCallback(Callback* callback)
   tx_callback_ = callback;
 }
 
+void Spi::initDma(void)
+{
+  /* Enable the uDMA controller */
+  uDMAEnable();
+
+  /* Set the base for the channel control table */
+  uDMAControlBaseSet(&ucDMAControlTable[0]);
+}
+
+void Spi::enableDma(void)
+{
+  /* Enable uDMA complete interrupt for SPI RX and TX */
+  SSIDMAEnable(config_.base, SSI_DMA_RX | SSI_DMA_TX);
+  
+  /* No attributes need to be set for a perpheral-based transfer.
+   * The attributes are cleared by default, but are explicitly cleared
+   * here, in case they were set elsewhere.
+   */
+  // uDMAChannelAttributeDisable(UDMA_CH10_SSI0RX, UDMA_ATTR_ALL);
+  // uDMAChannelAttributeDisable(UDMA_CH11_SSI0TX, UDMA_ATTR_ALL);
+  
+  // uDMAChannelAttributeEnable(UDMA_CH10_SSI0RX, UDMA_ATTR_HIGH_PRIORITY);
+  // uDMAChannelAttributeEnable(UDMA_CH11_SSI0TX, UDMA_ATTR_HIGH_PRIORITY);
+}
+
+void Spi::disableDma(void)
+{
+  /* Disable uDMA complete interrupt for SPI RX and TX */
+  SSIDMADisable(config_.base, SSI_DMA_RX | SSI_DMA_TX);
+}
+
 void Spi::enableInterrupts(void)
 {
   /* Register the interrupt handler */
@@ -130,7 +175,7 @@ void Spi::enableInterrupts(void)
   SSIIntEnable(config_.base, (SSI_TXFF | SSI_RXFF | SSI_RXTO | SSI_RXOR));
 
   /* Set the SPI interrupt priority */
-  IntPrioritySet(config_.interrupt, 0xF0);
+  IntPrioritySet(config_.interrupt, SSI_PRIO);
   
   /* Enable the SPI interrupt */
   IntEnable(config_.interrupt);
@@ -162,21 +207,24 @@ uint8_t Spi::rwByte(uint8_t byte)
   return (uint8_t)(ret & 0xFF);
 }
 
-bool Spi::rwByte(uint8_t* readBuffer, uint32_t readLength, uint8_t* writeBuffer, uint32_t writeLength)
+bool Spi::rwByte(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* receiveBuffer, uint32_t receiveLength)
 {
-  if ((readLength == 0) || (writeLength == 0) || (readLength != writeLength))
+  /* Check transmit and receive buffer size */
+  if ((transmitLength == 0) || (receiveLength == 0) || (transmitLength != receiveLength))
   {
     return false;
   }
 
-  for (uint32_t i =  0; i < readLength; i++)
+  /* Iterate over all positions in transmitBuffer */
+  for (uint32_t i =  0; i < transmitLength; i++)
   {
     uint32_t data;
     uint8_t byte;
     
-    byte = readBuffer[i];
+    /* Get next byte */
+    byte = transmitBuffer[i];
     
-    /* Push a byte */
+    /* Transmit next byte */
     SSIDataPut(config_.base, byte);
 
     /* Wait until it is complete */
@@ -187,9 +235,39 @@ bool Spi::rwByte(uint8_t* readBuffer, uint32_t readLength, uint8_t* writeBuffer,
     SSIDataGet(config_.base, &data);
 
     /* Store the result */
-    writeBuffer[i] = (uint8_t)(data & 0xFF);
+    receiveBuffer[i] = (uint8_t)(data & 0xFF);
   }
 
+  return true;
+}
+
+bool Spi::rwByteDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* receiveBuffer, uint32_t receiveLength)
+{
+  /* Check transmit and receive buffer size */
+  if ((transmitLength == 0) || (receiveLength == 0) || (transmitLength != receiveLength))
+  {
+    return false;
+  }
+    
+  /* Setup DMA control for SPI transmission and reception */
+  uDMAChannelControlSet(UDMA_CH10_SSI0RX | UDMA_PRI_SELECT, 
+                        UDMA_SIZE_8 | UDMA_SRC_INC_NONE | UDMA_DST_INC_8 | UDMA_ARB_1);
+  uDMAChannelControlSet(UDMA_CH11_SSI0TX | UDMA_PRI_SELECT, 
+                        UDMA_SIZE_8 | UDMA_SRC_INC_8 | UDMA_DST_INC_NONE | UDMA_ARB_1);
+  
+  /* Setup DMA buffers for SPI using BASIC mode */
+  uDMAChannelTransferSet(UDMA_CH10_SSI0RX | UDMA_PRI_SELECT,
+                         UDMA_MODE_BASIC, SSI_DATA, receiveBuffer, receiveLength);
+  uDMAChannelTransferSet(UDMA_CH11_SSI0TX | UDMA_PRI_SELECT,
+                         UDMA_MODE_BASIC, transmitBuffer, SSI_DATA, transmitLength);
+
+  /* Enable the TX channel */
+  uDMAChannelEnable(UDMA_CH10_SSI0RX);
+  uDMAChannelEnable(UDMA_CH11_SSI0TX);
+  
+  /* Busy-wait until there are no more bytes to be received */
+  while(uDMAChannelSizeGet(UDMA_CH10_SSI0RX) > 0);
+  
   return true;
 }
 
