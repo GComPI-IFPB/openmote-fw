@@ -385,7 +385,8 @@ void At86rf215::writeCmd(RadioCore rc, RadioCommand cmd)
 
 void At86rf215::singleAccessRead(uint16_t address, uint8_t* value)
 {
-  uint8_t spi_transaction[3];
+  uint8_t spi_tx_transaction[3];
+  uint8_t spi_rx_transaction[3];
   uint8_t address_hi, address_lo;
      
   /* Prepare device address */
@@ -393,26 +394,27 @@ void At86rf215::singleAccessRead(uint16_t address, uint8_t* value)
   address_lo = (uint8_t) ((address & 0x00FF) >> 0);
 
   /* Prepare buffer for SPI transaction */
-  spi_transaction[0] = AT86RF215_READ_CMD | address_hi;
-  spi_transaction[1] = address_lo;
-  spi_transaction[2] = 0x00;
+  spi_tx_transaction[0] = AT86RF215_READ_CMD | address_hi;
+  spi_tx_transaction[1] = address_lo;
+  spi_tx_transaction[2] = 0x00;
 
   /* Activate CS */
   cs_.low();
 
   /* Write the SPI transaction */
-  spi_.rwByte(spi_transaction, 3, spi_transaction, 3);
+  spi_.rwByte(spi_tx_transaction, 3, spi_rx_transaction, 3);
 
   /* Deactivate CS */
   cs_.high();
 
   /* Return transaction value */
-  *value = spi_transaction[2];
+  *value = spi_rx_transaction[2];
 }
 
 void At86rf215::singleAccessWrite(uint16_t address, uint8_t value)
 {
-  uint8_t spi_transaction[3];
+  uint8_t spi_tx_transaction[3];
+  uint8_t spi_rx_transaction[3];
   uint8_t address_hi, address_lo;
 
   /* Prepare device address */
@@ -420,15 +422,15 @@ void At86rf215::singleAccessWrite(uint16_t address, uint8_t value)
   address_lo = (uint8_t) ((address & 0x00FF) >> 0);
 
   /* Prepare buffer for SPI transaction */
-  spi_transaction[0] = AT86RF215_WRITE_CMD | address_hi;
-  spi_transaction[1] = address_lo;
-  spi_transaction[2] = value;
+  spi_tx_transaction[0] = AT86RF215_WRITE_CMD | address_hi;
+  spi_tx_transaction[1] = address_lo;
+  spi_tx_transaction[2] = value;
 
   /* Activate CS */
   cs_.low();
 
   /* Write the SPI transaction */
-  spi_.rwByte(spi_transaction, 3, spi_transaction, 3);
+  spi_.rwByte(spi_tx_transaction, 3, spi_rx_transaction, 3);
 
   /* Deactivate CS */
   cs_.high();
