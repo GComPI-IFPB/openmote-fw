@@ -12,6 +12,8 @@
 #ifndef INTERRUPT_HANDLER_HPP_
 #define INTERRUPT_HANDLER_HPP_
 
+#include <stdint.h>
+
 class Aes;
 class GpioIn;
 class GpioInPow;
@@ -53,26 +55,28 @@ public:
     static void clearInterruptHandler(GpioAdc* adc);
 private:
     InterruptHandler();
-    static inline void GPIOA_InterruptHandler(void);
-    static inline void GPIOB_InterruptHandler(void);
-    static inline void GPIOC_InterruptHandler(void);
-    static inline void GPIOD_InterruptHandler(void);
-    static inline void TIMER0_InterruptHandler(void);
-    static inline void TIMER1_InterruptHandler(void);
-    static inline void TIMER2_InterruptHandler(void);
-    static inline void TIMER3_InterruptHandler(void);
-    static inline void UART0_InterruptHandler(void);
-    static inline void UART1_InterruptHandler(void);
-    static inline void I2C_InterruptHandler(void);
-    static inline void SPI0_InterruptHandler(void);
-    static inline void SPI1_InterruptHandler(void);
-    static inline void SysTick_InterruptHandler(void);
-    static inline void RFCore_InterruptHandler(void);
-    static inline void RFError_InterruptHandler(void);
-    static inline void SleepTimer_InterruptHandler(void);
-    static inline void RadioTimer_InterruptHandler(void);
-    static inline void Aes_InterruptHandler(void);
-    static inline void Adc_InterruptHandler(void);
+    static void GPIO_InterruptHandler(uint32_t base, GpioIn* vector[8]);
+    static void GPIOA_InterruptHandler(void);
+    static void GPIOB_InterruptHandler(void);
+    static void GPIOC_InterruptHandler(void);
+    static void GPIOD_InterruptHandler(void);
+    static void TIMER_InterruptHandler(uint32_t base, Timer* vector[2]);
+    static void TIMER0_InterruptHandler(void);
+    static void TIMER1_InterruptHandler(void);
+    static void TIMER2_InterruptHandler(void);
+    static void TIMER3_InterruptHandler(void);
+    static void UART0_InterruptHandler(void);
+    static void UART1_InterruptHandler(void);
+    static void I2C_InterruptHandler(void);
+    static void SPI0_InterruptHandler(void);
+    static void SPI1_InterruptHandler(void);
+    static void SysTick_InterruptHandler(void);
+    static void RFCore_InterruptHandler(void);
+    static void RFError_InterruptHandler(void);
+    static void SleepTimer_InterruptHandler(void);
+    static void RadioTimer_InterruptHandler(void);
+    static void Aes_InterruptHandler(void);
+    static void Adc_InterruptHandler(void);
 private:
     static InterruptHandler instance_;
     static GpioIn* GPIOA_interruptVector_[8];
