@@ -13,6 +13,8 @@
 
 #include "Crc16.hpp"
 
+#include "BoardImplementation.hpp"
+
 /*================================ define ===================================*/
 
 /*================================ typedef ==================================*/
@@ -22,7 +24,8 @@
 static const uint16_t crc_seed = 0xFFFF;
 static const uint16_t crc_ok   = 0x0000;
 
-static const uint16_t lut[256] = {
+static const uint16_t lut[256] =
+{
   0x0000, 0x1189, 0x2312, 0x329B, 0x4624, 0x57AD, 0x6536, 0x74BF,
   0x8C48, 0x9DC1, 0xAF5A, 0xBED3, 0xCA6C, 0xDBE5, 0xE97E, 0xF8F7,
   0x1081, 0x0108, 0x3393, 0x221A, 0x56A5, 0x472C, 0x75B7, 0x643E,
