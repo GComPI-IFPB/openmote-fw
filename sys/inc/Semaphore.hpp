@@ -31,7 +31,6 @@ public:
   void giveFromInterrupt(void);
 protected:
   SemaphoreHandle_t semaphore_;
-  BaseType_t priorityTaskWoken_;
 };
 
 class SemaphoreBinary : public Semaphore

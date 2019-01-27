@@ -24,7 +24,7 @@
 /*================================= public ==================================*/
 
 Semaphore::Semaphore(void):
-  semaphore_(nullptr), priorityTaskWoken_(pdFALSE)
+  semaphore_(nullptr)
 {
 }
 
@@ -68,7 +68,7 @@ void Semaphore::give(void)
 
 void Semaphore::giveFromInterrupt(void)
 {
-  priorityTaskWoken_ = pdFALSE;
+  BaseType_t priorityTaskWoken_ = pdFALSE;
   xSemaphoreGiveFromISR(semaphore_, &priorityTaskWoken_);
   portYIELD_FROM_ISR(priorityTaskWoken_);
 }
