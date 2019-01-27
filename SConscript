@@ -51,7 +51,7 @@ build_dir = os.path.join("#/build", name)
 
 linker    = os.path.join(".", 'platform', platform, board["linker"])
 
-lib_name = ['board', 'drivers', 'platform', 'sys', 'freertos']
+lib_name = ['stdc++', 'board', 'drivers', 'platform', 'sys', 'freertos']
 lib_path = [os.path.join('#', 'bin', name)]
 
 env['name']      = name
@@ -127,7 +127,7 @@ if (cpu == 'cortex-m3'):
     env.Append(CXXFLAGS     = '-fno-unwind-tables')
     env.Append(CXXFLAGS     = '-specs=nano.specs')
     env.Append(CXXFLAGS     = '-specs=nosys.specs')
-    env.Append(CXXFLAGS     = '-nostdlib')
+    #env.Append(CXXFLAGS     = '-nostdlib')
     env.Append(CXXFLAGS     = '-fno-rtti')
     env.Append(CXXFLAGS     = '-fno-exceptions')
     env.Append(CXXFLAGS     = '-std=c++11')
@@ -145,7 +145,7 @@ if (cpu == 'cortex-m3'):
     env.Append(LINKFLAGS    = '-Wl,__cxa_pure_virtual=0')
     env.Append(LINKFLAGS    = '-specs=nano.specs')
     env.Append(LINKFLAGS    = '-specs=nosys.specs')
-    env.Append(LINKFLAGS    = '-nodefaultlibs')
+    #env.Append(LINKFLAGS    = '-nodefaultlibs')
     env.Append(LINKFLAGS    = '-T' + linker)
 else:
     raise SystemError("Error, cpu not valid!")

@@ -80,12 +80,23 @@ SECTIONS
         _text_end = .;
     } > FLASH = 0
 
-    /* Holds the stack at the start of SRAM */
-    .stack (NOLOAD) :
+    /* Contains information to unwind the stack for debugging purposes */
+    .ARM.extab : ALIGN(4)  
+    {  
+       *(.ARM.extab* .gnu.linkonce.armextab.*)
+    } > FLASH  
+    
+    .ARM.exidx : ALIGN(4)
+    {
+        *(.ARM.exidx* .gnu.linkonce.armextab.*)
+    } > FLASH
+
+    /* Hods the CCA section of the CC2538 */
+    .flashcca :
     {
         . = ALIGN(4);
-        KEEP(*(.stack))
-    } > SRAM2
+        KEEP(*(.flashcca))
+    } > FLASH_CCA
 
     /* Holds variables stored in FLASH and copied to SRAM upon initialization */
     .data :
@@ -108,23 +119,25 @@ SECTIONS
         _bss_end = .;
     } > SRAM2
 
-    /* Hods the CCA section of the CC2538 */
-    .flashcca :
+    /* Holds the heap next to the stack */
+    .heap (NOLOAD):
     {
         . = ALIGN(4);
-        KEEP(*(.flashcca))
-    } > FLASH_CCA
+        __heap_start__ = .;
+        end = __heap_start__;
+        _end = end;
+        __end = end;
+        KEEP(*(.heap))
+        __heap_end__ = .;
+        __HeapLimit = __heap_end__;
+    } > SRAM2
 
-    /* Contains information to unwind the stack for debugging purposes */
-    .ARM.extab : ALIGN(4)  
-    {  
-       *(.ARM.extab* .gnu.linkonce.armextab.*)
-    } > FLASH  
-    
-    .ARM.exidx : ALIGN(4)
+    /* Holds the stack at the start of SRAM */
+    .stack (NOLOAD) :
     {
-        *(.ARM.exidx* .gnu.linkonce.armextab.*)
-    } > FLASH
+        . = ALIGN(4);
+        KEEP(*(.stack))
+    } > SRAM2
     
     /DISCARD/ :
     {

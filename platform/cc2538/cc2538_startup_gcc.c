@@ -22,6 +22,11 @@
 #define STACK_SIZE                      ( DEFAULT_STACK_SIZE )
 #endif
 
+#define DEFAULT_HEAP_SIZE               ( 1024 )
+#ifndef HEAP_SIZE
+#define HEAP_SIZE                       ( DEFAULT_STACK_SIZE )
+#endif
+
 #define FLASH_START_ADDR                ( 0x00200000 )
 #define BOOTLOADER_BACKDOOR_ENABLED     ( 0xF6FFFFFF ) // ENABLED: PORT A, PIN 6, LOW
 #define BOOTLOADER_BACKDOOR_DISABLED    ( 0xEFFFFFFF ) // DISABLED
@@ -67,8 +72,11 @@ extern uint32_t _data_end;
 extern uint32_t _bss_start;
 extern uint32_t _bss_end;
 
-__attribute__ ((section(".stack")))
+__attribute__ ((section(".stack"), used))
 static uint8_t _stack[STACK_SIZE];
+
+__attribute__ ((section(".heap"), used))
+static uint8_t _heap[HEAP_SIZE];
 
 __attribute__ ((section(".flashcca"), used))
 const lock_page_cca_t lock_page_cca =
