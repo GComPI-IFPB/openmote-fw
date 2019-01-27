@@ -225,7 +225,6 @@
                 <option>
                     <name>CCDefines</name>
                     <state>CC2538_USE_ALTERNATE_INTERRUPT_MAP</state>
-                    <state>ENABLE_ASSERT</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>
@@ -1027,7 +1026,7 @@
                 </option>
                 <option>
                     <name>IarchiveOutput</name>
-                    <state>$PROJ_DIR$\..\libcc2538_iar.lib</state>
+                    <state>$PROJ_DIR$\..\libcc2538_iar.a</state>
                 </option>
             </data>
         </settings>
