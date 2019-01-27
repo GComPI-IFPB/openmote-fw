@@ -17,6 +17,7 @@
 #include "Board.hpp"
 
 #include "Aes.hpp"
+#include "Dma.hpp"
 #include "Gpio.hpp"
 #include "I2c.hpp"
 #include "Radio.hpp"
@@ -84,6 +85,9 @@ extern Aes aes;
 
 /* CC2538 temperature sensor */
 extern TemperatureSensor temp;
+
+/* DMA controller */
+extern Dma dma;
 
 /* AT86RF215 radio transceiver */
 extern At86rf215 at86rf215;

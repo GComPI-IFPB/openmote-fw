@@ -23,9 +23,10 @@ class Dma
 friend class InterruptHandler;
 
 public:
-    Dma();
-    void init(void);
+  Dma();
+  void init(void);
 private:
+  bool is_initialized;
 };
 
 #endif /* DMA_HPP_ */
