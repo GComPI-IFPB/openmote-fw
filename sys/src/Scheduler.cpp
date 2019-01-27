@@ -42,7 +42,8 @@ void Scheduler::yield(void)
 
 void Scheduler::delay_ms(uint16_t ms)
 {
-  vTaskDelay(ms / portTICK_RATE_MS);
+  TickType_t ticks = pdMS_TO_TICKS(ms);
+  vTaskDelay(ticks);
 }
 
 /*=============================== protected =================================*/
