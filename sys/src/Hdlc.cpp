@@ -99,7 +99,7 @@ HdlcResult Hdlc::txOpen(void)
   txCrc.init();
 
   /* Write the opening HDLC flag to the transmit buffer */
-  status = txBuffer_.write(HDLC_FLAG);
+  status = txBuffer_.writeByte(HDLC_FLAG);
   if (!status) return HdlcResult_Error;
 
   return HdlcResult_Ok;
@@ -116,7 +116,7 @@ HdlcResult Hdlc::txPut(uint8_t byte)
   if (byte == HDLC_FLAG || byte == HDLC_ESCAPE)
   {
     /* If so, write an HDLC escape symbol to the transmit buffer */
-    status = txBuffer_.write(HDLC_ESCAPE);
+    status = txBuffer_.writeByte(HDLC_ESCAPE);
     if (!status) return HdlcResult_Error;
 
     /* Transform the current byte */
@@ -124,7 +124,7 @@ HdlcResult Hdlc::txPut(uint8_t byte)
   }
 
   /* Write the current byte to the transmit buffer */
-  status = txBuffer_.write(byte);
+  status = txBuffer_.writeByte(byte);
   if (!status) return HdlcResult_Error;
 
   return HdlcResult_Ok;
@@ -162,7 +162,7 @@ HdlcResult Hdlc::txClose(void)
   if (result != HdlcResult_Ok) return HdlcResult_Error;
 
   /* Write the closing HDLC flag to the transmit buffer */
-  status = txBuffer_.write(HDLC_FLAG);
+  status = txBuffer_.writeByte(HDLC_FLAG);
   if (!status) return HdlcResult_Error;
 
   return HdlcResult_Ok;
@@ -195,7 +195,7 @@ HdlcResult Hdlc::rxParse(uint8_t byte)
     }
 
     /* Write a byte to the receive buffer */
-    status = rxBuffer_.write(byte);
+    status = rxBuffer_.writeByte(byte);
     if (status == -1) return HdlcResult_Error;
 
     /* Push the byte to the CRC module */

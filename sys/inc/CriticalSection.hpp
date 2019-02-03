@@ -18,8 +18,11 @@
 class CriticalSection
 {
 public:
-  CriticalSection(void);
+  CriticalSection(bool interrupt = false);
   ~CriticalSection(void);
+private:
+  bool interrupt_;
+  UBaseType_t uxSavedInterruptStatus;
 };
 
 #endif /* CRITICAL_SECTION_HPP_ */

@@ -22,16 +22,16 @@ class Buffer
 public:
   Buffer(uint8_t* buffer, uint32_t length);
   void reset(void);
+  uint8_t* getHead(void);
+  uint32_t getCapacity(void);
   uint32_t getSize(void);
   bool isEmpty(void);
   bool isFull(void);
-  bool read(uint8_t* data);
-  bool read(uint8_t* buffer, uint32_t length);
-  bool write(uint8_t data);
-  bool write(const uint8_t* data, uint32_t length);
+  bool readByte(uint8_t* data, bool interrupt = false);
+  bool readBytes(uint8_t* buffer, uint32_t length, bool interrupt = false);
+  bool writeByte(uint8_t data, bool interrupt = false);
+  bool writeBytes(const uint8_t* data, uint32_t length, bool interrupt = false);
 private:
-  MutexRecursive rmutex_;
-
   uint8_t* buffer_;
   uint32_t length_;
   uint32_t count_;

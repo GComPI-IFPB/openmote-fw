@@ -19,6 +19,7 @@ class Scheduler
 public:
   static void run(void);
   static void yield(void);
+  static uint32_t get_ms(void);
   static void delay_ms(uint16_t ms);
 private:
 	Scheduler(void);

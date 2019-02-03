@@ -81,10 +81,10 @@ void Logging::log(char const * message)
 	txBuffer_.reset();
 
 	/* Write characters into transmit buffer */
-	txBuffer_.write((uint8_t *) message, length);
+	txBuffer_.writeBytes((uint8_t *) message, length);
 
  	/* Read first byte from the UART transmit buffer */
-  status = txBuffer_.read(&byte);
+  status = txBuffer_.readByte(&byte);
   if (status == true)
   {
     uart_.writeByte(byte);
@@ -136,7 +136,7 @@ void Logging::txCallback(void)
 	uint8_t byte;
 
   /* Read byte from the UART transmit buffer */
-  if (txBuffer_.read(&byte) == true)
+  if (txBuffer_.readByte(&byte) == true)
   {
     /* Write byte to the UART */
     uart_.writeByte(byte);

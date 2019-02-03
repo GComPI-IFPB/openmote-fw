@@ -23,14 +23,29 @@
 
 /*================================= public ==================================*/
 
-CriticalSection::CriticalSection(void)
+CriticalSection::CriticalSection(bool interrupt):
+  interrupt_(interrupt)
 {
-  taskENTER_CRITICAL();
+  if (!interrupt_)
+  {
+    taskENTER_CRITICAL();
+  }
+  else
+  {
+    uxSavedInterruptStatus = taskENTER_CRITICAL_FROM_ISR();
+  }
 }
 
 CriticalSection::~CriticalSection(void)
 {
-  taskEXIT_CRITICAL();
+  if (!interrupt_)
+  {
+    taskEXIT_CRITICAL();
+  }
+  else
+  {
+    taskEXIT_CRITICAL_FROM_ISR(uxSavedInterruptStatus);
+  }  
 }
 
 /*=============================== protected =================================*/
