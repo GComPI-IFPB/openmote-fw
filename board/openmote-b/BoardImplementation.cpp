@@ -209,22 +209,22 @@
 /*================================ private ==================================*/
 
 /* Board management */
-static BoardParams board_params {BOARD_USE_32KHZ_XTAL, BOARD_USE_32MHZ_OSC, SYSTEM_CLOCK_DIVIDER, PERIPH_CLOCK_DIVIDER};
+static const BoardParams board_params {BOARD_USE_32KHZ_XTAL, BOARD_USE_32MHZ_OSC, SYSTEM_CLOCK_DIVIDER, PERIPH_CLOCK_DIVIDER};
 
 /* LEDs */
-static GpioConfig led_green_cfg  {LED_GREEN_PORT,  LED_GREEN_PIN,  0, 0, 1};
-static GpioConfig led_orange_cfg {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 1};
-static GpioConfig led_red_cfg    {LED_RED_PORT,    LED_RED_PIN,    0, 0, 1};
-static GpioConfig led_yellow_cfg {LED_YELLOW_PORT, LED_YELLOW_PIN, 0, 0, 1};
+static const GpioConfig led_green_cfg  {LED_GREEN_PORT,  LED_GREEN_PIN,  0, 0, 1};
+static const GpioConfig led_orange_cfg {LED_ORANGE_PORT, LED_ORANGE_PIN, 0, 0, 1};
+static const GpioConfig led_red_cfg    {LED_RED_PORT,    LED_RED_PIN,    0, 0, 1};
+static const GpioConfig led_yellow_cfg {LED_YELLOW_PORT, LED_YELLOW_PIN, 0, 0, 1};
 
 /* Debug pins */ 
-static GpioConfig debug0_cfg {DEBUG0_PORT, DEBUG0_PIN, 0, 0, 0};
-static GpioConfig debug1_cfg {DEBUG1_PORT, DEBUG1_PIN, 0, 0, 0};
-static GpioConfig debug2_cfg {DEBUG2_PORT, DEBUG2_PIN, 0, 0, 0};
-static GpioConfig debug3_cfg {DEBUG3_PORT, DEBUG3_PIN, 0, 0, 0};
+static const GpioConfig debug0_cfg {DEBUG0_PORT, DEBUG0_PIN, 0, 0, 0};
+static const GpioConfig debug1_cfg {DEBUG1_PORT, DEBUG1_PIN, 0, 0, 0};
+static const GpioConfig debug2_cfg {DEBUG2_PORT, DEBUG2_PIN, 0, 0, 0};
+static const GpioConfig debug3_cfg {DEBUG3_PORT, DEBUG3_PIN, 0, 0, 0};
 
 /* Buttons */
-static GpioConfig button_user_cfg {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0};
+static const GpioConfig button_user_cfg {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0};
 
 /* Adc */ 
 // GpioConfig gpio_adc_cfg = {DEBUG5_PORT, DEBUG5_PIN, 0, 0, 0};
@@ -232,33 +232,33 @@ static GpioConfig button_user_cfg {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_
 // GpioAdc gpio_adc(gpio_adc_cfg, adc_cfg);
 
 /* Antenna pins */
-static GpioConfig antenna_at86rf215_cfg {ANTENNA_AT86RF215_PORT, ANTENNA_AT86RF215_PIN, 0, 0, 0};
-static GpioConfig antenna_cc2538_cfg    {ANTENNA_CC2538_PORT,    ANTENNA_CC2538_PIN,    0, 0, 0};
+static const GpioConfig antenna_at86rf215_cfg {ANTENNA_AT86RF215_PORT, ANTENNA_AT86RF215_PIN, 0, 0, 0};
+static const GpioConfig antenna_cc2538_cfg    {ANTENNA_CC2538_PORT,    ANTENNA_CC2538_PIN,    0, 0, 0};
 
 /* Timers */
-static TimerConfig timer0a_cfg {TIMER0A_PERIPHERAL, TIMER0A_BASE, TIMER0A_SOURCE, TIMER0A_CONFIG, TIMER0A_INTERRUPT, TIMER0A_INTERRUPT_MODE};
-static TimerConfig timer0b_cfg {TIMER0B_PERIPHERAL, TIMER0B_BASE, TIMER0B_SOURCE, TIMER0B_CONFIG, TIMER0B_INTERRUPT, TIMER0B_INTERRUPT_MODE};
-static TimerConfig timer1a_cfg {TIMER1A_PERIPHERAL, TIMER1A_BASE, TIMER1A_SOURCE, TIMER1A_CONFIG, TIMER1A_INTERRUPT, TIMER1A_INTERRUPT_MODE};
-static TimerConfig timer1b_cfg {TIMER1B_PERIPHERAL, TIMER1B_BASE, TIMER1B_SOURCE, TIMER1B_CONFIG, TIMER1B_INTERRUPT, TIMER1B_INTERRUPT_MODE};
-static TimerConfig timer2a_cfg {TIMER2A_PERIPHERAL, TIMER2A_BASE, TIMER2A_SOURCE, TIMER2A_CONFIG, TIMER2A_INTERRUPT, TIMER2A_INTERRUPT_MODE};
-static TimerConfig timer2b_cfg {TIMER2B_PERIPHERAL, TIMER2B_BASE, TIMER2B_SOURCE, TIMER2B_CONFIG, TIMER2B_INTERRUPT, TIMER2B_INTERRUPT_MODE};
-static TimerConfig timer3a_cfg {TIMER3A_PERIPHERAL, TIMER3A_BASE, TIMER3A_SOURCE, TIMER3A_CONFIG, TIMER3A_INTERRUPT, TIMER3A_INTERRUPT_MODE};
-static TimerConfig timer3b_cfg {TIMER3B_PERIPHERAL, TIMER3B_BASE, TIMER3B_SOURCE, TIMER3B_CONFIG, TIMER3B_INTERRUPT, TIMER3B_INTERRUPT_MODE};
+static const TimerConfig timer0a_cfg {TIMER0A_PERIPHERAL, TIMER0A_BASE, TIMER0A_SOURCE, TIMER0A_CONFIG, TIMER0A_INTERRUPT, TIMER0A_INTERRUPT_MODE};
+static const TimerConfig timer0b_cfg {TIMER0B_PERIPHERAL, TIMER0B_BASE, TIMER0B_SOURCE, TIMER0B_CONFIG, TIMER0B_INTERRUPT, TIMER0B_INTERRUPT_MODE};
+static const TimerConfig timer1a_cfg {TIMER1A_PERIPHERAL, TIMER1A_BASE, TIMER1A_SOURCE, TIMER1A_CONFIG, TIMER1A_INTERRUPT, TIMER1A_INTERRUPT_MODE};
+static const TimerConfig timer1b_cfg {TIMER1B_PERIPHERAL, TIMER1B_BASE, TIMER1B_SOURCE, TIMER1B_CONFIG, TIMER1B_INTERRUPT, TIMER1B_INTERRUPT_MODE};
+static const TimerConfig timer2a_cfg {TIMER2A_PERIPHERAL, TIMER2A_BASE, TIMER2A_SOURCE, TIMER2A_CONFIG, TIMER2A_INTERRUPT, TIMER2A_INTERRUPT_MODE};
+static const TimerConfig timer2b_cfg {TIMER2B_PERIPHERAL, TIMER2B_BASE, TIMER2B_SOURCE, TIMER2B_CONFIG, TIMER2B_INTERRUPT, TIMER2B_INTERRUPT_MODE};
+static const TimerConfig timer3a_cfg {TIMER3A_PERIPHERAL, TIMER3A_BASE, TIMER3A_SOURCE, TIMER3A_CONFIG, TIMER3A_INTERRUPT, TIMER3A_INTERRUPT_MODE};
+static const TimerConfig timer3b_cfg {TIMER3B_PERIPHERAL, TIMER3B_BASE, TIMER3B_SOURCE, TIMER3B_CONFIG, TIMER3B_INTERRUPT, TIMER3B_INTERRUPT_MODE};
 
 /* I2C peripheral */
-static GpioConfig i2c_scl_cfg {I2C_SCL_BASE, I2C_SCL_PIN, 0, 0, 0};
-static GpioConfig i2c_sda_cfg {I2C_SDA_BASE, I2C_SDA_PIN, 0, 0, 0};
+static const GpioConfig i2c_scl_cfg {I2C_SCL_BASE, I2C_SCL_PIN, 0, 0, 0};
+static const GpioConfig i2c_sda_cfg {I2C_SDA_BASE, I2C_SDA_PIN, 0, 0, 0};
 static I2cConfig i2c_cfg      {I2C_PERIPHERAL, I2C_BAUDRATE};
 
-/* SPI peripheral */
-static GpioConfig spi_miso_cfg {SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC, 0, 0};
-static GpioConfig spi_mosi_cfg {SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC, 0, 0};
-static GpioConfig spi_clk_cfg  {SPI_CLK_BASE,  SPI_CLK_PIN,  SPI_CLK_IOC,  0, 0};
+/* SPI peripheraconst l */
+static const GpioConfig spi_miso_cfg {SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC, 0, 0};
+static const GpioConfig spi_mosi_cfg {SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC, 0, 0};
+static const GpioConfig spi_clk_cfg  {SPI_CLK_BASE,  SPI_CLK_PIN,  SPI_CLK_IOC,  0, 0};
 static SpiConfig spi_cfg       {SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, SPI_INT, SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE};
 
 /* UART peripheral */
-static GpioConfig uart_rx_cfg {UART_RX_PORT, UART_RX_PIN, UART_RX_IOC, 0, 0};
-static GpioConfig uart_tx_cfg {UART_TX_PORT, UART_TX_PIN, UART_TX_IOC, 0, 0};
+static const GpioConfig uart_rx_cfg {UART_RX_PORT, UART_RX_PIN, UART_RX_IOC, 0, 0};
+static const GpioConfig uart_tx_cfg {UART_TX_PORT, UART_TX_PIN, UART_TX_IOC, 0, 0};
 static UartConfig uart_cfg    {UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INT, UART_BAUDRATE, UART_MODE};
 
 static GpioOut antenna_at86rf215 {antenna_at86rf215_cfg};
@@ -274,10 +274,10 @@ static Gpio spi_clk  {spi_clk_cfg};
 static Gpio uart_rx {uart_rx_cfg};
 static Gpio uart_tx {uart_tx_cfg};
 
-static GpioConfig at86rf215_pwr_cfg {AT86RF215_PWR_BASE, AT86RF215_PWR_PIN, 0, 0, 0};
-static GpioConfig at86rf215_rst_cfg {AT86RF215_RST_BASE, AT86RF215_RST_PIN, 0, 0, 1};
-static GpioConfig at86rf215_csn_cfg {AT86RF215_CSn_BASE, AT86RF215_CSn_PIN, 0, 0, 1};
-static GpioConfig at86rf215_irq_cfg {AT86RF215_IRQ_BASE, AT86RF215_IRQ_PIN, 0, AT86RF215_IRQ_EDGE, 0};
+static const GpioConfig at86rf215_pwr_cfg {AT86RF215_PWR_BASE, AT86RF215_PWR_PIN, 0, 0, 0};
+static const GpioConfig at86rf215_rst_cfg {AT86RF215_RST_BASE, AT86RF215_RST_PIN, 0, 0, 1};
+static const GpioConfig at86rf215_csn_cfg {AT86RF215_CSn_BASE, AT86RF215_CSn_PIN, 0, 0, 1};
+static const GpioConfig at86rf215_irq_cfg {AT86RF215_IRQ_BASE, AT86RF215_IRQ_PIN, 0, AT86RF215_IRQ_EDGE, 0};
 
 static GpioOut at86rf215_pwr {at86rf215_pwr_cfg};
 static GpioOut at86rf215_rst {at86rf215_rst_cfg};
@@ -354,7 +354,7 @@ At86rf215 at86rf215(spi, at86rf215_pwr, at86rf215_rst, at86rf215_csn, at86rf215_
 /*================================= public ==================================*/
 
 /* Each BoardImplementation needs to provide its own constructor */
-BoardImplementation::BoardImplementation(BoardParams& boardParams):
+BoardImplementation::BoardImplementation(const BoardParams& boardParams):
   boardParams_(boardParams)
 {
 }
