@@ -12,6 +12,7 @@
 /*================================ include ==================================*/
 
 #include "Serial.hpp"
+#include "BoardImplementation.hpp"
 
 /*================================ define ===================================*/
 
@@ -30,11 +31,13 @@ Serial::Serial(Uart& uart):
   receive_buffer_{0}, rxBuffer_(receive_buffer_, sizeof(receive_buffer_)),
   transmit_buffer_{0}, txBuffer_(transmit_buffer_, sizeof(transmit_buffer_)),
   hdlc_(rxBuffer_, txBuffer_),
-  rxCallback_(this, &Serial::rxCallback), txCallback_(this, &Serial::txCallback)
+  rxCallback_(this, &Serial::rxCallback), txCallback_(this, &Serial::txCallback),
+  useDma_(false)
 {
 }
 
-bool Serial::operator==(const Serial& other) {
+bool Serial::operator==(const Serial& other)
+{
   return uart_ == other.uart_;
 }
 
@@ -51,14 +54,17 @@ void Serial::init(void)
   hdlc_.rxOpen();
 }
 
-void Serial::write(uint8_t* data, uint32_t size)
+void Serial::write(uint8_t* data, uint32_t size, bool useDma)
 {
   HdlcResult result = HdlcResult_Ok;
   uint8_t byte;
   bool status;
 
-  /* Take the UART lock */
-  uart_.txLock();
+  /* Take the TX mutex */
+  txMutex_.take();
+  
+  /* Store DMA usage */
+  useDma_ = useDma;
 
   /* Reset the UART transmit buffer */
   txBuffer_.reset();
@@ -75,13 +81,28 @@ void Serial::write(uint8_t* data, uint32_t size)
   result = hdlc_.txClose();
   if (result != HdlcResult_Ok) goto error;
 
-  /* Read first byte from the UART transmit buffer */
-  status = txBuffer_.read(&byte);
-  if (status != true) goto error;
+  /* Start transmission */
+  if (!useDma)
+  {
+    /* Read first byte from the UART transmit buffer */
+    status = txBuffer_.readByte(&byte);
+    if (status != true) goto error;
 
-  /* Write first byte to the UART */
-  uart_.writeByte(byte);
-
+    /* Write first byte to the UART */
+    uart_.writeByte(byte);
+  }
+  else
+  {
+    /* Transmit all buffer at once */
+    uart_.writeByteDma(txBuffer_.getHead(), txBuffer_.getSize());
+  }
+  
+  /* Take the UART lock */
+  uart_.txLock();
+  
+  /* Give the TX mutex */
+  txMutex_.give();
+  
   return;
 
 error:
@@ -110,13 +131,13 @@ uint32_t Serial::read(uint8_t* buffer, uint32_t size)
   {
     /* Copy all bytes to the buffer except the CRC bytes */
     while (size--) {
-      rxBuffer_.read(&data);
+      rxBuffer_.readByte(&data);
       *buffer++ = data;
     }
 
     /* Read the CRC bytes from the buffer */
-    rxBuffer_.read(&data);
-    rxBuffer_.read(&data);
+    rxBuffer_.readByte(&data);
+    rxBuffer_.readByte(&data);
   }
   else
   {
@@ -178,12 +199,20 @@ error:
 void Serial::txCallback(void)
 {
   uint8_t byte;
-
-  /* Read byte from the UART transmit buffer */
-  if (txBuffer_.read(&byte) == true)
+  
+  if (!useDma_)
   {
-    /* Write byte to the UART */
-    uart_.writeByte(byte);
+    /* Read byte from the UART transmit buffer */
+    if (txBuffer_.readByte(&byte, true) == true)
+    {
+      /* Write byte to the UART */
+      uart_.writeByte(byte);
+    }
+    else
+    {
+      /* Once done, free the UART lock */
+      uart_.txUnlockFromInterrupt();
+    }
   }
   else
   {

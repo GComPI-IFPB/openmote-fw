@@ -19,6 +19,7 @@
 
 #include "Buffer.hpp"
 #include "Hdlc.hpp"
+#include "Mutex.hpp"
 
 class Serial;
 
@@ -29,7 +30,7 @@ class Serial
 public:
   Serial(Uart& uart);
   void init(void);
-  void write(uint8_t* data, uint32_t size);
+  void write(uint8_t* data, uint32_t size, bool useDma = false);
   uint32_t read(uint8_t* buffer, uint32_t size);
 public:
   bool operator==(const Serial& other);
@@ -39,16 +40,21 @@ private:
 private:
   Uart& uart_;
 
-  uint8_t receive_buffer_[256];
+  uint8_t receive_buffer_[2048];
   Buffer rxBuffer_;
 
-  uint8_t transmit_buffer_[256];
+  uint8_t transmit_buffer_[2048];
   Buffer txBuffer_;
 
   Hdlc hdlc_;
+  
+  Mutex txMutex_;
+  Mutex rxMutex_;
 
   SerialCallback rxCallback_;
   SerialCallback txCallback_;
+  
+  bool useDma_;
 };
 
 #endif /* SERIAL_HPP_ */
