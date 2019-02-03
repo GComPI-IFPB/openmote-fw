@@ -16,6 +16,8 @@
 #include "Gpio.hpp"
 #include "Board.hpp"
 
+#include "BoardImplementation.hpp"
+
 #include "platform_includes.h"
 #include "platform_types.h"
 
@@ -50,7 +52,7 @@ Board::Board():
 {
 }
 
-void Board::init(BoardParams& params)
+void Board::init(const BoardParams& params)
 { 
   /* Configure the 32 kHz clock pins (PD6, PD7) for crystal operation */
   GPIODirModeSet(GPIO_D_BASE, GPIO_PIN_6, GPIO_DIR_MODE_IN);
@@ -85,6 +87,17 @@ void Board::reset(void)
 {
   /* Force a software reset */
   SysCtrlReset();
+}
+
+void Board::error(void)
+{
+  while(true)
+  {
+    led_red.on();
+    delayMilliseconds(100);
+    led_red.off();
+    delayMilliseconds(100);
+  }
 }
 
 uint32_t Board::getClock(void)
@@ -156,27 +169,39 @@ bool Board::isExpiredTicks(uint32_t future)
   return (remaining < 0);
 }
 
-void Board::delayMilliseconds(uint32_t milliseconds)
+void Board::delayMicroseconds(uint32_t microseconds)
 {
   uint32_t current, timeout;
 
+  if (microseconds <= Board::BOARD_TICKS_PER_US)
+  {
+    microseconds = 1;
+  }
+  
   /* Get the current number of ticks */
   current = getCurrentTicks();
   
   /* Calculate the time in the future */
-  timeout = current + Board::BOARD_TICKS_PER_US * milliseconds;
+  timeout = current + (microseconds / Board::BOARD_TICKS_PER_US);
 
   /* Active-wait until we reach the timeout */
   while(!isExpiredTicks(timeout))
       ;
 }
 
+void Board::delayMilliseconds(uint32_t milliseconds)
+{
+  delayMicroseconds(1000 * milliseconds);
+}
+
 void Board::getEUI48(uint8_t* address)
 {
   uint8_t temp[8];
 
+  /* Get EUI64 */
   getEUI64(temp);
 
+  /* Generate EUI48 from EUI64 */
   memcpy(&address[0], &temp[0], 3);
   memcpy(&address[3], &temp[5], 3);
 }

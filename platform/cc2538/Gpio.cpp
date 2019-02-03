@@ -26,16 +26,16 @@
 
 /*================================= public ==================================*/
 
-Gpio::Gpio(GpioConfig& config) : config_(config)
+Gpio::Gpio(const GpioConfig& config) : config_(config)
 {
 }
 
 bool Gpio::operator==(const Gpio& other)
 {
-	return (config_ == other.config_);
+	return (&config_ == &other.config_);
 }
 
-GpioConfig& Gpio::getGpioConfig(void)
+const GpioConfig& Gpio::getGpioConfig(void)
 {
 	return config_;
 }

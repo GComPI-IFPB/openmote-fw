@@ -89,7 +89,7 @@ void SleepTimer::clearCallback(void)
 
 void SleepTimer::enableInterrupts(void)
 {
-  InterruptHandler::getInstance().setInterruptHandler(this);
+  InterruptHandler::getInstance().setInterruptHandler(*this);
 
   IntEnable(interrupt_);
 }
@@ -98,7 +98,7 @@ void SleepTimer::disableInterrupts(void)
 {
   IntDisable(interrupt_);
 
-  InterruptHandler::getInstance().clearInterruptHandler(this);
+  InterruptHandler::getInstance().clearInterruptHandler(*this);
 }
 
 /*=============================== protected =================================*/

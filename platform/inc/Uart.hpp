@@ -43,7 +43,8 @@ public:
     uint8_t readByte(void);
     uint32_t readByte(uint8_t* buffer, uint32_t length);
     void writeByte(uint8_t byte);
-    uint32_t writeByte(uint8_t* buffer, uint32_t length);
+    int32_t writeByte(uint8_t* buffer, uint32_t length);
+    int32_t writeByteDma(uint8_t * buffer, uint32_t length);
 public:
     bool operator==(const Uart& other);
 protected:

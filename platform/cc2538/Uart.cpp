@@ -15,10 +15,19 @@
 #include "InterruptHandler.hpp"
 #include "Uart.hpp"
 
+#include "BoardImplementation.hpp"
+
 #include "platform_includes.h"
 #include "platform_types.h"
 
 /*================================ define ===================================*/
+
+#define UART_DATA                   (void *)(config_.base + UART_O_DR)
+
+#define UART_RX_CHANNEL             ( UDMA_CH8_UART0RX | UDMA_PRI_SELECT )
+#define UART_RX_CONTROL             ( UDMA_SIZE_8 | UDMA_SRC_INC_NONE | UDMA_DST_INC_8 | UDMA_ARB_1 )
+#define UART_TX_CHANNEL             ( UDMA_CH9_UART0TX | UDMA_PRI_SELECT ) 
+#define UART_TX_CONTROL             ( UDMA_SIZE_8 | UDMA_SRC_INC_8 | UDMA_DST_INC_NONE | UDMA_ARB_1 )
 
 /*================================ typedef ==================================*/
 
@@ -30,7 +39,7 @@
 
 Uart::Uart(Gpio& rx, Gpio& tx, UartConfig& config):
   rx_(rx), tx_(tx), config_(config), \
-  rxSemaphore_(false), txSemaphore_(true), \
+  rxSemaphore_(false), txSemaphore_(false), \
   rx_callback_(nullptr), tx_callback_(nullptr)
 {
 }
@@ -42,8 +51,8 @@ bool Uart::operator==(const Uart& other) {
 void Uart::enable(uint32_t baudrate)
 {
   /* Get GpioConfig structures */
-  GpioConfig& rx = rx_.getGpioConfig();
-  GpioConfig& tx = tx_.getGpioConfig();
+  const GpioConfig& rx = rx_.getGpioConfig();
+  const GpioConfig& tx = tx_.getGpioConfig();
 
   /* Store baudrate in configuration */
   if (baudrate != 0) {
@@ -56,7 +65,7 @@ void Uart::enable(uint32_t baudrate)
   SysCtrlPeripheralDeepSleepDisable(config_.peripheral);
 
   /* Disable peripheral previous to configuring it */
-  UARTDisable(config_.peripheral);
+  UARTDisable(config_.base);
 
   /* Set IO clock as UART clock source */
   UARTClockSourceSet(config_.base, config_.clock);
@@ -85,8 +94,8 @@ void Uart::enable(uint32_t baudrate)
 void Uart::sleep(void)
 {
   /* Get GpioConfig structures */
-  GpioConfig& rx = rx_.getGpioConfig();
-  GpioConfig& tx = tx_.getGpioConfig();
+  const GpioConfig& rx = rx_.getGpioConfig();
+  const GpioConfig& tx = tx_.getGpioConfig();
 
   /* Wait until UART is not busy */
   while(UARTBusy(config_.base))
@@ -119,10 +128,13 @@ void Uart::setTxCallback(Callback* callback)
 void Uart::enableInterrupts(void)
 {
   /* Register the interrupt handler */
-  InterruptHandler::getInstance().setInterruptHandler(this);
+  InterruptHandler::getInstance().setInterruptHandler(*this);
 
+  /* Clear the UART RX, TX and RX timeout interrupts */
+  UARTIntClear(config_.base, UART_INT_RX | UART_INT_TX);
+  
   /* Enable the UART RX, TX and RX timeout interrupts */
-  UARTIntEnable(config_.base, UART_INT_RX | UART_INT_TX | UART_INT_RT);
+  UARTIntEnable(config_.base, UART_INT_RX | UART_INT_TX);
 
   /* Set the UART interrupt priority */
   IntPrioritySet(config_.interrupt, 0xF0);
@@ -134,7 +146,7 @@ void Uart::enableInterrupts(void)
 void Uart::disableInterrupts(void)
 {
   /* Disable the UART RX, TX and RX timeout interrupts */
-  UARTIntDisable(config_.base, UART_INT_RX | UART_INT_TX | UART_INT_RT);
+  UARTIntDisable(config_.base, UART_INT_RX | UART_INT_TX);
 
   /* Disable the UART interrupt */
   IntDisable(config_.interrupt);
@@ -200,7 +212,7 @@ void Uart::writeByte(uint8_t byte)
   UARTCharPutNonBlocking(config_.base, byte);
 }
 
-uint32_t Uart::writeByte(uint8_t * buffer, uint32_t length)
+int32_t Uart::writeByte(uint8_t * buffer, uint32_t length)
 {
   /* Put all bytes to UART (blocking) */
   for (uint32_t i = 0; i < length; i++)
@@ -208,10 +220,29 @@ uint32_t Uart::writeByte(uint8_t * buffer, uint32_t length)
     UARTCharPut(config_.base, *buffer++);
   }
 
-  /* Wait until last byte is complete */
-  while(UARTBusy(config_.base))
-    ;
+  return 0;
+}
 
+int32_t Uart::writeByteDma(uint8_t * buffer, uint32_t length)
+{
+  /* Enable uDMA complete interrupt for UART TX */
+  UARTDMAEnable(config_.base, UART_DMA_TX);
+  
+  /* Setup DMA control for UART transmission */
+  uDMAChannelControlSet(UART_TX_CHANNEL, UART_TX_CONTROL);
+  
+  /* Setup DMA buffers for UART using BASIC mode */
+  uDMAChannelTransferSet(UART_TX_CHANNEL, UDMA_MODE_BASIC, buffer, UART_DATA, length);
+
+  /* Enable the TX channel */
+  uDMAChannelEnable(UART_TX_CHANNEL);
+  
+  /* Busy-wait until there are no more bytes to be tramsmitted */
+  // while(uDMAChannelSizeGet(UART_TX_CHANNEL) > 0);
+  
+  /* Disable uDMA complete interrupt for UART RX and TX */
+  // UARTDMADisable(config_.base, UART_DMA_TX);
+  
   return 0;
 }
 
@@ -240,9 +271,9 @@ void Uart::interruptHandler(void)
   }
 
   /* Process RX interrupt */
-  if ((status & UART_INT_RX) || (status & UART_INT_RT))
+  if ((status & UART_INT_RX))
   {
-    UARTIntClear(config_.base, UART_INT_RX | UART_INT_RT);
+    UARTIntClear(config_.base, UART_INT_RX);
     interruptHandlerRx();
   }
 }

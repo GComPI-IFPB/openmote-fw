@@ -23,12 +23,12 @@ struct AdcConfig;
 class Gpio
 {
 public:
-  Gpio(GpioConfig& config);
-  GpioConfig& getGpioConfig(void);
+  Gpio(const GpioConfig& config);
+  const GpioConfig& getGpioConfig(void);
 public:
   bool operator==(const Gpio& other);
 protected:
-  GpioConfig& config_;
+  const GpioConfig& config_;
 };
 
 /*****************************************************************************/
@@ -39,7 +39,7 @@ class GpioIn : public Gpio
 friend class InterruptHandler;
 
 public:
-  GpioIn(GpioConfig& config);
+  GpioIn(const GpioConfig& config);
   bool read(void);
   void setCallback(Callback* callback);
   void clearCallback(void);
@@ -59,7 +59,7 @@ class GpioInPow : public GpioIn
 friend class InterruptHandler;
 
 public:
-  GpioInPow(GpioConfig& config);
+  GpioInPow(const GpioConfig& config);
   void enableInterrupts(void);
   void disableInterrupts(void);
 };
@@ -70,7 +70,7 @@ class GpioOut : public Gpio
 {
 
 public:
-  GpioOut(GpioConfig& config);
+  GpioOut(const GpioConfig& config);
   void on(void);
   void off(void);
   void toggle(void);
@@ -85,7 +85,7 @@ class GpioPwm : public GpioOut, Timer
 {
 
 public:
-  GpioPwm(GpioConfig& gpioConfig, TimerConfig& timerConfig);
+  GpioPwm(const GpioConfig& gpioConfig, TimerConfig& timerConfig);
   void init(bool level);
   void setCallback(Callback* callback);
   void clearCallback(void);
@@ -107,7 +107,7 @@ class GpioAdc: public Gpio
 friend class InterruptHandler;
 
 public:
-  GpioAdc(GpioConfig& gpioConfig, AdcConfig& adcConfig);
+  GpioAdc(const GpioConfig& gpioConfig, AdcConfig& adcConfig);
   void start(void);
   void poll(void);
   uint32_t read(void);

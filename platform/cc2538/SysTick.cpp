@@ -58,7 +58,7 @@ void SysTick::clearCallback(void)
 
 void SysTick::enableInterrupts(void)
 {
-  InterruptHandler::getInstance().setInterruptHandler(this);
+  InterruptHandler::getInstance().setInterruptHandler(*this);
 
   /* Enable SysTick interrupts */
   SysTickIntEnable();

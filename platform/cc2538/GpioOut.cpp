@@ -26,7 +26,7 @@
 
 /*================================= public ==================================*/
 
-GpioOut::GpioOut(GpioConfig& config):
+GpioOut::GpioOut(const GpioConfig& config):
   Gpio(config)
 {
   /* Set the pin as output */

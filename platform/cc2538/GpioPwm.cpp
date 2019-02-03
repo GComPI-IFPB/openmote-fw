@@ -27,7 +27,7 @@
 
 /*================================= public ==================================*/
 
-GpioPwm::GpioPwm(GpioConfig& gpioConfig, TimerConfig& timerConfig):
+GpioPwm::GpioPwm(const GpioConfig& gpioConfig, TimerConfig& timerConfig):
   GpioOut(gpioConfig), Timer(timerConfig), dutyCycle_(0)
 {
 }

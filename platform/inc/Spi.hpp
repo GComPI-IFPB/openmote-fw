@@ -30,9 +30,6 @@ public:
     void enable(uint32_t baudrate = 0);
     void sleep(void);
     void wakeup(void);
-    void initDma(void);
-    void enableDma(void);
-    void disableDma(void);
     void setRxCallback(Callback* callback);
     void setTxCallback(Callback* callback);
     void enableInterrupts(void);

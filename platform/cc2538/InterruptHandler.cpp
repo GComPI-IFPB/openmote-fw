@@ -73,11 +73,11 @@ InterruptHandler &InterruptHandler::getInstance(void)
   return instance_;
 }
 
-void InterruptHandler::setInterruptHandler(GpioIn* gpio)
+void InterruptHandler::setInterruptHandler(GpioIn& gpio)
 {
   /* Get the GPIO port and pin */
-  uint32_t port = gpio->getGpioConfig().port;
-  uint8_t pin   = gpio->getGpioConfig().pin;
+  uint32_t port = gpio.getGpioConfig().port;
+  uint8_t pin   = gpio.getGpioConfig().pin;
 
   /* Select the pin number */
   if (pin == GPIO_PIN_0)
@@ -117,30 +117,30 @@ void InterruptHandler::setInterruptHandler(GpioIn* gpio)
   if (port == GPIO_A_BASE)
   {
     IntPrioritySet(INT_GPIOA, 0xF0);
-    GPIOA_interruptVector_[pin] = gpio;
+    GPIOA_interruptVector_[pin] = &gpio;
   }
   else if (port == GPIO_B_BASE)
   {
     IntPrioritySet(INT_GPIOB, 0xF0);
-    GPIOB_interruptVector_[pin] = gpio;
+    GPIOB_interruptVector_[pin] = &gpio;
   }
   else if (port == GPIO_C_BASE)
   {
     IntPrioritySet(INT_GPIOC, 0xF0);
-    GPIOC_interruptVector_[pin] = gpio;
+    GPIOC_interruptVector_[pin] = &gpio;
   }
   else if (port == GPIO_D_BASE)
   {
     IntPrioritySet(INT_GPIOD, 0xF0);
-    GPIOD_interruptVector_[pin] = gpio;
+    GPIOD_interruptVector_[pin] = &gpio;
   }
 }
 
-void InterruptHandler::clearInterruptHandler(GpioIn* gpio)
+void InterruptHandler::clearInterruptHandler(GpioIn& gpio)
 {
   /* Get the GPIO port and pin */
-  uint32_t port = gpio->getGpioConfig().port;
-  uint8_t pin   = gpio->getGpioConfig().pin;
+  uint32_t port = gpio.getGpioConfig().port;
+  uint8_t pin   = gpio.getGpioConfig().pin;
 
   /* Select the pin number */
   if (pin == GPIO_PIN_0)
@@ -195,22 +195,22 @@ void InterruptHandler::clearInterruptHandler(GpioIn* gpio)
   }
 }
 
-void InterruptHandler::setInterruptHandler(Timer* timer_)
+void InterruptHandler::setInterruptHandler(Timer& timer_)
 {
   /* Get the TIMER base */
-  uint32_t base = timer_->getConfig().base;
-  uint32_t source = timer_->getConfig().source;
+  uint32_t base = timer_.getConfig().base;
+  uint32_t source = timer_.getConfig().source;
 
   if (base == GPTIMER0_BASE)
   {
     if ( (source == GPTIMER_A) || \
          (source == GPTIMER_BOTH) )
     {
-      TIMER0_interruptVector_[0] = timer_;
+      TIMER0_interruptVector_[0] = &timer_;
     }
     else if (source == GPTIMER_B)
     {
-      TIMER0_interruptVector_[1] = timer_;
+      TIMER0_interruptVector_[1] = &timer_;
     }
   }
   else if (base == GPTIMER1_BASE)
@@ -218,11 +218,11 @@ void InterruptHandler::setInterruptHandler(Timer* timer_)
     if ( (source == GPTIMER_A) || \
          (source == GPTIMER_BOTH) )
     {
-      TIMER1_interruptVector_[0] = timer_;
+      TIMER1_interruptVector_[0] = &timer_;
     }
     else if (source == GPTIMER_B)
     {
-      TIMER1_interruptVector_[1] = timer_;
+      TIMER1_interruptVector_[1] = &timer_;
     }
   }
   else if (base == GPTIMER2_BASE)
@@ -230,11 +230,11 @@ void InterruptHandler::setInterruptHandler(Timer* timer_)
     if ( (source == GPTIMER_A) || \
          (source == GPTIMER_BOTH) )
     {
-      TIMER2_interruptVector_[0] = timer_;
+      TIMER2_interruptVector_[0] = &timer_;
     }
     else if (source == GPTIMER_B)
     {
-      TIMER2_interruptVector_[1] = timer_;
+      TIMER2_interruptVector_[1] = &timer_;
     }
   }
   else if (base == GPTIMER3_BASE)
@@ -242,20 +242,20 @@ void InterruptHandler::setInterruptHandler(Timer* timer_)
     if ( (source == GPTIMER_A) || \
          (source == GPTIMER_BOTH) )
     {
-      TIMER3_interruptVector_[0] = timer_;
+      TIMER3_interruptVector_[0] = &timer_;
     }
     else if (source == GPTIMER_B)
     {
-      TIMER3_interruptVector_[1] = timer_;
+      TIMER3_interruptVector_[1] = &timer_;
     }
   }
 }
 
-void InterruptHandler::clearInterruptHandler(Timer* timer_)
+void InterruptHandler::clearInterruptHandler(Timer& timer_)
 {
   /* Get the TIMER base */
-  uint32_t base = timer_->getConfig().base;
-  uint32_t source = timer_->getConfig().source;
+  uint32_t base = timer_.getConfig().base;
+  uint32_t source = timer_.getConfig().source;
 
   if (base == GPTIMER0_BASE)
   {
@@ -307,26 +307,26 @@ void InterruptHandler::clearInterruptHandler(Timer* timer_)
   }
 }
 
-void InterruptHandler::setInterruptHandler(Uart * uart_)
+void InterruptHandler::setInterruptHandler(Uart& uart_)
 {
   /* Get the UART base */
-  uint32_t base = uart_->getConfig().base;
+  uint32_t base = uart_.getConfig().base;
 
   /* Store a pointer to the UART object in the interrupt vector */
   if (base == UART0_BASE)
   {
-    UART0_interruptVector_ = uart_;
+    UART0_interruptVector_ = &uart_;
   }
   else if (base == UART1_BASE)
   {
-    UART1_interruptVector_ = uart_;
+    UART1_interruptVector_ = &uart_;
   }
 }
 
-void InterruptHandler::clearInterruptHandler(Uart * uart_)
+void InterruptHandler::clearInterruptHandler(Uart& uart_)
 {
   /* Get the UART base */
-  uint32_t base = uart_->getConfig().base;
+  uint32_t base = uart_.getConfig().base;
 
   /* Remove the pointer to the UART object in the interrupt vector */
   if (base == UART0_BASE)
@@ -339,38 +339,38 @@ void InterruptHandler::clearInterruptHandler(Uart * uart_)
   }
 }
 
-void InterruptHandler::setInterruptHandler(I2c * i2c_)
+void InterruptHandler::setInterruptHandler(I2c& i2c_)
 {
   /* Store a pointer to the I2C object in the interrupt vector */
-  I2C_interruptVector_ = i2c_;
+  I2C_interruptVector_ = &i2c_;
 }
 
-void InterruptHandler::clearInterruptHandler(I2c * i2c_)
+void InterruptHandler::clearInterruptHandler(I2c& i2c_)
 {
   /* Remvoe the pointer to the I2C object in the interrupt vector */
   I2C_interruptVector_ = nullptr;
 }
 
-void InterruptHandler::setInterruptHandler(Spi * spi_)
+void InterruptHandler::setInterruptHandler(Spi& spi_)
 {
   /* Get the SPI base */
-  uint32_t base = spi_->getConfig().base;
+  uint32_t base = spi_.getConfig().base;
 
   /* Store a pointer to the SPI object in the interrupt vector */
   if (base == SSI0_BASE)
   {
-    SPI0_interruptVector_ = spi_;
+    SPI0_interruptVector_ = &spi_;
   }
   else if (base == SSI1_BASE)
   {
-    SPI1_interruptVector_ = spi_;
+    SPI1_interruptVector_ = &spi_;
   }
 }
 
-void InterruptHandler::clearInterruptHandler(Spi * spi_)
+void InterruptHandler::clearInterruptHandler(Spi& spi_)
 {
   /* Get the SPI base */
-  uint32_t base = spi_->getConfig().base;
+  uint32_t base = spi_.getConfig().base;
 
   /* Remove the pointer to the SPI object in the interrupt vector */
   if (base == SSI0_BASE)
@@ -383,54 +383,54 @@ void InterruptHandler::clearInterruptHandler(Spi * spi_)
   }
 }
 
-void InterruptHandler::setInterruptHandler(Radio * radio_)
+void InterruptHandler::setInterruptHandler(Radio& radio_)
 {
   /* Store a pointer to the RADIO object in the interrupt vector */
-  Radio_interruptVector_ = radio_;
+  Radio_interruptVector_ = &radio_;
 }
 
-void InterruptHandler::clearInterruptHandler(Radio * radio_)
+void InterruptHandler::clearInterruptHandler(Radio& radio_)
 {
   /* Remove the pointer to the RADIO object in the interrupt vector */
   Radio_interruptVector_ = nullptr;
 }
 
-void InterruptHandler::setInterruptHandler(SleepTimer * sleepTimer_)
+void InterruptHandler::setInterruptHandler(SleepTimer& sleepTimer_)
 {
-  SleepTimer_interruptVector_ = sleepTimer_;
+  SleepTimer_interruptVector_ = &sleepTimer_;
 }
 
-void InterruptHandler::clearInterruptHandler(SleepTimer * sleepTimer_)
+void InterruptHandler::clearInterruptHandler(SleepTimer& sleepTimer_)
 {
   SleepTimer_interruptVector_ = nullptr;
 }
 
-void InterruptHandler::setInterruptHandler(RadioTimer * radioTimer_)
+void InterruptHandler::setInterruptHandler(RadioTimer& radioTimer_)
 {
-  RadioTimer_interruptVector_ = radioTimer_;
+  RadioTimer_interruptVector_ = &radioTimer_;
 }
 
-void InterruptHandler::clearInterruptHandler(RadioTimer * radioimer_)
+void InterruptHandler::clearInterruptHandler(RadioTimer& radioimer_)
 {
   RadioTimer_interruptVector_ = nullptr;
 }
 
-void InterruptHandler::setInterruptHandler(Aes * aes_)
+void InterruptHandler::setInterruptHandler(Aes& aes_)
 {
-  Aes_interruptVector_ = aes_;
+  Aes_interruptVector_ = &aes_;
 }
 
-void InterruptHandler::clearInterruptHandler(Aes * aes_)
+void InterruptHandler::clearInterruptHandler(Aes& aes_)
 {
   Aes_interruptVector_ = nullptr;
 }
 
-void InterruptHandler::setInterruptHandler(GpioAdc * adc_)
+void InterruptHandler::setInterruptHandler(GpioAdc& adc_)
 {
-  Adc_interruptVector_ = adc_;
+  Adc_interruptVector_ = &adc_;
 }
 
-void InterruptHandler::clearInterruptHandler(GpioAdc * adc_)
+void InterruptHandler::clearInterruptHandler(GpioAdc& adc_)
 {
   Adc_interruptVector_ = nullptr;
 }

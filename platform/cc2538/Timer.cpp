@@ -114,7 +114,7 @@ void Timer::clearCallback(void)
 
 void Timer::enableInterrupts(void)
 {
-    InterruptHandler::getInstance().setInterruptHandler(this);
+    InterruptHandler::getInstance().setInterruptHandler(*this);
 
     /* Clear Timer interrupts */
     TimerIntClear(config_.base, config_.interrupt_mode);

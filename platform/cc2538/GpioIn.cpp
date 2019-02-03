@@ -27,7 +27,7 @@
 
 /*================================= public ==================================*/
 
-GpioIn::GpioIn(GpioConfig& config):
+GpioIn::GpioIn(const GpioConfig& config):
   Gpio(config), callback_(nullptr)
 {
   /* Set the pin as input */
@@ -43,7 +43,7 @@ GpioIn::GpioIn(GpioConfig& config):
   }
 }
 
-GpioInPow::GpioInPow(GpioConfig& config):
+GpioInPow::GpioInPow(const GpioConfig& config):
   GpioIn(config)
 {
   /* Set the pin as input */
@@ -95,7 +95,7 @@ void GpioIn::setCallback(Callback* callback)
   InterruptHandler& interruptHandler = InterruptHandler::getInstance();
 
   /* Register to the interruptHandler by passing a pointer to the object */
-  interruptHandler.setInterruptHandler(this);
+  interruptHandler.setInterruptHandler(*this);
 }
 
 void GpioIn::clearCallback(void)

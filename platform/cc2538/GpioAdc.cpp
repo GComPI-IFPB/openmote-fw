@@ -27,7 +27,7 @@
 
 /*================================= public ==================================*/
 
-GpioAdc::GpioAdc(GpioConfig& gpioConfig, AdcConfig& adcConfig):
+GpioAdc::GpioAdc(const GpioConfig& gpioConfig, AdcConfig& adcConfig):
     Gpio(gpioConfig), callback_(nullptr), adcConfig_(adcConfig)
 {
   /* Configure pin as hardware */
@@ -95,7 +95,7 @@ void GpioAdc::setCallback(Callback* callback)
   InterruptHandler& interruptHandler = InterruptHandler::getInstance();
 
   /* Register to the interruptHandler by passing a pointer to the object */
-  interruptHandler.setInterruptHandler(this);
+  interruptHandler.setInterruptHandler(*this);
 }
 
 void GpioAdc::clearCallback(void)

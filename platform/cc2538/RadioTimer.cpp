@@ -239,7 +239,7 @@ void RadioTimer::clearCompareCallback(void)
 void RadioTimer::enableInterrupts(void)
 {
   /* Register the interrupt handler */
-  InterruptHandler::getInstance().setInterruptHandler(this);
+  InterruptHandler::getInstance().setInterruptHandler(*this);
 
   /* Clear pending interrupt flags */
   HWREG(RFCORE_SFR_MTIRQF) = 0x00;
@@ -254,7 +254,7 @@ void RadioTimer::disableInterrupts(void)
   IntDisable(interrupt_);
 
   /* Unregister the interrupt handler */
-  InterruptHandler::getInstance().clearInterruptHandler(this);
+  InterruptHandler::getInstance().clearInterruptHandler(*this);
 }
 
 /*=============================== protected =================================*/

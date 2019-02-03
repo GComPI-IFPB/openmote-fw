@@ -184,7 +184,7 @@ void Radio::setTxCallbacks(Callback* txInit, Callback* txDone)
 void Radio::enableInterrupts(void)
 {
   /* Register the receive interrupt handlers */
-  InterruptHandler::getInstance().setInterruptHandler(this);
+  InterruptHandler::getInstance().setInterruptHandler(*this);
 
   /* Enable RF interrupts 0, RXPKTDONE, SFD and FIFOP only -- see page 751  */
   HWREG(RFCORE_XREG_RFIRQM0) |= ((0x06 | 0x02 | 0x01) << RFCORE_XREG_RFIRQM0_RFIRQM_S) & RFCORE_XREG_RFIRQM0_RFIRQM_M;

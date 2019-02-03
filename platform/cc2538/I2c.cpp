@@ -50,8 +50,8 @@ void I2c::enable(uint32_t baudrate)
   }
 
   /* Get SCL and SDA config */
-  GpioConfig& scl = scl_.getGpioConfig();
-  GpioConfig& sda = sda_.getGpioConfig();
+  const GpioConfig& scl = scl_.getGpioConfig();
+  const GpioConfig& sda = sda_.getGpioConfig();
 
   /* Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3) */
   SysCtrlPeripheralEnable(config_.peripheral);
@@ -81,8 +81,8 @@ void I2c::enable(uint32_t baudrate)
 
 void I2c::sleep(void)
 {
-  GpioConfig& scl = scl_.getGpioConfig();
-  GpioConfig& sda = sda_.getGpioConfig();
+  const GpioConfig& scl = scl_.getGpioConfig();
+  const GpioConfig& sda = sda_.getGpioConfig();
 
   /* Disable the I2C module */
   I2CMasterDisable();
