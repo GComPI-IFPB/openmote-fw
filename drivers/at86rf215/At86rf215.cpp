@@ -46,7 +46,7 @@ At86rf215::At86rf215(Spi& spi, GpioOut& pwr, GpioOut& rst, GpioOut& cs, GpioIn& 
 
 {
   irq_.setCallback(&callback_);
-  cs_.high();
+  cs_.low();
   rst_.low();
   pwr_.low();
   board.delayMilliseconds(AT86RF215_DELAY_MS);
@@ -54,18 +54,17 @@ At86rf215::At86rf215(Spi& spi, GpioOut& pwr, GpioOut& rst, GpioOut& cs, GpioIn& 
 
 void At86rf215::on(void)
 {
+  pwr_.high();
+  board.delayMilliseconds(AT86RF215_DELAY_MS);
   cs_.high();
   rst_.high();
-  board.delayMilliseconds(AT86RF215_DELAY_MS);
-  pwr_.high();
   board.delayMilliseconds(AT86RF215_DELAY_MS);
 }
 
 void At86rf215::off(void)
 {
-  cs_.high();
-  rst_.high();
-  board.delayMilliseconds(AT86RF215_DELAY_MS);
+  cs_.low();
+  rst_.low();
   pwr_.low();
   board.delayMilliseconds(AT86RF215_DELAY_MS);
 }
@@ -83,24 +82,48 @@ void At86rf215::softReset(RadioCore rc)
 	goToState(rc, RadioCommand::CMD_RESET, RadioState::STATE_RESET);
 }
 
-void At86rf215::configure(void)
+bool At86rf215::check(void)
 {
-	rf09_irqm = 0x00;
-  singleAccessWrite(AT86RF215_RF09_IRQM_ADDR, rf09_irqm);
+  bool status = false;
 
-  rf24_irqm = 0x00;
-  singleAccessWrite(AT86RF215_RF24_IRQM_ADDR, rf24_irqm);
+  uint8_t pn = 0;
+  uint8_t ver = 0;
 
-  bbc0_irqm = AT86RF215_BBCn_IRQM_TXFE_(1) | AT86RF215_BBCn_IRQM_RXFE_(1) | AT86RF215_BBCn_IRQM_RXFS_(1);
-  singleAccessWrite(AT86RF215_BBC0_IRQM_ADDR, bbc0_irqm);
+  singleAccessRead(RF_PN, &pn);
 
-  bbc1_irqm = AT86RF215_BBCn_IRQM_TXFE_(1) | AT86RF215_BBCn_IRQM_RXFE_(1) | AT86RF215_BBCn_IRQM_RXFS_(1);
-  singleAccessWrite(AT86RF215_BBC1_IRQM_ADDR, bbc1_irqm);
+  if (pn == PN_215)
+  {
+    singleAccessRead(RF_VN, &ver);
+
+    if (ver == VN_1_1 || ver == VN_1_3)
+    {
+      status = true;
+    }
+  }
+
+  return status;
 }
 
-void At86rf215::sleep(RadioCore rc)
+void At86rf215::configure(const radio_settings_t* radio_settings, const frequency_settings_t* frequency_settings)
 {
-	goToState(rc, RadioCommand::CMD_SLEEP, RadioState::STATE_SLEEP);
+  
+  for (uint16_t i = 0; i < radio_settings->elements; i++)
+  {
+    singleAccessWrite(radio_settings->registers[i].address, radio_settings->registers[i].data);
+  }
+
+  /* Configure frequency */
+  singleAccessWrite(RF09_CS,    frequency_settings->channel_spacing);
+  singleAccessWrite(RF09_CCF0L, frequency_settings->frequency0 % 256);
+  singleAccessWrite(RF09_CCF0H, frequency_settings->frequency0 / 256);
+  singleAccessWrite(RF09_CNL,   frequency_settings->channel % 256);
+  singleAccessWrite(RF09_CNM,   frequency_settings->channel / 256);
+  
+  rf09_irqm = 0x00;
+  bbc0_irqm = 0x1F; 
+  
+  rf24_irqm = 0x00;
+  bbc1_irqm = 0x00;
 }
 
 void At86rf215::wakeup(RadioCore rc)
@@ -116,33 +139,25 @@ void At86rf215::ready(RadioCore rc)
 void At86rf215::transmit(RadioCore rc)
 {
 	goToState(rc, RadioCommand::CMD_TX, RadioState::STATE_TX);
+  
+  if (rc == CORE_RF09)
+  {
+    tx09Init_->execute();
+  } 
+  else if (rc == CORE_RF24)
+  {
+    tx24Init_->execute();
+  }
+  else
+  {
+    while(true)
+      ;
+  }
 }
 
 void At86rf215::receive(RadioCore rc)
 {
 	goToState(rc, RadioCommand::CMD_RX, RadioState::STATE_RX);
-}
-
-bool At86rf215::check(void)
-{
-  bool status = false;
-
-  uint8_t pn = 0;
-  uint8_t ver = 0;
-
-  singleAccessRead(AT86RF215_PN_ADDR, &pn);
-
-  if (pn == AT86RF215_PN_215)
-  {
-    singleAccessRead(AT86RF215_VN_ADDR, &ver);
-
-    if (ver == AT86RF215_VN_1_1 || ver == AT86RF215_VN_1_3)
-    {
-      status = true;
-    }
-  }
-
-  return status;
 }
 
 void At86rf215::setRxCallbacks(RadioCore rc, Callback* rxInit, Callback* rxDone)
@@ -189,11 +204,11 @@ bool At86rf215::getRSSI(RadioCore rc, int8_t* rssi)
 
 	if (rc == RadioCore::CORE_RF09)
 	{
-		singleAccessRead(AT86RF215_RF09_RSSI_ADDR, (uint8_t *)&value);
+		singleAccessRead(RF09_RSSI, (uint8_t *)&value);
 	} 
   else if (rc == RadioCore::CORE_RF24)
 	{
-		singleAccessRead(AT86RF215_RF24_RSSI_ADDR, (uint8_t *)&value);
+		singleAccessRead(RF24_RSSI, (uint8_t *)&value);
 	}
   else
   {
@@ -218,11 +233,11 @@ bool At86rf215::getED(RadioCore rc, int8_t* ed)
 
 	if (rc == RadioCore::CORE_RF09)
 	{
-		singleAccessRead(AT86RF215_RF09_EDV_ADDR, (uint8_t *)&value);
+		singleAccessRead(RF09_EDV, (uint8_t *)&value);
 	} 
   else if (rc == RadioCore::CORE_RF24)
 	{
-		singleAccessRead(AT86RF215_RF24_EDV_ADDR, (uint8_t *)&value);
+		singleAccessRead(RF24_EDV, (uint8_t *)&value);
 	} 
   else
   {
@@ -241,14 +256,109 @@ bool At86rf215::getED(RadioCore rc, int8_t* ed)
 	}
 }
 
-At86rf215::RadioResult At86rf215::loadPacket(RadioCore rc, uint8_t* data, uint8_t length)
+At86rf215::RadioResult At86rf215::loadPacket(RadioCore rc, uint8_t* data, uint16_t length)
 {
-	return RadioResult::Error;
+  uint16_t bbc_txfll;
+  uint16_t bbc_fbtxs;
+  uint8_t scratch[2];
+  
+  /* Select registers based on RadioCore to use */
+  if (rc == RadioCore::CORE_RF09)
+	{
+		bbc_txfll = BBC0_TXFLL;
+    bbc_fbtxs = BBC0_FBTXS;
+	} 
+  else if (rc == RadioCore::CORE_RF24)
+	{
+		bbc_txfll = BBC1_TXFLL;
+    bbc_fbtxs = BBC1_FBTXS;		
+	} 
+  else
+  {
+		return RadioResult::Error;
+	}
+  
+  /* Set packet length */
+  scratch[0] = (uint8_t)((length >> 0) & 0xFF); /* low byte */
+  scratch[1] = (uint8_t)((length >> 8) & 0x07); /* high byte */
+   
+  /* Write the packet length */
+  blockAccessWrite(bbc_txfll, scratch, 2);
+  
+  /* Send the packet payload */
+  blockAccessWrite(bbc_fbtxs, data, length);
+  
+	return RadioResult::Success;
 }
 
-At86rf215::RadioResult At86rf215::getPacket(RadioCore rc, uint8_t* buffer, uint8_t* length, int8_t* rssi, uint8_t* lqi, uint8_t* crc)
+At86rf215::RadioResult At86rf215::getPacket(RadioCore rc, uint8_t* buffer, uint16_t* length, int8_t* rssi, int8_t* lqi, bool* crc)
 {
-	return RadioResult::Error;
+  uint16_t bbc_rxfll;
+  uint16_t bbc_fbrxs;
+  uint16_t rf_edv;
+  uint16_t rf_rssi;
+  uint16_t bbc_pc;
+  uint16_t scratch;
+  uint8_t scratch_buffer[2];
+  uint8_t byte;
+  
+  /* Select RadioCore to use */
+  if (rc == RadioCore::CORE_RF09)
+	{
+		bbc_rxfll = BBC0_RXFLL;
+    bbc_fbrxs = BBC0_FBRXS;
+    rf_rssi = RF09_RSSI;
+    rf_edv = RF09_EDV;
+    bbc_pc = BBC0_PC;
+	} 
+  else if (rc == RadioCore::CORE_RF24)
+	{
+		bbc_rxfll = BBC1_RXFLL;
+    bbc_fbrxs = BBC1_FBRXS;
+    rf_rssi = RF24_RSSI;
+    rf_edv = RF24_EDV;
+    bbc_pc = BBC1_PC;
+	} 
+  else
+  {
+		return RadioResult::Error;
+	}
+  
+  /* Read the packet packet length */
+  blockAccessRead(bbc_rxfll, scratch_buffer, 2);
+  
+  /* Compute packet length */
+  scratch = 0;
+  scratch |= scratch_buffer[0];
+  scratch |= scratch_buffer[1];
+  
+  /* Avoid overflowing the buffer */
+  if (scratch > *length)
+  {
+    return RadioResult::Error;
+  }
+  else
+  {
+    /* Update packet length */
+    *length = scratch;
+  }
+  
+  /* Read the packet payload */
+  blockAccessRead(bbc_fbrxs, buffer, scratch);
+  
+  /* Read packet RSSI */
+  singleAccessRead(rf_rssi, &byte);
+  *rssi = byte;
+
+  /* Read packet LQI */
+  singleAccessRead(rf_edv, &byte);
+  *lqi = byte;
+  
+  /* Read packet CRC */
+  singleAccessRead(bbc_pc, &byte);
+  *crc = (bool)( byte >> 5);
+  
+	return RadioResult::Success;
 }
 
 /*=============================== protected =================================*/
@@ -260,46 +370,68 @@ void At86rf215::interruptHandler(void)
   uint8_t bbc0_irqs, bbc1_irqs;
 
   /* Read RF and BBC interrupt status */
-  singleAccessRead(AT86RF215_RF09_IRQS_ADDR, &rf09_irqs);
-  singleAccessRead(AT86RF215_RF24_IRQS_ADDR, &rf24_irqs);
-  singleAccessRead(AT86RF215_BBC0_IRQS_ADDR, &bbc0_irqs);
-  singleAccessRead(AT86RF215_BBC1_IRQS_ADDR, &bbc1_irqs);
+  singleAccessRead(RF09_IRQS, &rf09_irqs);
+  singleAccessRead(RF24_IRQS, &rf24_irqs);
+  singleAccessRead(BBC0_IRQS, &bbc0_irqs);
+  singleAccessRead(BBC1_IRQS, &bbc1_irqs);
 
   /* Call RF09 interrupt handler */
-  if (rf09_irqs & rf09_irqm || bbc0_irqs & bbc0_irqm)
+  if ((rf09_irqs & rf09_irqm) || (bbc0_irqs & bbc0_irqm))
   {
     interruptHandler_rf09(rf09_irqs, bbc0_irqs);
   }
 
-/* Call RF24 interrupt handler */
-  if (rf24_irqs & rf24_irqm || bbc1_irqs & bbc1_irqm)
+  /* Call RF24 interrupt handler */
+  if ((rf24_irqs & rf24_irqm) || (bbc1_irqs & bbc1_irqm))
   {
     interruptHandler_rf24(rf24_irqs, bbc1_irqs);
   }
 }
 
+/**
+ * RFn_IRQS (Radio status interrupt, pag. 40)
+ * IQIFSF: 
+ * TRXERR:
+ * BATLOW
+ * EDC
+ * TRXRDY: Transceiver ready interrupt 
+ * WAKEUP: Wake-up/reset interrupt
+ */
+
+/**
+ * BBCn_IRQS (Baseband status interrupt, pag. 41)
+ * FBLI: Frame Buffer Level indicator
+ * AGCR: AGC release interrupt
+ * AGCH: AGC Hold interrupt
+ * TXFE: Transmitter Frame End interrupt
+ * RXEM: Receiver Extended Match interrupt
+ * RXAM: Receiver Address Match interrupt
+ * RXFE: Receiver Frame End interrupt
+ * RXFS: Receiver Frame Start interrupt
+ */
+
 void At86rf215::interruptHandler_rf09(uint8_t rf_irqs, uint8_t bbc_irqs)
 {
 	/* Receiver start of frame */
-	if (bbc_irqs & AT86RF215_BBCn_IRQM_RXFS_(1) && rx09Init_ != nullptr)
+	if ((bbc_irqs & 0x01) && (rx09Init_ != nullptr))
   {
     rx09Init_->execute();
   }
 
 	/* Receiver end of frame */
-  if (bbc_irqs & AT86RF215_BBCn_IRQM_RXFE_(1) && rx09Done_ != nullptr)
+  if ((bbc_irqs & 0x02) && (rx09Done_ != nullptr))
   {
     rx09Done_->execute();
   }
 
+  /* Transmitter start of frame */
   if (tx09Init_ != nullptr)
   {
     /* tx09Init_->execute(); */
   }
 
   /* Transmitter end of frame */
-  if (bbc_irqs & AT86RF215_BBCn_IRQM_TXFE_(1) &&
-    tx09Done_ != nullptr)
+  if ((bbc_irqs & 0x10) && (tx09Done_ != nullptr))
   {
     tx09Done_->execute();
   }
@@ -308,24 +440,25 @@ void At86rf215::interruptHandler_rf09(uint8_t rf_irqs, uint8_t bbc_irqs)
 void At86rf215::interruptHandler_rf24(uint8_t rf_irqs, uint8_t bbc_irqs)
 {
 	/* Receiver start of frame */
-	if (bbc_irqs & AT86RF215_BBCn_IRQM_RXFS_(1) && rx24Init_ != nullptr)
+	if ((bbc_irqs & 0x01) && (rx24Init_ != nullptr))
   {
     rx24Init_->execute();
   }
 
 	/* Receiver end of frame */
-  if (bbc_irqs & AT86RF215_BBCn_IRQM_RXFE_(1) && rx24Done_ != nullptr)
+  if ((bbc_irqs & 0x02) && (rx24Done_ != nullptr))
   {
     rx24Done_->execute();
   }
-
+  
+  /* Transmitter start of frame */
   if (tx24Init_ != nullptr)
   {
     /* tx24Init_->execute(); */
   }
 
 	/* Transmitter end of frame */
-  if (bbc_irqs & AT86RF215_BBCn_IRQM_TXFE_(1) && tx24Done_ != nullptr)
+  if ((bbc_irqs & 0x10) && (tx24Done_ != nullptr))
   {
     tx24Done_->execute();
   }
@@ -339,16 +472,12 @@ At86rf215::RadioState At86rf215::getState(RadioCore rc)
 
 	if (rc == RadioCore::CORE_RF09)
 	{
-		singleAccessRead(AT86RF215_RF09_STATE_ADDR, (uint8_t*) &state);	
+		singleAccessRead(RF09_STATE, (uint8_t*) &state);	
 	} 
   else if (rc == RadioCore::CORE_RF24)
 	{
-		singleAccessRead(AT86RF215_RF24_STATE_ADDR, (uint8_t*) &state);	
+		singleAccessRead(RF24_STATE, (uint8_t*) &state);	
 	}
-  else
-  {
-    state = STATE_ERROR;
-  }
 
 	return state;
 }
@@ -366,7 +495,7 @@ void At86rf215::goToState(RadioCore rc, RadioCommand cmd, RadioState target)
     current = getState(rc);
     if (target != current)
     {
-      board.delayMilliseconds(1);
+      board.delayMicroseconds(100);
     }
 	} while (target != current);
 }
@@ -375,11 +504,11 @@ void At86rf215::writeCmd(RadioCore rc, RadioCommand cmd)
 {
 	if (rc == RadioCore::CORE_RF09)
 	{
-		singleAccessWrite(AT86RF215_RF09_CMD_ADDR, (uint8_t) cmd);
+		singleAccessWrite(RF09_CMD, (uint8_t) cmd);
 	} 
   else if (rc == RadioCore::CORE_RF24)
 	{
-		singleAccessWrite(AT86RF215_RF24_CMD_ADDR, (uint8_t) cmd);	
+		singleAccessWrite(RF24_CMD, (uint8_t) cmd);	
 	}
 }
 
@@ -394,7 +523,7 @@ void At86rf215::singleAccessRead(uint16_t address, uint8_t* value)
   address_lo = (uint8_t) ((address & 0x00FF) >> 0);
 
   /* Prepare buffer for SPI transaction */
-  spi_tx_transaction[0] = AT86RF215_READ_CMD | address_hi;
+  spi_tx_transaction[0] = READ_CMD | address_hi;
   spi_tx_transaction[1] = address_lo;
   spi_tx_transaction[2] = 0x00;
 
@@ -402,7 +531,7 @@ void At86rf215::singleAccessRead(uint16_t address, uint8_t* value)
   cs_.low();
 
   /* Write the SPI transaction */
-  spi_.rwByte(spi_tx_transaction, 3, spi_rx_transaction, 3);
+  spi_.rwByteDma(spi_tx_transaction, 3, spi_rx_transaction, 3);
 
   /* Deactivate CS */
   cs_.high();
@@ -422,7 +551,7 @@ void At86rf215::singleAccessWrite(uint16_t address, uint8_t value)
   address_lo = (uint8_t) ((address & 0x00FF) >> 0);
 
   /* Prepare buffer for SPI transaction */
-  spi_tx_transaction[0] = AT86RF215_WRITE_CMD | address_hi;
+  spi_tx_transaction[0] = WRITE_CMD | address_hi;
   spi_tx_transaction[1] = address_lo;
   spi_tx_transaction[2] = value;
 
@@ -430,7 +559,7 @@ void At86rf215::singleAccessWrite(uint16_t address, uint8_t value)
   cs_.low();
 
   /* Write the SPI transaction */
-  spi_.rwByte(spi_tx_transaction, 3, spi_rx_transaction, 3);
+  spi_.rwByteDma(spi_tx_transaction, 3, spi_rx_transaction, 3);
 
   /* Deactivate CS */
   cs_.high();
@@ -438,6 +567,8 @@ void At86rf215::singleAccessWrite(uint16_t address, uint8_t value)
 
 void At86rf215::blockAccessRead(uint16_t address, uint8_t* values, uint16_t length)
 {
+  uint8_t spi_tx_transaction[2];
+  uint8_t spi_rx_transaction[2];
   uint8_t address_hi, address_lo;
 
   /* Prepare device address */
@@ -445,19 +576,17 @@ void At86rf215::blockAccessRead(uint16_t address, uint8_t* values, uint16_t leng
   address_lo = (uint8_t) ((address & 0x00FF) >> 0);
 
   /* Prepare buffer for SPI transaction */
-  values[0] = AT86RF215_READ_CMD | address_hi;
-  values[1] = address_lo;
+  spi_tx_transaction[0] = READ_CMD | address_hi;
+  spi_tx_transaction[1] = address_lo;
 
   /* Activate CS */
   cs_.low();
-
-  /* Repeat until completed */
-  for (uint16_t i = 0; i < length; i++)
-  {
-    /* Read byte to the SPI interface */
-    uint8_t b = spi_.rwByte(values[i]);
-    values[i] = b;
-  }
+  
+  /* Send device address */
+  spi_.rwByteDma(spi_tx_transaction, 2, spi_rx_transaction, 2);
+  
+  /* Receive device bytes */
+  spi_.rwByteDma(NULL, 0, values, length);
 
   /* Deactivate CS */
   cs_.high();
@@ -465,6 +594,8 @@ void At86rf215::blockAccessRead(uint16_t address, uint8_t* values, uint16_t leng
 
 void At86rf215::blockAccessWrite(uint16_t address, uint8_t* values, uint16_t length)
 {
+  uint8_t spi_tx_transaction[2];
+  uint8_t spi_rx_transaction[2];
   uint8_t address_hi, address_lo;
 
   /* Prepare device address */
@@ -472,18 +603,18 @@ void At86rf215::blockAccessWrite(uint16_t address, uint8_t* values, uint16_t len
   address_lo = (uint8_t) ((address & 0x00FF) >> 0);
 
   /* Prepare buffer for SPI transaction */
-  values[0] = AT86RF215_WRITE_CMD | address_hi;
-  values[1] = address_lo;
+  spi_tx_transaction[0] = WRITE_CMD | address_hi;
+  spi_tx_transaction[1] = address_lo;
 
   /* Activate CS */
   cs_.low();
-
-  for (uint16_t i = 0; i < length; i++)
-  {
-    /* Write byte to the SPI interface */
-    spi_.rwByte(values[i]);
-  }
-
+  
+  /* Send device address */
+  spi_.rwByteDma(spi_tx_transaction, 2, spi_rx_transaction, 2);
+  
+  /* Send payload */
+  spi_.rwByteDma(values, length, NULL, 0);
+  
   /* Deactivate CS */
   cs_.high();
 }
