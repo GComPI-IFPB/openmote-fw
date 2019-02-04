@@ -111,7 +111,8 @@ static void prvRadioTask(void *pvParameters)
   /* Forever */
   while (true)
   {
-    uint32_t start_ms, stop_ms, elapsed_ms;
+    uint32_t start_ms, stop_ms;
+    int32_t sleep_ms;
     bool sent;
     
     /* Start milliseconds */
@@ -143,12 +144,16 @@ static void prvRadioTask(void *pvParameters)
       led_red.off();
     }
         
-    /* Start milliseconds */
+    /* Calculate sleep time */
     stop_ms = Scheduler::get_ms();
-    elapsed_ms = stop_ms - start_ms;
-      
-    /* Delay 25 ms until next packet */
-    Scheduler::delay_ms(25 - elapsed_ms);
+    sleep_ms = 50 - (stop_ms - start_ms);
+    
+    /* If possible, go to sleep */
+    if (sleep_ms > 0)
+    {
+      /* Delay 25 ms until next packet */
+      Scheduler::delay_ms(sleep_ms);
+    }
   }
   
   /* Turn AT86RF215 radio off */
