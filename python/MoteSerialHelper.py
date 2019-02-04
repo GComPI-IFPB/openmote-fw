@@ -29,7 +29,7 @@ class MoteSerialHelper(object):
 
     # Discover Motes
     def discoverMotes(self):
-        logger.info('discoverMotes: scanning serial.')
+        logger.error('discoverMotes: scanning serial.')
         # for each serial port test serial
         ports = self.serial_ports()
 
@@ -37,22 +37,24 @@ class MoteSerialHelper(object):
 
         for port in ports:
             #create the serial connection
-            logger.info("discoverMotes: trying port {}.".format(port))
+            logger.error("discoverMotes: trying port {}.".format(port))
             self.serialInterface = Serial(name = port, baudrate = self.baudrate, timeout = 0.001)
             self.serialInterface.start()
             #send the hello message
             self.serialInterface.transmit(self.HELLO_MESSAGE)
             #wait for a response.. at most 1s
             finished = False
-
+            message = None
             while (not finished):
                 # Try to receive a Serial message
-                message, length = self.serialInterface.receive(timeout= 0.01)
+                message, length = self.serialInterface.receive(timeout= 0.1)
 
                 # If we received a message
                 if (length > 0):
-                    logger.info("discoverMotes: Received message with %d bytes.", length)
+                    print(message)
+                    logger.error("discoverMotes: Received message with %d bytes.", length)
                     finished = True
+                    print("FINISHED")
                 #compute wait time
                 current_time = time.time()
                 elapsed_time = 1000 * (current_time - start_time)
@@ -61,13 +63,17 @@ class MoteSerialHelper(object):
                     start_time = time.time()
                     finished = True
 
-            if (self.HELLO_MESSAGE in message):
+            message2 = ''.join(chr(x) for x in message)
+            print(message2)
+            if (self.HELLO_MESSAGE in message2):
                 print("Openmote Found! at {}".format(port))
                 self.motes [port] = Mote(port,self.baudrate)
             else:
                 print("No OpenMotes found :( ")
             #close this serial
             self.serialInterface.stop()
+            self.serialInterface.join()
+            
         #print(self.motes)
         return self.motes
 

@@ -169,6 +169,8 @@ class Serial(threading.Thread):
                     
                 # Always save the last received byte
                 self.last_rx_byte = self.rx_byte
+        #close the serial port
+        self.serial_port.close()
     
     # Stops the thread
     def stop(self):
@@ -193,7 +195,7 @@ class Serial(threading.Thread):
         if (not self.is_receiving and self.receive_message):
             message = self.receive_message
             length  = len(message)
-            logger.info("receive: Received a message with {} bytes.".format(length))
+            logger.error("receive: Received a message with {} bytes.".format(length))
         
         # Reset the receive message
         self.receive_message = []
@@ -216,7 +218,7 @@ class Serial(threading.Thread):
         # HDLCify the message
         self.transmit_buffer = self.hdlc.hdlcify(message)
         
-        logger.debug('run: Now transmitting the message.')
+        logger.error('run: Now transmitting the message.')
         
         # Send the message through the serial port (blocking)
         self.serial_port.write(self.transmit_buffer)

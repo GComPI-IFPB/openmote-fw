@@ -31,7 +31,7 @@ import Serial
 
 logger = logging.getLogger(__name__)
 
-uart_name = 'COM49'
+uart_name = 'COM27'
 uart_speed = 115200
 
 finished = False

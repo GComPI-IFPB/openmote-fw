@@ -32,7 +32,7 @@ from Mote import Mote
 
 logger = logging.getLogger(__name__)
 
-uart_speed = 4000000
+uart_speed = 115200
 
 finished = False
 
