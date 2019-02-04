@@ -51,11 +51,13 @@ def program():
     
     while (not finished):
         # Try to receive a Serial message
-        message, length = serial.receive(timeout= 0.01)
+        message, length = serial.receive(timeout= 0.1)
 
         # If we received a message
         if (length > 0):
-            logger.info("program: Received message with %d bytes.", length)
+            print("program: Received message with {} bytes.".format(length))
+        else:
+            print("program: Receive timeout.")
 
         current_time = time.time()
         elapsed_time = 1000 * (current_time - start_time)
@@ -64,7 +66,7 @@ def program():
             start_time = time.time()
             finished = True
 
-    serial.statistics()
+    serial.get_statistics()
 
     # Check for finished condition
     if (finished):
