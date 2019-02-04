@@ -42,7 +42,7 @@ class Crc16(object):
         return self.crc
 
     def push(self, byte):
-        tbl_idx = ((self.crc >> 8) ^ ord(byte)) & 0xFF;
+        tbl_idx = ((self.crc >> 8) ^ byte) & 0xFF;
         self.crc = (self.__crc16_table[tbl_idx] ^ (self.crc << 8)) & 0xFFFF;
     
     def check(self):

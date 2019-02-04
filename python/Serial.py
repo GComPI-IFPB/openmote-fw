@@ -15,26 +15,23 @@ logger = logging.getLogger(__name__)
 
 class Serial(threading.Thread):
     
-    def __init__(self, serial_name = None, baud_rate = None):
-        assert serial_name != None, logger.error("Serial port not defined.")
-        assert baud_rate   != None, logger.error("Serial baudrate not defined.")
+    def __init__(self, name = None, baudrate = None, timeout = 0.001):
+        assert name     != None, logger.error("Serial port not defined.")
+        assert baudrate != None, logger.error("Serial baudrate not defined.")
         
         logger.info('init: Creating the Serial object.')
         
         # Call constructor
         threading.Thread.__init__(self)
         
-        # Set thread as daemon
-        self.setDaemon(False)
-        
         # Terminate thread event
         self.stop_event = threading.Event()
         
         # Serial port
         self.serial_port = None
-        self.serial_name = serial_name
-        self.baud_rate   = baud_rate
-        self.time_out    = 0.1
+        self.name        = name
+        self.baudrate    = baudrate
+        self.timeout     = timeout
                 
         # HDLC driver
         self.hdlc = Hdlc()
@@ -51,15 +48,20 @@ class Serial(threading.Thread):
         self.transmit_buffer    = []
         self.transmit_message   = []
         self.transmit_condition = threading.Condition()
+
+        # Quality variables
+        self.total_frames = 0
+        self.good_frames = 0
+        self.bad_frames = 0
         
         try:
-            logger.info('init: Opening the serial port on %s at %s bps.', self.serial_name, self.baud_rate)
+            logger.info('init: Opening the serial port on %s at %s bps.', self.name, self.baudrate)
             # Open the serial port
-            self.serial_port = serial.Serial(port = self.serial_name, 
-                                             baudrate = self.baud_rate,
-                                             timeout = self.time_out)
+            self.serial_port = serial.Serial(port = self.name, 
+                                             baudrate = self.baudrate,
+                                             timeout = self.timeout)
         except:
-            logger.error('init: Error while opening the serial port on %s.', self.serial_name)
+            logger.error('init: Error while opening the serial port on %s.', self.name)
             raise Exception
         else:
             logger.info('init: Serial object created.')
@@ -69,19 +71,25 @@ class Serial(threading.Thread):
         logger.info("run: Starting the Serial.")
         
         if (self.serial_port == None):
-            return
+            raise
         
         # Flush the serial input/ouput               
         self.serial_port.flushInput()
         self.serial_port.flushOutput() 
         
         # Execute while thread is alive
-        while (not self.stop_event.isSet()): 
+        while (not self.stop_event.isSet()):
             try:
-                # Try to receive a byte from the serial port (blocking)
-                rx = self.serial_port.read(size = 1)
-                if (len(rx) > 0):
-                    self.rx_byte = rx
+                # Read the number of bytes available
+                rx_length = self.serial_port.in_waiting
+
+                # If bytes are available read them, otherwise nothing to do
+                if (rx_length > 0):
+                    # Try to receive a byte from the serial port (blocking)
+                    rx_bytes = self.serial_port.read(size = rx_length)
+                else:
+                    rx_bytes = []
+
             except:
                 logger.error('run: Error while receiving from the serial port on %s.', self.serial_port)
                 # Terminate the thread
@@ -89,81 +97,100 @@ class Serial(threading.Thread):
                 # Break the loop
                 break
 
-            # Start of frame
-            if ((not self.is_receiving) and 
-                (self.last_rx_byte == self.hdlc.HDLC_FLAG) and
-                (self.rx_byte != self.hdlc.HDLC_FLAG)):
-                logger.debug('Start of HDLC frame.')
-                
-                self.is_receiving = True
-                self.receive_buffer = []
-                self.receive_buffer.append(self.hdlc.HDLC_FLAG)
-                self.receive_buffer.append(self.rx_byte)
-                
-            # Middle of HDLC frame
-            elif ((self.is_receiving) and
-                  (self.rx_byte != self.hdlc.HDLC_FLAG)):
-                logger.debug('Middle of HDLC frame.')
-                
-                self.receive_buffer.append(self.rx_byte)
-                
-            # End of HDLC frame 
-            elif ((self.is_receiving) and
-                  (self.rx_byte == self.hdlc.HDLC_FLAG)):
-                logger.debug('End of HDLC frame.')
+            # Iterate over received bytes
+            for rx_byte in rx_bytes:
+                # Recover byte
+                self.rx_byte = rx_byte
 
-                # Receive the last byte
-                self.receive_buffer.append(self.rx_byte)
-                
-                # Reset the variables
-                self.is_receiving = False
-                self.last_rx_byte = ''
-                self.rx_byte = ''
-                
-                try:
-                    logger.debug('run: Received an HDLC frame from the Serial port, now de-HDLCifying it.')
-                    self.receive_message = self.hdlc.dehdlcify(self.receive_buffer)
-                except:
-                    logger.error('run: Error while de-HDLCifying the frame received from the Serial port.')
-                    self.receive_buffer  = []
-                    self.receive_message = []
-                else:
-                     # Acquire the transmit condition
-                    self.receive_condition.acquire()                   
+                # Start of frame
+                if ((not self.is_receiving) and 
+                    (self.last_rx_byte == self.hdlc.HDLC_FLAG) and
+                    (self.rx_byte != self.hdlc.HDLC_FLAG)):
+                    logger.debug('Start of HDLC frame.')
                     
-                     # Notify the transmit condition
-                    self.receive_condition.notify()
-                    
-                     # Release the transmit condition
-                    self.receive_condition.release()
-                    
-                    # Reset the receive buffer
+                    self.is_receiving = True
                     self.receive_buffer = []
-            
-            else:
-                # Acquire the transmit condition
-                self.transmit_condition.acquire()
+                    self.receive_buffer.append(self.hdlc.HDLC_FLAG)
+                    self.receive_buffer.append(self.rx_byte)
+                    
+                # Middle of HDLC frame
+                elif ((self.is_receiving) and
+                      (self.rx_byte != self.hdlc.HDLC_FLAG)):
+                    logger.debug('Middle of HDLC frame.')
+                    
+                    self.receive_buffer.append(self.rx_byte)
+                    
+                # End of HDLC frame 
+                elif ((self.is_receiving) and
+                      (self.rx_byte == self.hdlc.HDLC_FLAG)):
+                    logger.debug('End of HDLC frame.')
+
+                    # Receive the last byte
+                    self.receive_buffer.append(self.rx_byte)
+                    
+                    # Reset the variables
+                    self.is_receiving = False
+                    self.last_rx_byte = ''
+                    self.rx_byte = ''
+                    
+                    # Compute statistics
+                    self.total_frames += 1
+                    
+                    try:
+                        logger.debug('run: Received an HDLC frame from the Serial port, now de-HDLCifying it.')
+                        
+                        # Receive me
+                        self.receive_message = self.hdlc.dehdlcify(self.receive_buffer)
+
+                        # Compute statistics
+                        self.good_frames += 1
+                    except:
+                        logger.error('run: Error while de-HDLCifying the frame received from the Serial port.')
+                        
+                        # Clean buffers
+                        self.receive_buffer  = []
+                        self.receive_message = []
+
+                        # Compute statistics
+                        self.bad_frames += 1
+
+                    else:
+                         # Acquire the transmit condition
+                        self.receive_condition.acquire()                   
+                        
+                         # Notify the transmit condition
+                        self.receive_condition.notify()
+                        
+                         # Release the transmit condition
+                        self.receive_condition.release()
+                        
+                        # Reset the receive buffer
+                        self.receive_buffer = []
                 
-                # Check if there is something to transmit
-                if (not self.is_receiving and self.transmit_message):
-                    logger.debug('run: HDLCifying the transmit buffer.')
+                else:
+                    # Acquire the transmit condition
+                    self.transmit_condition.acquire()
                     
-                    # HDLCify the message
-                    self.transmit_buffer = self.hdlc.hdlcify(self.transmit_message)
+                    # Check if there is something to transmit
+                    if (not self.is_receiving and self.transmit_message):
+                        logger.debug('run: HDLCifying the transmit buffer.')
+                        
+                        # HDLCify the message
+                        self.transmit_buffer = self.hdlc.hdlcify(self.transmit_message)
+                        
+                        logger.debug('run: Now transmitting the message.')
+                        
+                        # Send the message through the serial port (blocking)
+                        self.serial_port.write(self.transmit_buffer)
+                        
+                        # Empty the transmit message and buffer
+                        self.transmit_message = []
                     
-                    logger.debug('run: Now transmitting the message.')
+                    # Release the transmit condition
+                    self.transmit_condition.release()
                     
-                    # Send the message through the serial port (blocking)
-                    self.serial_port.write(self.transmit_buffer)
-                    
-                    # Empty the transmit message and buffer
-                    self.transmit_message = []
-                
-                # Release the transmit condition
-                self.transmit_condition.release()
-                
-            # Always save the last received byte
-            self.last_rx_byte = self.rx_byte
+                # Always save the last received byte
+                self.last_rx_byte = self.rx_byte
     
     # Stops the thread
     def stop(self):
@@ -173,7 +200,7 @@ class Serial(threading.Thread):
         self.stop_event.set()
     
     # Receive a message
-    def receive(self):
+    def receive(self, timeout = 0.005):
         status  = True
         message = []
         length  = 0
@@ -182,11 +209,11 @@ class Serial(threading.Thread):
         self.receive_condition.acquire()
         
         # Try to receive a message with timeout
-        self.receive_condition.wait(0.5)
+        self.receive_condition.wait(timeout)
 
         # If we really got a message, copy it!
         if (not self.is_receiving and self.receive_message):
-            message = b''.join(self.receive_message)
+            message = self.receive_message
             length  = len(message)
             logger.info('receive: Received a message with %d bytes.', length)
         
@@ -214,3 +241,13 @@ class Serial(threading.Thread):
 
         # Release the transmit condition
         self.transmit_condition.release()
+
+    def clear_statistics(self):
+        self.total_frames = 0
+        self.good_frames  = 0
+        self.bad_frames   = 0
+
+    def get_statistics(self):
+        print("Total={}, Good={}, Bad={}".format(self.total_frames,
+                                                 self.good_frames,
+                                                 self.bad_frames))
