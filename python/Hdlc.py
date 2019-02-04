@@ -11,36 +11,49 @@ import Crc16 as Crc16
 logger = logging.getLogger(__name__)
 
 class Hdlc(object):
-    HDLC_FLAG           = 0x7e
-    HDLC_FLAG_ESCAPED   = 0x5e
-    HDLC_ESCAPE         = 0x7d
-    HDLC_ESCAPE_ESCAPED = 0x5d
+    HDLC_FLAG           = 0x7E
+    HDLC_FLAG_ESCAPED   = 0x5E
+    HDLC_ESCAPE         = 0x7D
+    HDLC_ESCAPE_ESCAPED = 0x5D
     HDLC_MASK           = 0x20
     
     def __init__(self):
         pass
     
     # Converts a buffer into an HDLC frame
-    def hdlcify(self, input = None):
-        # Make a copy of the original input
-        output = ''.join(input[:])
-        
+    def hdlcify(self, input = None):       
         # Check the CRC checksum
         crc_engine = Crc16.Crc16()
-        for o in output:
-            crc_engine.push(o)
+        for i in input:
+            crc_engine.push(ord(i))
         crc_result = crc_engine.get()
         
+        # Calculate the CRC checksum
+        crc_high = chr((crc_result >> 8) & 0xFF)
+        crc_low  = chr((crc_result >> 0) & 0xFF)
+
         # Append the CRC checksum
-        output += chr((crc_result >> 8) & 0xFF)
-        output += chr((crc_result >> 0) & 0xFF)
-        
-        # Substitute the HDLC flags
-        output = output.replace(self.HDLC_ESCAPE, self.HDLC_ESCAPE + self.HDLC_ESCAPE_ESCAPED)
-        output = output.replace(self.HDLC_FLAG, self.HDLC_ESCAPE + self.HDLC_FLAG_ESCAPED)
+        input += crc_high
+        input += crc_low
+
+        # Create HDLC frame
+        output = []
+        print(input, type(input))
+        for i in input:
+            i = ord(i)
+            if (i == self.HDLC_FLAG):
+                output.append(i)
+                output.append(self.HDLC_FLAG_ESCAPED)
+            elif (i == self.HDLC_ESCAPE):
+                output.append(i)
+                output.append(self.HDLC_ESCAPE_ESCAPED)
+            else:
+                output.append(i)
         
         # Append the HDLC flags
-        output = self.HDLC_FLAG + output + self.HDLC_FLAG
+        output = [self.HDLC_FLAG] + output + [self.HDLC_FLAG]
+
+        print(output)
         
         return output
     

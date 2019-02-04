@@ -166,28 +166,6 @@ class Serial(threading.Thread):
                         
                         # Reset the receive buffer
                         self.receive_buffer = []
-                
-                else:
-                    # Acquire the transmit condition
-                    self.transmit_condition.acquire()
-                    
-                    # Check if there is something to transmit
-                    if (not self.is_receiving and self.transmit_message):
-                        logger.debug('run: HDLCifying the transmit buffer.')
-                        
-                        # HDLCify the message
-                        self.transmit_buffer = self.hdlc.hdlcify(self.transmit_message)
-                        
-                        logger.debug('run: Now transmitting the message.')
-                        
-                        # Send the message through the serial port (blocking)
-                        self.serial_port.write(self.transmit_buffer)
-                        
-                        # Empty the transmit message and buffer
-                        self.transmit_message = []
-                    
-                    # Release the transmit condition
-                    self.transmit_condition.release()
                     
                 # Always save the last received byte
                 self.last_rx_byte = self.rx_byte
@@ -233,14 +211,15 @@ class Serial(threading.Thread):
     def transmit(self, message):
         logger.info('transmit: Got a message to transmit with %d bytes.', len(message))
         
-        # Acquire the transmit condition
-        self.transmit_condition.acquire()
-        
-        # Copy the message
-        self.transmit_message = message
+        logger.debug('run: HDLCifying the transmit buffer.')
 
-        # Release the transmit condition
-        self.transmit_condition.release()
+        # HDLCify the message
+        self.transmit_buffer = self.hdlc.hdlcify(message)
+        
+        logger.debug('run: Now transmitting the message.')
+        
+        # Send the message through the serial port (blocking)
+        self.serial_port.write(self.transmit_buffer)
 
     def clear_statistics(self):
         self.total_frames = 0
