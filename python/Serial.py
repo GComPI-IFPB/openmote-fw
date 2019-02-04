@@ -215,7 +215,7 @@ class Serial(threading.Thread):
         if (not self.is_receiving and self.receive_message):
             message = self.receive_message
             length  = len(message)
-            logger.info('receive: Received a message with %d bytes.', length)
+            logger.info("receive: Received a message with {} bytes.".format(length))
         
         # Reset the receive message
         self.receive_message = []
