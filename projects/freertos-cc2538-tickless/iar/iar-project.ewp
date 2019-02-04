@@ -382,7 +382,7 @@
                 <option>
                     <name>CCOptStrategy</name>
                     <version>0</version>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>CCOptLevelSlave</name>
@@ -449,7 +449,7 @@
                 <option>
                     <name>CCOptStrategySlave</name>
                     <version>0</version>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>CCGuardCalls</name>
@@ -2124,6 +2124,12 @@
                 <name>$PROJ_DIR$\..\..\..\drivers\at86rf215\At86rf215.hpp</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\..\..\drivers\at86rf215\At86rf215_conf.cpp</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\..\..\drivers\at86rf215\At86rf215_conf.h</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\..\..\drivers\at86rf215\At86rf215_regs.h</name>
             </file>
         </group>
@@ -2394,9 +2400,6 @@
     </group>
     <group>
         <name>project</name>
-        <file>
-            <name>$PROJ_DIR$\..\src\cc2538_lowpower.c</name>
-        </file>
         <file>
             <name>$PROJ_DIR$\..\src\FreeRTOSConfig.h</name>
         </file>

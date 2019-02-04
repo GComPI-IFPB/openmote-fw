@@ -6,10 +6,8 @@ build/
 # IAR
 Debug/
 Release/
-*.dep
-*.ewd
-*.ewp
 *.ewt
+*.dep
 settings
 
 # Files
