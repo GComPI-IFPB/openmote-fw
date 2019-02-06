@@ -151,7 +151,7 @@
 
 #define UART_PERIPHERAL         ( SYS_CTRL_PERIPH_UART0 )
 #define UART_BASE               ( UART0_BASE )
-#define UART_CLOCK              ( UART_CLOCK_PIOSC )
+#define UART_CLOCK              ( UART_CLOCK_SYSTEM )
 #define UART_INT                ( INT_UART0 )
 #define UART_BAUDRATE           ( 115200 )
 #define UART_MODE               ( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE )
@@ -165,7 +165,7 @@
 
 #define SPI_PERIPHERAL          ( SYS_CTRL_PERIPH_SSI0 )
 #define SPI_BASE                ( SSI0_BASE )
-#define SPI_CLOCK               ( SSI_CLOCK_PIOSC )
+#define SPI_CLOCK               ( UART_CLOCK_SYSTEM )
 #define SPI_INT                 ( INT_SSI0 )
 #define SPI_MODE                ( SSI_MODE_MASTER )
 #define SPI_PROTOCOL            ( SSI_FRF_MOTO_MODE_0 )
