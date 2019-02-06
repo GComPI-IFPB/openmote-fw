@@ -55,6 +55,30 @@ void Dma::init(void)
   }
 }
 
+void Dma::memcpy(uint8_t* dst, uint8_t* src, uint32_t length)
+{
+  if (length < 1024)
+  {
+    /* Setup DMA control for memory copy */
+    uDMAChannelControlSet(UDMA_CH30_SW | UDMA_PRI_SELECT, UDMA_SIZE_8 | UDMA_SRC_INC_8 | UDMA_DST_INC_8 | UDMA_ARB_8);
+    
+    /* Setup DMA buffers for memory copy using BASIC mode */
+    uDMAChannelTransferSet(UDMA_CH30_SW | UDMA_PRI_SELECT, UDMA_MODE_AUTO, src, dst, length);
+    
+    /* Enable DMA channel */
+    uDMAChannelEnable(UDMA_CH30_SW);
+    
+    /* Request DMA transfer */
+    uDMAChannelRequest(UDMA_CH30_SW);
+    
+    /* Busy-wait until there are no more bytes to be copied */
+    while(uDMAChannelSizeGet(UDMA_CH30_SW | UDMA_PRI_SELECT) > 0);
+    
+    /* Disable DMA channel */
+    uDMAChannelAttributeDisable(UDMA_CH30_SW, UDMA_ATTR_ALL);
+  }
+}
+
 /*=============================== protected =================================*/
 
 /*================================ private ==================================*/
