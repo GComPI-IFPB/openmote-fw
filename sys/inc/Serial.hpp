@@ -40,10 +40,10 @@ private:
 private:
   Uart& uart_;
 
-  uint8_t receive_buffer_[2048];
+  uint8_t receive_buffer_[1024];
   Buffer rxBuffer_;
 
-  uint8_t transmit_buffer_[2048];
+  uint8_t transmit_buffer_[1024];
   Buffer txBuffer_;
 
   Hdlc hdlc_;
