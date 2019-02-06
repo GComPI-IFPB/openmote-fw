@@ -35,8 +35,6 @@ Buffer::Buffer(uint8_t* buffer, uint32_t length):
 
 void Buffer::reset(void)
 {
-  CriticalSection cs;
-
   /* Reset the circular buffer */
   head_ = buffer_;
   tail_ = buffer_;
@@ -159,6 +157,20 @@ bool Buffer::writeBytes(const uint8_t *data, uint32_t length, bool interrupt)
   return status;
 }
 
+bool Buffer::copy(uint8_t* buffer, uint32_t length)
+{
+  /* Check length to avoid overflow */
+  if (length <= count_)
+  {
+    /* Copy memory using DMA */
+    dma.memcpy(buffer, buffer_, count_);
+    
+    return true;
+  }
+  
+  return false;
+}
+ 
 /*=============================== protected =================================*/
 
 /*================================ private ==================================*/

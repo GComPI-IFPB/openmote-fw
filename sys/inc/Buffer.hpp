@@ -31,6 +31,7 @@ public:
   bool readBytes(uint8_t* buffer, uint32_t length, bool interrupt = false);
   bool writeByte(uint8_t data, bool interrupt = false);
   bool writeBytes(const uint8_t* data, uint32_t length, bool interrupt = false);
+  bool copy(uint8_t* buffer, uint32_t length);
 private:
   uint8_t* buffer_;
   uint32_t length_;
