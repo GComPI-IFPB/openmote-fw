@@ -276,8 +276,8 @@ void Spi::interruptHandler(void)
   /* Read interrupt source */
   status = SSIIntStatus(config_.base, true);
 
-  /* Clear SPI interrupt in the NVIC */
-  IntPendClear(config_.interrupt);
+  /* Clear SPI interrupts */
+  SSIIntClear(config_.interrupt, status);
 
   /* Process TX interrupt */
   if (status & SSI_TXFF) {
