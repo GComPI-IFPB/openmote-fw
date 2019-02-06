@@ -41,6 +41,7 @@ public:
     void rxUnlockFromInterrupt(void);
     void txUnlockFromInterrupt(void);
     uint8_t readByte(void);
+    bool readByte(uint8_t* byte);
     uint32_t readByte(uint8_t* buffer, uint32_t length);
     void writeByte(uint8_t byte);
     int32_t writeByte(uint8_t* buffer, uint32_t length);

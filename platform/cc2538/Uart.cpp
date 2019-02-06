@@ -44,7 +44,8 @@ Uart::Uart(Gpio& rx, Gpio& tx, UartConfig& config):
 {
 }
 
-bool Uart::operator==(const Uart& other) {
+bool Uart::operator==(const Uart& other)
+{
   return (config_ == other.config_);
 }
 
@@ -77,15 +78,30 @@ void Uart::enable(uint32_t baudrate)
   /* Configure the UART GPIOs */
   GPIOPinTypeUARTInput(rx.port, rx.pin);
   GPIOPinTypeUARTOutput(tx.port, tx.pin);
-
-  /* Configure the UART */
-  UARTConfigSetExpClk(config_.base, SysCtrlIOClockGet(), config_.baudrate, config_.mode);
+  
+  /* Configure the UART clock according to its input */
+  if (config_.clock == UART_CLOCK_SYSTEM)
+  {
+    uint32_t clock = SysCtrlClockGet();
+    UARTConfigSetExpClk(config_.base, clock, config_.baudrate, config_.mode);
+  }
+  else if (config_.clock == UART_CLOCK_PIOSC)
+  {
+    uint32_t clock = SysCtrlIOClockGet();
+    UARTConfigSetExpClk(config_.base, clock, config_.baudrate, config_.mode);
+  }
+  else
+  {
+    while(true)
+      ;
+  }
 
   /* Disable FIFO as we only use a one-byte buffer */
-  UARTFIFODisable(config_.base);
+  UARTFIFOLevelSet(config_.base, UART_FIFO_TX7_8, UART_FIFO_RX7_8);
+  UARTFIFOEnable(config_.base);
 
   /* Raise an interrupt at the end of transmission */
-  UARTTxIntModeSet(config_.base, UART_TXINT_MODE_EOT);
+  UARTTxIntModeSet(config_.base, UART_TXINT_MODE_FIFO | UART_TXINT_MODE_EOT);
 
   /* Enable UART hardware */
   UARTEnable(config_.base);
@@ -131,10 +147,10 @@ void Uart::enableInterrupts(void)
   InterruptHandler::getInstance().setInterruptHandler(*this);
 
   /* Clear the UART RX, TX and RX timeout interrupts */
-  UARTIntClear(config_.base, UART_INT_RX | UART_INT_TX);
+  UARTIntClear(config_.base, UART_INT_RX | UART_INT_TX | UART_INT_RT);
   
   /* Enable the UART RX, TX and RX timeout interrupts */
-  UARTIntEnable(config_.base, UART_INT_RX | UART_INT_TX);
+  UARTIntEnable(config_.base, UART_INT_RX | UART_INT_TX | UART_INT_RT);
 
   /* Set the UART interrupt priority */
   IntPrioritySet(config_.interrupt, 0xF0);
@@ -146,7 +162,7 @@ void Uart::enableInterrupts(void)
 void Uart::disableInterrupts(void)
 {
   /* Disable the UART RX, TX and RX timeout interrupts */
-  UARTIntDisable(config_.base, UART_INT_RX | UART_INT_TX);
+  UARTIntDisable(config_.base, UART_INT_RX | UART_INT_TX | UART_INT_RT);
 
   /* Disable the UART interrupt */
   IntDisable(config_.interrupt);
@@ -185,8 +201,25 @@ void Uart::txUnlockFromInterrupt(void)
 uint8_t Uart::readByte(void)
 {
   int32_t byte;
+  
+  /* Read byte from UART, non-blocking */
   byte = UARTCharGetNonBlocking(config_.base);
+  
   return (uint8_t)(byte & 0xFF);
+}
+
+bool Uart::readByte(uint8_t* byte)
+{
+  /* Check if there are bytes available */
+  if (UARTCharsAvail(config_.base) == true)
+  {
+    /* Read byte from UART, non-blocking */
+    *byte = UARTCharGetNonBlocking(config_.base);
+    
+    return true;
+  }
+  
+  return false;
 }
 
 uint32_t Uart::readByte(uint8_t * buffer, uint32_t length)
@@ -196,6 +229,7 @@ uint32_t Uart::readByte(uint8_t * buffer, uint32_t length)
   /* Read all bytes from UART (blocking) */
   for (uint32_t i = 0; i < length; i++)
   {
+    /* Read byte from UART, blocking */
     data = UARTCharGet(config_.base);
     *buffer++ = (uint8_t)data;
   }
@@ -209,6 +243,7 @@ uint32_t Uart::readByte(uint8_t * buffer, uint32_t length)
 
 void Uart::writeByte(uint8_t byte)
 {
+  /* Write byte to UART, non-blocking */
   UARTCharPutNonBlocking(config_.base, byte);
 }
 
@@ -217,6 +252,7 @@ int32_t Uart::writeByte(uint8_t * buffer, uint32_t length)
   /* Put all bytes to UART (blocking) */
   for (uint32_t i = 0; i < length; i++)
   {
+    /* Write byte to UART, blocking */
     UARTCharPut(config_.base, *buffer++);
   }
 
@@ -238,10 +274,10 @@ int32_t Uart::writeByteDma(uint8_t * buffer, uint32_t length)
   uDMAChannelEnable(UART_TX_CHANNEL);
   
   /* Busy-wait until there are no more bytes to be tramsmitted */
-  // while(uDMAChannelSizeGet(UART_TX_CHANNEL) > 0);
+  while(uDMAChannelSizeGet(UART_TX_CHANNEL) > 0);
   
   /* Disable uDMA complete interrupt for UART RX and TX */
-  // UARTDMADisable(config_.base, UART_DMA_TX);
+  UARTDMADisable(config_.base, UART_DMA_TX);
   
   return 0;
 }
@@ -257,30 +293,28 @@ void Uart::interruptHandler(void)
 {
   uint32_t status;
 
-  /* Read interrupt source */
+  /* Read interrupt status */
   status = UARTIntStatus(config_.base, true);
 
-  /* Clear UART interrupt in the NVIC */
-  IntPendClear(config_.interrupt);
-
+  /* Clear UART interrupts */
+  UARTIntClear(config_.base, status);
+  
   /* Process TX interrupt */
   if (status & UART_INT_TX)
   {
-    UARTIntClear(config_.base, UART_INT_TX);
     interruptHandlerTx();
   }
 
   /* Process RX interrupt */
-  if ((status & UART_INT_RX))
+  if ((status & UART_INT_RX) || (status & UART_INT_RT))
   {
-    UARTIntClear(config_.base, UART_INT_RX);
     interruptHandlerRx();
   }
 }
 
 /*================================ private ==================================*/
 
-void Uart::interruptHandlerRx(void)
+inline void Uart::interruptHandlerRx(void)
 {
   if (rx_callback_ != nullptr)
   {
@@ -288,7 +322,7 @@ void Uart::interruptHandlerRx(void)
   }
 }
 
-void Uart::interruptHandlerTx(void)
+inline void Uart::interruptHandlerTx(void)
 {
   if (tx_callback_ != nullptr)
   {
