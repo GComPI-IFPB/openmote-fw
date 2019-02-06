@@ -49,10 +49,13 @@ class Serial(threading.Thread):
         self.transmit_message   = []
         self.transmit_condition = threading.Condition()
 
-        # Quality variables
-        self.total_frames = 0
-        self.good_frames = 0
-        self.bad_frames = 0
+        # Quality control variables
+        self.tx_total_frames = 0
+        self.tx_good_frames  = 0
+        self.tx_bad_frames   = 0
+        self.rx_total_frames = 0
+        self.rx_good_frames  = 0
+        self.rx_bad_frames   = 0
         
         try:
             logger.info('init: Opening the serial port on %s at %s bps.', self.name, self.baudrate)
@@ -134,7 +137,7 @@ class Serial(threading.Thread):
                     self.rx_byte = ''
                     
                     # Compute statistics
-                    self.total_frames += 1
+                    self.rx_total_frames += 1
                     
                     try:
                         logger.debug('run: Received an HDLC frame from the Serial port, now de-HDLCifying it.')
@@ -143,7 +146,7 @@ class Serial(threading.Thread):
                         self.receive_message = self.hdlc.dehdlcify(self.receive_buffer)
 
                         # Compute statistics
-                        self.good_frames += 1
+                        self.rx_good_frames += 1
                     except:
                         logger.error('run: Error while de-HDLCifying the frame received from the Serial port.')
                         
@@ -152,7 +155,7 @@ class Serial(threading.Thread):
                         self.receive_message = []
 
                         # Compute statistics
-                        self.bad_frames += 1
+                        self.rx_bad_frames += 1
 
                     else:
                          # Acquire the transmit condition
@@ -169,6 +172,7 @@ class Serial(threading.Thread):
                     
                 # Always save the last received byte
                 self.last_rx_byte = self.rx_byte
+
         #close the serial port
         self.serial_port.close()
     
@@ -195,7 +199,8 @@ class Serial(threading.Thread):
         if (not self.is_receiving and self.receive_message):
             message = self.receive_message
             length  = len(message)
-            logger.error("receive: Received a message with {} bytes.".format(length))
+
+            logger.info("receive: Received a message with {} bytes.".format(length))
         
         # Reset the receive message
         self.receive_message = []
@@ -211,24 +216,43 @@ class Serial(threading.Thread):
     
     # Transmit a message
     def transmit(self, message):
-        logger.info('transmit: Got a message to transmit with %d bytes.', len(message))
+        logger.info("transmit: Got a message to transmit with {} bytes.".format(len(message)))
         
-        logger.debug('run: HDLCifying the transmit buffer.')
+        # Compute statistics
+        self.tx_total_frames += 1
+        
+        try:
+            logger.debug("run: HDLCifying the transmit buffer.")
+        
+            # HDLCify the message
+            self.transmit_buffer = self.hdlc.hdlcify(message)
+        except:
+            # Compute statistics
+            self.tx_bad_frames += 1
+            raise
 
-        # HDLCify the message
-        self.transmit_buffer = self.hdlc.hdlcify(message)
+        try:
+            logger.debug("run: Now transmitting the message with {} bytes.".format(len(self.transmit_buffer)))
         
-        logger.error('run: Now transmitting the message.')
-        
-        # Send the message through the serial port (blocking)
-        self.serial_port.write(self.transmit_buffer)
+            # Send the message through the serial port (blocking)
+            self.serial_port.write(self.transmit_buffer)
+        except:
+            # Compute statistics
+            self.tx_bad_frames += 1
+            raise
+
+        # Compute statistics
+        self.tx_good_frames += 1
 
     def clear_statistics(self):
-        self.total_frames = 0
-        self.good_frames  = 0
-        self.bad_frames   = 0
+        self.tx_total_frames = 0
+        self.tx_good_frames  = 0
+        self.tx_bad_frames   = 0
+        self.rx_total_frames = 0
+        self.rx_good_frames  = 0
+        self.rx_bad_frames   = 0
 
     def get_statistics(self):
-        print("Total={}, Good={}, Bad={}".format(self.total_frames,
-                                                 self.good_frames,
-                                                 self.bad_frames))
+        return "TX Total={}, TX Good={}, TX Bad={}, RX Total={}, RX Good={}, RX Bad={}".format(
+            self.tx_total_frames, self.tx_good_frames, self.tx_bad_frames,
+            self.rx_total_frames, self.rx_good_frames, self.rx_bad_frames)

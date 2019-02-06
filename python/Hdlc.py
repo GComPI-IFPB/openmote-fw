@@ -24,6 +24,7 @@ class Hdlc(object):
     def hdlcify(self, input = None):       
         # Check the CRC checksum
         crc_engine = Crc16.Crc16()
+
         for i in input:
             crc_engine.push(ord(i))
         crc_result = crc_engine.get()
@@ -38,7 +39,6 @@ class Hdlc(object):
 
         # Create HDLC frame
         output = []
-        print(input, type(input))
         for i in input:
             i = ord(i)
             if (i == self.HDLC_FLAG):
@@ -53,8 +53,6 @@ class Hdlc(object):
         # Append the HDLC flags
         output = [self.HDLC_FLAG] + output + [self.HDLC_FLAG]
 
-        print(output)
-        
         return output
     
     # Parses an HDLC frame
@@ -82,19 +80,19 @@ class Hdlc(object):
                     else:
                         output.append(f)
         except:
-            logger.error("dehldicfy: Error replacing HDLC flags.")
+            logger.error("dehldicfy: Error replacing HDLC flags!")
             raise
 
         # Check output input size
         if (len(output) < 2):
-            logger.error("dehldicfy: Invalid frame length.")
+            logger.error("dehldicfy: Invalid frame length!")
             raise
         
         # Get the CRC checksum
         try:
             crc_value = output[-1] + output[-2] * 256
         except:
-            logger.error('dehldicfy: CRC value error.')
+            logger.error('dehldicfy: CRC value recovery error!')
             raise
         
         # Compute the CRC checksum
@@ -105,7 +103,7 @@ class Hdlc(object):
             crc_result = crc_engine.get()
             
         except:
-            logger.error("dehldicfy: CRC checksum error! crc_value = {}, crc_result = {}".format(hex(crc_value), hex(crc_result)))
+            logger.error("dehldicfy: CRC checksum calculation error!")
             raise
 
         # Check CRC checksum
