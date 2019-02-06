@@ -55,7 +55,7 @@ void Dma::init(void)
   }
 }
 
-void Dma::memcpy(uint8_t* dst, uint8_t* src, uint32_t length)
+uint32_t Dma::memcpy(uint8_t* dst, uint8_t* src, uint32_t length)
 {
   if (length < 1024)
   {
@@ -76,7 +76,11 @@ void Dma::memcpy(uint8_t* dst, uint8_t* src, uint32_t length)
     
     /* Disable DMA channel */
     uDMAChannelAttributeDisable(UDMA_CH30_SW, UDMA_ATTR_ALL);
+    
+    return length;
   }
+  
+  return 0;
 }
 
 /*=============================== protected =================================*/
