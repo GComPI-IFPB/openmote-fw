@@ -13,6 +13,8 @@
 
 #include "Hdlc.hpp"
 
+#include "BoardImplementation.hpp"
+
 /*================================ define ===================================*/
 
 static const uint8_t HDLC_FLAG        = 0x7E;
@@ -29,7 +31,7 @@ static const uint8_t HDLC_ESCAPE_MASK = 0x20;
 
 Hdlc::Hdlc(Buffer& rxBuffer, Buffer& txBuffer):
     rxBuffer_(rxBuffer), txBuffer_(txBuffer),
-    rxStatus(), rxLastByte(0), rxIsEscaping(false)
+    rxStatus(HdlcStatus_Idle), rxLastByte(0), rxIsEscaping(false)
 {
 }
 
@@ -172,7 +174,7 @@ HdlcResult Hdlc::txClose(void)
 
 /*================================ private ==================================*/
 
-HdlcResult Hdlc::rxParse(uint8_t byte)
+inline HdlcResult Hdlc::rxParse(uint8_t byte)
 {
   int32_t status;
 
