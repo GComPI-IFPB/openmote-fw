@@ -32,7 +32,7 @@ import Serial
 logger = logging.getLogger(__name__)
 
 uart_name = 'COM27'
-uart_speed = 115200
+uart_speed = 576000
 
 finished = False
 
@@ -43,21 +43,25 @@ def signal_handler(sig, frame):
 def program():
     global finished
 
-    # Create Serial manager
+    # Create and start Serial manager
     serial = Serial.Serial(name = uart_name, baudrate = uart_speed, timeout = 0.001)
     serial.start()
 
     while (not finished):
+        #
         serial.transmit("Hello world!")
 
         # Try to receive a Serial message
-        message, length = serial.receive(timeout=100000)
+        message, length = serial.receive(timeout = 100000)
 
         # If we received a message
         if (length > 0):
-            print("program: Received message with {} bytes.".format(length))
+            logging.info("program: Received message with {} bytes.".format(length))
         else:
-            print("program: Receive timeout.")
+            logging.info("program: Receive timeout.")
+
+    print(elapsed_time)
+    print(serial.get_statistics())
 
     # Check for finished condition
     if (finished):
@@ -65,9 +69,16 @@ def program():
 
 def main():
     # Set-up logging back-end
-    logging.basicConfig(level=logging.ERROR)
+    logging.basicConfig(level=logging.ERROR,
+                        handlers=[
+                            logging.FileHandler("main.log"),
+                            logging.StreamHandler()
+                        ]
+                       )
+    # Set up SIGINT signal
     signal.signal(signal.SIGINT, signal_handler)
     
+    # Execute program
     program()
     
 if __name__ == "__main__":
