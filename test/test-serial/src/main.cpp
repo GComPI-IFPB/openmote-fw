@@ -25,7 +25,7 @@
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
 #define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 
-#define UART_BAUDRATE                       ( 576000 )
+#define UART_BAUDRATE                       ( 921600 )
 
 /*================================ typedef ==================================*/
 
@@ -43,11 +43,11 @@ static Serial serial(uart);
 
 static uint8_t serial_tx_buffer[1024];
 static uint8_t* serial_tx_ptr = serial_tx_buffer;
-static uint8_t serial_tx_len  = sizeof(serial_tx_buffer);
+static uint16_t serial_tx_len  = sizeof(serial_tx_buffer);
 
 static uint8_t serial_rx_buffer[1024];
 static uint8_t* serial_rx_ptr = serial_rx_buffer;
-static uint8_t serial_rx_len  = sizeof(serial_rx_buffer);
+static uint16_t serial_rx_len  = sizeof(serial_rx_buffer);
 
 /*================================= public ==================================*/
 
@@ -75,12 +75,14 @@ static void prvSerialTask(void *pvParameters)
   /* Forever */
   while (true)
   {
+    /* Restore serial_rx pointer and length */
     serial_rx_ptr = serial_rx_buffer;
     serial_rx_len = sizeof(serial_rx_buffer);
 
-    /* Read buffer via Serial */
+    /* Read buffer using Serial */
     serial_rx_len = serial.read(serial_rx_ptr, serial_rx_len);
     
+    /* If we have received a message */
     if (serial_rx_len > 0)
     {
       /* Write buffer via Serial */
@@ -94,12 +96,12 @@ static void prvGreenLedTask(void *pvParameters)
   /* Forever */
   while (true)
   {
-      /* Turn off green LED for 950 ms */
-      led_green.off();
-      Scheduler::delay_ms(950);
+    /* Turn off green LED for 950 ms */
+    led_green.off();
+    Scheduler::delay_ms(950);
 
-      /* Turn on green LED for 50 ms */
-      led_green.on();
-      Scheduler::delay_ms(50);
+    /* Turn on green LED for 50 ms */
+    led_green.on();
+    Scheduler::delay_ms(50);
   }
 }
