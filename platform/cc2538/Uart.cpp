@@ -1,5 +1,5 @@
 /**
- * @file       platform_uart.cpp
+ * @file       Uart.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
  * @date       November, 2018
@@ -40,7 +40,8 @@
 Uart::Uart(Gpio& rx, Gpio& tx, UartConfig& config):
   rx_(rx), tx_(tx), config_(config), \
   rxSemaphore_(false), txSemaphore_(false), \
-  rx_callback_(nullptr), tx_callback_(nullptr)
+  rx_callback_(nullptr), tx_callback_(nullptr),
+  rx_timeout_(false)
 {
 }
 
@@ -96,12 +97,13 @@ void Uart::enable(uint32_t baudrate)
       ;
   }
 
-  /* Disable FIFO as we only use a one-byte buffer */
-  UARTFIFOLevelSet(config_.base, UART_FIFO_TX7_8, UART_FIFO_RX7_8);
+  /* Enable FIFO operation to reduce interrupts */
+  UARTFIFOLevelSet(config_.base, UART_FIFO_TX1_8, UART_FIFO_RX7_8);
   UARTFIFOEnable(config_.base);
 
   /* Raise an interrupt at the end of transmission */
-  UARTTxIntModeSet(config_.base, UART_TXINT_MODE_FIFO | UART_TXINT_MODE_EOT);
+  // UARTTxIntModeSet(config_.base, UART_TXINT_MODE_FIFO | UART_TXINT_MODE_EOT);
+  UARTTxIntModeSet(config_.base, UART_TXINT_MODE_EOT);
 
   /* Enable UART hardware */
   UARTEnable(config_.base);
@@ -168,6 +170,18 @@ void Uart::disableInterrupts(void)
   IntDisable(config_.interrupt);
 }
 
+void Uart::enableDMA(void)
+{
+  /* Enable uDMA complete interrupt for UART TX */
+  UARTDMAEnable(config_.base, UART_DMA_TX);
+}
+
+void Uart::disableDMA(void)
+{
+  /* Disable uDMA complete interrupt for UART RX and TX */
+  UARTDMADisable(config_.base, UART_DMA_TX);
+}
+
 void Uart::rxLock(void)
 {
   rxSemaphore_.take();
@@ -198,31 +212,83 @@ void Uart::txUnlockFromInterrupt(void)
   txSemaphore_.giveFromInterrupt();
 }
 
-uint8_t Uart::readByte(void)
+bool Uart::readAvailable(void)
 {
-  int32_t byte;
-  
-  /* Read byte from UART, non-blocking */
-  byte = UARTCharGetNonBlocking(config_.base);
-  
-  return (uint8_t)(byte & 0xFF);
+  return UARTCharsAvail(config_.base);
+}
+
+bool Uart::readTimeout(void)
+{
+  return rx_timeout_;
 }
 
 bool Uart::readByte(uint8_t* byte)
 {
+  bool status = false;
+  
   /* Check if there are bytes available */
   if (UARTCharsAvail(config_.base) == true)
   {
-    /* Read byte from UART, non-blocking */
-    *byte = UARTCharGetNonBlocking(config_.base);
+    int32_t scratch;
     
-    return true;
+    /* Read byte from UART, non-blocking */
+    scratch = UARTCharGetNonBlocking(config_.base);
+    if (scratch >= 0)
+    {
+      *byte = (uint8_t) scratch;
+      status = true;
+    }
   }
   
-  return false;
+  return status;
 }
 
-uint32_t Uart::readByte(uint8_t * buffer, uint32_t length)
+uint32_t Uart::readByte(uint8_t* buffer, uint32_t length)
+{
+  uint32_t count = 0;
+  
+  /* Check if there are bytes available */
+  while (UARTCharsAvail(config_.base) && length > 0)
+  {
+    int32_t scratch;
+        
+    scratch = UARTCharGetNonBlocking(config_.base);
+    if (scratch >= 0)
+    {
+      /* Read byte from UART, blocking */
+      *buffer++ = (uint8_t) scratch;
+      count++;
+      length--;
+    }
+  }
+
+  return count;
+}
+
+void Uart::writeByte(uint8_t byte)
+{
+  /* Write byte to UART, non-blocking */
+  UARTCharPutNonBlocking(config_.base, byte);
+}
+
+uint32_t Uart::writeByte(uint8_t* buffer, uint32_t length)
+{  
+  /* Setup DMA control for UART transmission */
+  uDMAChannelControlSet(UART_TX_CHANNEL, UART_TX_CONTROL);
+  
+  /* Setup DMA buffers for UART using BASIC mode */
+  uDMAChannelTransferSet(UART_TX_CHANNEL, UDMA_MODE_BASIC, buffer, UART_DATA, length);
+
+  /* Enable the TX channel */
+  uDMAChannelEnable(UART_TX_CHANNEL);
+  
+  /* Busy-wait until there are no more bytes to be tramsmitted */
+  // while(uDMAChannelSizeGet(UART_TX_CHANNEL) > 0);
+  
+  return 0;
+}
+
+uint32_t Uart::readBytes(uint8_t* buffer, uint32_t length)
 {
   uint32_t data;
 
@@ -240,45 +306,15 @@ uint32_t Uart::readByte(uint8_t * buffer, uint32_t length)
 
   return 0;
 }
-
-void Uart::writeByte(uint8_t byte)
+ uint32_t Uart::writeBytes(uint8_t* buffer, uint32_t length)
 {
-  /* Write byte to UART, non-blocking */
-  UARTCharPutNonBlocking(config_.base, byte);
-}
-
-int32_t Uart::writeByte(uint8_t * buffer, uint32_t length)
-{
-  /* Put all bytes to UART (blocking) */
+  /* Write all bytes to UART */
   for (uint32_t i = 0; i < length; i++)
   {
     /* Write byte to UART, blocking */
     UARTCharPut(config_.base, *buffer++);
   }
 
-  return 0;
-}
-
-int32_t Uart::writeByteDma(uint8_t * buffer, uint32_t length)
-{
-  /* Enable uDMA complete interrupt for UART TX */
-  UARTDMAEnable(config_.base, UART_DMA_TX);
-  
-  /* Setup DMA control for UART transmission */
-  uDMAChannelControlSet(UART_TX_CHANNEL, UART_TX_CONTROL);
-  
-  /* Setup DMA buffers for UART using BASIC mode */
-  uDMAChannelTransferSet(UART_TX_CHANNEL, UDMA_MODE_BASIC, buffer, UART_DATA, length);
-
-  /* Enable the TX channel */
-  uDMAChannelEnable(UART_TX_CHANNEL);
-  
-  /* Busy-wait until there are no more bytes to be tramsmitted */
-  while(uDMAChannelSizeGet(UART_TX_CHANNEL) > 0);
-  
-  /* Disable uDMA complete interrupt for UART RX and TX */
-  UARTDMADisable(config_.base, UART_DMA_TX);
-  
   return 0;
 }
 
@@ -304,10 +340,11 @@ void Uart::interruptHandler(void)
   {
     interruptHandlerTx();
   }
-
+  
   /* Process RX interrupt */
-  if ((status & UART_INT_RX) || (status & UART_INT_RT))
+  if (status & (UART_INT_RX | UART_INT_RT))
   {
+    rx_timeout_ = ((status & UART_INT_RT) == UART_INT_RT);
     interruptHandlerRx();
   }
 }

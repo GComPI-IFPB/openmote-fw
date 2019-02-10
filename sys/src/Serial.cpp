@@ -49,6 +49,9 @@ void Serial::init(void)
 
   /* Enable UART interrupts */
   uart_.enableInterrupts();
+  
+  /* Enable UART DMA */
+  uart_.enableDMA();
 
   /* Open the HDLC receive buffer */
   hdlc_.rxOpen();
@@ -80,7 +83,7 @@ void Serial::write(uint8_t* data, uint32_t size, bool useDma)
   /* Close the HDLC buffer */
   result = hdlc_.txClose();
   if (result != HdlcResult_Ok) goto error;
-  
+   
   /* Start transmission */
   if (!useDma)
   {
@@ -94,7 +97,7 @@ void Serial::write(uint8_t* data, uint32_t size, bool useDma)
   else
   {
     /* Transmit all buffer at once */
-    uart_.writeByteDma(txBuffer_.getHead(), txBuffer_.getSize());
+    uart_.writeByte(txBuffer_.getHead(), txBuffer_.getSize());
   }
   
   /* Take the UART lock */
@@ -102,7 +105,7 @@ void Serial::write(uint8_t* data, uint32_t size, bool useDma)
   
   /* Give the TX mutex */
   txMutex_.give();
-  
+
   return;
 
 error:
@@ -158,7 +161,7 @@ void Serial::rxCallback(void)
   bool finished = false;
   
   /* Read byte from the UART */
-  while(uart_.readByte(&byte) && !finished)
+  while (uart_.readByte(&byte) && !finished)
   {
     /* Put the byte in the HDLC receive buffer */
     result = hdlc_.rxPut(byte);
