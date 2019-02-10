@@ -2,59 +2,79 @@
  * @file       main.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
- * @date       May, 2015
+ * @date       February, 2019
  * @brief
  *
- * @copyright  Copyright 2015, OpenMote Technologies, S.L.
+ * @copyright  Copyright 2019, OpenMote Technologies, S.L.
  *             This file is licensed under the GNU General Public License v2.
  */
 
 /*================================ include ==================================*/
 
-#include "FreeRTOS.h"
-#include "task.h"
+#include "BoardImplementation.hpp"
 
-#include "board.h"
-
-#include "Scheduler.h"
-#include "Task.h"
+#include "Callback.hpp"
+#include "Scheduler.hpp"
+#include "Semaphore.hpp"
+#include "Task.hpp"
 
 /*================================ define ===================================*/
 
-#define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
-#define UART_TASK_PRIORITY                  ( tskIDLE_PRIORITY + 0 )
+#define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
+#define UART_TASK_PRIORITY                  ( tskIDLE_PRIORITY + 1 )
 
-#define UART_BAUDRATE                       ( 115200 )
+#define UART_BAUDRATE                       ( 2000000 )
+#define UART_BUFFER_LENGTH                  ( 1024 )
 
 /*================================ typedef ==================================*/
+
+typedef struct
+{
+  uint8_t* head;
+  uint16_t length;
+  uint16_t available;
+  uint8_t* ptr;
+  uint16_t count;
+} uart_data_t;
 
 /*=============================== prototypes ================================*/
 
 static void prvGreenLedTask(void *pvParameters);
 static void prvUartTask(void *pvParameters);
 
+static void uart_rx(void);
+static void uart_tx(void);
+
 /*=============================== variables =================================*/
 
-uint8_t uart_buffer[] = {'O','p','e','n','M','o','t','e','-','C','C','2','5','3','8','\r','\n'};
-uint8_t* uart_ptr = uart_buffer;
-uint8_t uart_len  = sizeof(uart_buffer);
+static Task heartbeatTask{(const char *) "Green", 128, GREEN_LED_TASK_PRIORITY, prvGreenLedTask, nullptr};
+static Task uartTask{(const char *) "Uart", 128, UART_TASK_PRIORITY, prvUartTask, nullptr};
+
+static PlainCallback uart_rx_cb(&uart_rx);
+static PlainCallback uart_tx_cb(&uart_tx);
+
+static uint8_t uart_tx_buffer[UART_BUFFER_LENGTH];
+static uint8_t uart_rx_buffer[UART_BUFFER_LENGTH];
+
+static uart_data_t uart_data_tx {.head = uart_tx_buffer, .length = sizeof(uart_tx_buffer)};
+static uart_data_t uart_data_rx {.head = uart_rx_buffer, .length = sizeof(uart_rx_buffer)};
 
 /*================================= public ==================================*/
 
 int main (void)
 {
-    // Initialize board
-    board.init();
+  /* Initialize the board */
+  board.init();
 
-    // Enable the UART peripheral and the serial driver
-    uart.enable(UART_BAUDRATE);
+  /* Enable the UART peripheral */
+  uart.enable(UART_BAUDRATE);
+  uart.setRxCallback(&uart_rx_cb);
+  uart.setTxCallback(&uart_tx_cb);
+  uart.enableDMA();
+  uart.enableInterrupts();
 
-    // Create two FreeRTOS tasks
-    xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-    xTaskCreate(prvUartTask, (const char *) "Uart", 128, NULL, UART_TASK_PRIORITY, NULL);
-
-    // Start the scheduler
-    Scheduler::run();
+  /* Start the scheduler */
+  Scheduler::run();
 }
 
 /*=============================== protected =================================*/
@@ -63,37 +83,93 @@ int main (void)
 
 static void prvUartTask(void *pvParameters)
 {
-    // Forever
-    while(true)
+  bool copy = true;
+    
+  /* Forever */
+  while (true)
+  {
+    /* Restore uart_data_rx structure */
+    uart_data_rx.ptr = uart_data_rx.head;
+    uart_data_rx.count = 0;
+    uart_data_rx.available = uart_data_rx.length;
+
+    /* Restore uart_data_tx structure */
+    uart_data_tx.ptr = uart_data_tx.head;
+    uart_data_tx.count = 0;
+    uart_data_tx.available = uart_data_tx.length;    
+
+    /* Wait until a packet has been received from UART */
+    uart.rxLock();
+
+    /* Copy UART receive buffer */
+    if (copy)
     {
-        uart_ptr = uart_buffer;
-        uart_len = sizeof(uart_buffer);
+      /* Copy UART receive buffer to UART transmit buffer using DMA */
+      uart_data_tx.length = dma.memcpy(uart_data_tx.head, uart_data_rx.head, uart_data_rx.count);
 
-        // Turn on red LED
-        led_red.on();
-
-        // Print buffer via UART
-        uart.writeByte(uart_ptr, uart_len);
-
-        // Turn off red LED
-        led_red.off();
-
-        // Delay for 250 ms
-        Task::delay(250);
+      /* Send buffer to UART using DMA */
+      uart.writeByte(uart_data_tx.head, uart_data_tx.length);
     }
+    else
+    {
+      /* Send buffer to UART using DMA */
+      uart.writeByte(uart_data_rx.head, uart_data_rx.count);
+    }
+    
+    /* Wait until packet has been transmitted from UART */
+    uart.txLock();
+  }
 }
 
 static void prvGreenLedTask(void *pvParameters)
 {
-    // Forever
-    while(true)
-    {
-        // Turn off green LED for 950 ms
-        led_green.off();
-        Task::delay(950);
+  /* Forever */
+  while (true)
+  {
+    /* Turn off green LED for 990 ms */
+    led_green.off();
+    Scheduler::delay_ms(990);
 
-        // Turn on green LED for 50 ms
-        led_green.on();
-        Task::delay(50);
-    }
+    /* Turn on green LED for 10 ms */
+    led_green.on();
+    Scheduler::delay_ms(10);
+  }
+}
+
+static void uart_rx(void)
+{
+  uint32_t count;
+  bool timeout;
+  
+  /* Check if the UART has timed out */
+  timeout = uart.readTimeout();
+    
+  if (timeout)
+  {
+    /* If so, read all remaining bytes */
+    count = uart.readByte(uart_data_rx.ptr, 16);
+  }
+  else
+  {
+    /* Otherwise, read all bytes except the last one */
+    count = uart.readByte(uart_data_rx.ptr, 15);
+  }
+
+  /* Increment pointer, count and available variables */
+  uart_data_rx.ptr       += count;
+  uart_data_rx.count     += count;
+  uart_data_rx.available -= count;
+  
+  /* If the UART has timed out */
+  if (timeout)
+  {
+    /* Give the RX semaphore to signal end of reception */
+    uart.rxUnlockFromInterrupt();
+  }
+}
+
+static void uart_tx(void)
+{
+  /* Give the TX semaphore to signal end of transmission */
+  uart.txUnlockFromInterrupt();
 }
