@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/python
 
 '''
-@file       test-serial.py
+@file       test-uart.py
 @author     Pere Tuset-Peiro  (peretuset@openmote.com)
 @version    v0.1
 @date       May, 2015
@@ -17,22 +16,13 @@ import sys
 pwd = os.path.abspath(__file__)
 pwd = os.path.dirname(os.path.dirname(os.path.dirname(pwd)))
 pwd = os.path.join(pwd, 'python')
-print(pwd)
 sys.path.append(pwd)
 
-import logging
-import os
 import signal
 import struct
-import sys
 import time
 
 import Serial
-
-logger = logging.getLogger(__name__)
-
-uart_name = 'COM10'
-uart_speed = 576000
 
 finished = False
 
@@ -43,41 +33,77 @@ def signal_handler(sig, frame):
 def program():
     global finished
 
+    port        = "COM49"
+    baudrate    = 921600
+    timeout     = 0.1
+    count       = 101
+    bits        = 10 # start + byte + stop
+    message     = count * "0123456789"
+    length      = len(message)
+    report_time = 1000
+    finish_time = 10000
+
     # Create and start Serial manager
-    serial = Serial.Serial(name = uart_name, baudrate = uart_speed, timeout = 0.001)
+    serial = Serial.Serial(name = port, baudrate = baudrate, timeout = timeout)
     serial.start()
 
+    print("Starting test with {} bytes/message at {} kbps.".format(length, baudrate))
+    
+    # Prepare statistics
+    total_sent     = 0
+    total_received = 0
+
+    # Store start time
+    start_time = time.time()
+    total_time = 0
+
+    # Repeat until finish condition
     while (not finished):
-        #
-        serial.transmit("Hello world!")
+        # Transmit message 
+        serial.transmit(message)
+
+        # Account for sent messages
+        total_sent += 1
 
         # Try to receive a Serial message
-        message, length = serial.receive(timeout = 100000)
+        received, length = serial.receive(timeout = 0.1)
 
         # If we received a message
         if (length > 0):
-            logging.info("program: Received message with {} bytes.".format(length))
-        else:
-            logging.info("program: Receive timeout.")
+            # Account for received messages
+            total_received += 1
+        
+        # Calculate elapsed time
+        current_time = time.time()
+        elapsed_time = 1000 * (current_time - start_time)
 
-    print(elapsed_time)
-    print(serial.get_statistics())
+        # If elapsed time is above report time
+        if (elapsed_time > report_time):
+            bandwidth = total_received * length * bits / elapsed_time
+            print("{} out of {} messages received in the last {:.2f} ms ({:.2f} kbps)".format(total_received, total_sent, elapsed_time, bandwidth))
 
-    # Check for finished condition
-    if (finished):
-        serial.stop()
+            # Restore start time
+            start_time = current_time
+
+            # Restore statistics
+            total_sent = 0
+            total_received = 0
+
+            # Account for elapsed time
+            total_time  += elapsed_time
+
+        # If total time is above total time
+        if (total_time > finish_time):
+            # Stop the serial port
+            serial.stop()
+
+            # Signal the script to finish
+            finished = True
 
 def main():
-    # Set-up logging back-end
-    logging.basicConfig(level=logging.ERROR,
-                        handlers=[
-                            logging.FileHandler("main.log"),
-                            logging.StreamHandler()
-                        ]
-                       )
     # Set up SIGINT signal
     signal.signal(signal.SIGINT, signal_handler)
-    
+
     # Execute program
     program()
     

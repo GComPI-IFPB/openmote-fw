@@ -76,7 +76,7 @@ def program():
         # If elapsed time
         if elapsed_time > 1000:
             bandwidth = total_received * length * bits / elapsed_time
-            print("{} out of {} messages received in the last {:.2f} ms ({:.2f} kbaud)".format(total_received, total_sent, elapsed_time, bandwidth))
+            print("{} out of {} messages received in the last {:.2f} ms ({:.2f} kbps)".format(total_received, total_sent, elapsed_time, bandwidth))
 
             # Restore start time
             start_time = current_time
