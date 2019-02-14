@@ -674,7 +674,7 @@ void At86rf215::blockAccessWrite(uint16_t address, uint8_t* values, uint16_t len
   cs_.high();
 }
 
-uint16_t At86rf215::getRFRegisterAddress(RadioCore rc, uint16_t address)
+inline uint16_t At86rf215::getRFRegisterAddress(RadioCore rc, uint16_t address)
 {
   /* Select RF register address based on radio core */
   switch(rc)
@@ -693,7 +693,7 @@ uint16_t At86rf215::getRFRegisterAddress(RadioCore rc, uint16_t address)
   return address;
 }
 
-uint16_t At86rf215::getBBCRegisterAddress(RadioCore rc, uint16_t address)
+inline uint16_t At86rf215::getBBCRegisterAddress(RadioCore rc, uint16_t address)
 {
   /* Select BBC register address based on radio core */
   switch(rc)
@@ -712,7 +712,7 @@ uint16_t At86rf215::getBBCRegisterAddress(RadioCore rc, uint16_t address)
   return address;
 }
 
-uint16_t At86rf215::getFBRegisterAddress(RadioCore rc, uint16_t address)
+inline uint16_t At86rf215::getFBRegisterAddress(RadioCore rc, uint16_t address)
 {
   /* Select FB register address based on radio core */
   switch(rc)

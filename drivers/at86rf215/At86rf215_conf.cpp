@@ -30,27 +30,26 @@
 
 const register_t fsk_option1_rf[] = 
 {
-  {RFn_RXBWC,     0x00},
-  {RFn_RXDFE,     0x2A},
-  {RFn_AGCC,      0x01},
-  {RFn_EDD,       0x7A},
-  {RFn_TXCUTC,    0xC0},
-  {RFn_TXDFE,     0x98},
-  {RFn_PAC,       0x7F},
+  {RFn_RXBWC,       0x00},
+  {RFn_RXDFE,       0x2A},
+  {RFn_AGCC,        0x01},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0xC0},
+  {RFn_TXDFE,       0x98},
 };
 const register_t fsk_option1_bbc[] = 
 {
-  {BBCn_PC,        0x15},
-  {BBCn_FSKDM,     0x01},
-  {BBCn_FSKC0,     0xD6},
-  {BBCn_FSKC1,     0x00},
-  {BBCn_FSKC2,     0x41},
-  {BBCn_FSKC3,     0x85},
-  {BBCn_FSKC4,     0x0A},
-  {BBCn_FSKPE0,    0x02},
-  {BBCn_FSKPE1,    0x03},
-  {BBCn_FSKPE2,    0xFC},
-  {BBCn_FSKPHRTX,  0x00},
+  {BBCn_PC,         0x15},
+  {BBCn_FSKDM,      0x01},
+  {BBCn_FSKC0,      0xD6},
+  {BBCn_FSKC1,      0x00},
+  {BBCn_FSKC2,      0x41},
+  {BBCn_FSKC3,      0x85},
+  {BBCn_FSKC4,      0x0A},
+  {BBCn_FSKPE0,     0x02},
+  {BBCn_FSKPE1,     0x03},
+  {BBCn_FSKPE2,     0xFC},
+  {BBCn_FSKPHRTX,   0x00},
 };
 const radio_settings_t fsk_option1_cfg = {
                                           fsk_option1_rf,
@@ -63,27 +62,26 @@ const radio_settings_t fsk_option1_cfg = {
 
 const register_t fsk_option2_rf[] =
 {
-  {RFn_RXBWC,     0x03},
-  {RFn_RXDFE,     0x15},
-  {RFn_AGCC,      0x01},
-  {RFn_EDD,       0x7A},
-  {RFn_TXCUTC,    0x83},
-  {RFn_TXDFE,     0x94},
-  {RFn_PAC,       0x7F},
+  {RFn_RXBWC,       0x03},
+  {RFn_RXDFE,       0x15},
+  {RFn_AGCC,        0x01},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x83},
+  {RFn_TXDFE,       0x94},
 };
 const register_t fsk_option2_bbc[] =
 {
-  {BBCn_PC,        0x1D},
-  {BBCn_FSKDM,     0x03},
-  {BBCn_FSKC0,     0xD6},
-  {BBCn_FSKC1,     0x01},
-  {BBCn_FSKC2,     0x40},
-  {BBCn_FSKC3,     0x85},
-  {BBCn_FSKC4,     0x0A},
-  {BBCn_FSKPE0,    0x13},
-  {BBCn_FSKPE1,    0x29},
-  {BBCn_FSKPE2,    0xC7},
-  {BBCn_FSKPHRTX,  0x00},
+  {BBCn_PC,         0x1D},
+  {BBCn_FSKDM,      0x03},
+  {BBCn_FSKC0,      0xD6},
+  {BBCn_FSKC1,      0x01},
+  {BBCn_FSKC2,      0x40},
+  {BBCn_FSKC3,      0x85},
+  {BBCn_FSKC4,      0x0A},
+  {BBCn_FSKPE0,     0x13},
+  {BBCn_FSKPE1,     0x29},
+  {BBCn_FSKPE2,     0xC7},
+  {BBCn_FSKPHRTX,   0x00},
 };
 const radio_settings_t fsk_option2_cfg = {
                                           fsk_option2_rf,
@@ -96,27 +94,26 @@ const radio_settings_t fsk_option2_cfg = {
 
 const register_t fsk_option3_rf[] =
 {
-  {RFn_RXBWC,     0x03},
-  {RFn_RXDFE,     0x24},
-  {RFn_AGCC,      0x01},
-  {RFn_EDD,       0x7A},
-  {RFn_TXCUTC,    0x84},
-  {RFn_TXDFE,     0x12},
-  {RFn_PAC,       0x64},
+  {RFn_RXBWC,       0x03},
+  {RFn_RXDFE,       0x24},
+  {RFn_AGCC,        0x01},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x84},
+  {RFn_TXDFE,       0x12},
 };
 const register_t fsk_option3_bbc[] =
 {
-  {BBCn_PC,        0x15},
-  {BBCn_FSKDM,     0x03},
-  {BBCn_FSKC0,     0xC1},
-  {BBCn_FSKC1,     0x03},
-  {BBCn_FSKC2,     0x00},
-  {BBCn_FSKC3,     0x85},
-  {BBCn_FSKC4,     0x00},
-  {BBCn_FSKPE0,    0x74},
-  {BBCn_FSKPE1,    0x7F},
-  {BBCn_FSKPE2,    0x80},
-  {BBCn_FSKPHRTX,  0x00},
+  {BBCn_PC,         0x15},
+  {BBCn_FSKDM,      0x03},
+  {BBCn_FSKC0,      0xC1},
+  {BBCn_FSKC1,      0x03},
+  {BBCn_FSKC2,      0x00},
+  {BBCn_FSKC3,      0x85},
+  {BBCn_FSKC4,      0x00},
+  {BBCn_FSKPE0,     0x74},
+  {BBCn_FSKPE1,     0x7F},
+  {BBCn_FSKPE2,     0x80},
+  {BBCn_FSKPHRTX,   0x00},
 };
 const radio_settings_t fsk_option3_cfg = {
                                           fsk_option3_rf,
@@ -135,7 +132,6 @@ const register_t oqpsk_rate1_rf[] =
   {RFn_EDD,         0x2B},
   {RFn_TXCUTC,      0xC7},
   {RFn_TXDFE,       0x7A},
-  {RFn_PAC,         0x64},
 };
 const register_t oqpsk_rate1_bbc[] =
 {
@@ -160,7 +156,6 @@ const register_t oqpsk_rate2_rf[] =
   {RFn_EDD,         0x2B},
   {RFn_TXCUTC,      0xC7},
   {RFn_TXDFE,       0x7A},
-  {RFn_PAC,         0x64},
 };
 const register_t oqpsk_rate2_bbc[] =
 {
@@ -185,7 +180,6 @@ const register_t oqpsk_rate3_rf[] =
   {RFn_EDD,         0x2B},
   {RFn_TXCUTC,      0xC7},
   {RFn_TXDFE,       0x7A},
-  {RFn_PAC,         0x64},
 };
 const register_t oqpsk_rate3_bbc[] =
 {
@@ -210,7 +204,6 @@ const register_t oqpsk_rate4_rf[] =
   {RFn_EDD,         0x2B},
   {RFn_TXCUTC,      0xC7},
   {RFn_TXDFE,       0x7A},
-  {RFn_PAC,         0x64},
 };
 const register_t oqpsk_rate4_bbc[] =
 {
@@ -229,13 +222,12 @@ const radio_settings_t oqpsk_rate4_cfg = {
 
 const register_t oqpsk_250kbps_rf[] =
 {
-  {RFn_RXBWC,      0x0B},
-  {RFn_RXDFE,      0x41},
-  {RFn_AGCC,       0x01},
-  {RFn_EDD,        0x13},
-  {RFn_TXCUTC,     0x0B},
-  {RFn_TXDFE,      0x81},
-  {RFn_PAC,        0x7F},
+  {RFn_RXBWC,       0x0B},
+  {RFn_RXDFE,       0x41},
+  {RFn_AGCC,        0x01},
+  {RFn_EDD,         0x13},
+  {RFn_TXCUTC,      0x0B},
+  {RFn_TXDFE,       0x81},
 };
 const register_t oqpsk_250kbps_bbc[] =
 {
@@ -257,19 +249,18 @@ const radio_settings_t oqpsk_250kbps_cfg = {
 
 const register_t ofdm_1_mcs0_rf[] =
 {
-  {RFn_RXBWC,     0x00},
-  {RFn_RXDFE,     0x83},
-  {RFn_AGCC,      0x11},
-  {RFn_EDD,       0x7A},
-  {RFn_TXCUTC,    0x0A},
-  {RFn_TXDFE,     0x83},
-  {RFn_PAC,       0x64},
+  {RFn_RXBWC,       0x00},
+  {RFn_RXDFE,       0x83},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x0A},
+  {RFn_TXDFE,       0x83},
 };
 const register_t ofdm_1_mcs0_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x00},
-  {BBCn_OFDMPHRTX, 0x00},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x00},
+  {BBCn_OFDMPHRTX,  0x00},
 };
 const radio_settings_t ofdm_1_mcs0_cfg = {
                                           ofdm_1_mcs0_rf,
@@ -282,19 +273,18 @@ const radio_settings_t ofdm_1_mcs0_cfg = {
 
 const register_t ofdm_1_mcs1_rf[] =
 {
-  {RFn_RXBWC,     0x19},
-  {RFn_RXDFE,     0x83},
-  {RFn_AGCC,      0x11},
-  {RFn_EDD,       0x7A},
-  {RFn_TXCUTC,    0x0A},
-  {RFn_TXDFE,     0x83},
-  {RFn_PAC,       0x64},
+  {RFn_RXBWC,       0x19},
+  {RFn_RXDFE,       0x83},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x0A},
+  {RFn_TXDFE,       0x83},
 };
 const register_t ofdm_1_mcs1_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x00},
-  {BBCn_OFDMPHRTX, 0x01},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x00},
+  {BBCn_OFDMPHRTX,  0x01},
 };
 const radio_settings_t ofdm_1_mcs1_cfg = {
                                           ofdm_1_mcs1_rf,
@@ -307,19 +297,18 @@ const radio_settings_t ofdm_1_mcs1_cfg = {
 
 const register_t ofdm_1_mcs2_rf[] =
 {
-  {RFn_RXBWC,     0x19},
-  {RFn_RXDFE,     0x83},
-  {RFn_AGCC,      0x11},
-  {RFn_EDD,       0x7A},
-  {RFn_TXCUTC,    0x0A},
-  {RFn_TXDFE,     0x83},
-  {RFn_PAC,       0x64},
+  {RFn_RXBWC,       0x19},
+  {RFn_RXDFE,       0x83},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x0A},
+  {RFn_TXDFE,       0x83},
 };
 const register_t ofdm_1_mcs2_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x00},
-  {BBCn_OFDMPHRTX, 0x02},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x00},
+  {BBCn_OFDMPHRTX,  0x02},
 };
 const radio_settings_t ofdm_1_mcs2_cfg = {
                                           ofdm_1_mcs2_rf,
@@ -332,19 +321,18 @@ const radio_settings_t ofdm_1_mcs2_cfg = {
 
 const register_t ofdm_1_mcs3_rf[] =
 {
-  {RFn_RXBWC,     0x19},
-  {RFn_RXDFE,     0x83},
-  {RFn_AGCC,      0x11},
-  {RFn_EDD,       0x7A},
-  {RFn_TXCUTC,    0x0A},
-  {RFn_TXDFE,     0x83},
-  {RFn_PAC,       0x7F},
+  {RFn_RXBWC,       0x19},
+  {RFn_RXDFE,       0x83},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x0A},
+  {RFn_TXDFE,       0x83},
 };
 const register_t ofdm_1_mcs3_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x00},
-  {BBCn_OFDMPHRTX, 0x03},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x00},
+  {BBCn_OFDMPHRTX,  0x03},
 };
 const radio_settings_t ofdm_1_mcs3_cfg = {
                                           ofdm_1_mcs3_rf,
@@ -357,19 +345,18 @@ const radio_settings_t ofdm_1_mcs3_cfg = {
 
 const register_t ofdm_2_mcs0_rf[] =
 {
-  {RFn_RXBWC,     0x17},
-  {RFn_RXDFE,     0x43},
-  {RFn_AGCC,      0x11},
-  {RFn_EDD,       0x7A},
-  {RFn_TXCUTC,    0x08},
-  {RFn_TXDFE,     0x63},
-  {RFn_PAC,       0x64},
+  {RFn_RXBWC,       0x17},
+  {RFn_RXDFE,       0x43},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x08},
+  {RFn_TXDFE,       0x63},
 };
 const register_t ofdm_2_mcs0_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x01},
-  {BBCn_OFDMPHRTX, 0x00},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x01},
+  {BBCn_OFDMPHRTX,  0x00},
 };
 const radio_settings_t ofdm_2_mcs0_cfg = {
                                           ofdm_2_mcs0_rf,
@@ -382,19 +369,18 @@ const radio_settings_t ofdm_2_mcs0_cfg = {
 
 const register_t ofdm_2_mcs1_rf[] =
 {
-  {RFn_RXBWC,     0x17},
-  {RFn_RXDFE,     0x43},
-  {RFn_AGCC,      0x11},
-  {RFn_EDD,       0x7A},
-  {RFn_TXCUTC,    0x08},
-  {RFn_TXDFE,     0x63},
-  {RFn_PAC,       0x64},
+  {RFn_RXBWC,       0x17},
+  {RFn_RXDFE,       0x43},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x08},
+  {RFn_TXDFE,       0x63},
 };
 const register_t ofdm_2_mcs1_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x01},
-  {BBCn_OFDMPHRTX, 0x01},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x01},
+  {BBCn_OFDMPHRTX,  0x01},
 };
 const radio_settings_t ofdm_2_mcs1_cfg = {
                                           ofdm_2_mcs1_rf,
@@ -407,19 +393,18 @@ const radio_settings_t ofdm_2_mcs1_cfg = {
 
 const register_t ofdm_2_mcs2_rf[] =
 {
-  {RFn_RXBWC,     0x17},
-  {RFn_RXDFE,     0x43},
-  {RFn_AGCC,      0x11},
-  {RFn_EDD,       0x7A},
-  {RFn_TXCUTC,    0x08},
-  {RFn_TXDFE,     0x63},
-  {RFn_PAC,       0x64},
+  {RFn_RXBWC,       0x17},
+  {RFn_RXDFE,       0x43},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x08},
+  {RFn_TXDFE,       0x63},
 };
 const register_t ofdm_2_mcs2_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x01},
-  {BBCn_OFDMPHRTX, 0x02},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x01},
+  {BBCn_OFDMPHRTX,  0x02},
 
 };
 const radio_settings_t ofdm_2_mcs2_cfg = {
@@ -433,19 +418,18 @@ const radio_settings_t ofdm_2_mcs2_cfg = {
 
 const register_t ofdm_2_mcs3_rf[] =
 {
-  {RFn_RXBWC,     0x17},
-  {RFn_RXDFE,     0x43},
-  {RFn_AGCC,      0x11},
-  {RFn_EDD,       0x7A},
-  {RFn_TXCUTC,    0x08},
-  {RFn_TXDFE,     0x63},
-  {RFn_PAC,       0x64},
+  {RFn_RXBWC,       0x17},
+  {RFn_RXDFE,       0x43},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x08},
+  {RFn_TXDFE,       0x63},
 };
 const register_t ofdm_2_mcs3_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x01},
-  {BBCn_OFDMPHRTX, 0x03},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x01},
+  {BBCn_OFDMPHRTX,  0x03},
 };
 const radio_settings_t ofdm_2_mcs3_cfg = {
                                           ofdm_2_mcs3_rf,
@@ -458,19 +442,18 @@ const radio_settings_t ofdm_2_mcs3_cfg = {
 
 const register_t ofdm_2_mcs4_rf[] =
 {
-  {RFn_RXBWC,      0x17},
-  {RFn_RXDFE,      0x43},
-  {RFn_AGCC,       0x11},
-  {RFn_EDD,        0x7A},
-  {RFn_TXCUTC,     0x08},
-  {RFn_TXDFE,      0x63},
-  {RFn_PAC,        0x64},
+  {RFn_RXBWC,       0x17},
+  {RFn_RXDFE,       0x43},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x08},
+  {RFn_TXDFE,       0x63},
 };
 const register_t ofdm_2_mcs4_bbc[] =
 { 
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x01},
-  {BBCn_OFDMPHRTX, 0x04},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x01},
+  {BBCn_OFDMPHRTX,  0x04},
 };
 const radio_settings_t ofdm_2_mcs4_cfg = {
                                           ofdm_2_mcs4_rf,
@@ -483,19 +466,18 @@ const radio_settings_t ofdm_2_mcs4_cfg = {
 
 const register_t ofdm_2_mcs5_rf[] =
 {
-  {RFn_RXBWC,      0x17},
-  {RFn_RXDFE,      0x43},
-  {RFn_AGCC,       0x11},
-  {RFn_EDD,        0x7A},
-  {RFn_TXCUTC,     0x08},
-  {RFn_TXDFE,      0x63},
-  {RFn_PAC,        0x64},
+  {RFn_RXBWC,       0x17},
+  {RFn_RXDFE,       0x43},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x08},
+  {RFn_TXDFE,       0x63},
 };
 const register_t ofdm_2_mcs5_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x01},
-  {BBCn_OFDMPHRTX, 0x05},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x01},
+  {BBCn_OFDMPHRTX,  0x05},
 };
 const radio_settings_t ofdm_2_mcs5_cfg = {
                                           ofdm_2_mcs5_rf,
@@ -508,19 +490,18 @@ const radio_settings_t ofdm_2_mcs5_cfg = {
 
 const register_t ofdm_3_mcs1_rf[] =
 {
-  {RFn_RXBWC,      0x04},
-  {RFn_RXDFE,      0x46},
-  {RFn_AGCC,       0x11},
-  {RFn_EDD,        0x7A},
-  {RFn_TXCUTC,     0x05},
-  {RFn_TXDFE,      0x66},
-  {RFn_PAC,        0x64},
+  {RFn_RXBWC,       0x04},
+  {RFn_RXDFE,       0x46},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x05},
+  {RFn_TXDFE,       0x66},
 };
 const register_t ofdm_3_mcs1_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x02},
-  {BBCn_OFDMPHRTX, 0x01},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x02},
+  {BBCn_OFDMPHRTX,  0x01},
 };
 const radio_settings_t ofdm_3_mcs1_cfg = {
                                           ofdm_3_mcs1_rf,
@@ -533,19 +514,18 @@ const radio_settings_t ofdm_3_mcs1_cfg = {
 
 const register_t ofdm_3_mcs2_rf[] =
 {
-  {RFn_RXBWC,      0x04},
-  {RFn_RXDFE,      0x46},
-  {RFn_AGCC,       0x11},
-  {RFn_EDD,        0x7A},
-  {RFn_TXCUTC,     0x05},
-  {RFn_TXDFE,      0x66},
-  {RFn_PAC,        0x64},
+  {RFn_RXBWC,       0x04},
+  {RFn_RXDFE,       0x46},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x05},
+  {RFn_TXDFE,       0x66},
 };
 const register_t ofdm_3_mcs2_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x02},
-  {BBCn_OFDMPHRTX, 0x02},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x02},
+  {BBCn_OFDMPHRTX,  0x02},
 };
 const radio_settings_t ofdm_3_mcs2_cfg = {
                                           ofdm_3_mcs2_rf,
@@ -558,19 +538,18 @@ const radio_settings_t ofdm_3_mcs2_cfg = {
 
 const register_t ofdm_3_mcs3_rf[] =
 {
-  {RFn_RXBWC,      0x04},
-  {RFn_RXDFE,      0x46},
-  {RFn_AGCC,       0x11},
-  {RFn_EDD,        0x7A},
-  {RFn_TXCUTC,     0x05},
-  {RFn_TXDFE,      0x66},
-  {RFn_PAC,        0x64},
+  {RFn_RXBWC,       0x04},
+  {RFn_RXDFE,       0x46},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x05},
+  {RFn_TXDFE,       0x66},
 };
 const register_t ofdm_3_mcs3_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x02},
-  {BBCn_OFDMPHRTX, 0x03},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x02},
+  {BBCn_OFDMPHRTX,  0x03},
 };
 const radio_settings_t ofdm_3_mcs3_cfg = {
                                           ofdm_3_mcs3_rf,
@@ -583,19 +562,18 @@ const radio_settings_t ofdm_3_mcs3_cfg = {
 
 const register_t ofdm_3_mcs4_rf[] =
 {
-  {RFn_RXBWC,      0x04},
-  {RFn_RXDFE,      0x46},
-  {RFn_AGCC,       0x11},
-  {RFn_EDD,        0x7A},
-  {RFn_TXCUTC,     0x05},
-  {RFn_TXDFE,      0x66},
-  {RFn_PAC,        0x64},
+  {RFn_RXBWC,       0x04},
+  {RFn_RXDFE,       0x46},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x05},
+  {RFn_TXDFE,       0x66},
 };
 const register_t ofdm_3_mcs4_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x02},
-  {BBCn_OFDMPHRTX, 0x04},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x02},
+  {BBCn_OFDMPHRTX,  0x04},
 };
 const radio_settings_t ofdm_3_mcs4_cfg = {
                                           ofdm_3_mcs4_rf,
@@ -608,19 +586,18 @@ const radio_settings_t ofdm_3_mcs4_cfg = {
 
 const register_t ofdm_3_mcs5_rf[] =
 {
-  {RFn_RXBWC,      0x04},
-  {RFn_RXDFE,      0x46},
-  {RFn_AGCC,       0x11},
-  {RFn_EDD,        0x7A},
-  {RFn_TXCUTC,     0x05},
-  {RFn_TXDFE,      0x66},
-  {RFn_PAC,        0x64},
+  {RFn_RXBWC,       0x04},
+  {RFn_RXDFE,       0x46},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x05},
+  {RFn_TXDFE,       0x66},
 };
 const register_t ofdm_3_mcs5_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x02},
-  {BBCn_OFDMPHRTX, 0x05},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x02},
+  {BBCn_OFDMPHRTX,  0x05},
 };
 const radio_settings_t ofdm_3_mcs5_cfg = {
                                           ofdm_3_mcs5_rf,
@@ -633,19 +610,18 @@ const radio_settings_t ofdm_3_mcs5_cfg = {
 
 const register_t ofdm_3_mcs6_rf[] =
 {
-  {RFn_RXBWC,      0x04},
-  {RFn_RXDFE,      0x46},
-  {RFn_AGCC,       0x11},
-  {RFn_EDD,        0x7A},
-  {RFn_TXCUTC,     0x05},
-  {RFn_TXDFE,      0x66},
-  {RFn_PAC,        0x64},
+  {RFn_RXBWC,       0x04},
+  {RFn_RXDFE,       0x46},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x05},
+  {RFn_TXDFE,       0x66},
 };
 const register_t ofdm_3_mcs6_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x02},
-  {BBCn_OFDMPHRTX, 0x06},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x02},
+  {BBCn_OFDMPHRTX,  0x06},
 };
 const radio_settings_t ofdm_3_mcs6_cfg = {
                                           ofdm_3_mcs6_rf,
@@ -658,19 +634,18 @@ const radio_settings_t ofdm_3_mcs6_cfg = {
 
 const register_t ofdm_4_mcs2_rf[] =
 {
-  {RFn_RXBWC,      0x12},
-  {RFn_RXDFE,      0x26},
-  {RFn_AGCC,       0x11},
-  {RFn_EDD,        0x7A},
-  {RFn_TXCUTC,     0x03},
-  {RFn_TXDFE,      0x46},
-  {RFn_PAC,        0x64},
+  {RFn_RXBWC,       0x12},
+  {RFn_RXDFE,       0x26},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x03},
+  {RFn_TXDFE,       0x46},
 };
 const register_t ofdm_4_mcs2_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x03},
-  {BBCn_OFDMPHRTX, 0x02},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x03},
+  {BBCn_OFDMPHRTX,  0x02},
 };
 const radio_settings_t ofdm_4_mcs2_cfg = {
                                           ofdm_4_mcs2_rf,
@@ -683,19 +658,18 @@ const radio_settings_t ofdm_4_mcs2_cfg = {
 
 const register_t ofdm_4_mcs3_rf[] =
 {
-  {RFn_RXBWC,      0x12},
-  {RFn_RXDFE,      0x26},
-  {RFn_AGCC,       0x11},
-  {RFn_EDD,        0x7A},
-  {RFn_TXCUTC,     0x03},
-  {RFn_TXDFE,      0x46},
-  {RFn_PAC,        0x64},
+  {RFn_RXBWC,       0x12},
+  {RFn_RXDFE,       0x26},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x03},
+  {RFn_TXDFE,       0x46},
 };
 const register_t ofdm_4_mcs3_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x03},
-  {BBCn_OFDMPHRTX, 0x03},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x03},
+  {BBCn_OFDMPHRTX,  0x03},
 };
 const radio_settings_t ofdm_4_mcs3_cfg = {
                                           ofdm_4_mcs3_rf,
@@ -708,19 +682,18 @@ const radio_settings_t ofdm_4_mcs3_cfg = {
 
 const register_t ofdm_4_mcs4_rf[] =
 {
-  {RFn_RXBWC,      0x12},
-  {RFn_RXDFE,      0x26},
-  {RFn_AGCC,       0x11},
-  {RFn_EDD,        0x7A},
-  {RFn_TXCUTC,     0x03},
-  {RFn_TXDFE,      0x46},
-  {RFn_PAC,        0x64},
+  {RFn_RXBWC,       0x12},
+  {RFn_RXDFE,       0x26},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x03},
+  {RFn_TXDFE,       0x46},
 };
 const register_t ofdm_4_mcs4_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x03},
-  {BBCn_OFDMPHRTX, 0x04},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x03},
+  {BBCn_OFDMPHRTX,  0x04},
 };
 const radio_settings_t ofdm_4_mcs4_cfg = {
                                           ofdm_4_mcs4_rf,
@@ -733,19 +706,18 @@ const radio_settings_t ofdm_4_mcs4_cfg = {
 
 const register_t ofdm_4_mcs5_rf[] =
 {
-  {RFn_RXBWC,      0x12},
-  {RFn_RXDFE,      0x26},
-  {RFn_AGCC,       0x11},
-  {RFn_EDD,        0x7A},
-  {RFn_TXCUTC,     0x03},
-  {RFn_TXDFE,      0x46},
-  {RFn_PAC,        0x64},
+  {RFn_RXBWC,       0x12},
+  {RFn_RXDFE,       0x26},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x03},
+  {RFn_TXDFE,       0x46},
 };
 const register_t ofdm_4_mcs5_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x03},
-  {BBCn_OFDMPHRTX, 0x05},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x03},
+  {BBCn_OFDMPHRTX,  0x05},
 };
 const radio_settings_t ofdm_4_mcs5_cfg = {
                                           ofdm_4_mcs5_rf,
@@ -758,19 +730,18 @@ const radio_settings_t ofdm_4_mcs5_cfg = {
 
 const register_t ofdm_4_mcs6_rf[] =
 {
-  {RFn_RXBWC,      0x12},
-  {RFn_RXDFE,      0x26},
-  {RFn_AGCC,       0x11},
-  {RFn_EDD,        0x7A},
-  {RFn_TXCUTC,     0x03},
-  {RFn_TXDFE,      0x46},
-  {RFn_PAC,        0x64},
+  {RFn_RXBWC,       0x12},
+  {RFn_RXDFE,       0x26},
+  {RFn_AGCC,        0x11},
+  {RFn_EDD,         0x7A},
+  {RFn_TXCUTC,      0x03},
+  {RFn_TXDFE,       0x46},
 };
 const register_t ofdm_4_mcs6_bbc[] =
 {
-  {BBCn_PC,        0x16},
-  {BBCn_OFDMC,     0x03},
-  {BBCn_OFDMPHRTX, 0x06},
+  {BBCn_PC,         0x16},
+  {BBCn_OFDMC,      0x03},
+  {BBCn_OFDMPHRTX,  0x06},
 };
 const radio_settings_t ofdm_4_mcs6_cfg = {
                                           ofdm_4_mcs6_rf,
