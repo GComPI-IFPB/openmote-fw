@@ -36,6 +36,11 @@
 
 #define BUFFER_LENGTH                       ( 1024 )
 
+#define RADIO_CORE                          ( At86rf215::CORE_RF09 )
+#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM_2_MCS_5] )
+#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM_2] )
+#define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_MIN )
+
 /*================================ typedef ==================================*/
 
 /*=============================== prototypes ================================*/
@@ -115,19 +120,17 @@ static void prvRadioTask(void *pvParameters)
   }
   
   /* Set radio callbacks and enable interrupts */
-  at86rf215.setTxCallbacks(At86rf215::CORE_RF09, &radio_tx_init_cb, &radio_tx_done_cb);
-  at86rf215.setRxCallbacks(At86rf215::CORE_RF09, &radio_rx_init_cb, &radio_rx_done_cb);
+  at86rf215.setTxCallbacks(RADIO_CORE, &radio_tx_init_cb, &radio_tx_done_cb);
+  at86rf215.setRxCallbacks(RADIO_CORE, &radio_rx_init_cb, &radio_rx_done_cb);
   at86rf215.enableInterrupts();
   
   /* Wake up and configure radio */
-  at86rf215.wakeup(At86rf215::CORE_RF09);
-  at86rf215.configure(At86rf215::CORE_RF09,
-                      &radio_settings[CONFIG_OFDM_2_MCS_5],
-                      &frequency_settings[FREQUENCY_OFDM_2]);
-  at86rf215.setTransmitPower(At86rf215::CORE_RF09, At86rf215::TransmitPower::TX_POWER_31);
+  at86rf215.wakeup(RADIO_CORE);
+  at86rf215.configure(RADIO_CORE, RADIO_SETTINGS, RADIO_FREQUENCY);
+  at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
 
   /* Ready to transmit */
-  at86rf215.ready(At86rf215::CORE_RF09);
+  at86rf215.ready(RADIO_CORE);
   
   /* Forever */
   while (true)
@@ -146,7 +149,7 @@ static void prvRadioTask(void *pvParameters)
       uint16_t buffer_len = radio_rx_buffer_len;
 
       /* Transmit packet */
-      at86rf215.receive(At86rf215::CORE_RF09);
+      at86rf215.receive(RADIO_CORE);
       
       /* Wait until packet has been received */
       taken = rx_semaphore.take();
@@ -155,7 +158,7 @@ static void prvRadioTask(void *pvParameters)
       if (taken == true && received == true)
       {
         /* Load packet to radio */
-        result = at86rf215.getPacket(At86rf215::CORE_RF09, buffer_ptr, &buffer_len, &rssi, &lqi, &crc);
+        result = at86rf215.getPacket(RADIO_CORE, buffer_ptr, &buffer_len, &rssi, &lqi, &crc);
         
         /* Check packet has been received successfully */
         if (result == RadioResult::RadioResult_Success && crc == true)
@@ -170,7 +173,7 @@ static void prvRadioTask(void *pvParameters)
       }
       
       /* Go back to ready */
-      at86rf215.ready(At86rf215::CORE_RF09);
+      at86rf215.ready(RADIO_CORE);
     }
     /* We got a packet to transmit, fire it! */
     else
@@ -182,10 +185,10 @@ static void prvRadioTask(void *pvParameters)
       uint16_t buffer_len = radio_tx_buffer_len;
 
       /* Load packet to radio */
-      at86rf215.loadPacket(At86rf215::CORE_RF09, buffer_ptr, buffer_len);
+      at86rf215.loadPacket(RADIO_CORE, buffer_ptr, buffer_len);
       
       /* Transmit packet */
-      at86rf215.transmit(At86rf215::CORE_RF09);
+      at86rf215.transmit(RADIO_CORE);
       
       /* Wait until packet has been transmitted */
       sent = tx_semaphore.take();
@@ -197,7 +200,7 @@ static void prvRadioTask(void *pvParameters)
       }
       
       /* Go back to ready */
-      at86rf215.ready(At86rf215::CORE_RF09);
+      at86rf215.ready(RADIO_CORE);
 
       transmit = false;
     }
