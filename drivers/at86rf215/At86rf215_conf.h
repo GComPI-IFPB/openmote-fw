@@ -17,19 +17,21 @@
 typedef struct
 {
   uint16_t address;
-  uint8_t data;
+  uint8_t value;
 } register_t;
 
 typedef struct
 {
-  const register_t* registers;
-  uint16_t elements;
+  const register_t* rf_registers;
+  uint16_t rf_elements;
+  const register_t* bbc_registers;
+  uint16_t bbc_elements;
 } radio_settings_t;
 
 typedef struct
 {
-  uint16_t channel_spacing;
   uint32_t frequency0;
+  uint16_t channel_spacing;
   uint16_t channel;
 } frequency_settings_t;
 
@@ -49,7 +51,7 @@ enum {
   CONFIG_OFDM_1_MCS_0, /* BPSK, rate 1/2, 4x repetition, 100 kbps */
   CONFIG_OFDM_1_MCS_1, /* BPSK, rate 1/2, 2x repetition, 200 kbps */
   CONFIG_OFDM_1_MCS_2, /* QPSK, rate 1/2, 2x repetition, 400 kbps */
-  CONFIG_OFDM_1_MCS_3, /* QPSK, rate 1/2, 0x repetition, 400 kbps */
+  CONFIG_OFDM_1_MCS_3, /* QPSK, rate 1/2, 0x repetition, 800 kbps */
   CONFIG_OFDM_2_MCS_0, /* BPSK, rate 1/2, 4x repetition,  50 kbps */
   CONFIG_OFDM_2_MCS_1, /* BPSK, rate 1/2, 2x repetition, 100 kbps */
   CONFIG_OFDM_2_MCS_2, /* QPSK, rate 1/2, 2x repetition, 200 kbps */

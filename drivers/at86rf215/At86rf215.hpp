@@ -70,7 +70,7 @@ public:
 
   bool check(void);
   
-  void configure(const radio_settings_t* radio_settings, const frequency_settings_t* frequency_settings);
+  void configure(RadioCore rc, const radio_settings_t* radio_settings, const frequency_settings_t* frequency_settings);
   
   void wakeup(RadioCore rc);
   void ready(RadioCore rc);
@@ -119,9 +119,11 @@ private:
   Callback* rx24Done_;
   Callback* tx24Init_;
   Callback* tx24Done_;
-
+  
   uint8_t rf09_irqm, rf24_irqm;
   uint8_t bbc0_irqm, bbc1_irqm;
+
+  uint8_t fcs_length;
 };
 
 #endif /* AT86RF215_HPP_ */

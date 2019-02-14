@@ -27,14 +27,14 @@
 
 #define AT86RF215_DELAY_MS          ( 1 )
 
+#define AT86RF125_RFn_IRQM          ( 0x00 )
+#define AT86RF125_BBCn_IRQM         ( 0x13 )
+
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
 
 extern BoardImplementation board;
-
-uint8_t rf09_irqm, rf24_irqm;
-uint8_t bbc0_irqm, bbc1_irqm;
 
 /*=============================== prototypes ================================*/
 
@@ -104,26 +104,93 @@ bool At86rf215::check(void)
   return status;
 }
 
-void At86rf215::configure(const radio_settings_t* radio_settings, const frequency_settings_t* frequency_settings)
+void At86rf215::configure(RadioCore rc, const radio_settings_t* radio_settings, const frequency_settings_t* frequency_settings)
 {
-  
-  for (uint16_t i = 0; i < radio_settings->elements; i++)
+  uint16_t rf_base, bbc_base;
+  uint16_t address;
+  uint8_t value;
+
+  register_t irq_settings[] =
   {
-    singleAccessWrite(radio_settings->registers[i].address, radio_settings->registers[i].data);
+    {RF09_BASE + RFn_IRQM,  AT86RF125_RFn_IRQM},
+    {BBC0_BASE + BBCn_IRQM, AT86RF125_BBCn_IRQM},
+    {RF24_BASE + RFn_IRQM,  AT86RF125_RFn_IRQM},
+    {BBC1_BASE + BBCn_IRQM, AT86RF125_BBCn_IRQM},
+  };
+  uint8_t* irq_mask[] = {&rf09_irqm, &bbc0_irqm, &rf24_irqm, &bbc1_irqm};
+  
+  register_t channel_settings[] = 
+  {
+    {RFn_CCF0L, (uint8_t) ((frequency_settings->frequency0 / 25) % 256)},
+    {RFn_CCF0H, (uint8_t) ((frequency_settings->frequency0 / 25) / 256)},
+    {RFn_CS,    (uint8_t) (frequency_settings->channel_spacing / 25)},
+    {RFn_CNL,   (uint8_t) (frequency_settings->channel % 256)},
+    {RFn_CNM,   (uint8_t) (frequency_settings->channel / 256)},
+  };
+
+  /* Select address based on radio core */
+  if (rc == CORE_RF09)
+  {
+    rf_base = RF09_BASE;
+    bbc_base = BBC0_BASE;
+  } 
+  else if (rc == CORE_RF24)
+  {
+    rf_base = RF24_BASE;
+    bbc_base = BBC1_BASE;
+  }
+  else
+  {
+    while(true)
+      ;
   }
 
-  /* Configure frequency */
-  singleAccessWrite(RF09_CS,    frequency_settings->channel_spacing);
-  singleAccessWrite(RF09_CCF0L, frequency_settings->frequency0 % 256);
-  singleAccessWrite(RF09_CCF0H, frequency_settings->frequency0 / 256);
-  singleAccessWrite(RF09_CNL,   frequency_settings->channel % 256);
-  singleAccessWrite(RF09_CNM,   frequency_settings->channel / 256);
-  
-  rf09_irqm = 0x00;
-  bbc0_irqm = 0x1F; 
-  
-  rf24_irqm = 0x00;
-  bbc1_irqm = 0x00;
+  /* Configure default settings */
+  for (uint16_t i = 0; i < sizeof(irq_settings)/sizeof(irq_settings[0]); i++)
+  {
+    /* Calculate register address and set value */
+    address = irq_settings[i].address;
+    value   = irq_settings[i].value;
+    
+    /* Write default IRQ settings to radio */
+    singleAccessWrite(address, value);
+    
+    /* Store IRQ settings */
+    *irq_mask[i] = value;
+  }
+
+  /* Configure RF settings */
+  for (uint16_t i = 0; i < radio_settings->rf_elements; i++)
+  {
+    /* Calculate register address and set value */
+    address = rf_base + radio_settings->rf_registers[i].address;
+    value   = radio_settings->rf_registers[i].value;
+
+    /* Write RF settings to radio */
+    singleAccessWrite(address, value); 
+  }
+
+  /* Configure BBC settings */
+  for (uint16_t i = 0; i < radio_settings->bbc_elements; i++)
+  {
+    /* Calculate register address and set value */
+    address = bbc_base + radio_settings->bbc_registers[i].address;
+    value   = radio_settings->bbc_registers[i].value;
+
+    /* Write BBC settings to radio */
+    singleAccessWrite(address, value); 
+  }
+
+  /* Configure channel settings */
+  for (uint16_t i = 0; i < sizeof(channel_settings)/sizeof(channel_settings[0]); i++)
+  {
+    /* Calculate register address and set value */
+    address = rf_base + channel_settings[i].address;
+    value   = channel_settings[i].value;
+    
+    /* Write channel settings to radio */
+    singleAccessWrite(address, value);
+  }
 }
 
 void At86rf215::wakeup(RadioCore rc)
@@ -200,21 +267,25 @@ void At86rf215::disableInterrupts(void)
 
 bool At86rf215::getRSSI(RadioCore rc, int8_t* rssi)
 {
+  uint16_t address;
 	int8_t value;
 
 	if (rc == RadioCore::CORE_RF09)
 	{
-		singleAccessRead(RF09_RSSI, (uint8_t *)&value);
+    address = RF09_BASE + RFn_RSSI;
+		singleAccessRead(address, (uint8_t *)&value);
 	} 
   else if (rc == RadioCore::CORE_RF24)
 	{
-		singleAccessRead(RF24_RSSI, (uint8_t *)&value);
+    address = RF24_BASE + RFn_RSSI;
+		singleAccessRead(address, (uint8_t *)&value);
 	}
   else
   {
 		return false;
 	}
 
+  /* Check that the RSSI value is valid */
 	if (value == AT86RF215_RSSI_MAX_VALUE)
 	{
 		*rssi = 0;
@@ -229,21 +300,25 @@ bool At86rf215::getRSSI(RadioCore rc, int8_t* rssi)
 
 bool At86rf215::getED(RadioCore rc, int8_t* ed)
 {
+  uint16_t address;
 	int8_t value;
 
 	if (rc == RadioCore::CORE_RF09)
 	{
-		singleAccessRead(RF09_EDV, (uint8_t *)&value);
+    address = RF09_BASE + RFn_EDV;
+		singleAccessRead(address, (uint8_t *)&value);
 	} 
   else if (rc == RadioCore::CORE_RF24)
 	{
-		singleAccessRead(RF24_EDV, (uint8_t *)&value);
+    address = RF24_BASE + RFn_EDV;
+		singleAccessRead(address, (uint8_t *)&value);
 	} 
   else
   {
 		return false;
 	}
 
+  /* Check that ED value is valid */
 	if (value < AT86RF215_ED_MIN_VALUE || value > AT86RF215_ED_MAX_VALUE)
 	{
 		*ed = 0;
@@ -262,15 +337,18 @@ At86rf215::RadioResult At86rf215::loadPacket(RadioCore rc, uint8_t* data, uint16
   uint16_t bbc_fbtxs;
   uint8_t scratch[2];
   
+  /* Account for CRC length */
+  length += 4;
+  
   /* Select registers based on RadioCore to use */
   if (rc == RadioCore::CORE_RF09)
 	{
-		bbc_txfll = BBC0_TXFLL;
+		bbc_txfll = BBC0_BASE + BBCn_TXFLL;
     bbc_fbtxs = BBC0_FBTXS;
 	} 
   else if (rc == RadioCore::CORE_RF24)
 	{
-		bbc_txfll = BBC1_TXFLL;
+		bbc_txfll = BBC1_BASE + BBCn_TXFLL;
     bbc_fbtxs = BBC1_FBTXS;		
 	} 
   else
@@ -304,20 +382,20 @@ At86rf215::RadioResult At86rf215::getPacket(RadioCore rc, uint8_t* buffer, uint1
   
   /* Select RadioCore to use */
   if (rc == RadioCore::CORE_RF09)
-	{
-		bbc_rxfll = BBC0_RXFLL;
+	{ 
+		bbc_rxfll = BBC0_BASE + BBCn_RXFLL;
     bbc_fbrxs = BBC0_FBRXS;
-    rf_rssi = RF09_RSSI;
-    rf_edv = RF09_EDV;
-    bbc_pc = BBC0_PC;
+    bbc_pc = BBC0_BASE + BBCn_PC;
+    rf_rssi = RF09_BASE + RFn_RSSI;
+    rf_edv = RF09_BASE + RFn_EDV;
 	} 
   else if (rc == RadioCore::CORE_RF24)
 	{
-		bbc_rxfll = BBC1_RXFLL;
+		bbc_rxfll = BBC1_BASE + BBCn_RXFLL;
     bbc_fbrxs = BBC1_FBRXS;
-    rf_rssi = RF24_RSSI;
-    rf_edv = RF24_EDV;
-    bbc_pc = BBC1_PC;
+    bbc_pc = BBC1_BASE + BBCn_PC;
+    rf_rssi = RF24_BASE + RFn_RSSI;
+    rf_edv = RF24_BASE + RFn_EDV;
 	} 
   else
   {
@@ -329,8 +407,11 @@ At86rf215::RadioResult At86rf215::getPacket(RadioCore rc, uint8_t* buffer, uint1
   
   /* Compute packet length */
   scratch = 0;
-  scratch |= scratch_buffer[0];
-  scratch |= scratch_buffer[1];
+  scratch |= (scratch_buffer[0] << 0);
+  scratch |= (scratch_buffer[1] << 8);
+  
+  /* Account for CRC length */
+  scratch -= 4;
   
   /* Avoid overflowing the buffer */
   if (scratch > *length)
@@ -469,14 +550,17 @@ void At86rf215::interruptHandler_rf24(uint8_t rf_irqs, uint8_t bbc_irqs)
 At86rf215::RadioState At86rf215::getState(RadioCore rc)
 {
 	RadioState state;
+  uint16_t address;
 
 	if (rc == RadioCore::CORE_RF09)
 	{
-		singleAccessRead(RF09_STATE, (uint8_t*) &state);	
+    address = RF09_BASE + RFn_STATE;
+		singleAccessRead(address, (uint8_t*) &state);	
 	} 
   else if (rc == RadioCore::CORE_RF24)
 	{
-		singleAccessRead(RF24_STATE, (uint8_t*) &state);	
+    address = RF24_BASE + RFn_STATE;
+		singleAccessRead(address, (uint8_t*) &state);	
 	}
 
 	return state;
@@ -502,13 +586,17 @@ void At86rf215::goToState(RadioCore rc, RadioCommand cmd, RadioState target)
 
 void At86rf215::writeCmd(RadioCore rc, RadioCommand cmd)
 {
+  uint16_t address;
+  
 	if (rc == RadioCore::CORE_RF09)
 	{
-		singleAccessWrite(RF09_CMD, (uint8_t) cmd);
+    address = RF09_BASE + RFn_CMD;
+		singleAccessWrite(address, (uint8_t) cmd);
 	} 
   else if (rc == RadioCore::CORE_RF24)
 	{
-		singleAccessWrite(RF24_CMD, (uint8_t) cmd);	
+    address = RF24_BASE + RFn_CMD;
+		singleAccessWrite(address, (uint8_t) cmd);	
 	}
 }
 
