@@ -27,8 +27,10 @@
 
 #define AT86RF215_DELAY_MS          ( 1 )
 
-#define AT86RF125_RFn_IRQM          ( 0x00 )
-#define AT86RF125_BBCn_IRQM         ( 0x13 )
+#define AT86RF215_RFn_IRQM          ( 0x00 )
+#define AT86RF215_BBCn_IRQM         ( 0x13 )
+
+#define AT86RF215_RFn_PAC_MASK      ( 0x60 )
 
 /*================================ typedef ==================================*/
 
@@ -112,10 +114,10 @@ void At86rf215::configure(RadioCore rc, const radio_settings_t* radio_settings, 
 
   register_t irq_settings[] =
   {
-    {RF09_BASE + RFn_IRQM,  AT86RF125_RFn_IRQM},
-    {BBC0_BASE + BBCn_IRQM, AT86RF125_BBCn_IRQM},
-    {RF24_BASE + RFn_IRQM,  AT86RF125_RFn_IRQM},
-    {BBC1_BASE + BBCn_IRQM, AT86RF125_BBCn_IRQM},
+    {RF09_BASE + RFn_IRQM,  AT86RF215_RFn_IRQM},
+    {BBC0_BASE + BBCn_IRQM, AT86RF215_BBCn_IRQM},
+    {RF24_BASE + RFn_IRQM,  AT86RF215_RFn_IRQM},
+    {BBC1_BASE + BBCn_IRQM, AT86RF215_BBCn_IRQM},
   };
   uint8_t* irq_mask[] = {&rf09_irqm, &bbc0_irqm, &rf24_irqm, &bbc1_irqm};
   
@@ -324,8 +326,8 @@ At86rf215::RadioResult At86rf215::setTransmitPower(RadioCore rc, TransmitPower p
   /* Read PAC register */
   singleAccessRead(address, (uint8_t *)&value);
   
-  /* Clear power bits */
-  value = value & 0x60 | power;
+  /* Mask current control bits and set transmit power bits */
+  value = (value & AT86RF215_RFn_PAC_MASK) | power;
   
   /* Write PAC register */
   singleAccessWrite(address, value);
