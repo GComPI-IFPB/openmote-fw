@@ -55,6 +55,12 @@ typedef enum
 
 typedef enum
 {
+  TX_POWER_0 = 0,
+  TX_POWER_1
+} TransmitPower;
+
+typedef enum
+{
   Error       = -1,
   Success     =  0
 } RadioResult;
@@ -82,8 +88,9 @@ public:
   void enableInterrupts(void);
   void disableInterrupts(void);
   
-  bool getRSSI(RadioCore rc, int8_t* rssi);
-  bool getED(RadioCore rc, int8_t* edv);
+  RadioResult getRSSI(RadioCore rc, int8_t* rssi);
+  RadioResult getED(RadioCore rc, int8_t* edv);
+  RadioResult setTransmitPower(RadioCore rc, TransmitPower power);
   
   RadioResult loadPacket(RadioCore rc, uint8_t* data, uint16_t length);
   RadioResult getPacket(RadioCore rc, uint8_t* buffer, uint16_t* length, int8_t* rssi, int8_t* lqi, bool* crc);
@@ -100,6 +107,10 @@ private:
   void singleAccessWrite(uint16_t address, uint8_t value);
   void blockAccessRead(uint16_t address, uint8_t* values, uint16_t length);
   void blockAccessWrite(uint16_t address, uint8_t* values, uint16_t length);
+private:
+  uint16_t getRFRegisterAddress(RadioCore rc, uint16_t address);
+  uint16_t getBBCRegisterAddress(RadioCore rc, uint16_t address);
+  uint16_t getFBRegisterAddress(RadioCore rc, uint16_t address);
 private:
   Spi& spi_;
   

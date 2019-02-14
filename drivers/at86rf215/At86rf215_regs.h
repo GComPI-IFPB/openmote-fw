@@ -55,6 +55,8 @@
 #define RF24_BASE             ( 0x0200 )
 #define BBC0_BASE             ( 0x0300 )
 #define BBC1_BASE             ( 0x0400 )
+#define BBC0_FB_BASE          ( 0x2000 )
+#define BBC1_FB_BASE          ( 0x3000 )
 
 #define RFn_IRQM              ( 0x0000 )
 #define RFn_AUXS              ( 0x0001 )
@@ -172,15 +174,10 @@
 #define BBCn_CNT2             ( 0x0093 )
 #define BBCn_CNT3             ( 0x0094 )
 
-#define BBC0_FBRXS            ( 0x2000 )
-#define BBC0_FBRXE            ( 0x27FE )
-#define BBC0_FBTXS            ( 0x2800 )
-#define BBC0_FBTXE            ( 0x2FFE )
-
-#define BBC1_FBRXS            ( 0x3000 )
-#define BBC1_FBRXE            ( 0x37FE )
-#define BBC1_FBTXS            ( 0x3800 )
-#define BBC1_FBTXE            ( 0x3FFE )
+#define BBCn_FBRXS            ( 0x0000 )
+#define BBCn_FBRXE            ( 0x07FE )
+#define BBCn_FBTXS            ( 0x0800 )
+#define BBCn_FBTXE            ( 0x0FFE )
 
 /******************************************************************************/
 
