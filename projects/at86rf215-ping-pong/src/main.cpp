@@ -124,6 +124,7 @@ static void prvRadioTask(void *pvParameters)
   at86rf215.configure(At86rf215::CORE_RF09,
                       &radio_settings[CONFIG_OFDM_2_MCS_5],
                       &frequency_settings[FREQUENCY_OFDM_2]);
+  at86rf215.setTransmitPower(At86rf215::CORE_RF09, At86rf215::TransmitPower::TX_POWER_31);
 
   /* Ready to transmit */
   at86rf215.ready(At86rf215::CORE_RF09);
