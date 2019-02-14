@@ -30,8 +30,13 @@
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
 #define RADIO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
 
-#define UART_BAUDRATE						            (  4000000 )
+#define UART_BAUDRATE						            ( 921600 )
 #define SPI_BAUDRATE                        ( 16000000 )
+
+#define RADIO_CORE                          ( At86rf215::CORE_RF09 )
+#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM_2_MCS_5] )
+#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM_2] )
+#define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_MIN )
 
 /*================================ typedef ==================================*/
 
@@ -102,13 +107,13 @@ static void prvRadioTask(void *pvParameters)
   }
   
   /* Set radio callbacks and enable interrupts */
-  at86rf215.setRxCallbacks(At86rf215::CORE_RF09, &radio_rx_init_cb, &radio_rx_done_cb);
+  at86rf215.setRxCallbacks(RADIO_CORE, &radio_rx_init_cb, &radio_rx_done_cb);
   at86rf215.enableInterrupts();
   
   /* Wake up and configure radio */
-  at86rf215.wakeup(At86rf215::CORE_RF09);
-  at86rf215.configure(&radio_settings[CONFIG_OFDM_2_MCS_0],
-                      &frequency_settings[FREQUENCY_OFDM_2]);
+  at86rf215.wakeup(RADIO_CORE);
+  at86rf215.configure(RADIO_CORE, RADIO_SETTINGS, RADIO_FREQUENCY);
+  at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
   
   /* Forever */
   while (true)
@@ -123,10 +128,10 @@ static void prvRadioTask(void *pvParameters)
     uint16_t packet_len = radio_packet_len;
     
     /* Ready to transmit */
-    at86rf215.ready(At86rf215::CORE_RF09);
+    at86rf215.ready(RADIO_CORE);
     
     /* Transmit packet */
-    at86rf215.receive(At86rf215::CORE_RF09);
+    at86rf215.receive(RADIO_CORE);
     
     /* Wait until packet has been received or 50 milliseconds */
     received = semaphore.take(50);
@@ -135,7 +140,7 @@ static void prvRadioTask(void *pvParameters)
     if (received == true)
     {
       /* Load packet to radio */
-      result = at86rf215.getPacket(At86rf215::CORE_RF09, packet_ptr, &packet_len, &rssi, &lqi, &crc);
+      result = at86rf215.getPacket(RADIO_CORE, packet_ptr, &packet_len, &rssi, &lqi, &crc);
       
       /* Check packet has been received successfully */
       if (result == RadioResult::RadioResult_Success && crc == true)

@@ -30,8 +30,13 @@
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
 #define RADIO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
 
-#define UART_BAUDRATE						            ( 4000000 )
+#define UART_BAUDRATE						            ( 921600 )
 #define SPI_BAUDRATE                        ( 16000000 )
+
+#define RADIO_CORE                          ( At86rf215::CORE_RF09 )
+#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM_2_MCS_5] )
+#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM_2] )
+#define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_MIN )
 
 /*================================ typedef ==================================*/
 
@@ -100,13 +105,13 @@ static void prvRadioTask(void *pvParameters)
   }
   
   /* Set radio callbacks and enable interrupts */
-  at86rf215.setTxCallbacks(At86rf215::CORE_RF09, &radio_tx_init_cb, &radio_tx_done_cb);
+  at86rf215.setTxCallbacks(RADIO_CORE, &radio_tx_init_cb, &radio_tx_done_cb);
   at86rf215.enableInterrupts();
   
   /* Wake up and configure radio */
-  at86rf215.wakeup(At86rf215::CORE_RF09);
-  at86rf215.configure(&radio_settings[CONFIG_OFDM_2_MCS_0],
-                      &frequency_settings[FREQUENCY_OFDM_2]);
+  at86rf215.wakeup(RADIO_CORE);
+  at86rf215.configure(RADIO_CORE, RADIO_SETTINGS, RADIO_FREQUENCY);
+  at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
   
   /* Forever */
   while (true)
@@ -119,13 +124,13 @@ static void prvRadioTask(void *pvParameters)
     start_ms = Scheduler::get_ms();
     
     /* Load packet to radio */
-    at86rf215.loadPacket(At86rf215::CORE_RF09, radio_buffer, radio_buffer_len);
+    at86rf215.loadPacket(RADIO_CORE, radio_buffer, radio_buffer_len);
     
     /* Ready to transmit */
-    at86rf215.ready(At86rf215::CORE_RF09);
+    at86rf215.ready(RADIO_CORE);
     
     /* Transmit packet */
-    at86rf215.transmit(At86rf215::CORE_RF09);
+    at86rf215.transmit(RADIO_CORE);
     
     /* Wait until packet has been transmitted or 50 milliseconds */
     sent = semaphore.take(50);
