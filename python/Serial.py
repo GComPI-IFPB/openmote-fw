@@ -158,10 +158,10 @@ class Serial(threading.Thread):
                         self.rx_bad_frames += 1
 
                     else:
-                         # Acquire the transmit condition
+                         # Acquire the receive condition
                         self.receive_condition.acquire()                   
                         
-                         # Notify the transmit condition
+                         # Notify the receive condition
                         self.receive_condition.notify()
                         
                          # Release the transmit condition
@@ -173,7 +173,7 @@ class Serial(threading.Thread):
                 # Always save the last received byte
                 self.last_rx_byte = self.rx_byte
 
-        #close the serial port
+        # Close the serial port
         self.serial_port.close()
     
     # Stops the thread
@@ -184,19 +184,19 @@ class Serial(threading.Thread):
         self.stop_event.set()
     
     # Receive a message
-    def receive(self, timeout = 0.005):
+    def receive(self, timeout = 0.001):
         status  = True
         message = []
         length  = 0
         
-        # Acquire the receive condition
+        # Acquire the lock
         self.receive_condition.acquire()
         
         # Try to receive a message with timeout
         self.receive_condition.wait(timeout)
 
         # If we really got a message, copy it!
-        if (not self.is_receiving and self.receive_message):
+        if (self.receive_message):
             message = self.receive_message
             length  = len(message)
 
@@ -232,7 +232,7 @@ class Serial(threading.Thread):
             raise
 
         try:
-            logger.debug("run: Now transmitting the message with {} bytes.".format(len(self.transmit_buffer)))
+            logger.debug("run: Transmitting the message with {} bytes.".format(len(self.transmit_buffer)))
         
             # Send the message through the serial port (blocking)
             self.serial_port.write(self.transmit_buffer)
