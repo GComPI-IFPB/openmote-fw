@@ -32,6 +32,7 @@
 
 #define AT86RF215_RFn_PAC_PACUR_MASK    ( 0x60 )
 #define AT86RF215_BBCn_PC_CTX_MASK      ( 0x80 )
+#define AT86RF215_BBCn_PC_FCST_MASK     ( 0x08 )
 
 /*================================ typedef ==================================*/
 
@@ -330,7 +331,7 @@ At86rf215::RadioResult At86rf215::loadPacket(RadioCore rc, uint8_t* data, uint16
   /* Account for CRC length */
   length += crc_length;
   
-  /* Select registers based on RadioCore to use */
+  /* Get BBC and FB register address */
   bbc_txfll = getBBCRegisterAddress(rc, BBCn_TXFLL);
   bbc_fbtxs = getFBRegisterAddress(rc, BBCn_FBTXS);
   
@@ -358,7 +359,7 @@ At86rf215::RadioResult At86rf215::getPacket(RadioCore rc, uint8_t* buffer, uint1
   uint8_t scratch_buffer[2];
   uint8_t byte;
   
-  /* Select registers to use */
+  /* Get BBC, RF and FB register address */
   bbc_rxfll = getBBCRegisterAddress(rc, BBCn_RXFLL);
   bbc_pc    = getBBCRegisterAddress(rc, BBCn_PC);
   rf_rssi   = getRFRegisterAddress(rc, RFn_RSSI);
@@ -410,7 +411,7 @@ void At86rf215::setContinuousTransmission(RadioCore rc, bool enable)
   uint16_t bbc_pc;
   uint8_t value;
   
-  /* Select registers to use */
+  /* Get BBC register address */
   bbc_pc = getBBCRegisterAddress(rc, BBCn_PC); 
   
   /* Read BBCn_PC register */
@@ -747,25 +748,14 @@ inline uint16_t At86rf215::getCRCLength(RadioCore rc)
   uint16_t address;
   uint8_t value;
   
-  /* Select FB register address based on radio core */
-  switch(rc)
-  {
-    case RadioCore::CORE_RF09:
-      address = BBC0_BASE + BBCn_PC;
-      break;
-    case RadioCore::CORE_RF24:
-      address = BBC0_BASE + BBCn_PC;
-      break;
-    default:
-      return 0;
-      break;
-  }
+  /* Get BBC register address */
+  address = getBBCRegisterAddress(rc, BBCn_PC);
   
   /* Read BBCn_PC register */
   singleAccessRead(address, &value);
   
   /* If FCST is active CRC = 16 bits, otherwise CRC = 32 bits */
-  if ((value & 0x04) == 0x04)
+  if ((value & AT86RF215_BBCn_PC_FCST_MASK) == AT86RF215_BBCn_PC_FCST_MASK)
   {
     return 2;
   }
