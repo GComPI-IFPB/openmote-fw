@@ -134,7 +134,7 @@ void At86rf215::configure(RadioCore rc, const radio_settings_t* radio_settings, 
 
   /* Get RFn and BBCn base address based on radio core */
   rf_base  = getRFRegisterAddress(rc, 0x00);
-  bbc_base = getFBRegisterAddress(rc, 0x00);
+  bbc_base = getBBCRegisterAddress(rc, 0x00);
 
   /* Configure default settings */
   for (uint16_t i = 0; i < sizeof(irq_settings)/sizeof(irq_settings[0]); i++)
