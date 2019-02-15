@@ -100,6 +100,8 @@ public:
   
   RadioResult loadPacket(RadioCore rc, uint8_t* data, uint16_t length);
   RadioResult getPacket(RadioCore rc, uint8_t* buffer, uint16_t* length, int8_t* rssi, int8_t* lqi, bool* crc);
+public:
+  void setContinuousTransmission(RadioCore rc, bool enable);
 protected:
   void interruptHandler(void);
   void interruptHandler_rf24(uint8_t rf24_irqs, uint8_t bbc24_irqs); 
@@ -117,6 +119,7 @@ private:
   uint16_t getRFRegisterAddress(RadioCore rc, uint16_t address);
   uint16_t getBBCRegisterAddress(RadioCore rc, uint16_t address);
   uint16_t getFBRegisterAddress(RadioCore rc, uint16_t address);
+  uint16_t getCRCLength(RadioCore rc);
 private:
   Spi& spi_;
   
@@ -140,7 +143,7 @@ private:
   uint8_t rf09_irqm, rf24_irqm;
   uint8_t bbc0_irqm, bbc1_irqm;
 
-  uint8_t fcs_length;
+  uint8_t crc_length;
 };
 
 #endif /* AT86RF215_HPP_ */
