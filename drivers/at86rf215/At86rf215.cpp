@@ -350,11 +350,9 @@ At86rf215::RadioResult At86rf215::loadPacket(RadioCore rc, uint8_t* data, uint16
 
 At86rf215::RadioResult At86rf215::getPacket(RadioCore rc, uint8_t* buffer, uint16_t* length, int8_t* rssi, int8_t* lqi, bool* crc)
 {
-  uint16_t bbc_rxfll;
+  uint16_t bbc_rxfll, bbc_pc;
+  uint16_t rf_rssi, rf_edv;
   uint16_t bbc_fbrxs;
-  uint16_t rf_edv;
-  uint16_t rf_rssi;
-  uint16_t bbc_pc;
   uint16_t scratch;
   uint8_t scratch_buffer[2];
   uint8_t byte;
@@ -370,8 +368,7 @@ At86rf215::RadioResult At86rf215::getPacket(RadioCore rc, uint8_t* buffer, uint1
   blockAccessRead(bbc_rxfll, scratch_buffer, 2);
   
   /* Compute packet length */
-  scratch = 0;
-  scratch |= (scratch_buffer[0] << 0);
+  scratch  = (scratch_buffer[0] << 0);
   scratch |= (scratch_buffer[1] << 8);
   
   /* Account for CRC length */
@@ -420,11 +417,11 @@ void At86rf215::setContinuousTransmission(RadioCore rc, bool enable)
   /* Enable or disable the continuous transmission bit */
   if (enable)
   {
-    value = value | AT86RF215_BBCn_PC_CTX_MASK;
+    value |= AT86RF215_BBCn_PC_CTX_MASK;
   }
   else
   {
-    value = value ^ AT86RF215_BBCn_PC_CTX_MASK;
+    value ^= AT86RF215_BBCn_PC_CTX_MASK;
   }
   
   /* Write BBCn_PC register */
