@@ -33,6 +33,7 @@
 #define AT86RF215_RFn_PAC_PACUR_MASK    ( 0x60 )
 #define AT86RF215_BBCn_PC_CTX_MASK      ( 0x80 )
 #define AT86RF215_BBCn_PC_FCST_MASK     ( 0x08 )
+#define AT86RF215_BBCn_PC_FCSOK_MASK    ( 0x20 )
 
 /*================================ typedef ==================================*/
 
@@ -189,12 +190,12 @@ void At86rf215::configure(RadioCore rc, const radio_settings_t* radio_settings, 
 
 void At86rf215::wakeup(RadioCore rc)
 {
-    goToState(rc, RadioCommand::CMD_TRXOFF, RadioState::STATE_TRXOFF);
+  goToState(rc, RadioCommand::CMD_TRXOFF, RadioState::STATE_TRXOFF);
 }
 
 void At86rf215::ready(RadioCore rc)
 {
-    goToState(rc, RadioCommand::CMD_TXPREP, RadioState::STATE_TXPREP);
+  goToState(rc, RadioCommand::CMD_TXPREP, RadioState::STATE_TXPREP);
 }
 
 void At86rf215::transmit(RadioCore rc)
@@ -257,7 +258,7 @@ void At86rf215::disableInterrupts(void)
 At86rf215::RadioResult At86rf215::getRSSI(RadioCore rc, int8_t* rssi)
 {
   uint16_t address;
-    int8_t value;
+  int8_t value;
   
   /* Select RSSI register address */
   address = getRFRegisterAddress(rc, RFn_RSSI);
@@ -398,7 +399,7 @@ At86rf215::RadioResult At86rf215::getPacket(RadioCore rc, uint8_t* buffer, uint1
   
   /* Read packet CRC */
   singleAccessRead(bbc_pc, &byte);
-  *crc = (bool)( byte >> 5);
+  *crc = (bool)((byte & AT86RF215_BBCn_PC_FCSOK_MASK) == AT86RF215_BBCn_PC_FCSOK_MASK);
   
   return RadioResult::Success;
 }
