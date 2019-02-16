@@ -11,22 +11,20 @@
 
 /*================================ include ==================================*/
 
-#include "FreeRTOS.h"
-#include "task.h"
+#include "BoardImplementation.hpp"
 
-#include "board.h"
+#include "Gpio.hpp"
+#include "Crc16.hpp"
 
-#include "Crc16.h"
-#include "Scheduler.h"
-#include "Semaphore.h"
-#include "Task.h"
+#include "Callback.hpp"
+#include "Scheduler.hpp"
+#include "Semaphore.hpp"
+#include "Task.hpp"
 
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 1 )
 #define CRC_TASK_PRIORITY                   ( tskIDLE_PRIORITY + 0 )
-
-#define SPI_BAUDRATE                        ( 8000000 )
 
 /*================================ typedef ==================================*/
 
@@ -37,24 +35,20 @@ static void prvCrcTask(void *pvParameters);
 
 /*=============================== variables =================================*/
 
+static Task heartbeatTask{(const char *) "Green", 128, GREEN_LED_TASK_PRIORITY, prvGreenLedTask, nullptr};
+static Task crcTask{(const char *) "Crc", 128, CRC_TASK_PRIORITY, prvCrcTask, nullptr};
+
 static Crc16 crc16;
 
 /*================================= public ==================================*/
 
 int main (void)
 {
-    // Initialize board
-    board.init();
+  /* Initialize board */
+  board.init();
 
-    // Enable the SPI peripheral
-    spi.enable(SPI_BAUDRATE);
-
-    // Create two FreeRTOS tasks
-    xTaskCreate(prvGreenLedTask, (const char *) "Green", 128, NULL, GREEN_LED_TASK_PRIORITY, NULL);
-    xTaskCreate(prvCrcTask, (const char *) "Crc", 128, NULL, CRC_TASK_PRIORITY, NULL);
-
-    // Start the scheduler
-    Scheduler::run();
+  /* Start the scheduler */
+  Scheduler::run();
 }
 
 /*=============================== protected =================================*/
@@ -64,11 +58,11 @@ int main (void)
 static void prvCrcTask(void *pvParameters)
 {
     uint8_t crc_test[9] = {0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39};
-    uint16_t crc_output;
+    uint16_t crc_output, crc_result = 0x29B1;
     uint8_t * ptr = crc_test;
     uint8_t size = sizeof(crc_test);
 
-    // Forever
+    /* Forever */
     while(true)
     {
         ptr = crc_test;
@@ -80,24 +74,7 @@ static void prvCrcTask(void *pvParameters)
         }
         crc_output = crc16.get();
 
-        uint8_t high = (crc_output >> 8) & 0xFF;
-        uint8_t low = (crc_output >> 0) & 0xFF;
-
-        spi.rwByte(high);
-        spi.rwByte(low);
-
-        crc16.set(high);
-        crc16.set(low);
-
-        crc_output = crc16.get();
-
-        high = (crc_output >> 8) & 0xFF;
-        low = (crc_output >> 0) & 0xFF;
-
-        spi.rwByte(high);
-        spi.rwByte(low);
-
-        if (crc16.check())
+        if (crc_output == crc_result)
         {
             led_yellow.on();
         }
@@ -105,27 +82,26 @@ static void prvCrcTask(void *pvParameters)
             led_red.on();
         }
 
-        Task::delay(250);
+        Scheduler::delay_ms(250);
 
         led_red.off();
         led_yellow.off();
 
-        Task::delay(250);
+        Scheduler::delay_ms(250);
     }
 }
 
 static void prvGreenLedTask(void *pvParameters)
 {
-    // Forever
-    while (true)
-    {
-        // Turn off green LED for 950 ms
-        led_green.off();
-        Task::delay(950);
+  /* Forever */
+  while (true)
+  {
+    /* Turn off green LED for 950 ms */
+    led_green.off();
+    Scheduler::delay_ms(900);
 
-        // Turn on green LED for 50 ms
-        led_green.on();
-        Task::delay(50);
-
-    }
+    /* Turn on green LED for 50 ms */
+    led_green.on();
+    Scheduler::delay_ms(100);
+  }
 }
