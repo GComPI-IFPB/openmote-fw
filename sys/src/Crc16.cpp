@@ -17,12 +17,12 @@
 
 /*================================ define ===================================*/
 
+#define CRC16_SEED                  ( 0x0000 )
+#define CRC16_OK                    ( 0x0000 )
+
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
-
-static const uint16_t crc_seed = 0x0000;
-static const uint16_t crc_ok   = 0x0000;
 
 /* CRC-16 BUYPASS table with 0x8005 polynomial and 0x0000 seed */
 static const uint16_t lut[256] =
@@ -66,13 +66,13 @@ static const uint16_t lut[256] =
 /*================================= public ==================================*/
 
 Crc16::Crc16(void):
-  crc_(crc_seed)
+  crc_(CRC16_SEED)
 {
 }
 
 void Crc16::init(void)
 {
-  crc_ = crc_seed;
+  crc_ = CRC16_SEED;
 }
 
 uint16_t Crc16::get(void)
@@ -87,7 +87,7 @@ void Crc16::set(uint8_t byte)
 
 bool Crc16::check(void)
 {
-  return (crc_ == crc_ok);
+  return (crc_ == CRC16_OK);
 }
 
 /*=============================== protected =================================*/

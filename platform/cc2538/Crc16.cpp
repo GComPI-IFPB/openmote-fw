@@ -18,22 +18,19 @@
 
 /*================================ define ===================================*/
 
-
-#define SOC_ADC_ADCCON1_RCTRL0                  ( 0x00000004 )
-#define SOC_ADC_ADCCON1_RCTRL1                  ( 0x00000008 )
+#define CRC16_SEED                  ( 0x0000 )
+#define CRC16_OK                    ( 0x0000 )
 
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
-
-static const uint16_t crc_ok   = 0x0000;
 
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/
 
 Crc16::Crc16(void):
-  crc_(crc_seed)
+  crc_(CRC16_SEED)
 {
 }
 
@@ -58,7 +55,7 @@ void Crc16::set(uint8_t byte)
 bool Crc16::check(void)
 {
   crc_ = (HWREG(SOC_ADC_RNDH) << 8) | (HWREG(SOC_ADC_RNDL) << 0);
-  return (crc_ == crc_ok);
+  return (crc_ == CRC16_OK);
 }
 
 /*=============================== protected =================================*/
