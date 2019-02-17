@@ -31,14 +31,14 @@
 #define RADIO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
 #define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 2 )
 
-#define UART_BAUDRATE                       ( 921600 )
+#define UART_BAUDRATE                       ( 1267200 )
 #define SPI_BAUDRATE                        ( 16000000 )
 
 #define BUFFER_LENGTH                       ( 1024 )
 
 #define RADIO_CORE                          ( At86rf215::CORE_RF09 )
-#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM_2_MCS_5] )
-#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM_2] )
+#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM_1_MCS_3] )
+#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM_1] )
 #define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_MIN )
 
 /*================================ typedef ==================================*/
@@ -171,7 +171,7 @@ static void prvRadioTask(void *pvParameters)
       {
         led_yellow.off();
       }
-      
+
       /* Go back to ready */
       at86rf215.ready(RADIO_CORE);
     }
@@ -179,7 +179,7 @@ static void prvRadioTask(void *pvParameters)
     else
     {
       bool sent;
-      
+
       /* Initialize packet pointer and length */
       uint8_t* buffer_ptr = radio_tx_buffer;
       uint16_t buffer_len = radio_tx_buffer_len;
@@ -192,12 +192,6 @@ static void prvRadioTask(void *pvParameters)
       
       /* Wait until packet has been transmitted */
       sent = tx_semaphore.take();
-      if (sent == true)
-      {
-        led_red.on();
-        Scheduler::delay_ms(1);
-        led_red.off();
-      }
       
       /* Go back to ready */
       at86rf215.ready(RADIO_CORE);
