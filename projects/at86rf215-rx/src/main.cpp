@@ -30,12 +30,12 @@
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
 #define RADIO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
 
-#define UART_BAUDRATE						            ( 921600 )
+#define UART_BAUDRATE						            ( 1267200 )
 #define SPI_BAUDRATE                        ( 16000000 )
 
 #define RADIO_CORE                          ( At86rf215::CORE_RF09 )
-#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM_2_MCS_5] )
-#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM_2] )
+#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM_1_MCS_3] )
+#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM_1] )
 #define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_MIN )
 
 /*================================ typedef ==================================*/
@@ -60,7 +60,7 @@ static PlainCallback radio_rx_done_cb(&radio_rx_done);
 
 static SemaphoreBinary semaphore(false);
 
-static uint8_t radio_packet[1000];
+static uint8_t radio_packet[1024];
 static uint16_t radio_packet_len = sizeof(radio_packet);
 
 /*================================= public ==================================*/
@@ -130,11 +130,11 @@ static void prvRadioTask(void *pvParameters)
     /* Ready to transmit */
     at86rf215.ready(RADIO_CORE);
     
-    /* Transmit packet */
+    /* Try to receive a packet */
     at86rf215.receive(RADIO_CORE);
     
-    /* Wait until packet has been received or 50 milliseconds */
-    received = semaphore.take(50);
+    /* Wait until packet has been received */
+    received = semaphore.take();
     
     /* If we have received a packet */
     if (received == true)
@@ -159,7 +159,7 @@ static void prvRadioTask(void *pvParameters)
     {
       /* Blink red LED */
       led_red.on();
-      Scheduler::delay_ms(5);
+      Scheduler::delay_ms(1);
       led_red.off();
     }
   }

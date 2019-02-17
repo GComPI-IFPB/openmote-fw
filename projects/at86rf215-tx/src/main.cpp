@@ -30,12 +30,12 @@
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
 #define RADIO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
 
-#define UART_BAUDRATE						            ( 921600 )
+#define UART_BAUDRATE						            ( 1267200 )
 #define SPI_BAUDRATE                        ( 16000000 )
 
 #define RADIO_CORE                          ( At86rf215::CORE_RF09 )
-#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM_2_MCS_5] )
-#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM_2] )
+#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM_1_MCS_3] )
+#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM_1] )
 #define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_MIN )
 
 /*================================ typedef ==================================*/
@@ -52,6 +52,7 @@ static void radio_tx_done(void);
 
 static Serial serial(uart);
 
+
 static Task heartbeatTask{(const char *) "Green", 128, GREEN_LED_TASK_PRIORITY, prvGreenLedTask, nullptr};
 static Task radioTask{(const char *) "Radio", 128, RADIO_TASK_PRIORITY, prvRadioTask, nullptr};
 
@@ -60,7 +61,7 @@ static PlainCallback radio_tx_done_cb(&radio_tx_done);
 
 static SemaphoreBinary semaphore(false);
 
-static uint8_t radio_buffer[127];
+static uint8_t radio_buffer[1020];
 static uint16_t radio_buffer_len = sizeof(radio_buffer);
 
 /*================================= public ==================================*/
@@ -91,7 +92,7 @@ static void prvRadioTask(void *pvParameters)
 
   for (uint16_t i = 0; i < radio_buffer_len; i++)
   {
-    radio_buffer[i] = i;
+    radio_buffer[i] = 'a';
   }
   
   /* Turn AT86RF215 radio on */
@@ -128,36 +129,25 @@ static void prvRadioTask(void *pvParameters)
     
     /* Ready to transmit */
     at86rf215.ready(RADIO_CORE);
-    
+        
     /* Transmit packet */
     at86rf215.transmit(RADIO_CORE);
     
-    /* Wait until packet has been transmitted or 50 milliseconds */
-    sent = semaphore.take(50);
+    /* Wait until packet has been transmitted */
+    sent = semaphore.take();
     if (sent == true)
     {
       /* Blink yellow LED */
       led_yellow.on();
-      Scheduler::delay_ms(5);
+      Scheduler::delay_ms(1);
       led_yellow.off();
     }
     else
     {
       /* Blink red LED */
       led_red.on();
-      Scheduler::delay_ms(5);
+      Scheduler::delay_ms(1);
       led_red.off();
-    }
-        
-    /* Calculate sleep time */
-    stop_ms = Scheduler::get_ms();
-    sleep_ms = 50 - (stop_ms - start_ms);
-    
-    /* If possible, go to sleep */
-    if (sleep_ms > 0)
-    {
-      /* Delay 25 ms until next packet */
-      Scheduler::delay_ms(sleep_ms);
     }
   }
   
