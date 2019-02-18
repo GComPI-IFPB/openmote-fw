@@ -24,7 +24,7 @@ public:
 public:
   static void init(void* params);
 protected:
-  virtual void run(void);
+  virtual void run(void) = 0;
 protected:
   TaskHandle_t handle_;
 	const char* const name_;
