@@ -80,7 +80,7 @@ void SerialParser::run(void)
         case CMD_TX:
           result = parse_transmit(params);
           break;
-        case CMD_TX_CONT:
+        case CMD_TX_INTERF:
           result = parse_transmit_continuous(params);
           break;
         default:
@@ -147,15 +147,16 @@ bool SerialParser::parse_reset(uint8_t* params)
 
 bool SerialParser::parse_config(uint8_t* params)
 {
-  uint8_t rc, settings, frequency, power;
+  uint8_t rc, settings, frequency, length, power;
   bool result;
   
   rc        = params[0]; 
   settings  = params[1];
   frequency = params[2];
-  power     = params[3];
+  length    = params[3];
+  power     = params[4];
   
-  result = callbacks_.config(rc, settings, frequency, power);
+  result = callbacks_.config(rc, settings, frequency, length, power);
   
   return result;
 }
@@ -164,10 +165,12 @@ bool SerialParser::parse_receive(uint8_t* params)
 {
   bool result;
   uint8_t rc;
+  uint8_t timeout_ms;
   
-  rc  = params[0];
+  rc = params[0];
+  timeout_ms = params[1];
   
-  result = callbacks_.receive(rc);
+  result = callbacks_.receive(rc, timeout_ms);
   
   return result;
 }

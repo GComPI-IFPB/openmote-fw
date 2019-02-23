@@ -35,7 +35,7 @@
 #define SPI_BAUDRATE                        ( 16000000 )
 
 #define RADIO_RX_BUFFER_LENGTH              ( 128 )
-#define RADIO_TX_BUFFER_LENGTH              ( 128 )
+#define RADIO_TX_BUFFER_LENGTH              ( 123 )
 #define RADIO_TX_BUFFER_FILL                ( 0x55 )
 
 /*================================ typedef ==================================*/
@@ -47,8 +47,8 @@ static void prvGreenLedTask(void *pvParameters);
 static bool radio_on(uint8_t rc);
 static bool radio_off(uint8_t rc);
 static bool radio_reset(uint8_t rc);
-static bool radio_config(uint8_t rc, uint8_t settings, uint8_t frequency, uint8_t power);
-static bool radio_receive_packet(uint8_t rc);
+static bool radio_config(uint8_t rc, uint8_t settings, uint8_t frequency, uint8_t length, uint8_t power);
+static bool radio_receive_packet(uint8_t rc, uint8_t timeout_ms);
 static bool radio_transmit_packet(uint8_t rc);
 static bool radio_transmit_continuous(uint8_t rc, bool enable);
 static At86rf215::RadioCore get_radio_core(uint8_t rc);
@@ -150,6 +150,7 @@ static bool radio_on(uint8_t rc)
   At86rf215::RadioCore rc_;
   bool status;
   
+  /* Turn on orange LED */
   led_orange.on();
   
   /* Get radio core */
@@ -189,6 +190,7 @@ static bool radio_off(uint8_t rc)
   /* Turn AT86RF215 radio off */
   at86rf215.off();
   
+  /* Turn off orange LED */
   led_orange.off();
   
   return true;
@@ -204,10 +206,16 @@ static bool radio_reset(uint8_t rc)
   /* Reset radio */
   at86rf215.hardReset();
   
+  /* Turn off yellow and orange LEDs */
+  led_yellow.off();
+  led_orange.off();
+  
+  board.reset();
+  
   return true;
 }
 
-static bool radio_config(uint8_t rc, uint8_t settings, uint8_t frequency, uint8_t power)
+static bool radio_config(uint8_t rc, uint8_t settings, uint8_t frequency, uint8_t length, uint8_t power)
 {
   At86rf215::RadioCore rc_;
   
@@ -238,10 +246,13 @@ static bool radio_config(uint8_t rc, uint8_t settings, uint8_t frequency, uint8_
     return false;
   }
   
+  /* Set packet length */
+  radio_tx_buffer_len = length;
+  
   return true;
 }
 
-static bool radio_receive_packet(uint8_t rc)
+static bool radio_receive_packet(uint8_t rc, uint8_t timeout_ms)
 {
   At86rf215::RadioCore rc_;
   At86rf215::RadioResult result;
@@ -259,7 +270,7 @@ static bool radio_receive_packet(uint8_t rc)
   at86rf215.receive(rc_);
   
   /* Wait until packet has been received */
-  received = semaphore_rx.take();
+  received = semaphore_rx.take(10 * timeout_ms);
   
   /* If we have received a packet */
   if (received == true)
@@ -277,6 +288,13 @@ static bool radio_receive_packet(uint8_t rc)
       received = false;
     }
   }
+  else
+  {
+    received = false;
+  }
+  
+  /* Turn off orange LED */
+  led_orange.off();
   
   return received;
 }
@@ -293,7 +311,7 @@ static bool radio_transmit_packet(uint8_t rc)
   at86rf215.ready(rc_);
   
   /* Load packet to radio */
-  at86rf215.loadPacket(rc_, radio_rx_buffer, radio_rx_buffer_len);
+  at86rf215.loadPacket(rc_, radio_tx_buffer, radio_tx_buffer_len);
   
   /* Transmit packet */
   at86rf215.transmit(rc_);
@@ -318,7 +336,7 @@ static bool radio_transmit_continuous(uint8_t rc, bool enable)
   at86rf215.ready(rc_);
   
   /* Load packet to radio */
-  at86rf215.loadPacket(rc_, radio_rx_buffer, radio_rx_buffer_len);
+  at86rf215.loadPacket(rc_, radio_tx_buffer, radio_tx_buffer_len);
   
   /* Transmit packet */
   at86rf215.transmit(rc_);
@@ -329,13 +347,13 @@ static bool radio_transmit_continuous(uint8_t rc, bool enable)
 static void radio_rx_init(void)
 {
   /* Turn on orange LED */
-  led_orange.on();
+  led_yellow.on();
 }
 
 static void radio_rx_done(void)
 {
   /* Turn off orange LED */
-  led_orange.off();
+  led_yellow.off();
 
   /* Notify we have transmitted a packet */
   semaphore_rx.giveFromInterrupt();
@@ -344,13 +362,13 @@ static void radio_rx_done(void)
 static void radio_tx_init(void)
 {
   /* Turn on orange LED */
-  led_orange.on();
+  led_yellow.on();
 }
 
 static void radio_tx_done(void)
 {
   /* Turn off orange LED */
-  led_orange.off();
+  led_yellow.off();
 
   /* Notify we have transmitted a packet */
   semaphore_tx.giveFromInterrupt();

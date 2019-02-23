@@ -21,14 +21,14 @@ class Serial;
 
 typedef enum
 {
-  CMD_ERROR   = 0x00,
-  CMD_ON      = 0x01,
-  CMD_OFF     = 0x02,
-  CMD_RST     = 0x03,
-  CMD_CFG     = 0x04,
-  CMD_RX      = 0x05,
-  CMD_TX      = 0x06,
-  CMD_TX_CONT = 0x07,
+  CMD_ERROR     = 0x00,
+  CMD_ON        = 0x01,
+  CMD_OFF       = 0x02,
+  CMD_RST       = 0x03,
+  CMD_CFG       = 0x04,
+  CMD_RX        = 0x05,
+  CMD_TX        = 0x06,
+  CMD_TX_INTERF = 0x07,
 } SerialCommand;
 
 typedef enum
@@ -52,8 +52,8 @@ typedef struct
   bool (* on)(uint8_t rc);
   bool (* off)(uint8_t rc);
   bool (* reset)(uint8_t rc);
-  bool (* config)(uint8_t rc, uint8_t settings, uint8_t frequency, uint8_t power);
-  bool (* receive)(uint8_t rc);
+  bool (* config)(uint8_t rc, uint8_t settings, uint8_t frequency, uint8_t length, uint8_t power);
+  bool (* receive)(uint8_t rc, uint8_t timeout_ms);
   bool (* transmit)(uint8_t rc);
   bool (* transmit_continuous)(uint8_t rc, bool enable);
 } SerialCallbacks;
