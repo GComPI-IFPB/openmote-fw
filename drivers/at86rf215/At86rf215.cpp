@@ -129,8 +129,8 @@ void At86rf215::configure(RadioCore rc, const radio_settings_t* radio_settings, 
     {RFn_CCF0L, (uint8_t) ((frequency_settings->frequency0 / 25) % 256)},
     {RFn_CCF0H, (uint8_t) ((frequency_settings->frequency0 / 25) / 256)},
     {RFn_CS,    (uint8_t) (frequency_settings->channel_spacing / 25)},
-    {RFn_CNL,   (uint8_t) (frequency_settings->channel % 256)},
-    {RFn_CNM,   (uint8_t) (frequency_settings->channel / 256)},
+    {RFn_CNL,   (uint8_t) (frequency_settings->channel_min % 256)},
+    {RFn_CNM,   (uint8_t) (frequency_settings->channel_min / 256)},
   };
 
   /* Get RFn and BBCn base address based on radio core */

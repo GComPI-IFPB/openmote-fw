@@ -32,7 +32,8 @@ typedef struct
 {
   uint32_t frequency0;
   uint16_t channel_spacing;
-  uint16_t channel;
+  uint16_t channel_min;
+  uint16_t channel_max;
 } frequency_settings_t;
 
 /**
@@ -40,47 +41,51 @@ typedef struct
  * http://rfmw.em.keysight.com/wireless/helpfiles/n7610b/Content/Main/802.15.4g%20MR_OFDM.htm
  */
 enum {
-  CONFIG_FSK_OPTION_1 = 0,
-  CONFIG_FSK_OPTION_2,
-  CONFIG_FSK_OPTION_3,
-  CONFIG_OQPSK_RATE_1,
-  CONFIG_OQPSK_RATE_2,
-  CONFIG_OQPSK_RATE_3,
-  CONFIG_OQPSK_RATE_4,
-  CONFIG_OQPSK_RATE_5,
-  CONFIG_OFDM_1_MCS_0, /* BPSK, rate 1/2, 4x repetition, 100 kbps */
-  CONFIG_OFDM_1_MCS_1, /* BPSK, rate 1/2, 2x repetition, 200 kbps */
-  CONFIG_OFDM_1_MCS_2, /* QPSK, rate 1/2, 2x repetition, 400 kbps */
-  CONFIG_OFDM_1_MCS_3, /* QPSK, rate 1/2, 0x repetition, 800 kbps */
-  CONFIG_OFDM_2_MCS_0, /* BPSK, rate 1/2, 4x repetition,  50 kbps */
-  CONFIG_OFDM_2_MCS_1, /* BPSK, rate 1/2, 2x repetition, 100 kbps */
-  CONFIG_OFDM_2_MCS_2, /* QPSK, rate 1/2, 2x repetition, 200 kbps */
-  CONFIG_OFDM_2_MCS_3, /* QPSK, rate 1/2, 0x repetition, 400 kbps */
-  CONFIG_OFDM_2_MCS_4, /* QPSK, rate 3/4, 0x repetition, 600 kbps */
-  CONFIG_OFDM_2_MCS_5, /* QAM,  rate 1/2, 0x repetition, 800 kbps */
-  CONFIG_OFDM_3_MCS_1, /* BPSK, rate 1/2, 2x repetition,  50 kbps */
-  CONFIG_OFDM_3_MCS_2, /* QPSK, rate 1/2, 2x repetition, 100 kbps */
-  CONFIG_OFDM_3_MCS_3, /* QPSK, rate 1/2, 0x repetition, 200 kbps */
-  CONFIG_OFDM_3_MCS_4, /* QPSK, rate 3/4, 0x repetition, 300 kbps */
-  CONFIG_OFDM_3_MCS_5, /* QAM,  rate 1/2, 0x repetition, 400 kbps */
-  CONFIG_OFDM_3_MCS_6, /* QAM,  rate 3/4, 0x repetition, 600 kbps */
-  CONFIG_OFDM_4_MCS_2, /* QPSK, rate 1/2, 2x repetition,  50 kbps */
-  CONFIG_OFDM_4_MCS_3, /* QPSK, rate 1/2, 0x repetition, 100 kbps */
-  CONFIG_OFDM_4_MCS_4, /* QPSK, rate 3/4, 0x repetition, 150 kbps */
-  CONFIG_OFDM_4_MCS_5, /* QAM,  rate 1/2, 0x repetition, 200 kbps */
-  CONFIG_OFDM_4_MCS_6, /* QAM,  rate 3/4, 0x repetition, 300 kbps */
+  CONFIG_FSK_OPTION1 = 0,
+  CONFIG_FSK_OPTION2,
+  CONFIG_FSK_OPTION3,
+  CONFIG_OQPSK_RATE1,
+  CONFIG_OQPSK_RATE2,
+  CONFIG_OQPSK_RATE3,
+  CONFIG_OQPSK_RATE4,
+  CONFIG_OQPSK_RATE5,
+  CONFIG_OFDM1_MCS0, /* BPSK,   rate 1/2, 4x repetition,  100 kbps */
+  CONFIG_OFDM1_MCS1, /* BPSK,   rate 1/2, 2x repetition,  200 kbps */
+  CONFIG_OFDM1_MCS2, /* QPSK,   rate 1/2, 2x repetition,  400 kbps */
+  CONFIG_OFDM1_MCS3, /* QPSK,   rate 1/2, 0x repetition,  800 kbps */
+  CONFIG_OFDM1_MCS4, /* QPSK,   rate 3/4, 0x repetition, 1200 kbps */
+  CONFIG_OFDM1_MCS5, /* 16-QAM, rate 1/2, 0x repetition, 1600 kbps */
+  CONFIG_OFDM1_MCS6, /* 16-QAM, rate 3/4, 0x repetition, 2400 kbps */
+  CONFIG_OFDM2_MCS0, /* BPSK,   rate 1/2, 4x repetition,   50 kbps */
+  CONFIG_OFDM2_MCS1, /* BPSK,   rate 1/2, 2x repetition,  100 kbps */
+  CONFIG_OFDM2_MCS2, /* QPSK,   rate 1/2, 2x repetition,  200 kbps */
+  CONFIG_OFDM2_MCS3, /* QPSK,   rate 1/2, 0x repetition,  400 kbps */
+  CONFIG_OFDM2_MCS4, /* QPSK,   rate 3/4, 0x repetition,  600 kbps */
+  CONFIG_OFDM2_MCS5, /* 16-QAM, rate 1/2, 0x repetition,  800 kbps */
+  CONFIG_OFDM2_MCS6, /* 16-QAM, rate 3/4, 0x repetition, 1200 kbps */
+  CONFIG_OFDM3_MCS1, /* BPSK,   rate 1/2, 2x repetition,   50 kbps */
+  CONFIG_OFDM3_MCS2, /* QPSK,   rate 1/2, 2x repetition,  100 kbps */
+  CONFIG_OFDM3_MCS3, /* QPSK,   rate 1/2, 0x repetition,  200 kbps */
+  CONFIG_OFDM3_MCS4, /* QPSK,   rate 3/4, 0x repetition,  300 kbps */
+  CONFIG_OFDM3_MCS5, /* 16-QAM, rate 1/2, 0x repetition,  400 kbps */
+  CONFIG_OFDM3_MCS6, /* 16-QAM, rate 3/4, 0x repetition,  600 kbps */
+  CONFIG_OFDM4_MCS2, /* QPSK,   rate 1/2, 2x repetition,   50 kbps */
+  CONFIG_OFDM4_MCS3, /* QPSK,   rate 1/2, 0x repetition,  100 kbps */
+  CONFIG_OFDM4_MCS4, /* QPSK,   rate 3/4, 0x repetition,  150 kbps */
+  CONFIG_OFDM4_MCS5, /* 16-QAM, rate 1/2, 0x repetition,  200 kbps */
+  CONFIG_OFDM4_MCS6, /* 16-QAM, rate 3/4, 0x repetition,  300 kbps */
   CONFIG_ELEMENTS
 };
 
 enum {
-  FREQUENCY_FSK_1 = 0, /* FSK Mode 1,   200 kHz */
-  FREQUENCY_FSK_2,     /* FSK Mode 2,   400 kHz */
-  FREQUENCY_FSK_3,     /* FSK Mode 3,   400 kHz */
-  FREQUENCY_OQPSK_1,   /* OQPSK,        600 kHz */
-  FREQUENCY_OFDM_1,    /* OFDM Mode 1, 1200 kHz */
-  FREQUENCY_OFDM_2,    /* OFDM Mode 2,  800 kHz */
-  FREQUENCY_OFDM_3,    /* OFDM Mode 3,  400 kHz */
-  FREQUENCY_OFDM_4,    /* OFDM Mode 4,  200 kHz */
+  FREQUENCY_FSK1 = 0, /* FSK Mode 1,   200 kHz */
+  FREQUENCY_FSK2,     /* FSK Mode 2,   400 kHz */
+  FREQUENCY_FSK3,     /* FSK Mode 3,   400 kHz */
+  FREQUENCY_OQPSK1,   /* OQPSK,        600 kHz */
+  FREQUENCY_OFDM1,    /* OFDM Mode 1, 1200 kHz */
+  FREQUENCY_OFDM2,    /* OFDM Mode 2,  800 kHz */
+  FREQUENCY_OFDM3,    /* OFDM Mode 3,  400 kHz */
+  FREQUENCY_OFDM4,    /* OFDM Mode 4,  200 kHz */
   FREQUENCY_ELEMENTS
 };
 
