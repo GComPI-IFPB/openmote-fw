@@ -187,7 +187,7 @@ class Serial(threading.Thread):
     def receive(self, timeout = 0.001):
         status  = True
         message = []
-        length  = 0
+        length  = -1
         
         # Acquire the lock
         self.receive_condition.acquire()
