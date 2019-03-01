@@ -1,4 +1,4 @@
-    /**
+/**
  * @file       main.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
@@ -43,17 +43,17 @@ static SemaphoreBinary buttonSemaphore;
 
 static PlainCallback userCallback {buttonCallback};
 
-static Task heartbeatTask{(const char *) "Green", 128, GREEN_LED_TASK_PRIORITY, prvGreenLedTask, nullptr};
-static Task buttonTask{(const char *) "Button", 128, BUTTON_TASK_PRIORITY, prvButtonTask, nullptr};
+static Task heartbeatTask {(const char *) "Green", 128, GREEN_LED_TASK_PRIORITY, prvGreenLedTask, nullptr};
+static Task buttonTask {(const char *) "Button", 128, BUTTON_TASK_PRIORITY, prvButtonTask, nullptr};
 
 /*================================= public ==================================*/
 
 int main(void)
 {
-  // Initialize the board
+  /* Initialize the board */
   board.init();
 
-  // Start the scheduler
+  /* Start the scheduler */
   Scheduler::run();
 }
 
@@ -61,25 +61,25 @@ int main(void)
 
 static void buttonCallback(void)
 {
-	// Give the buttonSemaphore from the interrupt
+	/* Give the buttonSemaphore from the interrupt */
   buttonSemaphore.giveFromInterrupt();
 }
 
 static void prvButtonTask(void *pvParameters)
 {
-  // Configure the user button
+  /* Configure the user button */
   button_user.setCallback(&userCallback);
   button_user.enableInterrupts();
 
   buttonSemaphore.take();
 
-  // Forever
+  /* Forever */
   while (true)
   {
-    // Take the buttonSemaphore, block until available
+    /* Take the buttonSemaphore, block until available */
     if (buttonSemaphore.take())
     {
-        // Toggle the red LED
+        /* Toggle the red LED */
         led_red.toggle();
     }
   }
@@ -87,14 +87,14 @@ static void prvButtonTask(void *pvParameters)
 
 static void prvGreenLedTask(void *pvParameters)
 {
-  // Forever
+  /* Forever */
   while (true)
   {
-    // Turn on green LED for 100 ms
+    /* Turn on green LED for 100 ms */
     led_green.on();
     Scheduler::delay_ms(100);
     
-    // Turn off green LED for 900 ms
+    /* Turn off green LED for 900 ms */
     led_green.off();
     Scheduler::delay_ms(900);
   }
