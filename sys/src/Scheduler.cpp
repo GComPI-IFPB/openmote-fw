@@ -40,13 +40,18 @@ void Scheduler::yield(void)
   taskYIELD();
 }
 
+uint32_t Scheduler::get_ticks(void)
+{
+  return xTaskGetTickCount();
+}
+
 uint32_t Scheduler::get_ms(void)
 {
   TickType_t ticks = xTaskGetTickCount();
   return ticks / portTICK_PERIOD_MS;
 }
 
-void Scheduler::delay_ms(uint16_t ms)
+void Scheduler::delay_ms(uint32_t ms)
 {
   TickType_t ticks = pdMS_TO_TICKS(ms);
   vTaskDelay(ticks);
