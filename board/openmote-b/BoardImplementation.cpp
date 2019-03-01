@@ -91,8 +91,8 @@
 
 #define TIMER0A_PERIPHERAL      ( SYS_CTRL_PERIPH_GPT0 )
 #define TIMER0A_BASE            ( GPTIMER0_BASE )
-#define TIMER0A_SOURCE          ( GPTIMER_A )
-#define TIMER0A_CONFIG          ( GPTIMER_CFG_SPLIT_PAIR |  GPTIMER_CFG_A_PWM | GPTIMER_CFG_B_PERIODIC )
+#define TIMER0A_SOURCE          ( GPTIMER_BOTH )
+#define TIMER0A_CONFIG          ( GPTIMER_CFG_ONE_SHOT_UP )
 #define TIMER0A_INTERRUPT       ( INT_TIMER0A )
 #define TIMER0A_INTERRUPT_MODE  ( GPTIMER_TIMA_TIMEOUT )
 
@@ -149,38 +149,71 @@
 
 #define RADIO_TIMER_INTERRUPT   ( INT_MACTIMR )
 
-#define UART_PERIPHERAL         ( SYS_CTRL_PERIPH_UART0 )
-#define UART_BASE               ( UART0_BASE )
-#define UART_CLOCK              ( UART_CLOCK_SYSTEM )
-#define UART_INT                ( INT_UART0 )
-#define UART_BAUDRATE           ( 115200 )
-#define UART_MODE               ( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE )
+#define UART0_PERIPHERAL        ( SYS_CTRL_PERIPH_UART0 )
+#define UART0_BASE_ADDR         ( UART0_BASE )
+#define UART0_CLOCK             ( UART_CLOCK_SYSTEM )
+#define UART0_INT               ( INT_UART0 )
+#define UART0_BAUDRATE          ( 115200 )
+#define UART0_MODE              ( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE )
 
-#define UART_RX_PORT            ( GPIO_A_BASE )
-#define UART_RX_PIN             ( GPIO_PIN_0 )
-#define UART_RX_IOC             ( IOC_UARTRXD_UART0 )
-#define UART_TX_PORT            ( GPIO_A_BASE )
-#define UART_TX_PIN             ( GPIO_PIN_1 )
-#define UART_TX_IOC             ( IOC_MUX_OUT_SEL_UART0_TXD )
+#define UART0_RX_PORT           ( GPIO_A_BASE )
+#define UART0_RX_PIN            ( GPIO_PIN_0 )
+#define UART0_RX_IOC            ( IOC_UARTRXD_UART0 )
+#define UART0_TX_PORT           ( GPIO_A_BASE )
+#define UART0_TX_PIN            ( GPIO_PIN_1 )
+#define UART0_TX_IOC            ( IOC_MUX_OUT_SEL_UART0_TXD )
 
-#define SPI_PERIPHERAL          ( SYS_CTRL_PERIPH_SSI0 )
-#define SPI_BASE                ( SSI0_BASE )
-#define SPI_CLOCK               ( UART_CLOCK_SYSTEM )
-#define SPI_INT                 ( INT_SSI0 )
-#define SPI_MODE                ( SSI_MODE_MASTER )
-#define SPI_PROTOCOL            ( SSI_FRF_MOTO_MODE_0 )
-#define SPI_DATAWIDTH           ( 8 )
-#define SPI_BAUDRATE            ( 16000000 )
+#define UART1_PERIPHERAL        ( SYS_CTRL_PERIPH_UART1 )
+#define UART1_BASE_ADDR         ( UART1_BASE )
+#define UART1_CLOCK             ( UART_CLOCK_SYSTEM )
+#define UART1_INT               ( INT_UART1 )
+#define UART1_BAUDRATE          ( 115200 )
+#define UART1_MODE              ( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE )
 
-#define SPI_MISO_BASE           ( GPIO_A_BASE )
-#define SPI_MISO_PIN            ( GPIO_PIN_4 )
-#define SPI_MISO_IOC            ( IOC_SSIRXD_SSI0 )
-#define SPI_MOSI_BASE           ( GPIO_A_BASE )
-#define SPI_MOSI_PIN            ( GPIO_PIN_5 )
-#define SPI_MOSI_IOC            ( IOC_MUX_OUT_SEL_SSI0_TXD )
-#define SPI_CLK_BASE            ( GPIO_A_BASE )
-#define SPI_CLK_PIN             ( GPIO_PIN_2 )
-#define SPI_CLK_IOC             ( IOC_MUX_OUT_SEL_SSI0_CLKOUT )
+#define UART1_RX_PORT           ( GPIO_A_BASE )
+#define UART1_RX_PIN            ( GPIO_PIN_0 )
+#define UART1_RX_IOC            ( IOC_UARTRXD_UART1 )
+#define UART1_TX_PORT           ( GPIO_A_BASE )
+#define UART1_TX_PIN            ( GPIO_PIN_1 )
+#define UART1_TX_IOC            ( IOC_MUX_OUT_SEL_UART1_TXD )
+
+#define SPI0_PERIPHERAL         ( SYS_CTRL_PERIPH_SSI0 )
+#define SPI0_BASE_ADDR          ( SSI0_BASE )
+#define SPI0_CLOCK              ( SSI_CLOCK_SYSTEM )
+#define SPI0_INT                ( INT_SSI0 )
+#define SPI0_MODE               ( SSI_MODE_MASTER )
+#define SPI0_PROTOCOL           ( SSI_FRF_MOTO_MODE_0 )
+#define SPI0_DATAWIDTH          ( 8 )
+#define SPI0_BAUDRATE           ( 16000000 )
+
+#define SPI0_MISO_BASE          ( GPIO_A_BASE )
+#define SPI0_MISO_PIN           ( GPIO_PIN_4 )
+#define SPI0_MISO_IOC           ( IOC_SSIRXD_SSI0 )
+#define SPI0_MOSI_BASE          ( GPIO_A_BASE )
+#define SPI0_MOSI_PIN           ( GPIO_PIN_5 )
+#define SPI0_MOSI_IOC           ( IOC_MUX_OUT_SEL_SSI0_TXD )
+#define SPI0_CLK_BASE           ( GPIO_A_BASE )
+#define SPI0_CLK_PIN            ( GPIO_PIN_2 )
+#define SPI0_CLK_IOC            ( IOC_MUX_OUT_SEL_SSI0_CLKOUT )
+
+#define SPI1_PERIPHERAL         ( SYS_CTRL_PERIPH_SSI1 )
+#define SPI1_BASE_ADDR          ( SSI1_BASE )
+#define SPI1_CLOCK              ( SSI_CLOCK_SYSTEM )
+#define SPI1_INT                ( INT_SSI1 )
+#define SPI1_MODE               ( SSI_MODE_MASTER )
+#define SPI1_PROTOCOL           ( SSI_FRF_MOTO_MODE_3 )
+#define SPI1_DATAWIDTH          ( 8 )
+#define SPI1_BAUDRATE           ( 16000000 )
+
+#define SPI1_MISO_BASE          ( GPIO_B_BASE )
+#define SPI1_MISO_PIN           ( GPIO_PIN_1 )
+#define SPI1_MISO_IOC           ( IOC_SSIRXD_SSI1 )
+#define SPI1_MOSI_BASE          ( GPIO_B_BASE )
+#define SPI1_MOSI_PIN           ( GPIO_PIN_0 )
+#define SPI1_MOSI_IOC           ( IOC_MUX_OUT_SEL_SSI1_TXD )
+#define SPI1_CLK_BASE           ( GPIO_B_BASE )
+#define SPI1_CLK_PIN            ( GPIO_PIN_2 )
+#define SPI1_CLK_IOC            ( IOC_MUX_OUT_SEL_SSI1_CLKOUT )
 
 #define I2C_PERIPHERAL          ( SYS_CTRL_PERIPH_I2C )
 #define I2C_BAUDRATE            ( 400000 )
@@ -222,6 +255,8 @@ static const GpioConfig debug0_cfg {DEBUG0_PORT, DEBUG0_PIN, 0, 0, 0};
 static const GpioConfig debug1_cfg {DEBUG1_PORT, DEBUG1_PIN, 0, 0, 0};
 static const GpioConfig debug2_cfg {DEBUG2_PORT, DEBUG2_PIN, 0, 0, 0};
 static const GpioConfig debug3_cfg {DEBUG3_PORT, DEBUG3_PIN, 0, 0, 0};
+static const GpioConfig debug4_cfg {DEBUG4_PORT, DEBUG4_PIN, 0, 0, 0};
+static const GpioConfig debug5_cfg {DEBUG4_PORT, DEBUG5_PIN, 0, 0, 0};
 
 /* Buttons */
 static const GpioConfig button_user_cfg {BUTTON_USER_PORT, BUTTON_USER_PIN, 0, BUTTON_USER_EDGE, 0};
@@ -248,18 +283,27 @@ static const TimerConfig timer3b_cfg {TIMER3B_PERIPHERAL, TIMER3B_BASE, TIMER3B_
 /* I2C peripheral */
 static const GpioConfig i2c_scl_cfg {I2C_SCL_BASE, I2C_SCL_PIN, 0, 0, 0};
 static const GpioConfig i2c_sda_cfg {I2C_SDA_BASE, I2C_SDA_PIN, 0, 0, 0};
-static I2cConfig i2c_cfg      {I2C_PERIPHERAL, I2C_BAUDRATE};
+static I2cConfig i2c_cfg            {I2C_PERIPHERAL, I2C_BAUDRATE};
 
-/* SPI peripheraconst l */
-static const GpioConfig spi_miso_cfg {SPI_MISO_BASE, SPI_MISO_PIN, SPI_MISO_IOC, 0, 0};
-static const GpioConfig spi_mosi_cfg {SPI_MOSI_BASE, SPI_MOSI_PIN, SPI_MOSI_IOC, 0, 0};
-static const GpioConfig spi_clk_cfg  {SPI_CLK_BASE,  SPI_CLK_PIN,  SPI_CLK_IOC,  0, 0};
-static SpiConfig spi_cfg       {SPI_PERIPHERAL, SPI_BASE, SPI_CLOCK, SPI_INT, SPI_MODE, SPI_PROTOCOL, SPI_DATAWIDTH, SPI_BAUDRATE};
+/* SPI peripheral */
+static const GpioConfig spi0_miso_cfg {SPI0_MISO_BASE, SPI0_MISO_PIN, SPI0_MISO_IOC, 0, 0};
+static const GpioConfig spi0_mosi_cfg {SPI0_MOSI_BASE, SPI0_MOSI_PIN, SPI0_MOSI_IOC, 0, 0};
+static const GpioConfig spi0_clk_cfg  {SPI0_CLK_BASE,  SPI0_CLK_PIN,  SPI0_CLK_IOC,  0, 0};
+static SpiConfig spi0_cfg             {SPI0_PERIPHERAL, SPI0_BASE_ADDR, SPI0_CLOCK, SPI0_INT, SPI0_MODE, SPI0_PROTOCOL, SPI0_DATAWIDTH, SPI0_BAUDRATE};
+
+static const GpioConfig spi1_miso_cfg {SPI1_MISO_BASE, SPI1_MISO_PIN, SPI1_MISO_IOC, 0, 0};
+static const GpioConfig spi1_mosi_cfg {SPI1_MOSI_BASE, SPI1_MOSI_PIN, SPI1_MOSI_IOC, 0, 0};
+static const GpioConfig spi1_clk_cfg  {SPI1_CLK_BASE,  SPI1_CLK_PIN,  SPI1_CLK_IOC,  0, 0};
+static SpiConfig spi1_cfg             {SPI1_PERIPHERAL, SPI1_BASE_ADDR, SPI1_CLOCK, SPI1_INT, SPI1_MODE, SPI1_PROTOCOL, SPI1_DATAWIDTH, SPI1_BAUDRATE};
 
 /* UART peripheral */
-static const GpioConfig uart_rx_cfg {UART_RX_PORT, UART_RX_PIN, UART_RX_IOC, 0, 0};
-static const GpioConfig uart_tx_cfg {UART_TX_PORT, UART_TX_PIN, UART_TX_IOC, 0, 0};
-static UartConfig uart_cfg    {UART_PERIPHERAL, UART_BASE, UART_CLOCK, UART_INT, UART_BAUDRATE, UART_MODE};
+static const GpioConfig uart0_rx_cfg {UART0_RX_PORT, UART0_RX_PIN, UART0_RX_IOC, 0, 0};
+static const GpioConfig uart0_tx_cfg {UART0_TX_PORT, UART0_TX_PIN, UART0_TX_IOC, 0, 0};
+static UartConfig uart0_cfg          {UART0_PERIPHERAL, UART0_BASE_ADDR, UART0_CLOCK, UART0_INT, UART0_BAUDRATE, UART0_MODE};
+
+static const GpioConfig uart1_rx_cfg {UART1_RX_PORT, UART1_RX_PIN, UART1_RX_IOC, 0, 0};
+static const GpioConfig uart1_tx_cfg {UART1_TX_PORT, UART1_TX_PIN, UART1_TX_IOC, 0, 0};
+static UartConfig uart1_cfg          {UART1_PERIPHERAL, UART1_BASE_ADDR, UART1_CLOCK, UART1_INT, UART1_BAUDRATE, UART1_MODE};
 
 static GpioOut antenna_at86rf215 {antenna_at86rf215_cfg};
 static GpioOut antenna_cc2538    {antenna_cc2538_cfg};
@@ -267,12 +311,19 @@ static GpioOut antenna_cc2538    {antenna_cc2538_cfg};
 static Gpio i2c_scl {i2c_scl_cfg};
 static Gpio i2c_sda {i2c_sda_cfg};
 
-static Gpio spi_miso {spi_miso_cfg};
-static Gpio spi_mosi {spi_mosi_cfg};
-static Gpio spi_clk  {spi_clk_cfg};
+static Gpio spi0_miso {spi0_miso_cfg};
+static Gpio spi0_mosi {spi0_mosi_cfg};
+static Gpio spi0_clk  {spi0_clk_cfg};
 
-static Gpio uart_rx {uart_rx_cfg};
-static Gpio uart_tx {uart_tx_cfg};
+static Gpio spi1_miso {spi1_miso_cfg};
+static Gpio spi1_mosi {spi1_mosi_cfg};
+static Gpio spi1_clk  {spi1_clk_cfg};
+
+static Gpio uart0_rx {uart0_rx_cfg};
+static Gpio uart0_tx {uart0_tx_cfg};
+
+static Gpio uart1_rx {uart1_rx_cfg};
+static Gpio uart1_tx {uart1_tx_cfg};
 
 static const GpioConfig at86rf215_pwr_cfg {AT86RF215_PWR_BASE, AT86RF215_PWR_PIN, 0, 0, 0};
 static const GpioConfig at86rf215_rst_cfg {AT86RF215_RST_BASE, AT86RF215_RST_PIN, 0, 0, 1};
@@ -299,12 +350,14 @@ GpioOut led_yellow {led_yellow_cfg};
 GpioInPow button_user {button_user_cfg};
 
 /* Debug pins */
-GpioOut debug0 {debug0_cfg};
-GpioOut debug1 {debug1_cfg};
-GpioOut debug2 {debug2_cfg};
-GpioOut debug3 {debug3_cfg};
+// GpioOut debug0 {debug0_cfg};
+// GpioOut debug1 {debug1_cfg};
+// GpioOut debug2 {debug2_cfg};
+// GpioOut debug3 {debug3_cfg};
+GpioOut debug4 {debug4_cfg};
+GpioOut debug5 {debug5_cfg};
 
-// Timer timer0a(timer0a_cfg);
+Timer timer0a{timer0a_cfg};
 // Timer timer0b(timer0b_cfg);
 // Timer timer1a(timer1a_cfg);
 // Timer timer1b(timer1b_cfg);
@@ -323,13 +376,15 @@ RadioTimer radioTimer {RADIO_TIMER_INTERRUPT};
 Watchdog watchdog {WATCHDOG_INTERVAL};
 
 /* I2C */
-I2c i2c {i2c_scl, i2c_sda, i2c_cfg};
+// I2c i2c {i2c_scl, i2c_sda, i2c_cfg};
 
 /* UART */
-Uart uart {uart_rx, uart_tx, uart_cfg};
+Uart uart0 {uart0_rx, uart0_tx, uart0_cfg};
+// Uart uart1 {uart1_rx, uart1_tx, uart1_cfg};
 
 /* SPI */
-Spi spi {spi_miso, spi_mosi, spi_clk, spi_cfg};
+Spi spi0 {spi0_miso, spi0_mosi, spi0_clk, spi0_cfg};
+Spi spi1 {spi1_miso, spi1_mosi, spi1_clk, spi1_cfg};
 
 /* Random Number Generator */
 RandomNumberGenerator rng;
@@ -347,7 +402,7 @@ TemperatureSensor temp;
 Dma dma;
 
 /* AT86RF215 radio transceiver */
-At86rf215 at86rf215(spi, at86rf215_pwr, at86rf215_rst, at86rf215_csn, at86rf215_irq);
+At86rf215 at86rf215(spi0, at86rf215_pwr, at86rf215_rst, at86rf215_csn, at86rf215_irq);
 
 /*=============================== prototypes ================================*/
 

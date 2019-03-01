@@ -55,6 +55,11 @@ extern GpioOut debug0;
 extern GpioOut debug1;
 extern GpioOut debug2;
 extern GpioOut debug3;
+extern GpioOut debug4;
+extern GpioOut debug5;
+
+/* Timers */
+extern Timer timer0a;
 
 /* SleepTimer */
 extern SleepTimer sleepTimer;
@@ -69,10 +74,12 @@ extern Watchdog watchdog;
 extern I2c i2c;
 
 /* UART */
-extern Uart uart;
+extern Uart uart0;
+extern Uart uart1;
 
 /* SPI */
-extern Spi spi;
+extern Spi spi0;
+extern Spi spi1;
 
 /* Random Number Generator */
 extern RandomNumberGenerator rng;
