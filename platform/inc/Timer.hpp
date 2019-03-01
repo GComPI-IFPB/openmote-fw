@@ -27,9 +27,8 @@ public:
     Timer(const TimerConfig& config);
     void init(void);
     void setPrescaler(uint32_t prescaler);
-    uint32_t getPrescaler(void);
-    uint32_t getFrequency(void);
-    void setFrequency(uint32_t frequency);
+    void setFrequency(uint32_t milliseconds);
+    void setPeriod(uint32_t microseconds);
     void start(void);
     void stop(void);
     uint32_t read(void);
@@ -45,7 +44,6 @@ protected:
     
     Callback* callback_;
     
-    uint32_t frequency_;
     uint32_t prescaler_;
 };
 

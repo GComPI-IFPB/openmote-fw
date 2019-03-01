@@ -21,9 +21,6 @@
 
 /*================================ define ===================================*/
 
-#define DEFAULT_FREQUENCY     ( 0 ) 
-#define DEFAULT_PRESCALER     ( 1 )
-
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
@@ -35,8 +32,7 @@ extern BoardImplementation board;
 /*================================= public ==================================*/
 
 Timer::Timer(const TimerConfig& config):
-    config_(config), callback_(nullptr), 
-    frequency_(DEFAULT_FREQUENCY), prescaler_(DEFAULT_PRESCALER)
+    config_(config), callback_(nullptr), prescaler_(1)
 {
 }
 
@@ -52,42 +48,55 @@ void Timer::init(void)
 
   /* Configure the peripheral */
   TimerConfigure(config_.base, config_.config);
-
-  /* Set the prescaler */
-  // setPrescaler(prescaler_);
-}
-
-uint32_t Timer::getPrescaler(void)
-{
-  return prescaler_;
 }
 
 void Timer::setPrescaler(uint32_t prescaler)
 {
+  /* Prescaler is only available for individual timers */
+  if (config_.source != GPTIMER_BOTH)
+  {
+    return;
+  }
+    
+  /* Prescaler is 8-bits */
   if (prescaler > 255)
   {
       prescaler = 255;
   }
-
+  
+  /* Remember prescaler value */
   prescaler_ = prescaler;
-
+  
   /* Configure the prescaler */
   TimerPrescaleSet(config_.base, config_.source, prescaler_);
 }
 
-uint32_t Timer::getFrequency(void)
+void Timer::setFrequency(uint32_t milliseconds)
 {
-  return frequency_;
+  uint32_t clock, frequency;
+
+  /* Get the system clock */
+  clock = board.getClock();
+
+  /* Calculate the frequency given the system clock and expected frequency */
+  frequency = (clock) / (milliseconds * prescaler_);
+
+  /* Set the timer to the given frequency */
+  TimerLoadSet(config_.base, config_.source, frequency);
 }
 
-void Timer::setFrequency(uint32_t ms)
+void Timer::setPeriod(uint32_t microseconds)
 {
-  uint32_t clock;
+  uint32_t ticks, ticks_us;
   
-  clock = board.getClock();
-  frequency_ = ( clock) / (ms * prescaler_);
+  /* Calculate the number of ticks/microsecond based on the system clock */
+  ticks_us = board.getClock() / (1000000 * prescaler_);
+  
+  /* Calculate the number of ticks for the given period */
+  ticks = (ticks_us * microseconds);
 
-  TimerLoadSet(config_.base, config_.source, frequency_);
+  /* Set the timer to the given number of ticks */
+  TimerLoadSet(config_.base, config_.source, ticks);
 }
 
 void Timer::start(void)
