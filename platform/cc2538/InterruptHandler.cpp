@@ -499,20 +499,12 @@ void InterruptHandler::GPIO_InterruptHandler(uint32_t base, GpioIn* vector[8])
   uint32_t status;
 
   /* Read the GPIO interrupt status (both regular and power) */
-  uint32_t pin_status = GPIOPinIntStatus(GPIO_D_BASE, true);
-  uint32_t pow_status = GPIOPowIntStatus(GPIO_D_BASE, true);
+  uint32_t pin_status = GPIOPinIntStatus(base, true);
+  uint32_t pow_status = GPIOPowIntStatus(base, true);
 
   /* Clear the regular GPIO interrupt status */
-  if (pin_status)
-  {
-    GPIOPinIntClear(GPIO_D_BASE, pin_status);
-  }
-
-  /* Clear the power GPIO interrupt status */
-  if (pow_status)
-  {
-    GPIOPowIntClear(GPIO_D_BASE, pow_status);
-  }
+  GPIOPinIntClear(base, pin_status);
+  GPIOPowIntClear(base, pow_status);
 
   /* Status is both regular and power GPIO interrupt status */
   status = pin_status | pow_status;
