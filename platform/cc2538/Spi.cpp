@@ -24,8 +24,15 @@
 
 #define SSI_DATA_REGISTER           (void *)(config_.base + SSI_O_DR)
 
-#define SSI_TX_CHANNEL              ( UDMA_CH11_SSI0TX | UDMA_PRI_SELECT ) 
-#define SSI_RX_CHANNEL              ( UDMA_CH10_SSI0RX | UDMA_PRI_SELECT )
+#define SSI0_TX_CHANNEL             ( UDMA_CH11_SSI0TX ) 
+#define SSI0_RX_CHANNEL             ( UDMA_CH10_SSI0RX )
+#define SSI0_TX_CHANNEL_SEL         ( UDMA_CH11_SSI0TX | UDMA_PRI_SELECT ) 
+#define SSI0_RX_CHANNEL_SEL         ( UDMA_CH10_SSI0RX | UDMA_PRI_SELECT )
+
+#define SSI1_TX_CHANNEL             ( UDMA_CH25_SSI1TX ) 
+#define SSI1_RX_CHANNEL             ( UDMA_CH24_SSI1RX )
+#define SSI1_TX_CHANNEL_SEL         ( UDMA_CH25_SSI1TX | UDMA_PRI_SELECT ) 
+#define SSI1_RX_CHANNEL_SEL         ( UDMA_CH24_SSI1RX | UDMA_PRI_SELECT )
 
 #define SSI_RX_CONTROL_INCREMENT_0  ( UDMA_SIZE_8 | UDMA_SRC_INC_NONE | UDMA_DST_INC_NONE | UDMA_ARB_1 )
 #define SSI_RX_CONTROL_INCREMENT_8  ( UDMA_SIZE_8 | UDMA_SRC_INC_NONE | UDMA_DST_INC_8 | UDMA_ARB_1 )
@@ -213,8 +220,31 @@ bool Spi::rwByte(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* rece
 
 bool Spi::rwByteDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* receiveBuffer, uint32_t receiveLength)
 {
+  uint32_t tx_channel, rx_channel;
+  uint32_t tx_channel_sel, rx_channel_sel;
+  
   /* Check transmit and receive buffer are different */
   if (transmitBuffer == receiveBuffer)
+  {
+    return false;
+  }
+  
+  if (config_.base == SSI0_BASE)
+  {
+    tx_channel     = SSI0_TX_CHANNEL; 
+    tx_channel_sel = SSI0_TX_CHANNEL_SEL;
+    rx_channel     = SSI0_RX_CHANNEL;
+    rx_channel_sel = SSI0_RX_CHANNEL_SEL;
+    
+  }
+  else if (config_.base == SSI1_BASE)
+  {
+    tx_channel     = SSI1_TX_CHANNEL; 
+    tx_channel_sel = SSI1_TX_CHANNEL_SEL;
+    rx_channel     = SSI1_RX_CHANNEL;
+    rx_channel_sel = SSI1_RX_CHANNEL_SEL;
+  }
+  else
   {
     return false;
   }
@@ -223,38 +253,38 @@ bool Spi::rwByteDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* r
   if (transmitLength > 0)
   {
     SSIDMAEnable(config_.base, SSI_DMA_TX);
-    uDMAChannelControlSet(SSI_TX_CHANNEL, SSI_TX_CONTROL_INCREMENT_8);
-    uDMAChannelTransferSet(SSI_TX_CHANNEL, UDMA_MODE_BASIC, transmitBuffer, SSI_DATA_REGISTER, transmitLength);
+    uDMAChannelControlSet(tx_channel_sel, SSI_TX_CONTROL_INCREMENT_8);
+    uDMAChannelTransferSet(tx_channel_sel, UDMA_MODE_BASIC, transmitBuffer, SSI_DATA_REGISTER, transmitLength);
   }
   else
   {
     uint8_t scratch = 0xFF;
     SSIDMAEnable(config_.base, SSI_DMA_TX);
-    uDMAChannelControlSet(SSI_TX_CHANNEL, SSI_TX_CONTROL_INCREMENT_0);
-    uDMAChannelTransferSet(SSI_TX_CHANNEL, UDMA_MODE_BASIC, &scratch, SSI_DATA_REGISTER, receiveLength);
+    uDMAChannelControlSet(tx_channel_sel, SSI_TX_CONTROL_INCREMENT_0);
+    uDMAChannelTransferSet(tx_channel_sel, UDMA_MODE_BASIC, &scratch, SSI_DATA_REGISTER, receiveLength);
   }
   
   /* Setup receive DMA */
   if (receiveLength > 0)
   {
     SSIDMAEnable(config_.base, SSI_DMA_RX);
-    uDMAChannelControlSet(SSI_RX_CHANNEL, SSI_RX_CONTROL_INCREMENT_8);
-    uDMAChannelTransferSet(SSI_RX_CHANNEL, UDMA_MODE_BASIC, SSI_DATA_REGISTER, receiveBuffer, receiveLength);
+    uDMAChannelControlSet(rx_channel_sel, SSI_RX_CONTROL_INCREMENT_8);
+    uDMAChannelTransferSet(rx_channel_sel, UDMA_MODE_BASIC, SSI_DATA_REGISTER, receiveBuffer, receiveLength);
   }
   else
   {
     uint8_t scratch = 0xFF;
     SSIDMAEnable(config_.base, SSI_DMA_RX);
-    uDMAChannelControlSet(SSI_RX_CHANNEL, SSI_RX_CONTROL_INCREMENT_0);
-    uDMAChannelTransferSet(SSI_RX_CHANNEL, UDMA_MODE_BASIC, SSI_DATA_REGISTER, &scratch, transmitLength);
+    uDMAChannelControlSet(rx_channel_sel, SSI_RX_CONTROL_INCREMENT_0);
+    uDMAChannelTransferSet(rx_channel_sel, UDMA_MODE_BASIC, SSI_DATA_REGISTER, &scratch, transmitLength);
   }
   
   /* Enable both transmit and receive DMA channels */
-  uDMAChannelEnable(UDMA_CH10_SSI0RX);
-  uDMAChannelEnable(UDMA_CH11_SSI0TX);
+  uDMAChannelEnable(rx_channel);
+  uDMAChannelEnable(tx_channel);
   
   /* Busy-wait until there are no more bytes to be received */
-  while(uDMAChannelSizeGet(SSI_RX_CHANNEL) > 0);
+  while(uDMAChannelSizeGet(rx_channel_sel) > 0);
   
   /* Disable DMA complete interrupt for SPI */
   SSIDMADisable(config_.base, SSI_DMA_RX | SSI_DMA_TX);
