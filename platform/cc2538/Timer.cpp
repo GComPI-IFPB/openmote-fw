@@ -22,7 +22,7 @@
 /*================================ define ===================================*/
 
 #define DEFAULT_FREQUENCY     ( 0 ) 
-#define DEFAULT_PRESCALER     ( 255 )
+#define DEFAULT_PRESCALER     ( 1 )
 
 /*================================ typedef ==================================*/
 
@@ -34,7 +34,7 @@ extern BoardImplementation board;
 
 /*================================= public ==================================*/
 
-Timer::Timer(TimerConfig& config):
+Timer::Timer(const TimerConfig& config):
     config_(config), callback_(nullptr), 
     frequency_(DEFAULT_FREQUENCY), prescaler_(DEFAULT_PRESCALER)
 {
@@ -42,115 +42,118 @@ Timer::Timer(TimerConfig& config):
 
 void Timer::init(void)
 {
-    /* Disable peripheral previous to configuring it */
-    TimerDisable(config_.base, config_.source);
+  /* Disable peripheral previous to configuring it */
+  TimerDisable(config_.base, config_.source);
 
-    /* Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3) */
-    SysCtrlPeripheralEnable(config_.peripheral);
-    SysCtrlPeripheralSleepEnable(config_.peripheral);
-    SysCtrlPeripheralDeepSleepDisable(config_.peripheral);
+  /* Enable peripheral except in deep sleep modes (e.g. LPM1, LPM2, LPM3) */
+  SysCtrlPeripheralEnable(config_.peripheral);
+  SysCtrlPeripheralSleepEnable(config_.peripheral);
+  SysCtrlPeripheralDeepSleepDisable(config_.peripheral);
 
-    /* Configure the peripheral */
-    TimerConfigure(config_.base, config_.config);
+  /* Configure the peripheral */
+  TimerConfigure(config_.base, config_.config);
 
-    /* Set the prescaler */
-    setPrescaler(prescaler_);
+  /* Set the prescaler */
+  // setPrescaler(prescaler_);
 }
 
 uint32_t Timer::getPrescaler(void)
 {
-    return prescaler_;
+  return prescaler_;
 }
 
 void Timer::setPrescaler(uint32_t prescaler)
 {
-    if (prescaler > 255)
-    {
-        prescaler = 255;
-    }
+  if (prescaler > 255)
+  {
+      prescaler = 255;
+  }
 
-    prescaler_ = prescaler;
+  prescaler_ = prescaler;
 
-    /* Configure the prescaler */
-    TimerPrescaleSet(config_.base, config_.source, prescaler_);
+  /* Configure the prescaler */
+  TimerPrescaleSet(config_.base, config_.source, prescaler_);
 }
 
 uint32_t Timer::getFrequency(void)
 {
-    return frequency_;
+  return frequency_;
 }
 
-void Timer::setFrequency(uint32_t frequency)
+void Timer::setFrequency(uint32_t ms)
 {
-    frequency_ = (board.getClock() / (prescaler_ * frequency));
+  uint32_t clock;
+  
+  clock = board.getClock();
+  frequency_ = ( clock) / (ms * prescaler_);
 
-    TimerLoadSet(config_.base, config_.source, frequency_);
+  TimerLoadSet(config_.base, config_.source, frequency_);
 }
 
 void Timer::start(void)
 {
-    TimerEnable(config_.base, config_.source);
+  TimerEnable(config_.base, config_.source);
 }
 
 void Timer::stop(void)
 {
-    TimerDisable(config_.base, config_.source);
+  TimerDisable(config_.base, config_.source);
 }
 
 uint32_t Timer::read(void)
 {
-    return TimerValueGet(config_.base, config_.source);
+  return TimerValueGet(config_.base, config_.source);
 }
 
 void Timer::setCallback(Callback* callback)
 {
-    callback_ = callback;
+  callback_ = callback;
 }
 
 void Timer::clearCallback(void)
 {
-    callback_ = nullptr;
+  callback_ = nullptr;
 }
 
 void Timer::enableInterrupts(void)
 {
-    InterruptHandler::getInstance().setInterruptHandler(*this);
+  InterruptHandler::getInstance().setInterruptHandler(*this);
 
-    /* Clear Timer interrupts */
-    TimerIntClear(config_.base, config_.interrupt_mode);
+  /* Clear Timer interrupts */
+  TimerIntClear(config_.base, config_.interrupt_mode);
 
-    /* Enable Timer interrupts */
-    TimerIntEnable(config_.base, config_.interrupt_mode);
+  /* Enable Timer interrupts */
+  TimerIntEnable(config_.base, config_.interrupt_mode);
 
-    /* Set the Timer interrupt priority */
-    IntPrioritySet(config_.interrupt, 0xF0);
+  /* Set the Timer interrupt priority */
+  IntPrioritySet(config_.interrupt, 0xF0);
 
-    /* Enable the Timer interrupt */
-    IntEnable(config_.interrupt);
+  /* Enable the Timer interrupt */
+  IntEnable(config_.interrupt);
 }
 
 void Timer::disableInterrupts(void)
 {
-    /* Disable Timer interrupts */
-    TimerIntDisable(config_.base, config_.interrupt_mode);
+  /* Disable Timer interrupts */
+  TimerIntDisable(config_.base, config_.interrupt_mode);
 
-    /* Disable the Timer interrupt */
-    IntDisable(config_.interrupt);
+  /* Disable the Timer interrupt */
+  IntDisable(config_.interrupt);
 }
 
 /*=============================== protected =================================*/
 
-TimerConfig& Timer::getConfig(void)
+const TimerConfig& Timer::getConfig(void)
 {
-    return config_;
+  return config_;
 }
 
 void Timer::interruptHandler(void)
 {
-    if (callback_ != nullptr)
-    {
-        callback_->execute();
-    }
+  if (callback_ != nullptr)
+  {
+      callback_->execute();
+  }
 }
 
 /*================================ private ==================================*/

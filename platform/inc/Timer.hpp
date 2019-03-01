@@ -24,7 +24,7 @@ class Timer
 friend class InterruptHandler;
 
 public:
-    Timer(TimerConfig& config);
+    Timer(const TimerConfig& config);
     void init(void);
     void setPrescaler(uint32_t prescaler);
     uint32_t getPrescaler(void);
@@ -38,10 +38,10 @@ public:
     void enableInterrupts(void);
     void disableInterrupts(void);
 protected:
-    TimerConfig& getConfig(void);
+    const TimerConfig& getConfig(void);
     void interruptHandler(void);
 protected:
-    TimerConfig& config_;
+    const TimerConfig& config_;
     
     Callback* callback_;
     
