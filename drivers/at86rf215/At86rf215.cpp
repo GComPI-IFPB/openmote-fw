@@ -26,14 +26,26 @@
 #define AT86RF215_ED_MAX_VALUE          ( 4 )
 
 #define AT86RF215_DELAY_MS              ( 1 )
+#define AT86RF215_DELAY_US              ( 100 )
 
 #define AT86RF215_RFn_IRQM              ( 0x00 )
 #define AT86RF215_BBCn_IRQM             ( 0x13 )
 
+#define AT86RF215_RF_CFG_DEFAULT        ( 0x08 )
+#define AT86RF215_RF_CLK0_DEFAULT       ( 0x00 ) 
+
 #define AT86RF215_RFn_PAC_PACUR_MASK    ( 0x60 )
+
 #define AT86RF215_BBCn_PC_CTX_MASK      ( 0x80 )
 #define AT86RF215_BBCn_PC_FCST_MASK     ( 0x08 )
 #define AT86RF215_BBCn_PC_FCSOK_MASK    ( 0x20 )
+
+#define AT86RF215_BBCn_IRQS_RXFS_MASK   ( 0x01 )
+#define AT86RF215_BBCn_IRQS_RXFE_MASK   ( 0x02 )
+#define AT86RF215_BBCn_IRQS_TXFE_MASK   ( 0x10 )
+
+#define AT86RF215_BBCn_PC_FCST_16_BIT   ( 2 )
+#define AT86RF215_BBCn_PC_FCST_32_BIT   ( 4 )
 
 /*================================ typedef ==================================*/
 
@@ -136,6 +148,12 @@ void At86rf215::configure(RadioCore rc, const radio_settings_t* radio_settings, 
   /* Get RFn and BBCn base address based on radio core */
   rf_base  = getRFRegisterAddress(rc, 0x00);
   bbc_base = getBBCRegisterAddress(rc, 0x00);
+  
+  /* Reduce output driver strength */
+  singleAccessWrite(RF_CFG, AT86RF215_RF_CFG_DEFAULT);
+  
+  /* Disable clock output */
+  singleAccessWrite(RF_CLKO, AT86RF215_RF_CLK0_DEFAULT);
 
   /* Configure default settings */
   for (uint16_t i = 0; i < sizeof(irq_settings)/sizeof(irq_settings[0]); i++)
@@ -456,38 +474,16 @@ void At86rf215::interruptHandler(void)
   }
 }
 
-/**
- * RFn_IRQS (Radio status interrupt, pag. 40)
- * IQIFSF: 
- * TRXERR:
- * BATLOW
- * EDC
- * TRXRDY: Transceiver ready interrupt 
- * WAKEUP: Wake-up/reset interrupt
- */
-
-/**
- * BBCn_IRQS (Baseband status interrupt, pag. 41)
- * FBLI: Frame Buffer Level indicator
- * AGCR: AGC release interrupt
- * AGCH: AGC Hold interrupt
- * TXFE: Transmitter Frame End interrupt
- * RXEM: Receiver Extended Match interrupt
- * RXAM: Receiver Address Match interrupt
- * RXFE: Receiver Frame End interrupt
- * RXFS: Receiver Frame Start interrupt
- */
-
 void At86rf215::interruptHandler_rf09(uint8_t rf_irqs, uint8_t bbc_irqs)
 {
   /* Receiver start of frame */
-  if ((bbc_irqs & 0x01) && (rx09Init_ != nullptr))
+  if ((bbc_irqs & AT86RF215_BBCn_IRQS_RXFS_MASK) && (rx09Init_ != nullptr))
   {
     rx09Init_->execute();
   }
 
   /* Receiver end of frame */
-  if ((bbc_irqs & 0x02) && (rx09Done_ != nullptr))
+  if ((bbc_irqs & AT86RF215_BBCn_IRQS_RXFE_MASK) && (rx09Done_ != nullptr))
   {
     rx09Done_->execute();
   }
@@ -499,7 +495,7 @@ void At86rf215::interruptHandler_rf09(uint8_t rf_irqs, uint8_t bbc_irqs)
   }
 
   /* Transmitter end of frame */
-  if ((bbc_irqs & 0x10) && (tx09Done_ != nullptr))
+  if ((bbc_irqs & AT86RF215_BBCn_IRQS_TXFE_MASK) && (tx09Done_ != nullptr))
   {
     tx09Done_->execute();
   }
@@ -508,13 +504,13 @@ void At86rf215::interruptHandler_rf09(uint8_t rf_irqs, uint8_t bbc_irqs)
 void At86rf215::interruptHandler_rf24(uint8_t rf_irqs, uint8_t bbc_irqs)
 {
   /* Receiver start of frame */
-  if ((bbc_irqs & 0x01) && (rx24Init_ != nullptr))
+  if ((bbc_irqs & AT86RF215_BBCn_IRQS_RXFS_MASK) && (rx24Init_ != nullptr))
   {
     rx24Init_->execute();
   }
 
   /* Receiver end of frame */
-  if ((bbc_irqs & 0x02) && (rx24Done_ != nullptr))
+  if ((bbc_irqs & AT86RF215_BBCn_IRQS_RXFE_MASK) && (rx24Done_ != nullptr))
   {
     rx24Done_->execute();
   }
@@ -526,7 +522,7 @@ void At86rf215::interruptHandler_rf24(uint8_t rf_irqs, uint8_t bbc_irqs)
   }
 
   /* Transmitter end of frame */
-  if ((bbc_irqs & 0x10) && (tx24Done_ != nullptr))
+  if ((bbc_irqs & AT86RF215_BBCn_IRQS_TXFE_MASK) && (tx24Done_ != nullptr))
   {
     tx24Done_->execute();
   }
@@ -561,7 +557,7 @@ void At86rf215::goToState(RadioCore rc, RadioCommand cmd, RadioState target)
     current = getState(rc);
     if (target != current)
     {
-      board.delayMicroseconds(100);
+      board.delayMicroseconds(AT86RF215_DELAY_US);
     }
   } while (target != current);
 }
@@ -755,10 +751,10 @@ inline uint16_t At86rf215::getCRCLength(RadioCore rc)
   /* If FCST is active CRC = 16 bits, otherwise CRC = 32 bits */
   if ((value & AT86RF215_BBCn_PC_FCST_MASK) == AT86RF215_BBCn_PC_FCST_MASK)
   {
-    return 2;
+    return AT86RF215_BBCn_PC_FCST_16_BIT;
   }
   else
   {
-    return 4;
+    return AT86RF215_BBCn_PC_FCST_32_BIT;
   }
 }

@@ -249,7 +249,7 @@ const radio_settings_t oqpsk_250kbps_cfg = {
 
 const register_t ofdm1_mcs0_rf[] =
 {
-  {RFn_RXBWC,       0x00},
+  {RFn_RXBWC,       0x19},
   {RFn_RXDFE,       0x83},
   {RFn_AGCC,        0x11},
   {RFn_EDD,         0x7A},
@@ -261,6 +261,7 @@ const register_t ofdm1_mcs0_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x00},
   {BBCn_OFDMPHRTX,  0x00},
+  {BBCn_OFDMSW,     0xB0},
 };
 const radio_settings_t ofdm1_mcs0_cfg = {
                                           ofdm1_mcs0_rf,
@@ -285,6 +286,7 @@ const register_t ofdm1_mcs1_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x00},
   {BBCn_OFDMPHRTX,  0x01},
+  {BBCn_OFDMSW,     0xB0},
 };
 const radio_settings_t ofdm1_mcs1_cfg = {
                                           ofdm1_mcs1_rf,
@@ -309,6 +311,7 @@ const register_t ofdm1_mcs2_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x00},
   {BBCn_OFDMPHRTX,  0x02},
+  {BBCn_OFDMSW,     0xB0},
 };
 const radio_settings_t ofdm1_mcs2_cfg = {
                                           ofdm1_mcs2_rf,
@@ -333,6 +336,7 @@ const register_t ofdm1_mcs3_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x00},
   {BBCn_OFDMPHRTX,  0x03},
+  {BBCn_OFDMSW,     0xB0},
 };
 const radio_settings_t ofdm1_mcs3_cfg = {
                                           ofdm1_mcs3_rf,
@@ -357,6 +361,7 @@ const register_t ofdm1_mcs4_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x00},
   {BBCn_OFDMPHRTX,  0x04},
+  {BBCn_OFDMSW,     0xB0},
 };
 const radio_settings_t ofdm1_mcs4_cfg = {
                                           ofdm1_mcs4_rf,
@@ -381,6 +386,7 @@ const register_t ofdm1_mcs5_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x00},
   {BBCn_OFDMPHRTX,  0x05},
+  {BBCn_OFDMSW,     0xB0},
 };
 const radio_settings_t ofdm1_mcs5_cfg = {
                                           ofdm1_mcs5_rf,
@@ -405,6 +411,7 @@ const register_t ofdm1_mcs6_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x00},
   {BBCn_OFDMPHRTX,  0x06},
+  {BBCn_OFDMSW,     0xB0},
 };
 const radio_settings_t ofdm1_mcs6_cfg = {
                                           ofdm1_mcs6_rf,
@@ -429,6 +436,7 @@ const register_t ofdm2_mcs0_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x01},
   {BBCn_OFDMPHRTX,  0x00},
+  {BBCn_OFDMSW,     0xB0},
 };
 const radio_settings_t ofdm2_mcs0_cfg = {
                                           ofdm2_mcs0_rf,
@@ -453,6 +461,7 @@ const register_t ofdm2_mcs1_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x01},
   {BBCn_OFDMPHRTX,  0x01},
+  {BBCn_OFDMSW,     0xB0},
 };
 const radio_settings_t ofdm2_mcs1_cfg = {
                                           ofdm2_mcs1_rf,
@@ -477,6 +486,7 @@ const register_t ofdm2_mcs2_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x01},
   {BBCn_OFDMPHRTX,  0x02},
+  {BBCn_OFDMSW,     0xB0},
 
 };
 const radio_settings_t ofdm2_mcs2_cfg = {
@@ -502,6 +512,7 @@ const register_t ofdm2_mcs3_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x01},
   {BBCn_OFDMPHRTX,  0x03},
+  {BBCn_OFDMSW,     0xB0},
 };
 const radio_settings_t ofdm2_mcs3_cfg = {
                                           ofdm2_mcs3_rf,
@@ -526,6 +537,7 @@ const register_t ofdm2_mcs4_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x01},
   {BBCn_OFDMPHRTX,  0x04},
+  {BBCn_OFDMSW,     0xB0},
 };
 const radio_settings_t ofdm2_mcs4_cfg = {
                                           ofdm2_mcs4_rf,
@@ -550,6 +562,7 @@ const register_t ofdm2_mcs5_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x01},
   {BBCn_OFDMPHRTX,  0x05},
+  {BBCn_OFDMSW,     0xB0},
 };
 const radio_settings_t ofdm2_mcs5_cfg = {
                                           ofdm2_mcs5_rf,
@@ -574,6 +587,7 @@ const register_t ofdm2_mcs6_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x01},
   {BBCn_OFDMPHRTX,  0x06},
+  {BBCn_OFDMSW,     0xB0},
 };
 const radio_settings_t ofdm2_mcs6_cfg = {
                                           ofdm2_mcs6_rf,
@@ -598,6 +612,7 @@ const register_t ofdm3_mcs1_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x02},
   {BBCn_OFDMPHRTX,  0x01},
+  {BBCn_OFDMSW,     0x70},
 };
 const radio_settings_t ofdm3_mcs1_cfg = {
                                           ofdm3_mcs1_rf,
@@ -622,6 +637,7 @@ const register_t ofdm3_mcs2_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x02},
   {BBCn_OFDMPHRTX,  0x02},
+  {BBCn_OFDMSW,     0x70},
 };
 const radio_settings_t ofdm3_mcs2_cfg = {
                                           ofdm3_mcs2_rf,
@@ -646,6 +662,7 @@ const register_t ofdm3_mcs3_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x02},
   {BBCn_OFDMPHRTX,  0x03},
+  {BBCn_OFDMSW,     0x70},
 };
 const radio_settings_t ofdm3_mcs3_cfg = {
                                           ofdm3_mcs3_rf,
@@ -670,6 +687,7 @@ const register_t ofdm3_mcs4_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x02},
   {BBCn_OFDMPHRTX,  0x04},
+  {BBCn_OFDMSW,     0x70},
 };
 const radio_settings_t ofdm3_mcs4_cfg = {
                                           ofdm3_mcs4_rf,
@@ -694,6 +712,7 @@ const register_t ofdm3_mcs5_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x02},
   {BBCn_OFDMPHRTX,  0x05},
+  {BBCn_OFDMSW,     0x70},
 };
 const radio_settings_t ofdm3_mcs5_cfg = {
                                           ofdm3_mcs5_rf,
@@ -718,6 +737,7 @@ const register_t ofdm3_mcs6_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x02},
   {BBCn_OFDMPHRTX,  0x06},
+  {BBCn_OFDMSW,     0x70},
 };
 const radio_settings_t ofdm3_mcs6_cfg = {
                                           ofdm3_mcs6_rf,
@@ -742,6 +762,7 @@ const register_t ofdm4_mcs2_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x03},
   {BBCn_OFDMPHRTX,  0x02},
+  {BBCn_OFDMSW,     0x70},
 };
 const radio_settings_t ofdm4_mcs2_cfg = {
                                           ofdm4_mcs2_rf,
@@ -766,6 +787,7 @@ const register_t ofdm4_mcs3_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x03},
   {BBCn_OFDMPHRTX,  0x03},
+  {BBCn_OFDMSW,     0x70},
 };
 const radio_settings_t ofdm4_mcs3_cfg = {
                                           ofdm4_mcs3_rf,
@@ -790,6 +812,7 @@ const register_t ofdm4_mcs4_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x03},
   {BBCn_OFDMPHRTX,  0x04},
+  {BBCn_OFDMSW,     0x70},
 };
 const radio_settings_t ofdm4_mcs4_cfg = {
                                           ofdm4_mcs4_rf,
@@ -814,6 +837,7 @@ const register_t ofdm4_mcs5_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x03},
   {BBCn_OFDMPHRTX,  0x05},
+  {BBCn_OFDMSW,     0x70},
 };
 const radio_settings_t ofdm4_mcs5_cfg = {
                                           ofdm4_mcs5_rf,
@@ -838,6 +862,7 @@ const register_t ofdm4_mcs6_bbc[] =
   {BBCn_PC,         0x16},
   {BBCn_OFDMC,      0x03},
   {BBCn_OFDMPHRTX,  0x06},
+  {BBCn_OFDMSW,     0x70},
 };
 const radio_settings_t ofdm4_mcs6_cfg = {
                                           ofdm4_mcs6_rf,
