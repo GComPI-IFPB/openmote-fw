@@ -37,8 +37,8 @@
 #define BUFFER_LENGTH                       ( 1024 )
 
 #define RADIO_CORE                          ( At86rf215::CORE_RF09 )
-#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM_1_MCS_3] )
-#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM_1] )
+#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM1_MCS3] )
+#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM1] )
 #define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_MIN )
 
 /*================================ typedef ==================================*/
@@ -161,7 +161,7 @@ static void prvRadioTask(void *pvParameters)
         result = at86rf215.getPacket(RADIO_CORE, buffer_ptr, &buffer_len, &rssi, &lqi, &crc);
         
         /* Check packet has been received successfully */
-        if (result == RadioResult::RadioResult_Success && crc == true)
+        if (result == At86rf215::Success && crc == true)
         {
           /* Write radio buffer via Serial */
           serial.write(buffer_ptr, buffer_len, true);
