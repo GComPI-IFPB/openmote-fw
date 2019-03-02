@@ -24,7 +24,7 @@
 #include "Uart.hpp"
 
 #include "platform_includes.h"
-#include "platform_types.h"
+#include "platform_types.hpp"
 
 /*================================ define ===================================*/
 

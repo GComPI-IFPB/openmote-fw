@@ -31,7 +31,7 @@
 #include "at86rf215/At86rf215.hpp"
 
 #include "platform_includes.h"
-#include "platform_types.h"
+#include "platform_types.hpp"
 
 /*================================ define ===================================*/
 
@@ -242,7 +242,7 @@
 /*================================ private ==================================*/
 
 /* Board management */
-static const BoardParams board_params {BOARD_USE_32KHZ_XTAL, BOARD_USE_32MHZ_OSC, SYSTEM_CLOCK_DIVIDER, PERIPH_CLOCK_DIVIDER};
+BoardParams board_params {BOARD_USE_32KHZ_XTAL, BOARD_USE_32MHZ_OSC, SYSTEM_CLOCK_DIVIDER, PERIPH_CLOCK_DIVIDER};
 
 /* LEDs */
 static const GpioConfig led_green_cfg  {LED_GREEN_PORT,  LED_GREEN_PIN,  0, 0, 1};
@@ -376,7 +376,7 @@ RadioTimer radioTimer {RADIO_TIMER_INTERRUPT};
 Watchdog watchdog {WATCHDOG_INTERVAL};
 
 /* I2C */
-// I2c i2c {i2c_scl, i2c_sda, i2c_cfg};
+I2c i2c {i2c_scl, i2c_sda, i2c_cfg};
 
 /* UART */
 Uart uart0 {uart0_rx, uart0_tx, uart0_cfg};
