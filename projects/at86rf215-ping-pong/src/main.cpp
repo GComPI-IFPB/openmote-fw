@@ -56,7 +56,7 @@ static void radio_tx_done(void);
 
 /*=============================== variables =================================*/
 
-static Serial serial(uart);
+static Serial serial(uart0);
 
 static Task heartbeatTask{(const char *) "Green", 128, GREEN_LED_TASK_PRIORITY, prvGreenLedTask, nullptr};
 static Task radioTask{(const char *) "Radio", 128, RADIO_TASK_PRIORITY, prvRadioTask, nullptr};
@@ -90,10 +90,10 @@ int main(void)
   board.init();
   
   /* Enable the SPI interface */
-  spi.enable(SPI_BAUDRATE);
+  spi0.enable(SPI_BAUDRATE);
   
   /* Enable the UART interface */
-  uart.enable(UART_BAUDRATE);
+  uart0.enable(UART_BAUDRATE);
   
   /* Initialize Serial interface */
   serial.init();

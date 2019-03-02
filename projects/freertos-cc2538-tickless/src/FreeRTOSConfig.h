@@ -15,7 +15,7 @@
 
 #define configMINIMAL_STACK_SIZE              ( ( uint16_t ) 128 )
 #define configMAX_TASK_NAME_LEN               ( 12 )
-#define configTOTAL_HEAP_SIZE                 ( ( size_t ) ( 8 * 1024 ) )
+#define configTOTAL_HEAP_SIZE                 ( ( size_t ) ( 4 * 1024 ) )
 
 #define configUSE_TICKLESS_IDLE               ( 2 )
 #if (configUSE_TICKLESS_IDLE == 0)

@@ -71,7 +71,7 @@ void SleepTimer_Handler(void);
 static void prvEnableRTC(void);
 static void prvDisableRTC(void);
 
-extern BoardParams board_parms;
+extern BoardParams board_params;
 
 extern TickType_t board_sleep(TickType_t xModifiableIdleTime);
 extern TickType_t board_wakeup(TickType_t xModifiableIdleTime);
@@ -84,7 +84,7 @@ extern TickType_t board_wakeup(TickType_t xModifiableIdleTime);
 void vPortSetupTimerInterrupt( void )
 {	
     /* If using the 32.768 kHz oscillator wait until it becomes stable */
-    if (board_parms.bExternalOsc32k == true)
+    if (board_params.bExternalOsc32k == true)
     {
         while(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_SYNC_32K);
         while(!(HWREG(SYS_CTRL_CLOCK_STA) & SYS_CTRL_CLOCK_STA_SYNC_32K));

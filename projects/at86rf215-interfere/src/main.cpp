@@ -30,13 +30,13 @@
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
 #define RADIO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
 
-#define UART_BAUDRATE						            ( 1267200 )
+#define UART_BAUDRATE						            ( 921600 )
 #define SPI_BAUDRATE                        ( 16000000 )
 
 #define RADIO_CORE                          ( At86rf215::CORE_RF09 )
-#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM1_MCS3] )
-#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM1] )
-#define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_MIN )
+#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OQPSK_RATE5] )
+#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OQPSK1] )
+#define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_24 )
 
 /*================================ typedef ==================================*/
 
@@ -52,7 +52,6 @@ static void radio_tx_done(void);
 
 static Serial serial(uart0);
 
-
 static Task heartbeatTask{(const char *) "Green", 128, GREEN_LED_TASK_PRIORITY, prvGreenLedTask, nullptr};
 static Task radioTask{(const char *) "Radio", 128, RADIO_TASK_PRIORITY, prvRadioTask, nullptr};
 
@@ -61,12 +60,12 @@ static PlainCallback radio_tx_done_cb(&radio_tx_done);
 
 static SemaphoreBinary semaphore(false);
 
-static uint8_t radio_buffer[1020];
+static uint8_t radio_buffer[125];
 static uint16_t radio_buffer_len = sizeof(radio_buffer);
 
 /*================================= public ==================================*/
 
-void main(void)
+int main(void)
 {
   /* Initialize the board */
   board.init();
@@ -90,10 +89,9 @@ static void prvRadioTask(void *pvParameters)
 {
 	bool status; 
 
-  /* Initialize radio buffer */
   for (uint16_t i = 0; i < radio_buffer_len; i++)
   {
-    radio_buffer[i] = 'a';
+    radio_buffer[i] = 0x55;
   }
   
   /* Turn AT86RF215 radio on */
@@ -105,10 +103,6 @@ static void prvRadioTask(void *pvParameters)
   {
       board.error();
   }
-  
-  /* Set radio callbacks and enable interrupts */
-  at86rf215.setTxCallbacks(RADIO_CORE, &radio_tx_init_cb, &radio_tx_done_cb);
-  at86rf215.enableInterrupts();
   
   /* Wake up and configure radio */
   at86rf215.wakeup(RADIO_CORE);
@@ -130,26 +124,20 @@ static void prvRadioTask(void *pvParameters)
     
     /* Ready to transmit */
     at86rf215.ready(RADIO_CORE);
-        
+    
+    /* Set radio to continuous transmit mode */
+    at86rf215.setContinuousTransmission(RADIO_CORE, true);
+    
     /* Transmit packet */
     at86rf215.transmit(RADIO_CORE);
     
-    /* Wait until packet has been transmitted */
-    sent = semaphore.take();
-    if (sent == true)
+    while(true)
     {
-      /* Blink yellow LED */
-      led_yellow.on();
-      Scheduler::delay_ms(1);
-      led_yellow.off();
+      Scheduler::delay_ms(1000);
     }
-    else
-    {
-      /* Blink red LED */
-      led_red.on();
-      Scheduler::delay_ms(1);
-      led_red.off();
-    }
+    
+    /* Set radio to normal transmit mode */
+    at86rf215.setContinuousTransmission(RADIO_CORE, false);
   }
   
   /* Turn AT86RF215 radio off */

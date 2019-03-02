@@ -34,8 +34,8 @@
 #define SPI_BAUDRATE                        ( 16000000 )
 
 #define RADIO_CORE                          ( At86rf215::CORE_RF09 )
-#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM_1_MCS_3] )
-#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM_1] )
+#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM1_MCS3] )
+#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM1] )
 #define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_MIN )
 
 /*================================ typedef ==================================*/
@@ -50,7 +50,7 @@ static void radio_rx_done(void);
 
 /*=============================== variables =================================*/
 
-static Serial serial(uart);
+static Serial serial(uart0);
 
 static Task heartbeatTask{(const char *) "Green", 128, GREEN_LED_TASK_PRIORITY, prvGreenLedTask, nullptr};
 static Task radioTask{(const char *) "Radio", 128, RADIO_TASK_PRIORITY, prvRadioTask, nullptr};
@@ -65,16 +65,16 @@ static uint16_t radio_packet_len = sizeof(radio_packet);
 
 /*================================= public ==================================*/
 
-int main(void)
+void main(void)
 {
   /* Initialize the board */
   board.init();
   
   /* Enable the SPI interface */
-  spi.enable(SPI_BAUDRATE);
+  spi0.enable(SPI_BAUDRATE);
   
   /* Enable the UART interface */
-  uart.enable(UART_BAUDRATE);
+  uart0.enable(UART_BAUDRATE);
   
   /* Initialize Serial interface */
   serial.init();
