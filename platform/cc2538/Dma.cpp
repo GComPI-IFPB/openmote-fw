@@ -11,14 +11,21 @@
 
 /*================================ include ==================================*/
 
-#include "Board.hpp"
-#include "Gpio.hpp"
+#include "InterruptHandler.hpp"
 #include "Dma.hpp"
 
 #include "platform_includes.h"
 #include "platform_types.hpp"
 
 /*================================ define ===================================*/
+
+#define DMA_CHANNEL             ( UDMA_CH30_SW )
+#define DMA_CHANNEL_SEL         ( UDMA_CH30_SW | UDMA_PRI_SELECT )
+#define DMA_CONTROL             ( UDMA_SIZE_8 | UDMA_SRC_INC_8 | UDMA_DST_INC_8 | UDMA_ARB_8 )
+#define DMA_MODE                ( UDMA_MODE_AUTO )
+#define DMA_ATTRIBUTES          ( UDMA_ATTR_ALL )
+
+#define DMA_TRANSFER_LIMIT      ( 1024 )
 
 /*================================ typedef ==================================*/
 
@@ -36,7 +43,7 @@ static unsigned char ucDMAControlTable[1024] __attribute__ ((aligned(1024)));
 /*================================= public ==================================*/
 
 Dma::Dma():
-  is_initialized(false)
+  mutex_(), semaphore_(false), is_initialized(false)
 {  
 }
 
@@ -50,6 +57,17 @@ void Dma::init(void)
     /* Set the base for the channel control table */
     uDMAControlBaseSet(&ucDMAControlTable[0]);
     
+    /* Register the interrupt handler */
+    InterruptHandler::getInstance().setInterruptHandler(*this);
+
+    /* Set the uDMA interrupt priorities */
+    IntPrioritySet(INT_UDMA, 0xF0);
+    IntPrioritySet(INT_UDMAERR, 0xF0);
+
+    /* Enable the uDMA interrupts */
+    IntEnable(INT_UDMA);
+    IntEnable(INT_UDMAERR);
+    
     /* Mark as initialized */
     is_initialized = true;
   }
@@ -57,32 +75,69 @@ void Dma::init(void)
 
 uint32_t Dma::memcpy(uint8_t* dst, uint8_t* src, uint32_t length)
 {
-  if (length < 1024)
+  uint32_t size;
+  uint32_t total = 0;
+
+  /* Take the mutex */
+  mutex_.take();
+  
+  /* Run while there are bytes */
+  while (length > 0)
   {
+    /* If length is above limit */
+    if (length > DMA_TRANSFER_LIMIT)
+    {
+      size = DMA_TRANSFER_LIMIT;
+    }
+    else
+    {
+      size = length;
+    }
+    
     /* Setup DMA control for memory copy */
-    uDMAChannelControlSet(UDMA_CH30_SW | UDMA_PRI_SELECT, UDMA_SIZE_8 | UDMA_SRC_INC_8 | UDMA_DST_INC_8 | UDMA_ARB_8);
+    uDMAChannelControlSet(DMA_CHANNEL_SEL, DMA_CONTROL);
     
     /* Setup DMA buffers for memory copy using BASIC mode */
-    uDMAChannelTransferSet(UDMA_CH30_SW | UDMA_PRI_SELECT, UDMA_MODE_AUTO, src, dst, length);
+    uDMAChannelTransferSet(DMA_CHANNEL_SEL, DMA_MODE, src, dst, size);
     
     /* Enable DMA channel */
-    uDMAChannelEnable(UDMA_CH30_SW);
+    uDMAChannelEnable(DMA_CHANNEL);
     
     /* Request DMA transfer */
-    uDMAChannelRequest(UDMA_CH30_SW);
+    uDMAChannelRequest(DMA_CHANNEL);
     
-    /* Busy-wait until there are no more bytes to be copied */
-    while(uDMAChannelSizeGet(UDMA_CH30_SW | UDMA_PRI_SELECT) > 0);
+    /* Wait until transfer is complete */
+    semaphore_.take();
     
-    /* Disable DMA channel */
-    uDMAChannelAttributeDisable(UDMA_CH30_SW, UDMA_ATTR_ALL);
-    
-    return length;
+    /* Update pointers, length and total bytes */
+    src += size;
+    dst += size;
+    length -= size;
+    total += size;
   }
   
-  return 0;
+  /* Disable DMA channel */
+  uDMAChannelAttributeDisable(DMA_CHANNEL, DMA_ATTRIBUTES);
+  
+  /* Give the mutex */
+  mutex_.give();
+  
+  return total;
 }
 
 /*=============================== protected =================================*/
+
+void Dma::interruptHandler(void)
+{ 
+  uint32_t status;
+  
+  status = uDMAIntStatus();
+  
+  semaphore_.giveFromInterrupt();
+}
+
+void Dma::errorHandler(void)
+{
+}
 
 /*================================ private ==================================*/

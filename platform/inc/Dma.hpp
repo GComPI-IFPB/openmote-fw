@@ -16,6 +16,7 @@
 
 #include "Callback.hpp"
 #include "Mutex.hpp"
+#include "Semaphore.hpp"
 
 class Dma
 {
@@ -26,7 +27,12 @@ public:
   Dma();
   void init(void);
   uint32_t memcpy(uint8_t* dst, uint8_t* src, uint32_t length);
+protected:
+  void interruptHandler(void);
+  void errorHandler(void);
 private:
+  Mutex mutex_;
+  SemaphoreBinary semaphore_;
   bool is_initialized;
 };
 
