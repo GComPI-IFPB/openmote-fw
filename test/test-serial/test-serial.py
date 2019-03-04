@@ -34,7 +34,7 @@ def program():
     global finished
 
     port        = "COM49"
-    baudrate    = 921600
+    baudrate    = 2304000
     timeout     = 0.1
     count       = 101
     bits        = 10 # start + byte + stop
@@ -94,11 +94,11 @@ def program():
 
         # If total time is above total time
         if (total_time > finish_time):
-            # Stop the serial port
-            serial.stop()
-
             # Signal the script to finish
             finished = True
+
+    # Stop the serial port
+    serial.stop()
 
 def main():
     # Set up SIGINT signal

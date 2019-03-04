@@ -25,7 +25,7 @@
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
 #define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 
-#define UART_BAUDRATE                       ( 921600 )
+#define UART_BAUDRATE                       ( 2304000 )
 
 /*================================ typedef ==================================*/
 
@@ -39,7 +39,7 @@ static void prvSerialTask(void *pvParameters);
 static Task heartbeatTask{(const char *) "Green", 128, GREEN_LED_TASK_PRIORITY, prvGreenLedTask, nullptr};
 static Task serialTask{(const char *) "Serial", 128, SERIAL_TASK_PRIORITY, prvSerialTask, nullptr};
 
-static Serial serial(uart);
+static Serial serial(uart0);
 
 static uint8_t serial_tx_buffer[1024];
 static uint8_t* serial_tx_ptr = serial_tx_buffer;
@@ -57,7 +57,7 @@ int main (void)
   board.init();
 
   /* Enable the UART interface */
-  uart.enable(UART_BAUDRATE);
+  uart0.enable(UART_BAUDRATE);
   
   /* Initialize Serial interface */
   serial.init();
