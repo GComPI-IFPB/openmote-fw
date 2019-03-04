@@ -28,16 +28,17 @@
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
-#define RADIO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
-#define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 2 )
+#define RADIO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 2 )
+#define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 
-#define UART_BAUDRATE                       ( 1267200 )
+#define UART_BAUDRATE                       ( 2304000 )
 #define SPI_BAUDRATE                        ( 16000000 )
 
-#define BUFFER_LENGTH                       ( 1024 )
+#define RADIO_BUFFER_LENGTH                 ( 1200 )
+#define SERIAL_BUFFER_LENGTH                ( 1200 )
 
 #define RADIO_CORE                          ( At86rf215::CORE_RF09 )
-#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM1_MCS3] )
+#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM1_MCS6] )
 #define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM1] )
 #define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_MIN )
 
@@ -70,13 +71,13 @@ static PlainCallback radio_tx_done_cb(&radio_tx_done);
 static SemaphoreBinary tx_semaphore(false);
 static SemaphoreBinary rx_semaphore(false);
 
-static uint8_t serial_rx_buffer[BUFFER_LENGTH];
+static uint8_t serial_rx_buffer[SERIAL_BUFFER_LENGTH];
 static uint16_t serial_rx_buffer_len = sizeof(serial_rx_buffer);
 
-static uint8_t radio_rx_buffer[BUFFER_LENGTH];
+static uint8_t radio_rx_buffer[RADIO_BUFFER_LENGTH];
 static uint16_t radio_rx_buffer_len = sizeof(radio_rx_buffer);
 
-static uint8_t radio_tx_buffer[BUFFER_LENGTH];
+static uint8_t radio_tx_buffer[RADIO_BUFFER_LENGTH];
 static uint16_t radio_tx_buffer_len = sizeof(radio_tx_buffer);
 
 static bool received = false;
@@ -175,8 +176,9 @@ static void prvRadioTask(void *pvParameters)
       /* Go back to ready */
       at86rf215.ready(RADIO_CORE);
     }
+    
     /* We got a packet to transmit, fire it! */
-    else
+    if (transmit)
     {
       bool sent;
 
@@ -216,12 +218,11 @@ static void prvSerialTask(void *pvParameters)
     /* Read buffer using Serial */
     serial_rx_len = serial.read(serial_rx_ptr, serial_rx_len);
     
-    /* If we have received a message */
+    /* If we have received a serial message */
     if (serial_rx_len > 0)
     {
       /* Copy packet to radio transmit buffer */
-      dma.memcpy(radio_tx_buffer, serial_rx_ptr, serial_rx_len);
-      radio_tx_buffer_len = serial_rx_len;
+      radio_tx_buffer_len = dma.memcpy(radio_tx_buffer, serial_rx_ptr, serial_rx_len);
         
       /* Mark that we have not received, but we need to transmit */
       received = false;
