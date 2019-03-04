@@ -25,7 +25,7 @@
 #define UART_TASK_PRIORITY                  ( tskIDLE_PRIORITY + 1 )
 
 #define UART_BAUDRATE                       ( 2304000 )
-#define UART_BUFFER_LENGTH                  ( 1024 )
+#define UART_BUFFER_LENGTH                  ( 2048 )
 
 /*================================ typedef ==================================*/
 
@@ -52,7 +52,7 @@ static Buffer rx_buffer {uart_rx_buffer, sizeof(uart_tx_buffer)};
 static Buffer tx_buffer {uart_tx_buffer, sizeof(uart_rx_buffer)};
 
 static bool rx_error = false;
-static bool copy_buffer = false;
+static bool copy_buffer = true;
 
 /*================================= public ==================================*/
 
@@ -82,10 +82,8 @@ static void prvUartTask(void *pvParameters)
   /* Forever */
   while (true)
   {
-    /* Restore uart_data_rx structure */
+    /* Restore transmit and receive buffers */
     rx_buffer.reset();
-
-    /* Restore uart_data_tx structure */
     tx_buffer.reset();
 
     /* Wait until a packet has been received from UART */
@@ -95,7 +93,7 @@ static void prvUartTask(void *pvParameters)
     if (copy_buffer)
     {
       uint32_t length;
-      
+
       /* Copy UART receive buffer to UART transmit buffer using DMA */
       length = dma.memcpy(tx_buffer.getHead(), rx_buffer.getHead(), rx_buffer.getSize());
 
@@ -131,7 +129,7 @@ static void prvGreenLedTask(void *pvParameters)
 static void uart_rx(void)
 {
   bool finished, status;
-  
+
   /* Read bytes from UART */
   status = uart0.readBytes(rx_buffer, finished);
   
@@ -144,7 +142,7 @@ static void uart_rx(void)
     /* Give the RX semaphore to signal end of reception */
     uart0.rxUnlockFromInterrupt();
   }
-  
+
   return;
   
 error:

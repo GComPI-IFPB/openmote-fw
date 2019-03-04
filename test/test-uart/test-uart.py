@@ -29,7 +29,7 @@ def program():
     port     = "COM10"
     baudrate = 2304000
     timeout  = 0.1
-    count    = 101
+    count    = 200
     bits     = 10 # start + byte + stop
     message  = count * b"0123456789"
     length   = len(message)
