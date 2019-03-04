@@ -26,6 +26,7 @@ class Radio;
 class SysTick;
 class SleepTimer;
 class RadioTimer;
+class Dma;
 
 class InterruptHandler {
 
@@ -53,6 +54,8 @@ public:
     static void clearInterruptHandler(Aes& aes);
     static void setInterruptHandler(GpioAdc& adc);
     static void clearInterruptHandler(GpioAdc& adc);
+    static void setInterruptHandler(Dma& dma);
+    static void clearInterruptHandler(Dma& dma);
 private:
     InterruptHandler();
     static void GPIO_InterruptHandler(uint32_t base, GpioIn* vector[8]);
@@ -77,6 +80,8 @@ private:
     static void RadioTimer_InterruptHandler(void);
     static void Aes_InterruptHandler(void);
     static void Adc_InterruptHandler(void);
+    static void Dma_InterruptHandler(void);
+    static void DmaError_InterruptHandler(void);
 private:
     static InterruptHandler instance_;
     static GpioIn* GPIOA_interruptVector_[8];
@@ -98,6 +103,7 @@ private:
     static RadioTimer* RadioTimer_interruptVector_;
     static Aes* Aes_interruptVector_;
     static GpioAdc* Adc_interruptVector_;
+    static Dma* Dma_interruptVector_;
 };
 
 #endif /* INTERRUPT_HANDLER_HPP_ */
