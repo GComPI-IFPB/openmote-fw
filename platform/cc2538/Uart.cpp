@@ -15,6 +15,8 @@
 #include "InterruptHandler.hpp"
 #include "Uart.hpp"
 
+#include "Buffer.hpp"
+
 #include "BoardImplementation.hpp"
 
 #include "platform_includes.h"
@@ -212,16 +214,6 @@ void Uart::txUnlockFromInterrupt(void)
   txSemaphore_.giveFromInterrupt();
 }
 
-bool Uart::readAvailable(void)
-{
-  return UARTCharsAvail(config_.base);
-}
-
-bool Uart::readTimeout(void)
-{
-  return rx_timeout_;
-}
-
 bool Uart::readByte(uint8_t* byte)
 {
   bool status = false;
@@ -283,7 +275,7 @@ uint32_t Uart::writeByte(uint8_t* buffer, uint32_t length)
   uDMAChannelEnable(UART_TX_CHANNEL);
   
   /* Busy-wait until there are no more bytes to be tramsmitted */
-  // while(uDMAChannelSizeGet(UART_TX_CHANNEL) > 0);
+  while(uDMAChannelSizeGet(UART_TX_CHANNEL) > 0);
   
   return 0;
 }
@@ -306,7 +298,8 @@ uint32_t Uart::readBytes(uint8_t* buffer, uint32_t length)
 
   return 0;
 }
- uint32_t Uart::writeBytes(uint8_t* buffer, uint32_t length)
+
+uint32_t Uart::writeBytes(uint8_t* buffer, uint32_t length)
 {
   /* Write all bytes to UART */
   for (uint32_t i = 0; i < length; i++)
@@ -316,6 +309,50 @@ uint32_t Uart::readBytes(uint8_t* buffer, uint32_t length)
   }
 
   return 0;
+}
+
+bool Uart::readBytes(Buffer& buffer, bool& finished)
+{
+  uint32_t counter = 13;
+  
+  /* Check for timeout */
+  if (rx_timeout_)
+  {
+    counter = 16;
+    finished = true;
+  }
+  else
+  {
+    finished = false;
+  }
+  
+  /* While we can read more bytes from the UART */
+  while (UARTCharsAvail(config_.base) &&  counter > 0)
+  {
+    int32_t scratch;
+    
+    /* Read byte from UART, non-blocking */
+    scratch = UARTCharGetNonBlocking(config_.base);
+    
+    /* If its a valid byte */
+    if (scratch >= 0)
+    {
+      bool status;
+      
+      /* Write byte to buffer */
+      status = buffer.writeByte((uint8_t) scratch);
+      
+      /* If the buffer is full, return error */
+      if (!status)
+      {
+        return false;
+      }
+      
+      counter--;
+    }
+  }
+
+  return true;
 }
 
 /*=============================== protected =================================*/

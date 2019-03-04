@@ -45,8 +45,6 @@ private:
 
   uint8_t transmit_buffer_[1024];
   Buffer txBuffer_;
-
-  Hdlc hdlc_;
   
   Mutex txMutex_;
   Mutex rxMutex_;
@@ -55,6 +53,7 @@ private:
   SerialCallback txCallback_;
   
   bool useDma_;
+  bool rxError_;
 };
 
 #endif /* SERIAL_HPP_ */

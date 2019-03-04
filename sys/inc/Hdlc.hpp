@@ -34,7 +34,7 @@ enum HdlcStatus : int32_t
 class Hdlc
 {
 public:
-  Hdlc(Buffer& rxBuffer, Buffer& txBuffer);
+  Hdlc(Buffer& buffer);
 
   HdlcResult rxOpen(void);
   HdlcResult rxPut(uint8_t byte);
@@ -50,15 +50,12 @@ private:
   HdlcResult rxParse(uint8_t byte);
 
 private:
-  Buffer& rxBuffer_;
-  Buffer& txBuffer_;
+  Buffer& buffer_;
+  Crc16 crc_;
 
   HdlcStatus rxStatus;
   uint8_t rxLastByte;
   bool rxIsEscaping;
-
-  Crc16 rxCrc;
-  Crc16 txCrc;
 };
 
 #endif /* HDLC_HPP_ */

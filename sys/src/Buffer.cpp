@@ -43,22 +43,12 @@ void Buffer::reset(void)
 
 bool Buffer::isEmpty(void)
 {
-  bool status;
-
-  /* Get the status */
-  status = (count_ == 0);
-
-  return status;
+  return (count_ == 0);
 }
 
 bool Buffer::isFull(void)
 {
-  bool status;
-
-  /* Get the status */
-  status = (count_ == length_);
-
-  return status;
+  return (count_ == length_);
 }
 
 uint8_t* Buffer::getHead(void)
@@ -73,12 +63,7 @@ uint32_t Buffer::getCapacity(void)
 
 uint32_t Buffer::getSize(void)
 {
-  uint32_t count;
-
-  /* Copy the value */
-  count = count_;
-
-  return count;
+  return count_;
 }
 
 bool Buffer::readByte(uint8_t* data, bool interrupt)

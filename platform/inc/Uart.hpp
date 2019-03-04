@@ -18,6 +18,8 @@
 #include "Semaphore.hpp"
 
 class Gpio;
+class Buffer;
+
 struct UartConfig;
 
 class Uart
@@ -42,14 +44,13 @@ public:
     void txUnlock(void);
     void rxUnlockFromInterrupt(void);
     void txUnlockFromInterrupt(void);
-    bool readAvailable(void);
-    bool readTimeout(void);
     bool readByte(uint8_t* byte);
     uint32_t readByte(uint8_t* buffer, uint32_t length);
     void writeByte(uint8_t byte);
     uint32_t writeByte(uint8_t* buffer, uint32_t length);
     uint32_t readBytes(uint8_t* buffer, uint32_t length);
     uint32_t writeBytes(uint8_t* buffer, uint32_t length);
+    bool readBytes(Buffer& buffer, bool& finished);
 public:
     bool operator==(const Uart& other);
 protected:
