@@ -27,7 +27,7 @@ def program():
     global finished
 
     port     = "COM10"
-    baudrate = 2000000
+    baudrate = 2304000
     timeout  = 0.1
     count    = 101
     bits     = 10 # start + byte + stop

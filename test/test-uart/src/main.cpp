@@ -13,6 +13,7 @@
 
 #include "BoardImplementation.hpp"
 
+#include "Buffer.hpp"
 #include "Callback.hpp"
 #include "Scheduler.hpp"
 #include "Semaphore.hpp"
@@ -23,19 +24,10 @@
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
 #define UART_TASK_PRIORITY                  ( tskIDLE_PRIORITY + 1 )
 
-#define UART_BAUDRATE                       ( 2000000 )
+#define UART_BAUDRATE                       ( 2304000 )
 #define UART_BUFFER_LENGTH                  ( 1024 )
 
 /*================================ typedef ==================================*/
-
-typedef struct
-{
-  uint8_t* head;
-  uint16_t length;
-  uint16_t available;
-  uint8_t* ptr;
-  uint16_t count;
-} uart_data_t;
 
 /*=============================== prototypes ================================*/
 
@@ -56,8 +48,11 @@ static PlainCallback uart_tx_cb(&uart_tx);
 static uint8_t uart_tx_buffer[UART_BUFFER_LENGTH];
 static uint8_t uart_rx_buffer[UART_BUFFER_LENGTH];
 
-static uart_data_t uart_data_tx {.head = uart_tx_buffer, .length = sizeof(uart_tx_buffer)};
-static uart_data_t uart_data_rx {.head = uart_rx_buffer, .length = sizeof(uart_rx_buffer)};
+static Buffer rx_buffer {uart_rx_buffer, sizeof(uart_tx_buffer)};
+static Buffer tx_buffer {uart_tx_buffer, sizeof(uart_rx_buffer)};
+
+static bool rx_error = false;
+static bool copy_buffer = false;
 
 /*================================= public ==================================*/
 
@@ -67,11 +62,11 @@ int main (void)
   board.init();
 
   /* Enable the UART peripheral */
-  uart.enable(UART_BAUDRATE);
-  uart.setRxCallback(&uart_rx_cb);
-  uart.setTxCallback(&uart_tx_cb);
-  uart.enableDMA();
-  uart.enableInterrupts();
+  uart0.enable(UART_BAUDRATE);
+  uart0.setRxCallback(&uart_rx_cb);
+  uart0.setTxCallback(&uart_tx_cb);
+  uart0.enableDMA();
+  uart0.enableInterrupts();
 
   /* Start the scheduler */
   Scheduler::run();
@@ -83,41 +78,38 @@ int main (void)
 
 static void prvUartTask(void *pvParameters)
 {
-  bool copy = true;
     
   /* Forever */
   while (true)
   {
     /* Restore uart_data_rx structure */
-    uart_data_rx.ptr = uart_data_rx.head;
-    uart_data_rx.count = 0;
-    uart_data_rx.available = uart_data_rx.length;
+    rx_buffer.reset();
 
     /* Restore uart_data_tx structure */
-    uart_data_tx.ptr = uart_data_tx.head;
-    uart_data_tx.count = 0;
-    uart_data_tx.available = uart_data_tx.length;    
+    tx_buffer.reset();
 
     /* Wait until a packet has been received from UART */
-    uart.rxLock();
+    uart0.rxLock();
 
     /* Copy UART receive buffer */
-    if (copy)
+    if (copy_buffer)
     {
+      uint32_t length;
+      
       /* Copy UART receive buffer to UART transmit buffer using DMA */
-      uart_data_tx.length = dma.memcpy(uart_data_tx.head, uart_data_rx.head, uart_data_rx.count);
+      length = dma.memcpy(tx_buffer.getHead(), rx_buffer.getHead(), rx_buffer.getSize());
 
       /* Send buffer to UART using DMA */
-      uart.writeByte(uart_data_tx.head, uart_data_tx.length);
+      uart0.writeByte(tx_buffer.getHead(), length);
     }
     else
     {
       /* Send buffer to UART using DMA */
-      uart.writeByte(uart_data_rx.head, uart_data_rx.count);
+      uart0.writeByte(rx_buffer.getHead(), rx_buffer.getSize());
     }
     
     /* Wait until packet has been transmitted from UART */
-    uart.txLock();
+    uart0.txLock();
   }
 }
 
@@ -138,38 +130,32 @@ static void prvGreenLedTask(void *pvParameters)
 
 static void uart_rx(void)
 {
-  uint32_t count;
-  bool timeout;
+  bool finished, status;
   
-  /* Check if the UART has timed out */
-  timeout = uart.readTimeout();
+  /* Read bytes from UART */
+  status = uart0.readBytes(rx_buffer, finished);
+  
+  /* Check for errors */
+  if (!status) goto error;
     
-  if (timeout)
-  {
-    /* If so, read all remaining bytes */
-    count = uart.readByte(uart_data_rx.ptr, 16);
-  }
-  else
-  {
-    /* Otherwise, read all bytes except the last one */
-    count = uart.readByte(uart_data_rx.ptr, 15);
-  }
-
-  /* Increment pointer, count and available variables */
-  uart_data_rx.ptr       += count;
-  uart_data_rx.count     += count;
-  uart_data_rx.available -= count;
-  
-  /* If the UART has timed out */
-  if (timeout)
+  /* If the UART has finished */
+  if (finished)
   {
     /* Give the RX semaphore to signal end of reception */
-    uart.rxUnlockFromInterrupt();
+    uart0.rxUnlockFromInterrupt();
   }
+  
+  return;
+  
+error:
+  rx_error = true;
+  
+  /* Give the RX semaphore to signal end of reception */
+  uart0.rxUnlockFromInterrupt();
 }
 
 static void uart_tx(void)
 {
   /* Give the TX semaphore to signal end of transmission */
-  uart.txUnlockFromInterrupt();
+  uart0.txUnlockFromInterrupt();
 }
