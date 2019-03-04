@@ -264,18 +264,35 @@ void Uart::writeByte(uint8_t byte)
 }
 
 uint32_t Uart::writeByte(uint8_t* buffer, uint32_t length)
-{  
-  /* Setup DMA control for UART transmission */
-  uDMAChannelControlSet(UART_TX_CHANNEL, UART_TX_CONTROL);
+{ 
+  uint32_t size;
   
-  /* Setup DMA buffers for UART using BASIC mode */
-  uDMAChannelTransferSet(UART_TX_CHANNEL, UDMA_MODE_BASIC, buffer, UART_DATA, length);
+  while (length > 0)
+  {
+    if (length > 1024)
+    {
+      size = 1024;
+    }
+    else
+    {
+      size = length;
+    }
+    
+    /* Setup DMA control for UART transmission */
+    uDMAChannelControlSet(UART_TX_CHANNEL, UART_TX_CONTROL);
+    
+    /* Setup DMA buffers for UART using BASIC mode */
+    uDMAChannelTransferSet(UART_TX_CHANNEL, UDMA_MODE_BASIC, buffer, UART_DATA, size);
 
-  /* Enable the TX channel */
-  uDMAChannelEnable(UART_TX_CHANNEL);
-  
-  /* Busy-wait until there are no more bytes to be tramsmitted */
-  while(uDMAChannelSizeGet(UART_TX_CHANNEL) > 0);
+    /* Enable the TX channel */
+    uDMAChannelEnable(UART_TX_CHANNEL);
+    
+    /* Busy-wait until there are no more bytes to be tramsmitted */
+    while(uDMAChannelSizeGet(UART_TX_CHANNEL) > 0);
+    
+    buffer += size;
+    length -= size;
+  }
   
   return 0;
 }
