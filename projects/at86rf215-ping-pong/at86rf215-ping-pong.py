@@ -69,6 +69,11 @@ def ping(port = None, baudrate = None, uncertain = None, length = None, sleep = 
     total_time = 0
 
     # Transmit message 
+    serial.transmit('0')
+
+    time.sleep(0.1)
+
+    # Transmit message 
     serial.transmit(message)
 
     # Account for sent packets and bytes
@@ -155,6 +160,9 @@ def pong(port = None, baudrate = None, length = None, report = None):
     start_time = time.time()
     total_time = 0
 
+    # Transmit message 
+    serial.transmit('1')
+
     # Repeat until finish condition
     while (not finished):
         # Try to receive a Serial message
@@ -185,9 +193,9 @@ def pong(port = None, baudrate = None, length = None, report = None):
         if (elapsed_time > report):
             tx_bandwidth = bytes_sent * 8 / elapsed_time
             rx_bandwidth = bytes_received * 8 / elapsed_time
-            print("Sent {} packets ({} bytes) and received {} packets ({} bytes) in the last {:.2f} ms ({:.2f}/{:.2f} kbps)".format(packets_sent, bytes_sent,
-                                                                                                                                 packets_received, bytes_received,
-                                                                                                                                 elapsed_time, tx_bandwidth, rx_bandwidth))
+            print("Received {} packets ({} bytes) and sent {} packets ({} bytes) in the last {:.2f} ms ({:.2f}/{:.2f} kbps)".format(packets_received, bytes_received,
+                                                                                                                                    packets_sent, bytes_sent,
+                                                                                                                                    elapsed_time, tx_bandwidth, rx_bandwidth))
 
             # Restore start time
             start_time = current_time
