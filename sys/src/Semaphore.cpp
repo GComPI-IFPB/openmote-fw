@@ -40,7 +40,7 @@ bool Semaphore::isTaken(void)
   count = uxSemaphoreGetCount(semaphore_);
 
   /* If semaphore is available */
-  if (count == 1)
+  if (count > 0)
   {
     return false;
   }
