@@ -79,6 +79,26 @@ HdlcResult Hdlc::rxPut(uint8_t byte)
   return result;
 }
 
+HdlcResult Hdlc::rxPut(Buffer& buffer)
+{
+  HdlcResult result = HdlcResult_Ok;
+  bool status;
+  
+  do
+  {
+    uint8_t byte;
+    
+    status = buffer.readByte(&byte);
+    if (status)
+    {
+      result = rxPut(byte);
+    }
+    
+  } while(status && result == HdlcResult_Ok);
+  
+  return result;
+}
+
 HdlcStatus Hdlc::getRxStatus(void){
     return rxStatus;
 }

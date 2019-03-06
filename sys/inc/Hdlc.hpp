@@ -38,6 +38,7 @@ public:
 
   HdlcResult rxOpen(void);
   HdlcResult rxPut(uint8_t byte);
+  HdlcResult Hdlc::rxPut(Buffer& buffer);
   HdlcResult rxClose(void);
   HdlcStatus getRxStatus(void);
 

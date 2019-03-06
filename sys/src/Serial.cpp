@@ -140,13 +140,8 @@ uint32_t Serial::read(uint8_t* buffer, uint32_t size)
       
   do
   {
-    uint8_t byte;
-    
-    /* Read byte from receive buffer */
-    rxBuffer_.readByte(&byte);
-    
-    /* Put the byte in the HDLC receive buffer */
-    result = hdlc.rxPut(byte);
+    /* Parse the HDLC in the receive buffer */
+    result = hdlc.rxPut(rxBuffer_);
     
     /* Get the HDLC status */
     status = hdlc.getRxStatus();
