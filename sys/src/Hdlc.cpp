@@ -17,9 +17,9 @@
 
 /*================================ define ===================================*/
 
-static const uint8_t HDLC_FLAG        = 0x7E;
-static const uint8_t HDLC_ESCAPE      = 0x7D;
-static const uint8_t HDLC_ESCAPE_MASK = 0x20;
+#define HDLC_FLAG                   ( 0x7E )
+#define HDLC_ESCAPE                 ( 0x7D )
+#define HDLC_ESCAPE_MASK            ( 0x20 )
 
 /*================================ typedef ==================================*/
 
@@ -152,16 +152,24 @@ HdlcResult Hdlc::txPut(uint8_t byte)
   return HdlcResult_Ok;
 }
 
-HdlcResult Hdlc::txPut(uint8_t* buffer, int32_t size)
+HdlcResult Hdlc::txPut(Buffer& buffer)
 {
-  HdlcResult status = HdlcResult_Ok;
-
-  while (size-- && status == HdlcResult_Ok)
+  HdlcResult result = HdlcResult_Ok;
+  bool status;
+  
+  do
   {
-    status = txPut(*buffer++);
-  }
-
-  return status;
+    uint8_t byte;
+    
+    status = buffer.readByte(&byte);
+    if (status)
+    {
+      result = txPut(byte);
+    }
+    
+  } while(status && result == HdlcResult_Ok);
+  
+  return result;
 }
 
 HdlcResult Hdlc::txClose(void)

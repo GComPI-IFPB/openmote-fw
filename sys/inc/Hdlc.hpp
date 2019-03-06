@@ -38,13 +38,13 @@ public:
 
   HdlcResult rxOpen(void);
   HdlcResult rxPut(uint8_t byte);
-  HdlcResult Hdlc::rxPut(Buffer& buffer);
+  HdlcResult rxPut(Buffer& buffer);
   HdlcResult rxClose(void);
   HdlcStatus getRxStatus(void);
 
   HdlcResult txOpen(void);
   HdlcResult txPut(uint8_t byte);
-  HdlcResult txPut(uint8_t* buffer, int32_t size);
+  HdlcResult txPut(Buffer& buffer);
   HdlcResult txClose(void);
 
 private:
