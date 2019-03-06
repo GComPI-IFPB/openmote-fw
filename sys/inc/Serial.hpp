@@ -30,8 +30,8 @@ class Serial
 public:
   Serial(Uart& uart);
   void init(void);
-  void write(uint8_t* data, uint32_t size, bool useDma = false);
-  uint32_t read(uint8_t* buffer, uint32_t size);
+  void write(uint8_t* data, uint32_t length, bool useDma = false);
+  uint32_t read(uint8_t* buffer, uint32_t length);
 public:
   bool operator==(const Serial& other);
 private:
@@ -40,10 +40,10 @@ private:
 private:
   Uart& uart_;
 
-  uint8_t receive_buffer_[1024];
+  uint8_t rx_buffer_[2048];
   Buffer rxBuffer_;
 
-  uint8_t transmit_buffer_[1024];
+  uint8_t tx_buffer_[2048];
   Buffer txBuffer_;
   
   Mutex txMutex_;

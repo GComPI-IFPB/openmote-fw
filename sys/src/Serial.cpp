@@ -16,11 +16,11 @@
 
 /*================================ define ===================================*/
 
+#define CRC_LENGTH                  ( 2 )
+
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
-
-static const uint8_t CRC_LENGTH = 2;    // Length of the CRC
 
 /*=============================== prototypes ================================*/
 
@@ -28,9 +28,10 @@ static const uint8_t CRC_LENGTH = 2;    // Length of the CRC
 
 Serial::Serial(Uart& uart):
   uart_(uart),
-  receive_buffer_{0}, rxBuffer_(receive_buffer_, sizeof(receive_buffer_)),
-  transmit_buffer_{0}, txBuffer_(transmit_buffer_, sizeof(transmit_buffer_)),
-  rxCallback_(this, &Serial::rxCallback), txCallback_(this, &Serial::txCallback),
+  rxBuffer_(rx_buffer_, sizeof(rx_buffer_)),
+  txBuffer_(tx_buffer_, sizeof(tx_buffer_)),
+  rxCallback_(this, &Serial::rxCallback),
+  txCallback_(this, &Serial::txCallback),
   useDma_(false), rxError_(false)
 {
 }
@@ -53,11 +54,12 @@ void Serial::init(void)
   uart_.enableInterrupts();
 }
 
-void Serial::write(uint8_t* data, uint32_t size, bool useDma)
+void Serial::write(uint8_t* data, uint32_t length, bool useDma)
 {
+  Buffer buffer_(data, length, length);
   Hdlc hdlc(txBuffer_);
+  
   HdlcResult result = HdlcResult_Ok;
-  uint8_t byte;
   bool status;
   
   /* Take the TX mutex */
@@ -74,7 +76,7 @@ void Serial::write(uint8_t* data, uint32_t size, bool useDma)
   if (result != HdlcResult_Ok) goto error;
 
   /* For each byte in the buffer */
-  result = hdlc.txPut(data, size);
+  result = hdlc.txPut(buffer_);
   if (result != HdlcResult_Ok) goto error;
 
   /* Close the HDLC buffer */
@@ -84,6 +86,8 @@ void Serial::write(uint8_t* data, uint32_t size, bool useDma)
   /* Start transmission */
   if (!useDma)
   {
+    uint8_t byte;
+    
     /* Read first byte from the UART transmit buffer */
     status = txBuffer_.readByte(&byte);
     if (status != true) goto error;
@@ -94,7 +98,7 @@ void Serial::write(uint8_t* data, uint32_t size, bool useDma)
   else
   {
     /* Transmit all buffer at once */
-    uart_.writeByte(txBuffer_.getHead(), txBuffer_.getSize());
+    uart_.writeBytes(txBuffer_);
   }
   
   /* Take the UART lock */
@@ -115,13 +119,13 @@ error:
   return;
 }
 
-uint32_t Serial::read(uint8_t* buffer, uint32_t size)
+uint32_t Serial::read(uint8_t* buffer, uint32_t length)
 {
-  Buffer buffer_(buffer, size);
+  Buffer buffer_(buffer, length);
   Hdlc hdlc(buffer_);
+  
   HdlcResult result;
   HdlcStatus status;
-  uint32_t length;
   
   /* Restore receiver error */
   rxError_ = false;
@@ -162,7 +166,7 @@ uint32_t Serial::read(uint8_t* buffer, uint32_t size)
     return 0;
   }
   
-  /* Update the length value and account for the CRC bytes */
+  /* Update the length accounting for the CRC bytes */
   length = buffer_.getSize() - CRC_LENGTH;
 
   /* Reset the receive buffer */
