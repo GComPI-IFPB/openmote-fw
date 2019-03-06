@@ -43,7 +43,10 @@ void Crc16::init(void)
 
 uint16_t Crc16::get(void)
 {
-  crc_ = (HWREG(SOC_ADC_RNDH) << 8) | (HWREG(SOC_ADC_RNDL) << 0);
+  uint8_t msb, lsb;
+  msb = HWREG(SOC_ADC_RNDH);
+  lsb = HWREG(SOC_ADC_RNDL);
+  crc_ = (msb << 8) | (lsb << 0);
   return crc_;
 }
 
@@ -54,7 +57,10 @@ void Crc16::set(uint8_t byte)
 
 bool Crc16::check(void)
 {
-  crc_ = (HWREG(SOC_ADC_RNDH) << 8) | (HWREG(SOC_ADC_RNDL) << 0);
+  uint8_t msb, lsb;
+  msb = HWREG(SOC_ADC_RNDH);
+  lsb = HWREG(SOC_ADC_RNDL);
+  crc_ = (msb << 8) | (lsb << 0);
   return (crc_ == CRC16_OK);
 }
 
