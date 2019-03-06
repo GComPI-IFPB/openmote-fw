@@ -55,8 +55,10 @@ def ping(port = None, baudrate = None, uncertain = None, length = None, sleep = 
     serial = Serial.Serial(name = port, baudrate = baudrate, timeout = timeout)
     serial.start()
 
-    print("Starting ping at port {} with {} bauds, message length {} bytes and {} sleep for {} ms.".format(port, baudrate, tx_length, sleep, duration))
-    print("Message={}, length={}".format(message, tx_length))
+    if (uncertain == True):
+        print("Starting ping at port {} with {} bauds, RANDOM message length {} bytes and {} sleep for {} ms.".format(port, baudrate, tx_length, sleep, duration))
+    else:
+        print("Starting ping at port {} with {} bauds, message length {} bytes and {} sleep for {} ms.".format(port, baudrate, tx_length, sleep, duration))
 
     # Prepare statistics
     bytes_sent       = 0

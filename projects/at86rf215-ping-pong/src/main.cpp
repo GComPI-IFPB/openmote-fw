@@ -31,7 +31,7 @@
 #define RADIO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
 #define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 2 )
 
-#define UART_BAUDRATE                       ( 1728000 )
+#define UART_BAUDRATE                       ( 1843200 )
 #define SPI_BAUDRATE                        ( 16000000 )
 
 #define RADIO_BUFFER_LENGTH                 ( 2048 )
