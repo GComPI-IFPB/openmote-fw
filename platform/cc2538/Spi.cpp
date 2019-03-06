@@ -229,6 +229,7 @@ bool Spi::rwByteDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* r
     return false;
   }
   
+  /* Select DMA registers based on SPI peripheral */
   if (config_.base == SSI0_BASE)
   {
     tx_channel     = SSI0_TX_CHANNEL; 
