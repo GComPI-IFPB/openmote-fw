@@ -44,13 +44,18 @@ public:
     void txUnlock(void);
     void rxUnlockFromInterrupt(void);
     void txUnlockFromInterrupt(void);
+    
     bool readByte(uint8_t* byte);
-    uint32_t readByte(uint8_t* buffer, uint32_t length);
     void writeByte(uint8_t byte);
+    
+    uint32_t readByte(uint8_t* buffer, uint32_t length);
     uint32_t writeByte(uint8_t* buffer, uint32_t length);
+    
     uint32_t readBytes(uint8_t* buffer, uint32_t length);
     uint32_t writeBytes(uint8_t* buffer, uint32_t length);
+    
     bool readBytes(Buffer& buffer, bool& finished);
+    bool writeBytes(Buffer& buffer);
 public:
     bool operator==(const Uart& other);
 protected:
@@ -66,11 +71,14 @@ private:
 
     SemaphoreBinary rxSemaphore_;
     SemaphoreBinary txSemaphore_;
+    
+    SemaphoreBinary dmaComplete_;
 
     Callback* rx_callback_;
     Callback* tx_callback_;
     
     bool rx_timeout_;
+    bool dma_finished_;
 };
 
 #endif /* UART_HPP_ */

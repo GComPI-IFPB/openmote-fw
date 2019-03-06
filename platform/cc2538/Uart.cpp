@@ -24,12 +24,26 @@
 
 /*================================ define ===================================*/
 
-#define UART_DATA                   (void *)(config_.base + UART_O_DR)
+#define UART_DMA_DATA_REGISTER      ((void *)(config_.base + UART_O_DR))
 
-#define UART_RX_CHANNEL             ( UDMA_CH8_UART0RX | UDMA_PRI_SELECT )
-#define UART_RX_CONTROL             ( UDMA_SIZE_8 | UDMA_SRC_INC_NONE | UDMA_DST_INC_8 | UDMA_ARB_1 )
-#define UART_TX_CHANNEL             ( UDMA_CH9_UART0TX | UDMA_PRI_SELECT ) 
-#define UART_TX_CONTROL             ( UDMA_SIZE_8 | UDMA_SRC_INC_8 | UDMA_DST_INC_NONE | UDMA_ARB_1 )
+#define UART_DMA_MAX_LENGTH         ( 1024 )
+
+#define UART_DMA_MODE               ( UDMA_MODE_BASIC )
+
+#define UART_INT_FLAGS              ( UART_INT_RX | UART_INT_TX | UART_INT_RT )
+
+#define UART_FIFO_READ_MIN          ( 13 )
+#define UART_FIFO_READ_MAX          ( 16 )
+
+#define UART0_DMA_RX_CHANNEL        ( UDMA_CH8_UART0RX | UDMA_PRI_SELECT )
+#define UART0_DMA_RX_CONTROL        ( UDMA_SIZE_8 | UDMA_SRC_INC_NONE | UDMA_DST_INC_8 | UDMA_ARB_1 )
+#define UART0_DMA_TX_CHANNEL        ( UDMA_CH9_UART0TX | UDMA_PRI_SELECT ) 
+#define UART0_DMA_TX_CONTROL        ( UDMA_SIZE_8 | UDMA_SRC_INC_8 | UDMA_DST_INC_NONE | UDMA_ARB_1 )
+
+#define UART1_DMA_RX_CHANNEL        ( UDMA_CH22_UART1RX | UDMA_PRI_SELECT )
+#define UART1_DMA_RX_CONTROL        ( UDMA_SIZE_8 | UDMA_SRC_INC_NONE | UDMA_DST_INC_8 | UDMA_ARB_1 )
+#define UART1_DMA_TX_CHANNEL        ( UDMA_CH23_UART1TX | UDMA_PRI_SELECT ) 
+#define UART1_DMA_TX_CONTROL        ( UDMA_SIZE_8 | UDMA_SRC_INC_8 | UDMA_DST_INC_NONE | UDMA_ARB_1 )
 
 /*================================ typedef ==================================*/
 
@@ -40,10 +54,10 @@
 /*================================= public ==================================*/
 
 Uart::Uart(Gpio& rx, Gpio& tx, UartConfig& config):
-  rx_(rx), tx_(tx), config_(config), \
-  rxSemaphore_(false), txSemaphore_(false), \
+  rx_(rx), tx_(tx), config_(config),
+  rxSemaphore_(false), txSemaphore_(false), dmaComplete_(false),
   rx_callback_(nullptr), tx_callback_(nullptr),
-  rx_timeout_(false)
+  rx_timeout_(false), dma_finished_(false)
 {
 }
 
@@ -151,10 +165,10 @@ void Uart::enableInterrupts(void)
   InterruptHandler::getInstance().setInterruptHandler(*this);
 
   /* Clear the UART RX, TX and RX timeout interrupts */
-  UARTIntClear(config_.base, UART_INT_RX | UART_INT_TX | UART_INT_RT);
+  UARTIntClear(config_.base, UART_INT_FLAGS);
   
   /* Enable the UART RX, TX and RX timeout interrupts */
-  UARTIntEnable(config_.base, UART_INT_RX | UART_INT_TX | UART_INT_RT);
+  UARTIntEnable(config_.base, UART_INT_FLAGS);
 
   /* Set the UART interrupt priority */
   IntPrioritySet(config_.interrupt, 0xF0);
@@ -235,6 +249,12 @@ bool Uart::readByte(uint8_t* byte)
   return status;
 }
 
+void Uart::writeByte(uint8_t byte)
+{
+  /* Write byte to UART, non-blocking */
+  UARTCharPutNonBlocking(config_.base, byte);
+}
+
 uint32_t Uart::readByte(uint8_t* buffer, uint32_t length)
 {
   uint32_t count = 0;
@@ -257,42 +277,64 @@ uint32_t Uart::readByte(uint8_t* buffer, uint32_t length)
   return count;
 }
 
-void Uart::writeByte(uint8_t byte)
-{
-  /* Write byte to UART, non-blocking */
-  UARTCharPutNonBlocking(config_.base, byte);
-}
-
 uint32_t Uart::writeByte(uint8_t* buffer, uint32_t length)
 { 
+  uint32_t tx_channel, tx_channel_ctrl;
   uint32_t size;
   
+  /* Select DMA registers based on UART peripheral */
+  if (config_.base == UART0_BASE)
+  {
+    tx_channel = UART0_DMA_TX_CHANNEL;
+    tx_channel_ctrl = UART0_DMA_TX_CONTROL;
+  }
+  else if (config_.base == UART1_BASE)
+  {
+    tx_channel = UART1_DMA_TX_CHANNEL;
+    tx_channel_ctrl = UART1_DMA_TX_CONTROL;
+  }
+  else
+  {
+  }
+  
+  /* Repeat until all bytes are transmitted */
   while (length > 0)
   {
-    if (length > 1024)
+    /* If length exceeds the maximum DMA transaction */
+    if (length >= UART_DMA_MAX_LENGTH)
     {
-      size = 1024;
+      dma_finished_ = false;
+      size = UART_DMA_MAX_LENGTH;
     }
     else
     {
+      dma_finished_ = true;
       size = length;
     }
     
     /* Setup DMA control for UART transmission */
-    uDMAChannelControlSet(UART_TX_CHANNEL, UART_TX_CONTROL);
+    uDMAChannelControlSet(tx_channel, tx_channel_ctrl);
     
     /* Setup DMA buffers for UART using BASIC mode */
-    uDMAChannelTransferSet(UART_TX_CHANNEL, UDMA_MODE_BASIC, buffer, UART_DATA, size);
+    uDMAChannelTransferSet(tx_channel, UART_DMA_MODE, buffer, UART_DMA_DATA_REGISTER, size);
 
     /* Enable the TX channel */
-    uDMAChannelEnable(UART_TX_CHANNEL);
+    uDMAChannelEnable(tx_channel);
     
-    /* Busy-wait until there are no more bytes to be tramsmitted */
-    while(uDMAChannelSizeGet(UART_TX_CHANNEL) > 0);
+    /* Wait until DMA transfer is done */
+    dmaComplete_.take();
     
-    buffer += size;
-    length -= size;
+    /* If still not finished */
+    if (!dma_finished_)
+    {
+      /* Update buffer pointer and length */
+      buffer += size;
+      length -= size;
+    }
   }
+  
+  /* Once finished, call the interrupt handler */
+  interruptHandlerTx();
   
   return 0;
 }
@@ -330,12 +372,12 @@ uint32_t Uart::writeBytes(uint8_t* buffer, uint32_t length)
 
 bool Uart::readBytes(Buffer& buffer, bool& finished)
 {
-  uint32_t counter = 13;
+  uint32_t counter = UART_FIFO_READ_MIN;
   
-  /* Check for timeout */
+  /* Check for UART timeout */
   if (rx_timeout_)
   {
-    counter = 16;
+    counter = UART_FIFO_READ_MAX;
     finished = true;
   }
   else
@@ -365,11 +407,76 @@ bool Uart::readBytes(Buffer& buffer, bool& finished)
         return false;
       }
       
+      /* Decrement remaining bytes */
       counter--;
     }
   }
 
   return true;
+}
+
+bool Uart::writeBytes(Buffer& buffer)
+{ 
+  uint32_t tx_channel, tx_channel_ctrl;
+  uint32_t length, size;
+  uint8_t* buffer_ptr;
+  
+  /* Select DMA registers based on UART peripheral */
+  if (config_.base == UART0_BASE)
+  {
+    tx_channel = UART0_DMA_TX_CHANNEL;
+    tx_channel_ctrl = UART0_DMA_TX_CONTROL;
+  }
+  else if (config_.base == UART1_BASE)
+  {
+    tx_channel = UART1_DMA_TX_CHANNEL;
+    tx_channel_ctrl = UART1_DMA_TX_CONTROL;
+  }
+  else
+  {
+    return false;
+  }
+  
+  /* Get pointer and length */
+  buffer_ptr = buffer.getHead();
+  length = buffer.getSize();
+  
+  /* Repeat until all bytes are transmitted */
+  while (length > 0)
+  {
+    /* If length exceeds the maximum DMA transaction */
+    if (length >= UART_DMA_MAX_LENGTH)
+    {
+      dma_finished_ = false;
+      size = UART_DMA_MAX_LENGTH;
+    }
+    else
+    {
+      dma_finished_ = true;
+      size = length;
+    }
+    
+    /* Setup DMA control for UART transmission */
+    uDMAChannelControlSet(tx_channel, tx_channel_ctrl);
+    
+    /* Setup DMA buffers for UART using BASIC mode */
+    uDMAChannelTransferSet(tx_channel, UART_DMA_MODE, buffer_ptr, UART_DMA_DATA_REGISTER, size);
+
+    /* Enable the TX channel */
+    uDMAChannelEnable(tx_channel);
+    
+    /* Wait until DMA transfer is done */
+    dmaComplete_.take();
+    
+    /* Update buffer pointer and length */
+    buffer_ptr += size;
+    length     -= size;
+  }
+  
+  /* Once finished, call the interrupt handler */
+  interruptHandlerTx();
+  
+  return 0;
 }
 
 /*=============================== protected =================================*/
@@ -392,7 +499,8 @@ void Uart::interruptHandler(void)
   /* Process TX interrupt */
   if (status & UART_INT_TX)
   {
-    interruptHandlerTx();
+    /* Give the DMA semaphore */
+    dmaComplete_.giveFromInterrupt();
   }
   
   /* Process RX interrupt */
