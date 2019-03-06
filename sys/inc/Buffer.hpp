@@ -20,7 +20,7 @@
 class Buffer
 {
 public:
-  Buffer(uint8_t* buffer, uint32_t length);
+  Buffer(uint8_t* buffer, uint32_t length, uint32_t count = 0);
   void reset(void);
   uint8_t* getHead(void);
   uint32_t getCapacity(void);

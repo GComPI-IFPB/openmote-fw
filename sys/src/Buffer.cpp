@@ -28,8 +28,8 @@
 
 /*================================= public ==================================*/
 
-Buffer::Buffer(uint8_t* buffer, uint32_t length):
-  buffer_(buffer), length_(length), count_(0), head_(buffer), tail_(buffer)
+Buffer::Buffer(uint8_t* buffer, uint32_t length, uint32_t count):
+  buffer_(buffer), length_(length), count_(count), head_(buffer), tail_(buffer)
 {   
 }
 
