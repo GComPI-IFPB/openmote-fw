@@ -42,10 +42,10 @@ class Hdlc(object):
         for i in input:
             i = ord(i)
             if (i == self.HDLC_FLAG):
-                output.append(i)
+                output.append(self.HDLC_ESCAPE)
                 output.append(self.HDLC_FLAG_ESCAPED)
             elif (i == self.HDLC_ESCAPE):
-                output.append(i)
+                output.append(self.HDLC_ESCAPE)
                 output.append(self.HDLC_ESCAPE_ESCAPED)
             else:
                 output.append(i)
