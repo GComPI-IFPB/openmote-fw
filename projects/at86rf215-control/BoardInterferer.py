@@ -9,11 +9,14 @@
             This file is licensed under the GNU General Public License v2.
 '''
 
+import logging
 import time
 
 import Board
 
 from At86rf215 import *
+
+logger = logging.getLogger(__name__)
 
 class BoardInterferer(Board.Board):
     def __init__(self, port = None, baudrate = None, timeout = 0.1):

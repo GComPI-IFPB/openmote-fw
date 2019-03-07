@@ -51,9 +51,9 @@ def main():
     # Set-up logging back-end
     logging.basicConfig(level=logging.ERROR)
 
-    transmit_uart  = "COM25"
-    receive_uart   = "COM55"
-    interfere_uart = "COM29"
+    transmit_uart  = "COM39"
+    receive_uart   = "COM67"
+    interfere_uart = "COM45"
     baudrate       = 1267200
 
     # Create the experiment configuration
@@ -66,7 +66,7 @@ def main():
                      "ix_frequency": At86rf215_Freq.FREQ_OQPSK_1, 
                      "ix_power": [None,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
                      "ix_length": 123,
-                     "packet_count": 1000,
+                     "packet_count": 10,
                      "packet_delay": 0.005,
                      "duration_ms": 30000
                     }

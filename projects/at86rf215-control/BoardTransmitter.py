@@ -9,7 +9,14 @@
             This file is licensed under the GNU General Public License v2.
 '''
 
+import logging
+import time
+
 import Board
+
+from At86rf215 import *
+
+logger = logging.getLogger(__name__)
 
 class BoardTransmitter(Board.Board):
     def __init__(self, port = None, baudrate = None, timeout = 0.1):
@@ -33,13 +40,13 @@ class BoardTransmitter(Board.Board):
                 logger.info("BoardTransmitter::run")
 
                 # Start the radio
-                result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = Serial_Cmd.ON)
+                result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = At86rf215_Cmd.ON)
                 if (result == False):
                     logger.error("BoardTransmitter::run Error starting the radio")
                     raise ValueError("BoardTransmitter::run Error starting the radio")
 
                 # Configure the radio
-                result = self.send_cfg_message(timeout = 1.0, core = self.core, cmd = Serial_Cmd.CFG,
+                result = self.send_cfg_message(timeout = 1.0, core = self.core, cmd = At86rf215_Cmd.CFG,
                                                settings = self.settings, frequency = self.frequency,
                                                tx_length = self.tx_length, tx_power = self.tx_power)
                 if (result == False):
@@ -54,7 +61,7 @@ class BoardTransmitter(Board.Board):
                 
                 while (not self.is_finish and not self.is_stop and iterations > 0):
                     # Try to send a packet
-                    result = self.send_cmd_message(timeout = 1.0, core = At86rf215_Core.RF09, cmd = Serial_Cmd.TX)
+                    result = self.send_cmd_message(timeout = 1.0, core = At86rf215_Core.RF09, cmd = At86rf215_Cmd.TX)
                     
                     if (result):
                         logger.info("BoardTransmitter::run Transmitted packet to the radio")
@@ -84,7 +91,7 @@ class BoardTransmitter(Board.Board):
                 self.stats["tx_packets"] = self.tx_packets
 
                 # Reset the radio
-                result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = Serial_Cmd.RST)
+                result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = At86rf215_Cmd.RST)
 
                 # Notify we have finished
                 self.exp_done.release()
