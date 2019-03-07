@@ -25,7 +25,9 @@
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
 #define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 
-#define UART_BAUDRATE                       ( 2304000 )
+#define UART_BAUDRATE                       ( 1152000 )
+
+#define BUFFER_LENGTH                       ( 2048 )
 
 /*================================ typedef ==================================*/
 
@@ -41,13 +43,9 @@ static Task serialTask{(const char *) "Serial", 128, SERIAL_TASK_PRIORITY, prvSe
 
 static Serial serial(uart0);
 
-static uint8_t serial_tx_buffer[1024];
-static uint8_t* serial_tx_ptr = serial_tx_buffer;
-static uint16_t serial_tx_len  = sizeof(serial_tx_buffer);
-
-static uint8_t serial_rx_buffer[1024];
-static uint8_t* serial_rx_ptr = serial_rx_buffer;
-static uint16_t serial_rx_len  = sizeof(serial_rx_buffer);
+static uint8_t serial_buffer[BUFFER_LENGTH];
+static uint8_t* serial_ptr = serial_buffer;
+static uint16_t serial_len  = sizeof(serial_buffer);
 
 /*================================= public ==================================*/
 
@@ -76,17 +74,17 @@ static void prvSerialTask(void *pvParameters)
   while (true)
   {
     /* Restore serial_rx pointer and length */
-    serial_rx_ptr = serial_rx_buffer;
-    serial_rx_len = sizeof(serial_rx_buffer);
+    serial_ptr = serial_buffer;
+    serial_len = sizeof(serial_buffer);
 
     /* Read buffer using Serial */
-    serial_rx_len = serial.read(serial_rx_ptr, serial_rx_len);
+    serial_len = serial.read(serial_ptr, serial_len);
     
     /* If we have received a message */
-    if (serial_rx_len > 0)
+    if (serial_len > 0)
     {
       /* Write buffer via Serial */
-      serial.write(serial_rx_ptr, serial_rx_len, true);
+      serial.write(serial_ptr, serial_len, true);
     }
   }
 }
