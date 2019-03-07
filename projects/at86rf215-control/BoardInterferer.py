@@ -1,5 +1,5 @@
 '''
-@file       InterfereBoard.py
+@file       BoardInterferer.py
 @author     Pere Tuset-Peiro  (peretuset@openmote.com)
 @version    v0.1
 @date       February, 2019
@@ -9,9 +9,13 @@
             This file is licensed under the GNU General Public License v2.
 '''
 
+import time
+
 import Board
 
-class InterfereBoard(Board.Board):
+from At86rf215 import *
+
+class BoardInterferer(Board.Board):
     def __init__(self, port = None, baudrate = None, timeout = 0.1):
         super().__init__(port = port, baudrate = baudrate, timeout = timeout)
 
@@ -25,31 +29,31 @@ class InterfereBoard(Board.Board):
             self.acquired = self.exp_run.acquire(False)
             if (self.acquired and self.active):
                 # Start the radio
-                result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = Serial_Cmd.ON)
+                result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = At86rf215_Cmd.ON)
                 if (result == False):
-                    logger.error("InterfereBoard::run Error starting the radio")
-                    raise ValueError("InterfereBoard::run Error starting the radio")
+                    logger.error("BoardInterferer::run Error starting the radio")
+                    raise ValueError("BoardInterferer::run Error starting the radio")
 
                 # Configure the radio
-                result = self.send_cfg_message(timeout = 1.0, core = self.core, cmd = Serial_Cmd.CFG,
+                result = self.send_cfg_message(timeout = 1.0, core = self.core, cmd = At86rf215_Cmd.CFG,
                                                settings = self.settings, frequency = self.frequency,
                                                tx_length = self.tx_length, tx_power = self.tx_power)
                 if (result == False):
-                    logger.error("InterfereBoard::run Error configuring the radio")
-                    raise ValueError("InterfereBoard::run Error configuring the radio")
+                    logger.error("BoardInterferer::run Error configuring the radio")
+                    raise ValueError("BoardInterferer::run Error configuring the radio")
                 
                 # Start continuous transmission
-                result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = Serial_Cmd.TX_INTERF, param = 1)
+                result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = At86rf215_Cmd.TX_INTERF, param = 1)
                 if (result == False):
-                    logger.error("InterfereBoard::run Error starting continuous transmission")
-                    raise ValueError("InterfereBoard::run Error starting continuous transmission")
+                    logger.error("BoardInterferer::run Error starting continuous transmission")
+                    raise ValueError("BoardInterferer::run Error starting continuous transmission")
                     
                 # Repeat until finish condition
                 while (not self.is_finish and not self.is_stop):
                     time.sleep(0.001)
 
                 # Reset the radio
-                result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = Serial_Cmd.RST)
+                result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = At86rf215_Cmd.RST)
 
                 # Notify we have finished
                 self.exp_done.release()

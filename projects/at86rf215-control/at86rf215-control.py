@@ -30,9 +30,9 @@ import threading
 import time
 
 from At86rf215 import *
-from TransmitBoard import *
-from ReceiveBoard import *
-from InterfereBoard import *
+from BoardTransmitter import *
+from BoardReceiver import *
+from BoardInterferer import *
 from ExperimentManager import *
 
 import Serial
@@ -75,9 +75,9 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
 
     # Create the transmit, interfere and receive objects
-    transmit  = TransmitBoard(port = transmit_uart, baudrate = baudrate)
-    interfere = InterfereBoard(port = interfere_uart, baudrate = baudrate)
-    receive   = ReceiveBoard(port = receive_uart, baudrate = baudrate)
+    transmit  = BoardTransmitter(port = transmit_uart, baudrate = baudrate)
+    interfere = BoardInterferer(port = interfere_uart, baudrate = baudrate)
+    receive   = BoardReceiver(port = receive_uart, baudrate = baudrate)
 
     # Create experiment manager and inject transmit, interfere and receive objects, and the experiment configuration
     em = ExperimentManager(transmit = transmit, receive = receive, interfere = interfere, configuration = configuration)

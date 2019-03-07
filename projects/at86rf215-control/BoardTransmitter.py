@@ -1,5 +1,5 @@
 '''
-@file       TransmitBoard.py
+@file       BoardTransmitter.py
 @author     Pere Tuset-Peiro  (peretuset@openmote.com)
 @version    v0.1
 @date       February, 2019
@@ -11,7 +11,7 @@
 
 import Board
 
-class TransmitBoard(Board.Board):
+class BoardTransmitter(Board.Board):
     def __init__(self, port = None, baudrate = None, timeout = 0.1):
         super().__init__(port = port, baudrate = baudrate, timeout = timeout)
         
@@ -30,21 +30,21 @@ class TransmitBoard(Board.Board):
             
             # Wait to receive start command
             if (self.acquired):
-                logger.info("TransmitBoard::run")
+                logger.info("BoardTransmitter::run")
 
                 # Start the radio
                 result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = Serial_Cmd.ON)
                 if (result == False):
-                    logger.error("TransmitBoard::run Error starting the radio")
-                    raise ValueError("TransmitBoard::run Error starting the radio")
+                    logger.error("BoardTransmitter::run Error starting the radio")
+                    raise ValueError("BoardTransmitter::run Error starting the radio")
 
                 # Configure the radio
                 result = self.send_cfg_message(timeout = 1.0, core = self.core, cmd = Serial_Cmd.CFG,
                                                settings = self.settings, frequency = self.frequency,
                                                tx_length = self.tx_length, tx_power = self.tx_power)
                 if (result == False):
-                    logger.error("TransmitBoard::run Error configuring the radio")
-                    raise ValueError("TransmitBoard::run Error configuring the radio")
+                    logger.error("BoardTransmitter::run Error configuring the radio")
+                    raise ValueError("BoardTransmitter::run Error configuring the radio")
                 
                 iterations = self.packet_count
                 self.tx_packets = 0
@@ -57,11 +57,11 @@ class TransmitBoard(Board.Board):
                     result = self.send_cmd_message(timeout = 1.0, core = At86rf215_Core.RF09, cmd = Serial_Cmd.TX)
                     
                     if (result):
-                        logger.info("TransmitBoard::run Transmitted packet to the radio")
+                        logger.info("BoardTransmitter::run Transmitted packet to the radio")
                         self.tx_packets += 1
                     else:
-                        logger.error("TransmitBoard::run Error sending packet to the radio")
-                        raise ValueError("TransmitBoard::run Error sending packet to the radio")
+                        logger.error("BoardTransmitter::run Error sending packet to the radio")
+                        raise ValueError("BoardTransmitter::run Error sending packet to the radio")
 
                     # Decrement number of packets
                     iterations -= 1

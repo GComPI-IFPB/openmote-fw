@@ -13,6 +13,8 @@ import threading
 
 import Serial
 
+from At86rf215 import *
+
 class Board(threading.Thread):
     def __init__(self, port = None, baudrate = None, timeout = 0.1):
         self.port     = port
@@ -95,7 +97,7 @@ class Board(threading.Thread):
 
     def __parse_result(self, message):
         result = message[0]
-        if (result == Serial_Result.SUCCESS.value):
+        if (result == At86rf215_Result.SUCCESS.value):
             return True
         else:
             return False

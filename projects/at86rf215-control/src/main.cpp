@@ -181,12 +181,7 @@ static bool radio_on(uint8_t rc)
 }
 
 static bool radio_off(uint8_t rc)
-{
-  At86rf215::RadioCore rc_;
-  
-  /* Get radio core */
-  rc_ = get_radio_core(rc);
-  
+{  
   /* Turn AT86RF215 radio off */
   at86rf215.off();
   
@@ -197,12 +192,7 @@ static bool radio_off(uint8_t rc)
 }
 
 static bool radio_reset(uint8_t rc)
-{
-  At86rf215::RadioCore rc_;
-  
-  /* Get radio core */
-  rc_ = get_radio_core(rc);
-  
+{ 
   /* Reset radio */
   at86rf215.hardReset();
   

@@ -28,11 +28,12 @@ import struct
 import string
 import time
 
-import At86rf215
-import TransmitBoard
-import ReceiveBoard
-import InterfereBoard
-import ExperimentManager
+from At86rf215 import *
+from BoardTransmitter import *
+from BoardReceiver import *
+from BoardInterferer import *
+from ExperimentManager import *
+
 import Serial
 
 logger = logging.getLogger(__name__)
@@ -49,9 +50,7 @@ def main():
     # Set-up logging back-end
     logging.basicConfig(level=logging.ERROR)
 
-    transmit_uart  = "COM25"
-    receive_uart   = "COM55"
-    interfere_uart = "COM29"
+    interfere_uart = "COM39"
     baudrate       = 1267200
 
     # Create the experiment configuration
@@ -73,7 +72,7 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
 
     # Create the transmit, interfere and receive objects
-    interfere = InterfereBoard(port = interfere_uart, baudrate = baudrate)
+    interfere = BoardInterferer(port = interfere_uart, baudrate = baudrate)
 
     interfere.start()
     interfere.configure(configuration = configuration)

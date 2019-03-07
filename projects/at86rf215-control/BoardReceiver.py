@@ -1,5 +1,5 @@
 '''
-@file       ReceiveBoard.py
+@file       BoardReceiver.py
 @author     Pere Tuset-Peiro  (peretuset@openmote.com)
 @version    v0.1
 @date       February, 2019
@@ -11,7 +11,7 @@
 
 import Board
 
-class ReceiveBoard(Board.Board):
+class BoardReceiver(Board.Board):
     def __init__(self, port = None, baudrate = None, timeout = 0.1):
         super().__init__(port = port, baudrate = baudrate, timeout = timeout)
         
@@ -30,21 +30,21 @@ class ReceiveBoard(Board.Board):
 
             # Wait to receive start command
             if (self.acquired):
-                logger.info("ReceiveBoard::run")
+                logger.info("BoardReceiver::run")
 
                 # Start the radio
                 result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = Serial_Cmd.ON)
                 if (result == False):
-                    logger.error("ReceiveBoard::run Error starting the radio")
-                    raise ValueError("ReceiveBoard::run Error starting the radio")
+                    logger.error("BoardReceiver::run Error starting the radio")
+                    raise ValueError("BoardReceiver::run Error starting the radio")
                 
                 # Configure the radio
                 result = self.send_cfg_message(timeout = 1.0, core = self.core, cmd = Serial_Cmd.CFG,
                                                settings = self.settings, frequency = self.frequency,
                                                tx_length = self.tx_length, tx_power = 0)
                 if (result == False):
-                    logger.error("ReceiveBoard::run Error configuring the radio")
-                    raise ValueError("ReceiveBoard::run Error configuring the radio")
+                    logger.error("BoardReceiver::run Error configuring the radio")
+                    raise ValueError("BoardReceiver::run Error configuring the radio")
                 
                 self.elapsed_time = 0
                 self.rx_packets = 0
@@ -58,11 +58,11 @@ class ReceiveBoard(Board.Board):
                     result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = Serial_Cmd.RX, param = 25)
                     
                     if (result):
-                        logger.info("ReceiveBoard::run Received packet from the radio")
+                        logger.info("BoardReceiver::run Received packet from the radio")
                         self.rx_packets += 1
                     else:
                         self.rx_timeout += 1
-                        logger.info("ReceiveBoard::run Timeout receiving packet from the radio")
+                        logger.info("BoardReceiver::run Timeout receiving packet from the radio")
 
                 # Set end time
                 end_time = time.time()
