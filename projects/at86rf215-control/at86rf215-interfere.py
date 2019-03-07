@@ -26,15 +26,13 @@ import random
 import signal
 import struct
 import string
-import threading
 import time
 
-from At86rf215 import *
-from TransmitBoard import *
-from ReceiveBoard import *
-from InterfereBoard import *
-from ExperimentManager import *
-
+import At86rf215
+import TransmitBoard
+import ReceiveBoard
+import InterfereBoard
+import ExperimentManager
 import Serial
 
 logger = logging.getLogger(__name__)
@@ -60,38 +58,32 @@ def main():
     configuration = {"core": At86rf215_Core.RF09,
                      "tx_settings": [At86rf215_Cfg.OFDM_1_MCS_1, At86rf215_Cfg.OFDM_2_MCS_2, At86rf215_Cfg.OFDM_3_MCS_3, At86rf215_Cfg.OFDM_4_MCS_5, At86rf215_Cfg.OQPSK_RATE_5],
                      "tx_frequency": At86rf215_Freq.FREQ_OQPSK_1, 
-                     "tx_power": 15,
-                     "tx_length": [20,120],
-                     "ix_settings": [At86rf215_Cfg.OFDM_1_MCS_1, At86rf215_Cfg.OFDM_2_MCS_2, At86rf215_Cfg.OFDM_3_MCS_3, At86rf215_Cfg.OFDM_4_MCS_5, At86rf215_Cfg.OQPSK_RATE_5],
+                     "tx_power": 12,
+                     "tx_length": [20, 120],
+                     "ix_settings": At86rf215_Cfg.OFDM_1_MCS_6,
+                     "ix_active": True,
                      "ix_frequency": At86rf215_Freq.FREQ_OQPSK_1, 
-                     "ix_power": [None,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+                     "ix_power": 20,
                      "ix_length": 123,
-                     "packet_count": 1000,
+                     "packet_count": 100,
                      "packet_delay": 0.005,
-                     "duration_ms": 30000
-                    }
+                     "duration_ms": 30000}
 
     # Set up SIGINT signal
     signal.signal(signal.SIGINT, signal_handler)
 
     # Create the transmit, interfere and receive objects
-    transmit  = TransmitBoard(port = transmit_uart, baudrate = baudrate)
     interfere = InterfereBoard(port = interfere_uart, baudrate = baudrate)
-    receive   = ReceiveBoard(port = receive_uart, baudrate = baudrate)
 
-    # Create experiment manager and inject transmit, interfere and receive objects, and the experiment configuration
-    em = ExperimentManager(transmit = transmit, receive = receive, interfere = interfere, configuration = configuration)
-    
-    # Start experiment manager
-    em.start()
+    interfere.start()
+    interfere.configure(configuration = configuration)
+    interfere.execute()
 
     # Wait until experiment finishes
     while (not finished):
         time.sleep(0.1)
 
-    # Stop experiment manager
-    em.finish()
-    em.join()
+    interfere.finish()
 
 if __name__ == "__main__":
     main()
