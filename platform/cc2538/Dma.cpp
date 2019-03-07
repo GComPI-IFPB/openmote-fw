@@ -128,11 +128,7 @@ uint32_t Dma::memcpy(uint8_t* dst, uint8_t* src, uint32_t length)
 /*=============================== protected =================================*/
 
 void Dma::interruptHandler(void)
-{ 
-  uint32_t status;
-  
-  status = uDMAIntStatus();
-  
+{  
   semaphore_.giveFromInterrupt();
 }
 
