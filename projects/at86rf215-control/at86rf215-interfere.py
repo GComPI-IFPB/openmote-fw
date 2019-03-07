@@ -55,18 +55,12 @@ def main():
 
     # Create the experiment configuration
     configuration = {"core": At86rf215_Core.RF09,
-                     "tx_settings": [At86rf215_Cfg.OFDM_1_MCS_1, At86rf215_Cfg.OFDM_2_MCS_2, At86rf215_Cfg.OFDM_3_MCS_3, At86rf215_Cfg.OFDM_4_MCS_5, At86rf215_Cfg.OQPSK_RATE_5],
-                     "tx_frequency": At86rf215_Freq.FREQ_OQPSK_1, 
-                     "tx_power": 12,
-                     "tx_length": [20, 120],
                      "ix_settings": At86rf215_Cfg.OFDM_1_MCS_6,
                      "ix_active": True,
                      "ix_frequency": At86rf215_Freq.FREQ_OQPSK_1, 
                      "ix_power": 20,
-                     "ix_length": 123,
-                     "packet_count": 100,
-                     "packet_delay": 0.005,
-                     "duration_ms": 30000}
+                     "ix_length": 123
+                    }
 
     # Set up SIGINT signal
     signal.signal(signal.SIGINT, signal_handler)
