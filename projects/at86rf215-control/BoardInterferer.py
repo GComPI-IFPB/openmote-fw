@@ -32,7 +32,7 @@ class BoardInterferer(Board.Board):
             self.acquired = self.exp_run.acquire(False)
             if (self.acquired and self.active):
                 # Start the radio
-                result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = At86rf215_Cmd.ON)
+                result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = At86rf215_Cmd.ON, param = 2)
                 if (result == False):
                     logger.error("BoardInterferer::run Error starting the radio")
                     raise ValueError("BoardInterferer::run Error starting the radio")

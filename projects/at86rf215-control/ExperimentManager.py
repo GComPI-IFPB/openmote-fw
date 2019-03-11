@@ -11,6 +11,7 @@
 
 import csv
 import logging
+import math
 import threading
 import time
 
@@ -64,32 +65,55 @@ class ExperimentManager(threading.Thread):
 
                 # For each modulation to test
                 for tx_settings in tx_settings_tests:
+
+                    # Normalize transmit power based on modulation
+                    if (tx_settings != At86rf215_Cfg.OQPSK_RATE_5):
+                        tx_power = self.configuration["tx_power"]
+                        tx_scratch = math.floor(1.027 * (tx_power - 12) + 19.24)
+                        self.configuration["tx_power"] = tx_scratch
+                        tx_power_report = math.ceil(tx_scratch / 1.027 - 18.73)
+                    else:
+                        tx_power = self.configuration["tx_power"]
+                        tx_scratch = tx_power
+                        tx_power_report = self.configuration["tx_power"] - 12
                     
                     # Accumulate PDR results
                     pdr_results = [tx_settings.name]
 
                     # For each transmit power
-                    for tx_power in power_tests:
-                        print("Running noise={} with signal={}, SINR={} dB, Length={} bytes.".format(ix_settings.name, tx_settings.name,
-                                                                                                                tx_power, packet_length))
-
+                    for ix_power in power_tests:
+                        
                         # Configure interference power
-                        if (tx_power == None):
+                        if (ix_power == None):
                             ix_active = False
                         else:
                             ix_active = True
+                        
+                        # Normalize interference power based on modulation
+                        if (ix_settings != At86rf215_Cfg.OQPSK_RATE_5):
+                            ix_scratch = ix_power
+                            if (ix_active == True):
+                                ix_power = math.floor(1.027 * (ix_power - 12) + 19.24)
+                            else:
+                                ix_power = 0
+                            ix_power_report = math.ceil(ix_power / 1.027 - 18.73)
+                        else:
+                            ix_scratch = ix_power
+                            if (ix_active != True):
+                                ix_power = 0
+                            ix_power_report = ix_power - 12
+                        
+                        # Calculate SINR based on actual power
+                        sinr = tx_power_report - ix_power_report
 
-                        # Normalize power when using OQPSK-DSSS
-                        if (ix_settings == At86rf215_Cfg.OQPSK_RATE_5 and tx_power != None):
-                            tx_power -= 3
-
-                        if (tx_settings == At86rf215_Cfg.OQPSK_RATE_5):
-                            self.configuration["tx_power"] = self.configuration["tx_power"] - 3
+                        # Print test report
+                        print("Running noise={} with signal={}, Length={} bytes, SINR={} dB (tx_power={:.0f}, ix_power={:.0f}, tx_scratch={}, ix_scratch={}).".format(
+                                ix_settings.name, tx_settings.name, packet_length, sinr, tx_power_report, ix_power_report, tx_scratch, ix_scratch))
 
                         # Update configuration based on current settings
                         self.configuration["tx_settings"] = tx_settings
                         self.configuration["ix_settings"] = ix_settings
-                        self.configuration["ix_power"]    = tx_power
+                        self.configuration["ix_power"]    = ix_power
                         self.configuration["ix_active"]   = ix_active
                         self.configuration["tx_length"]   = packet_length
 
@@ -151,10 +175,6 @@ class ExperimentManager(threading.Thread):
                         self.transmit.wait()
                         self.receive.wait()
 
-                        # Recover transmit power settings
-                        if (tx_settings == At86rf215_Cfg.OQPSK_RATE_5):
-                            self.configuration["tx_power"] = self.configuration["tx_power"] + 3
-
                         # Calculate statistics
                         tx_packets = self.stats["tx_packets"]
                         rx_packets = self.stats["rx_packets"]
@@ -162,6 +182,9 @@ class ExperimentManager(threading.Thread):
 
                         # Append results to list
                         pdr_results.append(pdr)
+
+                    # Recover transmit power settings
+                    self.configuration["tx_power"] = tx_power
 
                     # Print PDR results
                     print(pdr_results)

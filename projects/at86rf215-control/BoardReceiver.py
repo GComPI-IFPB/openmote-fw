@@ -40,7 +40,7 @@ class BoardReceiver(Board.Board):
                 logger.info("BoardReceiver::run")
 
                 # Start the radio
-                result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = At86rf215_Cmd.ON)
+                result = self.send_cmd_message(timeout = 1.0, core = self.core, cmd = At86rf215_Cmd.ON, param = 1)
                 if (result == False):
                     logger.error("BoardReceiver::run Error starting the radio")
                     raise ValueError("BoardReceiver::run Error starting the radio")
