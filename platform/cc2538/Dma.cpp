@@ -21,7 +21,8 @@
 
 #define DMA_CHANNEL             ( UDMA_CH30_SW )
 #define DMA_CHANNEL_SEL         ( UDMA_CH30_SW | UDMA_PRI_SELECT )
-#define DMA_CONTROL             ( UDMA_SIZE_8 | UDMA_SRC_INC_8 | UDMA_DST_INC_8 | UDMA_ARB_8 )
+#define DMA_CONTROL_MEMCPY      ( UDMA_SIZE_8 | UDMA_SRC_INC_8 | UDMA_DST_INC_8 | UDMA_ARB_1 )
+#define DMA_CONTROL_MEMSET      ( UDMA_SIZE_8 | UDMA_SRC_INC_NONE | UDMA_DST_INC_8 | UDMA_ARB_1 )
 #define DMA_MODE                ( UDMA_MODE_AUTO )
 #define DMA_ATTRIBUTES          ( UDMA_ATTR_ALL )
 
@@ -73,6 +74,57 @@ void Dma::init(void)
   }
 }
 
+uint32_t Dma::memset(uint8_t* dst, uint8_t val, uint32_t length)
+{
+  uint32_t size;
+  uint32_t total = 0;
+
+  /* Take the mutex */
+  mutex_.take();
+  
+  /* Run while there are bytes */
+  while (length > 0)
+  {
+    /* If length is above limit */
+    if (length > DMA_TRANSFER_LIMIT)
+    {
+      size = DMA_TRANSFER_LIMIT;
+    }
+    else
+    {
+      size = length;
+    }
+    
+    /* Setup DMA control for memory copy */
+    uDMAChannelControlSet(DMA_CHANNEL_SEL, DMA_CONTROL_MEMSET);
+    
+    /* Setup DMA buffers for memory copy using BASIC mode */
+    uDMAChannelTransferSet(DMA_CHANNEL_SEL, DMA_MODE, &val, dst, size);
+    
+    /* Enable DMA channel */
+    uDMAChannelEnable(DMA_CHANNEL);
+    
+    /* Request DMA transfer */
+    uDMAChannelRequest(DMA_CHANNEL);
+    
+    /* Wait until transfer is complete */
+    semaphore_.take();
+    
+    /* Update pointers, length and total bytes */
+    dst += size;
+    length -= size;
+    total += size;
+  }
+  
+  /* Disable DMA channel */
+  uDMAChannelAttributeDisable(DMA_CHANNEL, DMA_ATTRIBUTES);
+  
+  /* Give the mutex */
+  mutex_.give();
+  
+  return total;
+}
+
 uint32_t Dma::memcpy(uint8_t* dst, uint8_t* src, uint32_t length)
 {
   uint32_t size;
@@ -95,7 +147,7 @@ uint32_t Dma::memcpy(uint8_t* dst, uint8_t* src, uint32_t length)
     }
     
     /* Setup DMA control for memory copy */
-    uDMAChannelControlSet(DMA_CHANNEL_SEL, DMA_CONTROL);
+    uDMAChannelControlSet(DMA_CHANNEL_SEL, DMA_CONTROL_MEMCPY);
     
     /* Setup DMA buffers for memory copy using BASIC mode */
     uDMAChannelTransferSet(DMA_CHANNEL_SEL, DMA_MODE, src, dst, size);

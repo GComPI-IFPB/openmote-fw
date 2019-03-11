@@ -27,6 +27,7 @@ public:
   Dma();
   void init(void);
   uint32_t memcpy(uint8_t* dst, uint8_t* src, uint32_t length);
+  uint32_t memset(uint8_t* dst, uint8_t val, uint32_t length);
 protected:
   void interruptHandler(void);
   void errorHandler(void);
