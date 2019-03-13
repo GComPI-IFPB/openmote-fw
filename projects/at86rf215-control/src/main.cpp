@@ -35,7 +35,7 @@
 #define SPI_BAUDRATE                        ( 16000000 )
 
 #define RADIO_RX_BUFFER_LENGTH              ( 128 )
-#define RADIO_TX_BUFFER_LENGTH              ( 123 )
+#define RADIO_TX_BUFFER_LENGTH              ( 128 )
 #define RADIO_TX_BUFFER_FILL                ( 0x55 )
 
 /*================================ typedef ==================================*/
@@ -44,7 +44,7 @@
 
 static void prvGreenLedTask(void *pvParameters);
 
-static bool radio_on(uint8_t rc);
+static bool radio_on(uint8_t rc, uint8_t mode);
 static bool radio_off(uint8_t rc);
 static bool radio_reset(uint8_t rc);
 static bool radio_config(uint8_t rc, uint8_t settings, uint8_t frequency, uint8_t length, uint8_t power);
@@ -145,7 +145,7 @@ static At86rf215::RadioCore get_radio_core(uint8_t val)
   return rc;
 }
 
-static bool radio_on(uint8_t rc)
+static bool radio_on(uint8_t rc, uint8_t mode)
 {
   At86rf215::RadioCore rc_;
   bool status;
@@ -171,12 +171,29 @@ static bool radio_on(uint8_t rc)
   at86rf215.setTxCallbacks(rc_, &radio_tx_init_cb, &radio_tx_done_cb);
   at86rf215.enableInterrupts();
   
-  /* Prepare radio_tx_buffer */
-  for (uint16_t i = 0; i < radio_tx_buffer_len; i++)
-  {
-    radio_tx_buffer[i] = RADIO_TX_BUFFER_FILL;
+  /* If mode is normal or mode is interfere */
+  if (mode == 1)
+  { 
+    /* Prepare radio_tx_buffer */
+    for (uint16_t i = 0; i < radio_tx_buffer_len; i++)
+    {
+      radio_tx_buffer[i] = i;
+    }
   }
-  
+  else if (mode == 2)
+  {
+    /* Prepare radio_tx_buffer */
+    for (uint16_t i = 0; i < radio_tx_buffer_len; i++)
+    {
+      radio_tx_buffer[i] = RADIO_TX_BUFFER_FILL;
+    }
+  }
+  else
+  {
+    while(1)
+      ;
+  }
+
   return true;
 }
 
@@ -250,6 +267,9 @@ static bool radio_receive_packet(uint8_t rc, uint8_t timeout_ms)
   bool received;
   bool crc;
   
+  /* Reset the receive buffer */
+  dma.memset(radio_rx_buffer, 0x00, radio_rx_buffer_len);
+  
   /* Get radio core */
   rc_ = get_radio_core(rc);
   
@@ -265,13 +285,31 @@ static bool radio_receive_packet(uint8_t rc, uint8_t timeout_ms)
   /* If we have received a packet */
   if (received == true)
   {
-    /* Load packet to radio */
-    result = at86rf215.getPacket(rc_, radio_rx_buffer, &radio_rx_buffer_len, &rssi, &lqi, &crc);
+    uint16_t length;
+    
+    /* Set the length of the receive buffer */
+    length = radio_rx_buffer_len;
+    
+    /* Recover packet from the radio */
+    result = at86rf215.getPacket(rc_, radio_rx_buffer, &length, &rssi, &lqi, &crc);
     
     /* Check packet has been received successfully */
     if (result == At86rf215::Success && crc == true)
     {
+      /* Assume the packet has been received correctly */
       received = true;
+    
+      /* Check radio_rx_buffer against radio_tx_buffer */
+      for (uint16_t i = 0; i < length; i++)
+      {
+        /* If the byte does not match the transmitted byte */
+        if (radio_rx_buffer[i] != radio_tx_buffer[i])
+        {
+          /* The packet has not been received correctly */
+          received = false;
+          break;
+        }
+      }
     }
     else
     {

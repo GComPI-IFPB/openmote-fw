@@ -49,7 +49,7 @@ typedef struct
 
 typedef struct
 {
-  bool (* on)(uint8_t rc);
+  bool (* on)(uint8_t rc, uint8_t mode);
   bool (* off)(uint8_t rc);
   bool (* reset)(uint8_t rc);
   bool (* config)(uint8_t rc, uint8_t settings, uint8_t frequency, uint8_t length, uint8_t power);

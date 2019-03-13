@@ -112,11 +112,12 @@ void SerialParser::run(void)
 bool SerialParser::parse_on(uint8_t* params)
 {
   bool result;
-  uint8_t rc;
+  uint8_t rc, mode;
   
   rc  = params[0];
+  mode = params[1];
   
-  result = callbacks_.on(rc);
+  result = callbacks_.on(rc, mode);
   
   return result;
 }
