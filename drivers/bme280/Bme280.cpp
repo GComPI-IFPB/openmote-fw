@@ -119,72 +119,72 @@ bool Bme280::read(Bme280Data* data)
 
 int8_t Bme280::i2c_read(uint8_t dev_id, uint8_t reg_addr, uint8_t* buffer, uint16_t length)
 {
-    bool result;
+  bool result;
 
-    // Obtain the mutex of the I2C driver
-    i2c_.lock();
+  /* Obtain the mutex of the I2C driver */
+  i2c_.lock();
 
-    if (length == 1)
-    {
-        result = i2c_.writeByte(dev_id, reg_addr);
-        if (!result) goto error;
+  if (length == 1)
+  {
+    result = i2c_.writeByte(dev_id, reg_addr);
+    if (!result) goto error;
 
-        result = i2c_.readByte(dev_id, buffer);
-        if (!result) goto error;
-    }
-    else
-    {
-        result = i2c_.writeByte(dev_id, reg_addr);
-        if (!result) goto error;
+    result = i2c_.readByte(dev_id, buffer);
+    if (!result) goto error;
+  }
+  else
+  {
+    result = i2c_.writeByte(dev_id, reg_addr);
+    if (!result) goto error;
 
-        result = i2c_.readByte(dev_id, buffer, length);
-        if (!result) goto error;
-    }
+    result = i2c_.readByte(dev_id, buffer, length);
+    if (!result) goto error;
+  }
 
-    // Release the mutex of the I2C driver
-    i2c_.unlock();
+  /* Release the mutex of the I2C driver */
+  i2c_.unlock();
 
-    return 0;
+  return 0;
 error:
-    // Release the mutex of the I2C driver
-    i2c_.unlock();
-    return -1;
+  /* Release the mutex of the I2C driver */
+  i2c_.unlock();
+  return -1;
 }
 
 int8_t Bme280::i2c_write(uint8_t dev_id, uint8_t reg_addr, uint8_t* buffer, uint16_t length)
 {
-    uint8_t scratch[32];
-    uint8_t scratch_len  = 0;
-    bool status;
+  uint8_t scratch[32];
+  uint8_t scratch_len  = 0;
+  bool status;
 
-    // Obtain the mutex of the I2C driver
-    i2c_.lock();
+  /* Obtain the mutex of the I2C driver */
+  i2c_.lock();
 
-    scratch[scratch_len] = reg_addr;
+  scratch[scratch_len] = reg_addr;
+  scratch_len++;
+
+  for (uint8_t i = 0; i < length; i++)
+  {
+    scratch[scratch_len] = buffer[i];
     scratch_len++;
+  }
 
-    for (uint8_t i = 0; i < length; i++)
-    {
-        scratch[scratch_len] = buffer[i];
-        scratch_len++;
-    }
+  /* Write the scratch buffer */
+  status = i2c_.writeByte(dev_id, scratch, scratch_len);
+  if (!status) goto error;
 
-    // Write the scratch buffer
-    status = i2c_.writeByte(dev_id, scratch, scratch_len);
-    if (!status) goto error;
+  /* Release the mutex of the I2C driver */
+  i2c_.unlock();
 
-    // Release the mutex of the I2C driver
-    i2c_.unlock();
-
-    return 0;
+  return 0;
 
 error:
-    // Release the mutex of the I2C driver
-    i2c_.unlock();
-    return -1;
+  /* Release the mutex of the I2C driver */
+  i2c_.unlock();
+  return -1;
 }
 
 void Bme280::delay_ms(uint16_t ms)
 {
-    Scheduler::delay_ms(ms);
+  Scheduler::delay_ms(ms);
 }

@@ -376,7 +376,7 @@ int8_t bme280_init(struct bme280_dev *dev)
 				break;
 			}
 
-			/* Recover BME280 obect pointer */
+			/* Recover BME280 object pointer */
 			Bme280* bme280 = (Bme280 *) dev->bme280;
 
 			/* Wait for 1 ms */
@@ -588,7 +588,7 @@ int8_t bme280_soft_reset(const struct bme280_dev *dev)
 		rslt = bme280_set_regs(&reg_addr, &soft_rst_cmd, 1, dev);
 
 		/* Recover BME280 obect pointer */
-        Bme280* bme280 = (Bme280 *) dev->bme280;
+    Bme280* bme280 = (Bme280 *) dev->bme280;
 
 		/* As per data sheet, startup time is 2 ms. */
 		bme280->delay_ms(2);
