@@ -44,11 +44,11 @@ enum {
   CONFIG_FSK_OPTION1 = 0,
   CONFIG_FSK_OPTION2,
   CONFIG_FSK_OPTION3,
-  CONFIG_OQPSK_RATE1,
-  CONFIG_OQPSK_RATE2,
-  CONFIG_OQPSK_RATE3,
-  CONFIG_OQPSK_RATE4,
-  CONFIG_OQPSK_RATE5,
+  CONFIG_OQPSK_RATE1,/* OQPSK-DSSS,  100 kchips/s,   6.25 kbps */
+  CONFIG_OQPSK_RATE2,/* OQPSK-DSSS,  100 kchips/s,  12.50 kbps */
+  CONFIG_OQPSK_RATE3,/* OQPSK-DSSS,  100 kchips/s,  25.00 kbps */
+  CONFIG_OQPSK_RATE4,/* OQPSK-DSSS,  100 kchips/s,  50.00 kbps */
+  CONFIG_OQPSK_RATE5,/* OQPSK-DSSS, 2000 kchips/s, 250 kbps, legacy */
   CONFIG_OFDM1_MCS0, /* BPSK,   rate 1/2, 4x repetition,  100 kbps */
   CONFIG_OFDM1_MCS1, /* BPSK,   rate 1/2, 2x repetition,  200 kbps */
   CONFIG_OFDM1_MCS2, /* QPSK,   rate 1/2, 2x repetition,  400 kbps */

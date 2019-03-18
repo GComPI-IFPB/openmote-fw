@@ -59,7 +59,10 @@ extern BoardImplementation board;
 
 At86rf215::At86rf215(Spi& spi, GpioOut& pwr, GpioOut& rst, GpioOut& cs, GpioIn& irq):
   spi_(spi), pwr_(pwr), rst_(rst), cs_(cs), irq_(irq),
-  callback_(this, &At86rf215::interruptHandler)
+  callback_(this, &At86rf215::interruptHandler),
+  rx09Init_(nullptr), rx09Done_(nullptr), tx09Init_(nullptr), tx09Done_(nullptr),
+  rx24Init_(nullptr), rx24Done_(nullptr), tx24Init_(nullptr), tx24Done_(nullptr),
+  rf09_irqm(0), rf24_irqm(0), bbc0_irqm(0), bbc1_irqm(0)
 
 {
   irq_.setCallback(&callback_);
@@ -80,7 +83,8 @@ void At86rf215::on(void)
 
 void At86rf215::off(void)
 {
-  cs_.low();
+  cs_.high();
+  board.delayMilliseconds(AT86RF215_DELAY_MS);
   rst_.low();
   pwr_.low();
   board.delayMilliseconds(AT86RF215_DELAY_MS);
@@ -96,7 +100,7 @@ void At86rf215::hardReset(void)
 
 void At86rf215::softReset(RadioCore rc)
 {
-    goToState(rc, RadioCommand::CMD_RESET, RadioState::STATE_RESET);
+  goToState(rc, RadioCommand::CMD_RESET, RadioState::STATE_RESET);
 }
 
 bool At86rf215::check(void)
