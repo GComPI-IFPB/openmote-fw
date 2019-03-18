@@ -13,7 +13,11 @@
 
 #include "BoardImplementation.hpp"
 
+#include "platform_types.hpp"
+
 #include "I2c.hpp"
+
+#include "Serial.hpp"
 
 #include "Callback.hpp"
 #include "Scheduler.hpp"
@@ -26,7 +30,16 @@
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY         ( tskIDLE_PRIORITY + 0 )
-#define INA226_TASK_PRIORITY            ( tskIDLE_PRIORITY + 1 )
+#define PARSER_TASK_PRIORITY            ( tskIDLE_PRIORITY + 1 )
+#define INA226_TASK_PRIORITY            ( tskIDLE_PRIORITY + 2 )
+
+#define UART_BAUDRATE						        ( 1267200 )
+
+#define SERIAL_BUFFER_LENGTH            ( 256 )
+
+#define SERIAL_CMD_NONE                 ( 0 )
+#define SERIAL_CMD_START                ( 1 )
+#define SERIAL_CMD_STOP                 ( 2 )
 
 #define INA226_IRQ_PORT                 ( GPIO_B_BASE )
 #define INA226_IRQ_PIN                  ( GPIO_PIN_2 )
@@ -35,25 +48,45 @@
 #define INA226_I2C_ADDRESS              ( 0x40 )
 
 #define INA226_USER_CONFIG              ( INA226_CONFIG_DEFAULT | \
-                                          INA226_CONFIG_AVG_BIT_1024 | INA226_CONFIG_CT_VSH_588US | \
+                                          INA226_CONFIG_AVG_BIT_4 | INA226_CONFIG_CT_VSH_588US | \
                                           INA226_CONFIG_CT_VBUS_588US | INA226_CONFIG_MODE_SV_CONT )
 #define INA226_USER_CALIB               ( 0x0000 )
 
 /*================================ typedef ==================================*/
 
+typedef struct
+{
+  uint8_t cmd;
+  uint32_t timeout;
+} ina226_cfg_t;
+
 /*=============================== prototypes ================================*/
 
 static void prvGreenLedTask(void *pvParameters);
 static void prvIna226Task(void *pvParameters);
+static void prvParserTask(void *pvParameters);
+
+static bool ina226_cfg_parse(uint8_t* data, uint16_t length, ina226_cfg_t* ina226_cfg);
 
 /*=============================== variables =================================*/
 
+static Serial serial(uart0);
+
+static uint8_t serial_rx_buffer[SERIAL_BUFFER_LENGTH];
+static uint16_t serial_rx_buffer_len = sizeof(serial_rx_buffer);
+
 static Task heartbeatTask{(const char *) "Heartbeat", 128, GREEN_LED_TASK_PRIORITY, prvGreenLedTask, nullptr};
 static Task ina226Task{(const char *) "Ina226", 128, INA226_TASK_PRIORITY, prvIna226Task, nullptr};
+static Task parserTask{(const char *) "Parser", 128, PARSER_TASK_PRIORITY, prvParserTask, nullptr};
 
 static const GpioConfig ina226_irq_cfg {INA226_IRQ_PORT, INA226_IRQ_PIN, INA226_IRQ_IOC, INA226_IRQ_EDGE, 0};
 static GpioIn ina226_irq {ina226_irq_cfg};
 static Ina226 ina226 {i2c, ina226_irq};
+
+static SemaphoreBinary run_semaphore {false};
+
+static bool finished = false;
+static uint32_t timeout = 0;
 
 /*================================= public ==================================*/
 
@@ -61,6 +94,12 @@ int main (void)
 {
   /* Initialize the board */
   board.init();
+  
+  /* Enable the UART interface */
+  uart0.enable(UART_BAUDRATE);
+  
+  /* Initialize Serial interface */
+  serial.init();
   
   /* Enable I2C */
   i2c.enable();
@@ -73,38 +112,140 @@ int main (void)
 
 /*================================ private ==================================*/
 
-static void prvIna226Task(void *pvParameters)
+static void prvParserTask(void *pvParameters)
 {
-  Ina226Config config;
-  Ina226Data data;
-  bool status;
-  
-  config.config = INA226_USER_CONFIG;
-  config.calibration = INA226_USER_CALIB;
-  
-  ina226.init(INA226_I2C_ADDRESS);
-  ina226.reset();
-  
-  status = ina226.configure(config);
-  
-  status = ina226.start();
-  
-  /* Forever */
-  while (true)
+  while(true)
   {
-    status = ina226.read(data, INA226_MEASURE_ALL, 1000);
-    if (status)
+    ina226_cfg_t ina226_cfg;
+    uint16_t length;
+    bool result;
+    
+    /* Read buffer using Serial */
+    length = serial.read(serial_rx_buffer, serial_rx_buffer_len);
+    
+    /* Check status */
+    if (length > 0)
     {
-      led_yellow.on();
-      Scheduler::delay_ms(10);
-      led_yellow.off();
+      result = ina226_cfg_parse(serial_rx_buffer, serial_rx_buffer_len, &ina226_cfg);
     }
     else
     {
+      result = false;
+    }
+    
+    /* If result is successful */
+    if (result)
+    {
+      /* Select command to execute */
+      switch (ina226_cfg.cmd)
+      {
+        case SERIAL_CMD_START:
+          /* Notify task to run with timeout */
+          finished = false;
+          timeout = ina226_cfg.timeout;
+          run_semaphore.give();
+          break;
+        case SERIAL_CMD_STOP:
+          /* Notify task to stop */
+          finished = true;
+          break;
+        default:
+            break;
+      }
+    }
+  }
+}
+
+static void prvIna226Task(void *pvParameters)
+{
+  /* Initialize INA226 */
+  ina226.init(INA226_I2C_ADDRESS);
+    
+  /* Forever */
+  while (true)
+  {
+    Ina226Config ina226_config;
+    uint32_t start_time, current_time;
+    int32_t elapsed_time;
+    bool check_timeout;
+    bool status;
+    
+    /* Wait until the task can run */
+    run_semaphore.take();
+    
+    /* Reset INA226 */
+    ina226.reset();
+    
+    /* Prepare INA226 configuration */
+    ina226_config.config = INA226_USER_CONFIG;
+    ina226_config.calibration = INA226_USER_CALIB;
+    
+    /* Configure INA226 */
+    status = ina226.configure(ina226_config);
+    
+    /* Start INA226 */
+    status = ina226.start();
+    
+    /* Get start_time and current_time */
+    start_time   = Scheduler::get_ms();
+    current_time = Scheduler::get_ms();
+    
+    /* If there is timeout, we need to check it */
+    if (timeout > 0)
+    {
+      check_timeout = true;
+    }
+    else
+    {
+      check_timeout = false;
+    }
+    
+    finished = false;
+    
+    /* Run until finished */
+    while (!finished)
+    {
+      Ina226Data ina226_data;
+      uint8_t buffer[2];
+
+      /* Read data from INA226, blocking */
+      status = ina226.read(ina226_data, INA226_MEASURE_SHUNT, 1000);
+      
+      if (!status)
+      {
+        break;
+      }
+      
+      /* Turn on orange LED */
       led_orange.on();
-      Scheduler::delay_ms(10);
+      
+      /* Parse INA226 data to buffer */
+      buffer[0] = ((ina226_data.shunt & 0x00FF) >> 0);
+      buffer[1] = ((ina226_data.shunt & 0xFF00) >> 8);
+      
+      /* Write INA226 data to serial */
+      serial.write(buffer, sizeof(buffer), true);
+      
+      /* Get current_time and calculate elapsed_time */
+      if (check_timeout)
+      {
+        /* Update current and elapsed time */
+        current_time = Scheduler::get_ms();
+        elapsed_time = current_time - start_time;
+
+        /* Check for timeout */
+        if (elapsed_time >= timeout)
+        {
+          finished = true;
+        }
+      }
+      
+      /* Turn on orange LED */
       led_orange.off();
     }
+    
+    /* Stop INA226 */
+    ina226.stop();
   }
 }
 
@@ -121,4 +262,13 @@ static void prvGreenLedTask(void *pvParameters)
     led_green.on();
     Scheduler::delay_ms(50);
   }
+}
+
+static bool ina226_cfg_parse(uint8_t* data, uint16_t length, ina226_cfg_t* ina226_cfg)
+{
+  /* Parse INA226 configuration message */
+  ina226_cfg->cmd     = data[0];
+  ina226_cfg->timeout = data[1] << 24 | data[2] << 16 | data[3] << 8 | data[4] << 0;
+
+  return true;
 }
