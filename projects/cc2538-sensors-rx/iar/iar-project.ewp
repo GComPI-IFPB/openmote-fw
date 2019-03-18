@@ -2310,6 +2310,9 @@
                 <name>$PROJ_DIR$\..\..\..\platform\cc2538\platform_types.h</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\..\..\platform\cc2538\platform_types.hpp</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\..\..\platform\cc2538\Radio.cpp</name>
             </file>
             <file>
