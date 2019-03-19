@@ -33,7 +33,7 @@ from At86rf215 import *
 from BoardTransmitter import *
 from BoardReceiver import *
 from BoardInterferer import *
-from ExperimentManagerInterference import *
+from ExperimentManagerSensitivity import *
 
 import Serial
 
@@ -51,22 +51,17 @@ def main():
     # Set-up logging back-end
     logging.basicConfig(level=logging.ERROR)
 
-    transmit_uart  = "COM39"
-    receive_uart   = "COM67"
-    interfere_uart = "COM45"
+    transmit_uart  = "COM99"
+    receive_uart   = "COM55"
     baudrate       = 1267200
 
     # Create the experiment configuration
     configuration = {"core": At86rf215_Core.RF09,
                      "tx_settings": [At86rf215_Cfg.OFDM_1_MCS_1, At86rf215_Cfg.OFDM_2_MCS_2, At86rf215_Cfg.OFDM_3_MCS_3, At86rf215_Cfg.OFDM_4_MCS_5, At86rf215_Cfg.OQPSK_RATE_5],
                      "tx_frequency": At86rf215_Freq.FREQ_OQPSK_1, 
-                     "tx_power": 15,
-                     "tx_length": [20,120],
-                     "ix_settings": [At86rf215_Cfg.OFDM_1_MCS_1, At86rf215_Cfg.OFDM_2_MCS_2, At86rf215_Cfg.OFDM_3_MCS_3, At86rf215_Cfg.OFDM_4_MCS_5, At86rf215_Cfg.OQPSK_RATE_5],
-                     "ix_frequency": At86rf215_Freq.FREQ_OQPSK_1, 
-                     "ix_power": [None,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
-                     "ix_length": 123,
-                     "packet_count": 10,
+                     "tx_power": [30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0],
+                     "tx_length": [20, 120],
+                     "packet_count": 1000,
                      "packet_delay": 0.005,
                      "duration_ms": 30000
                     }
@@ -76,11 +71,10 @@ def main():
 
     # Create the transmit, interfere and receive objects
     transmit  = BoardTransmitter(port = transmit_uart, baudrate = baudrate)
-    interfere = BoardInterferer(port = interfere_uart, baudrate = baudrate)
     receive   = BoardReceiver(port = receive_uart, baudrate = baudrate)
 
     # Create experiment manager and inject transmit, interfere and receive objects, and the experiment configuration
-    em = ExperimentManagerInterference(transmit = transmit, receive = receive, interfere = interfere, configuration = configuration)
+    em = ExperimentManagerSensitivity(transmit = transmit, receive = receive, configuration = configuration)
     
     # Start experiment manager
     em.start()
