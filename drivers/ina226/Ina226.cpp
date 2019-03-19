@@ -208,6 +208,7 @@ bool Ina226::read(Ina226Data& data, uint8_t mask, uint16_t timeout_ms)
     goto error;
   }
   
+  /* Measure shunt voltage */
   if (mask & INA226_MEASURE_SHUNT == INA226_MEASURE_SHUNT)
   {
     status = readRegister(INA226_SHUNT_VOLTAGE, &data.shunt);
@@ -217,6 +218,7 @@ bool Ina226::read(Ina226Data& data, uint8_t mask, uint16_t timeout_ms)
     }
   }
   
+  /* Measure bus voltage */
   if (mask & INA226_MEASURE_BUS == INA226_MEASURE_BUS)
   {
     status = readRegister(INA226_SHUNT_VOLTAGE, &data.bus);
@@ -226,6 +228,7 @@ bool Ina226::read(Ina226Data& data, uint8_t mask, uint16_t timeout_ms)
     }
   }
   
+  /* Measure power */
   if (mask & INA226_MEASURE_POWER == INA226_MEASURE_POWER)
   {
     status = readRegister(INA226_POWER, &data.power);
@@ -235,6 +238,7 @@ bool Ina226::read(Ina226Data& data, uint8_t mask, uint16_t timeout_ms)
     }
   }
   
+  /* Measure current */
   if (mask & INA226_MEASURE_CURRENT == INA226_MEASURE_CURRENT)
   {
     status = readRegister(INA226_CURRENT, &data.current);
@@ -278,6 +282,7 @@ bool Ina226::test(void)
     goto error;
   }
 
+  
   buffer[0] = INA226_MANUFACTURER_ID;
   
   /* Read Manufacturer register */
