@@ -67,8 +67,13 @@ class Ina226:
     INA226_CONFIG_MODE_BV_CONT      = 6 << 0
     INA226_CONFIG_MODE_SBV_CONT     = 7 << 0
 
-    # INA226 default configuration
+	# INA226 default configuration
     INA226_CONFIG_DEFAULT           = 0x4000
+
+    # INA226 commands
+	INA226_CMD_NONE					= 0x00
+    INA226_CMD_START				= 0x01
+    INA226_CMD_STOP				    = 0x02
 
     def __init__(self, serial_port = None, serial_baudrate = 115200):
         self.serial_port = serial_port
@@ -89,9 +94,10 @@ class Ina226:
         self.finish = True
 
     def configure(self):
-        self.configuration |= INA226_CONFIG_AVG_BIT_16
-        self.configuration |= INA226_CONFIG_CT_VSH_1100US
-        self.configuration |= INA226_CONFIG_CT_VBUS_1100US
+        self.configuration |= self.INA226_CONFIG_AVG_BIT_1
+        self.configuration |= self.INA226_CONFIG_CT_VSH_140US
+        self.configuration |= self.INA226_CONFIG_CT_VBUS_140US
+        self.configuration |= self.INA226_CONFIG_MODE_SV_CONT
 
     def measure(self, calibrate = False, measurement_offset = 0.0, measurement_timeout = 0, 
                 callback_function = None, callback_period = 1000):
@@ -99,7 +105,7 @@ class Ina226:
         measurement = list()
 
         # Prepare and transmit message to start measurement
-        message  = struct.pack("<bI", 1, measurement_timeout)
+        message  = struct.pack("<bIh", self.INA226_CMD_START, self.configuration, measurement_timeout)
         message = [chr(b) for b in message]
         self.serial.transmit(message);
 
@@ -129,7 +135,8 @@ class Ina226:
                 current = self.__convert_data(data = data, calibrate = calibrate, offset = measurement_offset)
 
                 # Append current to measurement
-                measurement.append(current)
+                if (current < 1000.0):
+                    measurement.append(current)
 
                 # Call external callback
                 if (callback_function is not None):
@@ -176,7 +183,7 @@ class Ina226:
             measurement_offset = round(np.mean(measurement), 3)
 
         # Prepare and transmit message to start measurement
-        message  = struct.pack("<b", 2)
+        message  = struct.pack("<b", self.INA226_CMD_STOP)
         message = [chr(b) for b in message]
         self.serial.transmit(message);
 

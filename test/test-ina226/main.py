@@ -94,6 +94,9 @@ def main():
     global ina226_client
     global ina226_data
 
+    # Set-up logging back-end
+    logging.basicConfig(level=logging.ERROR)
+
     # Parse arguments
     args = parse_arguments()
 
@@ -136,6 +139,7 @@ def main():
     ina226_client = Ina226.Ina226(serial_port = serial_port,
                                   serial_baudrate = serial_baudrate)
     ina226_client.init()
+    ina226_client.configure()
 
     # Setup MQTT
     if (mqtt_export):

@@ -37,9 +37,9 @@
 
 #define SERIAL_BUFFER_LENGTH            ( 256 )
 
-#define SERIAL_CMD_NONE                 ( 0 )
-#define SERIAL_CMD_START                ( 1 )
-#define SERIAL_CMD_STOP                 ( 2 )
+#define INA226_CMD_NONE                 ( 0x00 )
+#define INA226_CMD_START                ( 0x01 )
+#define INA226_CMD_STOP                 ( 0x02 )
 
 #define INA226_IRQ_PORT                 ( GPIO_B_BASE )
 #define INA226_IRQ_PIN                  ( GPIO_PIN_2 )
@@ -48,15 +48,16 @@
 #define INA226_I2C_ADDRESS              ( 0x40 )
 
 #define INA226_USER_CONFIG              ( INA226_CONFIG_DEFAULT | \
-                                          INA226_CONFIG_AVG_BIT_4 | INA226_CONFIG_CT_VSH_588US | \
-                                          INA226_CONFIG_CT_VBUS_588US | INA226_CONFIG_MODE_SV_CONT )
-#define INA226_USER_CALIB               ( 0x0000 )
+                                          INA226_CONFIG_AVG_BIT_1 | INA226_CONFIG_CT_VSH_1100US | \
+                                          INA226_CONFIG_CT_VBUS_1100US | INA226_CONFIG_MODE_SV_CONT )
+#define INA226_USER_CALIBRATION         ( 0x00 )
 
 /*================================ typedef ==================================*/
 
 typedef struct
 {
   uint8_t cmd;
+  uint16_t cfg;
   uint32_t timeout;
 } ina226_cfg_t;
 
@@ -87,6 +88,8 @@ static SemaphoreBinary run_semaphore {false};
 
 static bool finished = false;
 static uint32_t timeout = 0;
+
+static Ina226Config ina226_config {.config = INA226_USER_CONFIG, .calibration = INA226_USER_CALIBRATION};
 
 /*================================= public ==================================*/
 
@@ -139,13 +142,14 @@ static void prvParserTask(void *pvParameters)
       /* Select command to execute */
       switch (ina226_cfg.cmd)
       {
-        case SERIAL_CMD_START:
+        case INA226_CMD_START:
           /* Notify task to run with timeout */
           finished = false;
           timeout = ina226_cfg.timeout;
+          ina226_config.config = ina226_cfg.cfg;
           run_semaphore.give();
           break;
-        case SERIAL_CMD_STOP:
+        case INA226_CMD_STOP:
           /* Notify task to stop */
           finished = true;
           break;
@@ -164,7 +168,7 @@ static void prvIna226Task(void *pvParameters)
   /* Forever */
   while (true)
   {
-    Ina226Config ina226_config;
+    
     uint32_t start_time, current_time;
     int32_t elapsed_time;
     bool check_timeout;
@@ -175,10 +179,6 @@ static void prvIna226Task(void *pvParameters)
     
     /* Reset INA226 */
     ina226.reset();
-    
-    /* Prepare INA226 configuration */
-    ina226_config.config = INA226_USER_CONFIG;
-    ina226_config.calibration = INA226_USER_CALIB;
     
     /* Configure INA226 */
     status = ina226.configure(ina226_config);
@@ -209,7 +209,7 @@ static void prvIna226Task(void *pvParameters)
       uint8_t buffer[2];
 
       /* Read data from INA226, blocking */
-      status = ina226.read(ina226_data, INA226_MEASURE_SHUNT, 1000);
+      status = ina226.read(ina226_data, INA226_MEASURE_SHUNT, 0);
       
       if (!status)
       {
@@ -268,7 +268,8 @@ static bool ina226_cfg_parse(uint8_t* data, uint16_t length, ina226_cfg_t* ina22
 {
   /* Parse INA226 configuration message */
   ina226_cfg->cmd     = data[0];
-  ina226_cfg->timeout = data[1] << 24 | data[2] << 16 | data[3] << 8 | data[4] << 0;
-
+  ina226_cfg->cfg     = data[2] <<  8 | data[1] << 0;
+  ina226_cfg->timeout = data[3] << 24 | data[4] << 16 | data[5] << 8 | data[6] << 0;
+  
   return true;
 }
