@@ -91,9 +91,11 @@ static void prvButtonTask(void *pvParameters)
   button_user.enableInterrupts();
 
   /* Forever */
-  while (true) {
+  while (true)
+  {
     /* Take the buttonSemaphore, block until available */
-    if (buttonSemaphore.take()) {
+    if (buttonSemaphore.take())
+    {
       /* Toggle the red LED */
       led_red.toggle();
     }
