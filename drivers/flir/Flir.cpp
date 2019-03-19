@@ -16,8 +16,6 @@
 
 #include "BoardImplementation.hpp"
 
-#include "platform_types.h"
-
 /*================================ define ===================================*/
 
 /*================================ typedef ==================================*/
@@ -73,7 +71,9 @@ void Flir::readRemaining(uint8_t* buffer, uint16_t length)
   /* Read the remaining packets of the frame */
   for (uint8_t i = 0; i < FLIR_ROW_SIZE - 1; i++)
   {
+  	/* Point to the next frame line */ 
     ptr = (buffer + i * FLIR_DATA_SIZE);
+    
     /* Read the next packet of the frame */
     readPacket(ptr, FLIR_DATA_SIZE);
   }
@@ -85,6 +85,7 @@ void Flir::readRemaining(uint8_t* buffer, uint16_t length)
 
 bool Flir::readPacket(uint8_t* buffer_payload, uint16_t length)
 {
+  /* Check that the length is valid */
   if (length < FLIR_DATA_SIZE)
   {
     return false;
@@ -102,7 +103,8 @@ bool Flir::readPacket(uint8_t* buffer_payload, uint16_t length)
 bool Flir::isDiscardPacket(void)
 { 
   /* Check if it is not a discard packet */
-  if (((buffer_header[0] & 0x0F) != 0x0F) && (buffer_header[1] == 0x00))
+  if (((buffer_header[0] & 0x0F) != 0x0F) && 
+  	   (buffer_header[1] == 0x00))
   {
     return false;
   }

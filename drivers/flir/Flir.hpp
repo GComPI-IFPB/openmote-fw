@@ -16,13 +16,6 @@
 #include "Spi.hpp"
 #include "Callback.hpp"
 
-struct FlirHeader
-{
-  uint8_t packet_id;
-  uint8_t camera_id;
-  uint16_t crc;
-};
-
 class Flir
 {
 public:
