@@ -47,9 +47,9 @@
 /* Customer Configuration Area in Lock Page */
 typedef struct
 {
-    uint32_t ui32BootldrCfg;
-    uint32_t ui32ImageValid;
-    uint32_t ui32ImageVectorAddr;
+  uint32_t ui32BootldrCfg;
+  uint32_t ui32ImageValid;
+  uint32_t ui32ImageVectorAddr;
 } lockPageCCA_t;
 
 /*=============================== prototypes ================================*/
@@ -159,73 +159,73 @@ __root static void* dummy_stack @ ".stack";
 /* Vector table */
 __root void (* const __vector_table[])(void) @ ".intvec" =
 {
-    (void (*)(void))&STACK_TOP,             // 0 The initial stack pointer
-    ResetISR,                               // 1 The reset handler
-    NmiISR,                                 // The NMI handler
-    FaultISR,                               // The hard fault handler
-    IntDefaultHandler,                      // 4 The MPU fault handler
-    IntDefaultHandler,                      // 5 The bus fault handler
-    IntDefaultHandler,                      // 6 The usage fault handler
-    0,0,0,0,                                // 7-10 Reserved
-    vPortSVCHandler,                        // 11 SVCall handler
-    IntDefaultHandler,                      // 12 Debug monitor handler
-    0,                                      // 13 Reserved
-    xPortPendSVHandler,                     // 14 The PendSV handler
-    xPortSysTickHandler,                    // 15 The SysTick handler
-    GPIOAIntHandler,                        // 16 GPIO Port A
-    GPIOBIntHandler,                        // 17 GPIO Port B
-    GPIOCIntHandler,                        // 18 GPIO Port C
-    GPIODIntHandler,                        // 19 GPIO Port D
-    0,                                      // 20 none
-    UART0IntHandler,                        // 21 UART0 Rx and Tx
-    UART1IntHandler,                        // 22 UART1 Rx and Tx
-    SSI0IntHandler,                         // 23 SSI0 Rx and Tx
-    I2CIntHandler,                          // 24 I2C Master and Slave
-    0,0,0,0,0,                              // 25-29 Reserved
-    ADCIntHandler,                          // 30 ADC Sequence 0
-    0,0,0,                                  // 31-33 Reserved
-    WatchdogIntHandler,                     // 34 Watchdog timer, timer 0
-    Timer0AIntHandler,                      // 35 Timer 0 subtimer A
-    Timer0BIntHandler,                      // 36 Timer 0 subtimer B
-    Timer1AIntHandler,                      // 37 Timer 1 subtimer A
-    Timer1BIntHandler,                      // 38 Timer 1 subtimer B
-    Timer2AIntHandler,                      // 39 Timer 2 subtimer A
-    Timer2BIntHandler,                      // 40 Timer 2 subtimer B
-    CompIntHandler,                         // 41 Analog Comparator 0
-    RFCoreTxIntHandler,                     // 42 RFCore Rx/Tx
-    RFCoreErrIntHandler,                    // 43 RFCore Error
-    IcePickIntHandler,                      // 44 IcePick
-    FlashIntHandler,                        // 45 FLASH Control
-    AESIntHandler,                          // 46 AES
-    PKAIntHandler,                          // 47 PKA
-    SleepModeIntHandler,                    // 48 Sleep Timer
-    MacTimerIntHandler,                     // 49 MacTimer
-    SSI1IntHandler,                         // 50 SSI1 Rx and Tx
-    Timer3AIntHandler,                      // 51 Timer 3 subtimer A
-    Timer3BIntHandler,                      // 52 Timer 3 subtimer B
-    0,0,0,0,0,0,0,                          // 53-59 Reserved
-    USBIntHandler,                          // 60 USB 2538
-    0,                                      // 61 Reserved
-    uDMAIntHandler,                         // 62 uDMA
-    uDMAErrIntHandler,                      // 63 uDMA Error
+  (void (*)(void))&STACK_TOP,             // 0 The initial stack pointer
+  ResetISR,                               // 1 The reset handler
+  NmiISR,                                 // The NMI handler
+  FaultISR,                               // The hard fault handler
+  IntDefaultHandler,                      // 4 The MPU fault handler
+  IntDefaultHandler,                      // 5 The bus fault handler
+  IntDefaultHandler,                      // 6 The usage fault handler
+  0,0,0,0,                                // 7-10 Reserved
+  vPortSVCHandler,                        // 11 SVCall handler
+  IntDefaultHandler,                      // 12 Debug monitor handler
+  0,                                      // 13 Reserved
+  xPortPendSVHandler,                     // 14 The PendSV handler
+  xPortSysTickHandler,                    // 15 The SysTick handler
+  GPIOAIntHandler,                        // 16 GPIO Port A
+  GPIOBIntHandler,                        // 17 GPIO Port B
+  GPIOCIntHandler,                        // 18 GPIO Port C
+  GPIODIntHandler,                        // 19 GPIO Port D
+  0,                                      // 20 none
+  UART0IntHandler,                        // 21 UART0 Rx and Tx
+  UART1IntHandler,                        // 22 UART1 Rx and Tx
+  SSI0IntHandler,                         // 23 SSI0 Rx and Tx
+  I2CIntHandler,                          // 24 I2C Master and Slave
+  0,0,0,0,0,                              // 25-29 Reserved
+  ADCIntHandler,                          // 30 ADC Sequence 0
+  0,0,0,                                  // 31-33 Reserved
+  WatchdogIntHandler,                     // 34 Watchdog timer, timer 0
+  Timer0AIntHandler,                      // 35 Timer 0 subtimer A
+  Timer0BIntHandler,                      // 36 Timer 0 subtimer B
+  Timer1AIntHandler,                      // 37 Timer 1 subtimer A
+  Timer1BIntHandler,                      // 38 Timer 1 subtimer B
+  Timer2AIntHandler,                      // 39 Timer 2 subtimer A
+  Timer2BIntHandler,                      // 40 Timer 2 subtimer B
+  CompIntHandler,                         // 41 Analog Comparator 0
+  RFCoreTxIntHandler,                     // 42 RFCore Rx/Tx
+  RFCoreErrIntHandler,                    // 43 RFCore Error
+  IcePickIntHandler,                      // 44 IcePick
+  FlashIntHandler,                        // 45 FLASH Control
+  AESIntHandler,                          // 46 AES
+  PKAIntHandler,                          // 47 PKA
+  SleepModeIntHandler,                    // 48 Sleep Timer
+  MacTimerIntHandler,                     // 49 MacTimer
+  SSI1IntHandler,                         // 50 SSI1 Rx and Tx
+  Timer3AIntHandler,                      // 51 Timer 3 subtimer A
+  Timer3BIntHandler,                      // 52 Timer 3 subtimer B
+  0,0,0,0,0,0,0,                          // 53-59 Reserved
+  USBIntHandler,                          // 60 USB 2538
+  0,                                      // 61 Reserved
+  uDMAIntHandler,                         // 62 uDMA
+  uDMAErrIntHandler,                      // 63 uDMA Error
 #ifndef CC2538_USE_ALTERNATE_INTERRUPT_MAP
-    0,0,0,0,0,0,                            // 64-69 64-155 are not in use
-    0,0,0,0,0,0,0,0,0,0,                    // 70-79
-    0,0,0,0,0,0,0,0,0,0,                    // 80-89
-    0,0,0,0,0,0,0,0,0,0,                    // 90-99
-    0,0,0,0,0,0,0,0,0,0,                    // 100-109
-    0,0,0,0,0,0,0,0,0,0,                    // 110-119
-    0,0,0,0,0,0,0,0,0,0,                    // 120-129
-    0,0,0,0,0,0,0,0,0,0,                    // 130-139
-    0,0,0,0,0,0,0,0,0,0,                    // 140-149
-    0,0,0,0,0,0,                            // 150-155
-    USBIntHandler,                          // 156 USB
-    RFCoreTxIntHandler,                     // 157 RFCORE RX/TX
-    RFCoreErrIntHandler,                    // 158 RFCORE Error
-    AESIntHandler,                          // 159 AES
-    PKAIntHandler,                          // 160 PKA
-    SleepModeIntHandler,                    // 161 SMTimer
-    MacTimerIntHandler,                     // 162 MACTimer
+  0,0,0,0,0,0,                            // 64-69 64-155 are not in use
+  0,0,0,0,0,0,0,0,0,0,                    // 70-79
+  0,0,0,0,0,0,0,0,0,0,                    // 80-89
+  0,0,0,0,0,0,0,0,0,0,                    // 90-99
+  0,0,0,0,0,0,0,0,0,0,                    // 100-109
+  0,0,0,0,0,0,0,0,0,0,                    // 110-119
+  0,0,0,0,0,0,0,0,0,0,                    // 120-129
+  0,0,0,0,0,0,0,0,0,0,                    // 130-139
+  0,0,0,0,0,0,0,0,0,0,                    // 140-149
+  0,0,0,0,0,0,                            // 150-155
+  USBIntHandler,                          // 156 USB
+  RFCoreTxIntHandler,                     // 157 RFCORE RX/TX
+  RFCoreErrIntHandler,                    // 158 RFCORE Error
+  AESIntHandler,                          // 159 AES
+  PKAIntHandler,                          // 160 PKA
+  SleepModeIntHandler,                    // 161 SMTimer
+  MacTimerIntHandler,                     // 162 MACTimer
 #endif
 };
 
@@ -236,6 +236,9 @@ __root void (* const __vector_table[])(void) @ ".intvec" =
 /* This is the code that gets called when the processor is reset */
 static void ResetISR(void)
 {
+  /* Workaround for PM debug issue */
+  HWREG(SYS_CTRL_EMUOVR) = 0xFF;
+  
 #ifdef DEBUG
   /* Workaround for System Reset debug issue */
   uint32_t ui32Timeout = 5000000;
@@ -262,26 +265,26 @@ static void ResetISR(void)
 /* This is the code that gets called when the processor receives a NMI  */
 static void NmiISR(void)
 {
-    /* Enter an infinite loop */
-    while(1)
-    {
-    }
+  /* Enter an infinite loop */
+  while(1)
+  {
+  }
 }
 
 /* This is the code that gets called when the processor receives a fault interrupt */
 static void FaultISR(void)
 {
-    /* Enter an infinite loop */
-    while(1)
-    {
-    }
+  /* Enter an infinite loop */
+  while(1)
+  {
+  }
 }
 
 /* This is the code that gets called when the processor receives an unexpected interrupt */
 static void IntDefaultHandler(void)
 {
-    /* Enter an infinite loop */
-    while(1)
-    {
-    }
+  /* Enter an infinite loop */
+  while(1)
+  {
+  }
 }
