@@ -25,8 +25,7 @@ public:
   Semaphore(void);
   ~Semaphore(void);
   bool isTaken(void);
-  bool take(void);
-  bool take(uint32_t milliseconds);
+  bool take(uint32_t milliseconds = 0);
   void give(void);
   void giveFromInterrupt(void);
 protected:

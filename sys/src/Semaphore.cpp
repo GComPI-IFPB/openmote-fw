@@ -48,16 +48,20 @@ bool Semaphore::isTaken(void)
   return true;
 }
 
-bool Semaphore::take(void)
-{
-  bool status = (xSemaphoreTake(semaphore_, portMAX_DELAY) == pdTRUE);
-  return status;
-}
-
 bool Semaphore::take(uint32_t milliseconds)
 {
-  TickType_t timeout = milliseconds / portTICK_RATE_MS;
-  bool status = (xSemaphoreTake(semaphore_, timeout) == pdTRUE);
+  bool status;
+
+  if (milliseconds != 0)
+  {
+    TickType_t timeout = milliseconds / portTICK_RATE_MS;
+    status = (xSemaphoreTake(semaphore_, timeout) == pdTRUE);
+  }
+  else
+  {
+    status = (xSemaphoreTake(semaphore_, portMAX_DELAY) == pdTRUE);
+  }
+  
   return status;
 }
 
