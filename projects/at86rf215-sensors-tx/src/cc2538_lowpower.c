@@ -73,8 +73,8 @@ static void prvDisableRTC(void);
 
 extern BoardParams board_params;
 
-extern TickType_t board_sleep(TickType_t xModifiableIdleTime);
-extern TickType_t board_wakeup(TickType_t xModifiableIdleTime);
+extern void board_sleep(TickType_t xModifiableIdleTime);
+extern void board_wakeup(TickType_t xModifiableIdleTime);
 
 /*================================= public ==================================*/
 
@@ -169,7 +169,7 @@ void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTicks )
 		/* Allow the application to define some pre-sleep processing. This is
 		   the standard configPRE_SLEEP_PROCESSING() macro as described on the
 		   FreeRTOS.org website. */
-		xModifiableIdleTicks = configPRE_SLEEP_PROCESSING( xExpectedIdleTicks );
+		configPRE_SLEEP_PROCESSING( xExpectedIdleTicks );
 
 		/* xExpectedIdleTicks being set to 0 by configPRE_SLEEP_PROCESSING()
 		   means the application defined code has already executed the wait/sleep

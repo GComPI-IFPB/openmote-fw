@@ -65,8 +65,8 @@ typedef struct {
 
 /*=============================== prototypes ================================*/
 
-extern "C" TickType_t board_sleep(TickType_t xModifiableIdleTime);
-extern "C" TickType_t board_wakeup(TickType_t xModifiableIdleTime);
+extern "C" void board_sleep(TickType_t xModifiableIdleTime);
+extern "C" void board_wakeup(TickType_t xModifiableIdleTime);
 
 static void prvHeartbeatTask(void *pvParameters);
 static void prvTransmitTask(void *pvParameters);
@@ -178,14 +178,13 @@ static void prvTransmitTask(void *pvParameters)
       sensor_data.temperature = (uint16_t) (bme280_data.temperature * 10.0f);
       sensor_data.humidity    = (uint16_t) (bme280_data.humidity * 10.0f);
       sensor_data.pressure    = (uint16_t) (bme280_data.pressure * 10.0f);
-      // sensor_data.light       = (uint16_t) (opt3001_data.lux * 10.0f);
+      sensor_data.light       = (uint16_t) (opt3001_data.lux * 10.0f);
       
       /* Turn AT86RF215 radio off */
       at86rf215.on();
       
       /* Wake up and configure radio */
       at86rf215.wakeup(RADIO_CORE);
-      at86rf215.ready(RADIO_CORE);
       at86rf215.configure(RADIO_CORE, RADIO_SETTINGS, RADIO_FREQUENCY);
       at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
 
@@ -243,12 +242,12 @@ static void radio_tx_done(void)
   semaphore.giveFromInterrupt();
 }
 
-TickType_t board_sleep(TickType_t xModifiableIdleTime)
+void board_sleep(TickType_t xModifiableIdleTime)
 {
   /* Check if board can go to sleep */
-  if (false)
+  if (i2c.canSleep())
   {
-    /* If so, put I2C to sleep */
+    /* If so, put SPI & I2C to sleep */
     i2c.sleep();
 
     /* Remember that the board went to sleep */
@@ -262,20 +261,16 @@ TickType_t board_sleep(TickType_t xModifiableIdleTime)
     /* And update the time to ensure it does NOT got to sleep */
     xModifiableIdleTime = 0;
   }
-
-  return xModifiableIdleTime;
 }
 
-TickType_t board_wakeup(TickType_t xModifiableIdleTime)
+void board_wakeup(TickType_t xModifiableIdleTime)
 {
   /* Check if the board went to sleep */
   if (board_slept)
   {
-    /* If so, wakeup I2C */
+    /* If so, wakeup SPI & I2C */
     i2c.wakeup();
   }
-
-  return xModifiableIdleTime;
 }
 
 static uint16_t prepare_packet(uint8_t* packet_ptr, uint8_t* eui48_address, uint32_t packet_counter, SensorData sensor_data)

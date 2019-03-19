@@ -25,7 +25,7 @@
 #else
   #define configPRE_SLEEP_PROCESSING(x)       ( board_sleep(x) ) 
   #define configPOST_SLEEP_PROCESSING(x)      ( board_wakeup(x) )
-  #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP ( 1 )
+  #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP ( 2 )
 #endif
 
 /* Constants that build features in or out. */
