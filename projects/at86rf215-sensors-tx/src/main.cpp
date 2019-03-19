@@ -208,7 +208,7 @@ static void prvTransmitTask(void *pvParameters)
     packet_counter++;
 
     /* Delay for 10 seconds */
-    Scheduler::delay_ms(1000);
+    Scheduler::delay_ms(10000);
   }
 }
 

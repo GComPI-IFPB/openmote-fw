@@ -128,9 +128,6 @@ static void prvRadioTask(void *pvParameters)
     uint8_t* packet_ptr = radio_buffer;
     uint16_t packet_len = radio_buffer_len;
     
-    /* Ready to transmit */
-    at86rf215.ready(RADIO_CORE);
-    
     /* Try to receive a packet */
     at86rf215.receive(RADIO_CORE);
     
