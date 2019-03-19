@@ -210,12 +210,12 @@ void At86rf215::configure(RadioCore rc, const radio_settings_t* radio_settings, 
   crc_length = getCRCLength(rc);
 }
 
-void At86rf215::wakeup(RadioCore rc)
+void At86rf215::sleep(RadioCore rc)
 {
   goToState(rc, RadioCommand::CMD_TRXOFF, RadioState::STATE_TRXOFF);
 }
 
-void At86rf215::ready(RadioCore rc)
+void At86rf215::wakeup(RadioCore rc)
 {
   goToState(rc, RadioCommand::CMD_TXPREP, RadioState::STATE_TXPREP);
 }

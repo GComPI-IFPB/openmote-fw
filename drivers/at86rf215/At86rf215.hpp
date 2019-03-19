@@ -84,8 +84,8 @@ public:
   
   void configure(RadioCore rc, const radio_settings_t* radio_settings, const frequency_settings_t* frequency_settings);
   
+  void sleep(RadioCore rc);
   void wakeup(RadioCore rc);
-  void ready(RadioCore rc);
   void transmit(RadioCore rc);
   void receive(RadioCore rc);
 
