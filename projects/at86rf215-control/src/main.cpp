@@ -274,7 +274,7 @@ static bool radio_receive_packet(uint8_t rc, uint8_t timeout_ms)
   rc_ = get_radio_core(rc);
   
   /* Ready to transmit */
-  at86rf215.ready(rc_);
+  at86rf215.wakeup(rc_);
   
   /* Try to receive a packet */
   at86rf215.receive(rc_);
@@ -336,7 +336,7 @@ static bool radio_transmit_packet(uint8_t rc)
   rc_ = get_radio_core(rc);
   
   /* Ready to transmit */
-  at86rf215.ready(rc_);
+  at86rf215.wakeup(rc_);
   
   /* Load packet to radio */
   at86rf215.loadPacket(rc_, radio_tx_buffer, radio_tx_buffer_len);
@@ -361,7 +361,7 @@ static bool radio_transmit_continuous(uint8_t rc, bool enable)
   at86rf215.setContinuousTransmission(rc_, enable);
   
   /* Ready to transmit */
-  at86rf215.ready(rc_);
+  at86rf215.wakeup(rc_);
   
   /* Load packet to radio */
   at86rf215.loadPacket(rc_, radio_tx_buffer, radio_tx_buffer_len);

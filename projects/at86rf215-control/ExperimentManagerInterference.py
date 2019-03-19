@@ -20,9 +20,8 @@ from At86rf215 import *
 logger = logging.getLogger(__name__)
 
 class ExperimentManager(threading.Thread):
-    def __init__(self, transmit = None, interfere = None, receive = None, configuration = None):
+    def __init__(self, transmit = None, receive = None, configuration = None):
         self.transmit      = transmit
-        self.interfere     = interfere
         self.receive       = receive
         self.configuration = configuration
         
@@ -40,16 +39,14 @@ class ExperimentManager(threading.Thread):
         # Start transmit, receive and interfere threads
         self.transmit.start()
         self.receive.start()
-        self.interfere.start()
 
         tx_settings_tests = self.configuration["tx_settings"]
-        ix_settings_tests = self.configuration["ix_settings"]
+        tx_power_tests    = self.configuration["tx_power"]
         length_tests      = self.configuration["tx_length"]
-        power_tests       = self.configuration["ix_power"]
+        
+        # Transmit power settings
+        for tx_power in tx_power_tests:
 
-        # Interfence settings
-        for ix_settings in ix_settings_tests:
-            
             # Packet length = {20, 120}
             for packet_length in length_tests:
                 # Generate file name
@@ -60,7 +57,7 @@ class ExperimentManager(threading.Thread):
                 csv_writer = csv.writer(csv_file, dialect='excel')
                 
                 # Write CSV header to file
-                csv_header = ["SNR"] + [str(pt) for pt in power_tests]
+                csv_header = ["SNR"] + [str(pt) for pt in ix_power_tests]
                 csv_writer.writerow(csv_header)
 
                 # For each modulation to test
@@ -68,20 +65,18 @@ class ExperimentManager(threading.Thread):
 
                     # Normalize transmit power based on modulation
                     if (tx_settings != At86rf215_Cfg.OQPSK_RATE_5):
-                        tx_power = self.configuration["tx_power"]
                         tx_scratch = math.floor(1.027 * (tx_power - 12) + 19.24)
                         self.configuration["tx_power"] = tx_scratch
                         tx_power_report = math.ceil(tx_scratch / 1.027 - 18.73)
                     else:
-                        tx_power = self.configuration["tx_power"]
                         tx_scratch = tx_power
                         tx_power_report = self.configuration["tx_power"] - 12
                     
                     # Accumulate PDR results
                     pdr_results = [tx_settings.name]
 
-                    # For each transmit power
-                    for ix_power in power_tests:
+                    # For each interferent power
+                    for ix_power in ix_power_tests:
                         
                         # Configure interference power
                         if (ix_power == None):
@@ -127,11 +122,6 @@ class ExperimentManager(threading.Thread):
                         # Configure transmit, receive and interfere
                         self.transmit.configure(configuration = self.configuration)
                         self.receive.configure(configuration = self.configuration)
-                        self.interfere.configure(configuration = self.configuration)
-
-                        # Start interference and delay 10 ms to allow to start
-                        self.interfere.execute()
-                        time.sleep(0.01)
 
                         # Start receiving and delay 10 ms to allow to start
                         self.receive.execute()
@@ -167,7 +157,6 @@ class ExperimentManager(threading.Thread):
                             time.sleep(0.001)
 
                         # Stop transmit, receive and interfere
-                        self.interfere.stop()
                         self.transmit.stop()
                         self.receive.stop()
                         
@@ -200,12 +189,10 @@ class ExperimentManager(threading.Thread):
         # Notify threads to finish
         self.transmit.finish()                        
         self.receive.finish()
-        self.interfere.finish()
         
         # Wait for threads to finish
         self.transmit.join()
         self.receive.join()
-        self.interfere.join()
 
     def finish(self):
         self.is_finish = True
