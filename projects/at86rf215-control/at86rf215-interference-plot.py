@@ -178,7 +178,7 @@ def transform_data(data = None, axis = None):
     return (axis, result)
 
 def main():
-    data_dir = "data"
+    data_dir = "interference"
     data_extension = ".csv"
 
     figures_dir = "figures"

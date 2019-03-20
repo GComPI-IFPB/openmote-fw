@@ -144,8 +144,8 @@ class ExperimentManagerSensitivity(threading.Thread):
 
                 print("********************************************************************************")
 
-                # Close CSV file
-                csv_file.close()
+            # Close CSV file
+            csv_file.close()
 
         # Notify threads to finish
         self.transmit.finish()                        
