@@ -111,7 +111,7 @@ void main(void)
   i2c.enable();
   
   /* Turn on the sensors board */
-  // sensors_pwr_ctrl.high();
+  sensors_pwr_ctrl.high();
 
   /* Start the scheduler */
   Scheduler::run();
@@ -129,8 +129,8 @@ static void prvTransmitTask(void *pvParameters)
   
   /* Initialize BME280 and OPT3001 sensors */
   bme280.init();
-  // opt3001.init();
-  // opt3001.enable();
+  opt3001.init();
+  opt3001.enable();
   
   /* Set radio callbacks and enable interrupts */
   at86rf215.setTxCallbacks(RADIO_CORE, &radio_tx_init_cb, &radio_tx_done_cb);
@@ -160,10 +160,10 @@ static void prvTransmitTask(void *pvParameters)
     }
 
     /* Read light */
-    // status = opt3001.read(&opt3001_data.raw);
+    status = opt3001.read(&opt3001_data.raw);
     if (status)
     {
-      // opt3001.convert(opt3001_data.raw, &opt3001_data.lux);
+      opt3001.convert(opt3001_data.raw, &opt3001_data.lux);
     }
     
     /* Turn off red LED */
