@@ -234,7 +234,7 @@ const register_t oqpsk_250kbps_bbc[] =
   {BBCn_PC,         0x1F},
   {BBCn_OQPSKPHRTX, 0x09},
   {BBCn_OQPSKC0,    0x03},
-  {BBCn_OQPSKC1,    0x47},
+  {BBCn_OQPSKC1,    0x97},
   {BBCn_OQPSKC2,    0x05},
   {BBCn_OQPSKC3,    0x00},
 };
@@ -910,20 +910,7 @@ const radio_settings_t radio_settings[CONFIG_ELEMENTS] =
   ofdm4_mcs6_cfg
 };
 
-const frequency_settings_t frequency_settings[FREQUENCY_ELEMENTS] =
-{
-  {868300, 200,  0, 33},
-  {868300, 400,  0, 16},
-  {868300, 400,  0, 16},
-  {868300, 600,  0, 0},
-  {868300, 1200, 0, 4},
-  {868300, 800,  0, 7},
-  {868300, 400,  0, 16},
-  {868300, 200,  0, 33},
-};
-
-/*
-const frequency_settings_t frequency_settings[FREQUENCY_ELEMENTS] =
+const frequency_settings_t frequency_settings_09[FREQUENCY_09_ELEMENTS] =
 {
   {863125, 200,  0, 33},
   {868225, 400,  0, 16},
@@ -935,7 +922,7 @@ const frequency_settings_t frequency_settings[FREQUENCY_ELEMENTS] =
   {868125, 200,  0, 33},
 };
 
-const frequency_settings_t frequency_settings[FREQUENCY_ELEMENTS] =
+const frequency_settings_t frequency_settings_24[FREQUENCY_24_ELEMENTS] =
 {
   {2400200, 200,  0, 415},
   {2400400, 400,  0, 206},
@@ -946,4 +933,3 @@ const frequency_settings_t frequency_settings[FREQUENCY_ELEMENTS] =
   {2400400, 400,  0, 206},
   {2400200, 200,  0, 415},
 };
-*/

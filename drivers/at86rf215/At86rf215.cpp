@@ -128,6 +128,7 @@ bool At86rf215::check(void)
 void At86rf215::configure(RadioCore rc, const radio_settings_t* radio_settings, const frequency_settings_t* frequency_settings)
 {
   uint16_t rf_base, bbc_base;
+  uint32_t frequency;
   uint16_t address;
   uint8_t value;
 
@@ -140,10 +141,19 @@ void At86rf215::configure(RadioCore rc, const radio_settings_t* radio_settings, 
   };
   uint8_t* irq_mask[] = {&rf09_irqm, &bbc0_irqm, &rf24_irqm, &bbc1_irqm};
   
+  if (rc == RadioCore::CORE_RF09)
+  {
+    frequency = frequency_settings->frequency0;
+  }
+  else
+  {
+    frequency = frequency_settings->frequency0 - 1500000;
+  }  
+  
   register_t channel_settings[] = 
   {
-    {RFn_CCF0L, (uint8_t) ((frequency_settings->frequency0 / 25) % 256)},
-    {RFn_CCF0H, (uint8_t) ((frequency_settings->frequency0 / 25) / 256)},
+    {RFn_CCF0L, (uint8_t) ((frequency / 25) % 256)},
+    {RFn_CCF0H, (uint8_t) ((frequency / 25) / 256)},
     {RFn_CS,    (uint8_t) (frequency_settings->channel_spacing / 25)},
     {RFn_CNL,   (uint8_t) (frequency_settings->channel_min % 256)},
     {RFn_CNM,   (uint8_t) (frequency_settings->channel_min / 256)},
