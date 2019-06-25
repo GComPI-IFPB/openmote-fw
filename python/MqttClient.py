@@ -37,7 +37,7 @@ class MqttClient(object):
         topic = msg.topic
         payload = msg.payload.decode('utf-8')
 
-        self.mqtt_subscriptions[topic](payload)
+        self.mqtt_subscriptions[topic](topic, payload)
 
     def start(self):
         logger.info("start: Starting the MQTTClient.")
@@ -62,7 +62,7 @@ class MqttClient(object):
         # Stop the MQTT thread
         self.mqtt_client.loop_stop()
 
-    def add_topic(self, topic, callback):
+    def add_topic(self, topic=None, callback=None):
         logger.info("add_topic: Subscribed to topic={}.".format(topic))
 
         self.mqtt_client.subscribe(topic)
