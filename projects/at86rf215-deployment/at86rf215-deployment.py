@@ -38,6 +38,8 @@ finished = False
 
 timeout = 0.1
 
+logger = logging.getLogger(__name__)
+
 def signal_handler(sig, frame):
     global finished
     finished = True
@@ -64,18 +66,19 @@ def program(port = None, baudrate = None):
         if (length > 0):
             try:
                 message = bytearray(bytes(message))
-                eui48, counter, t, h, p, l, rssi = struct.unpack('>6sIhhhhb', message)
+                eui64, retrans, mode, counter, t, h, p, l, rssi = struct.unpack('>8sbbIhhhhb', message)
+                eui64 = eui64.hex()
                 t = t/10.0
                 h = h/10.0
                 p = p/10.0
                 l = l/10.0
-                logger.info("Counter={}, Temperature={}, Humidity={}, Pressure={}, RSSI={}".format(counter, t, h, p, rssi))
+                logger.info("Address={}, Retrans={}, Mode={}, Counter={}, Temperature={}, Humidity={}, Pressure={}, RSSI={}".format(eui64, retrans, mode, counter, t, h, p, rssi))
             except:
                 logger.error("program: Error unpacking.")
 
             try:
                 # Create MQTT message
-                mqtt_message = json.dumps({"address": eui48, "counter": counter, "temp": t, "humidity": h, "pressure": p, "rssi": rssi})
+                mqtt_message = json.dumps({"address": eui64, "retrans": retrans, "mode": mode, "counter": counter, "temp": t, "humidity": h, "pressure": p, "rssi": rssi})
 
                 # Send MQTT message
                 # mqtt.send_message(mqtt_topic, mqtt_message)
@@ -88,8 +91,8 @@ def program(port = None, baudrate = None):
         serial.stop()
 
 def main():
-    # Set-up logging back-end
-    logging.basicConfig(level=logging.DEBUG)
+    # Set up logging back-end 
+    logging.basicConfig(level=logging.INFO)
 
     # Set up SIGINT signal
     signal.signal(signal.SIGINT, signal_handler)
