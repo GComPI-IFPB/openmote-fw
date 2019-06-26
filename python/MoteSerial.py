@@ -15,18 +15,23 @@ from abc import ABC, abstractmethod
 import Serial
 
 class MoteSerial(ABC, threading.Thread):
-    def __init__(self, port = None, baudrate = None, timeout = 0.1):
-        self.port     = port
-        self.baudrate = baudrate
-        self.timeout  = timeout
-        self.serial   = Serial.Serial(name=self.port, baudrate=self.baudrate, timeout=self.timeout)
+    def __init__(self, serial_port = None, serial_baudrate = None, serial_timeout = 0.1):
+        self.serial_port     = serial_port
+        self.serial_baudrate = serial_baudrate
+        self.serial_timeout  = serial_timeout
 
+        # Create serial port 
+        self.serial   = Serial.Serial(name=self.serial_port, baudrate=self.serial_baudrate, timeout=self.serial_timeout)
+
+        # Call parent init
         ABC.__init__(self)
         threading.Thread.__init__(self)
 
     def start(self):
         # Start the serial port
         self.serial.start()
+
+        # Call thread start
         threading.Thread.start(self)
     
     @abstractmethod
