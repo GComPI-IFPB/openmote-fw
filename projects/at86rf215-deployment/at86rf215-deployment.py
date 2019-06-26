@@ -27,7 +27,7 @@ import random
 import string
 import json
 
-import Serial
+import MoteSerial
 import MqttClient
 
 mqtt_address = "34.244.230.156"
@@ -40,55 +40,80 @@ timeout = 0.1
 
 logger = logging.getLogger(__name__)
 
+class MoteSerialImplementation(MoteSerial.MoteSerial):
+    def __init__(self, port=None, baudrate=None, mqtt_client=None):
+        super().__init__(port=port, baudrate=baudrate)
+        self.mqtt_client = mqtt_client
+
+    def run(self):
+        print("Starting MoteSerialImplementation at port={} with baudrate={}.".format(self.port, self.baudrate))
+        
+        # Repeat until finish condition
+        while (not finished):
+            # Try to receive a Serial message
+            message, length = self.serial.receive(timeout = timeout)
+
+            # If we received a message
+            if (length > 0):
+                try:
+                    message = bytearray(bytes(message))
+                    eui64, retrans, mode, counter, t, h, p, l, rssi = struct.unpack('>8sbbIhhhhb', message)
+                    eui64 = eui64.hex()
+                    t = t/10.0
+                    h = h/10.0
+                    p = p/10.0
+                    l = l/10.0
+                    logger.info("Address={}, Retrans={}, Mode={}, Counter={}, Temperature={}, Humidity={}, Pressure={}, RSSI={}".format(eui64, retrans, mode, counter, t, h, p, rssi))
+                except:
+                    logger.error("program: Error unpacking.")
+
+                try:
+                    # Create MQTT message
+                    mqtt_message = json.dumps({"address": eui64, "retrans": retrans, "mode": mode, "counter": counter, "temp": t, "humidity": h, "pressure": p, "rssi": rssi})
+
+                    # Send MQTT message
+                    self.mqtt_client.send_message(mqtt_topic, mqtt_message)
+                    logger.info(mqtt_message)
+                except:
+                    logger.error("program: Error sending MQTT packet.")
+
+    def stop(self):
+        print("Stopping program at port={} with baudrate={}.".format(self.port, self.baudrate))
+
+        super().stop()
+
+
 def signal_handler(sig, frame):
     global finished
     finished = True
 
-def program(port = None, baudrate = None):
+def program(baudrate = None):
     global finished
 
-    # Create and start Serial manager
-    serial = Serial.Serial(name = port, baudrate = baudrate, timeout = timeout)
-    serial.start()
+    motes = []
 
     # Create MQTT client
-    # mqtt = MqttClient.MqttClient(mqtt_address, mqtt_port)
-    # mqtt.start()
+    mqtt_client = MqttClient.MqttClient(mqtt_address, mqtt_port)
+    mqtt_client.start()
 
-    print("Starting program at port {} with bauds {}.".format(port, baudrate))
+    serial_ports = MoteSerial.serial_ports()
 
-    # Repeat until finish condition
-    while (not finished):
-        # Try to receive a Serial message
-        message, length = serial.receive(timeout = timeout)
+    for serial_port in serial_ports:
+        m = MoteSerialImplementation(port = serial_port, baudrate = baudrate, mqtt_client = mqtt_client)
+        motes.append(m)
+        
+    for mote in motes:
+        mote.start()
 
-        # If we received a message
-        if (length > 0):
-            try:
-                message = bytearray(bytes(message))
-                eui64, retrans, mode, counter, t, h, p, l, rssi = struct.unpack('>8sbbIhhhhb', message)
-                eui64 = eui64.hex()
-                t = t/10.0
-                h = h/10.0
-                p = p/10.0
-                l = l/10.0
-                logger.info("Address={}, Retrans={}, Mode={}, Counter={}, Temperature={}, Humidity={}, Pressure={}, RSSI={}".format(eui64, retrans, mode, counter, t, h, p, rssi))
-            except:
-                logger.error("program: Error unpacking.")
+    while(not finished):
+        time.sleep(0.1)
 
-            try:
-                # Create MQTT message
-                mqtt_message = json.dumps({"address": eui64, "retrans": retrans, "mode": mode, "counter": counter, "temp": t, "humidity": h, "pressure": p, "rssi": rssi})
+    for mote in motes:
+        mote.stop()
+        mote.join()
 
-                # Send MQTT message
-                # mqtt.send_message(mqtt_topic, mqtt_message)
-                logger.info(mqtt_message)
-            except:
-                logger.error("program: Error sending MQTT packet.")
-            
-    if (finished):
-        # Stop the serial port
-        serial.stop()
+    # Stop MQTT client
+    mqtt_client.stop()
 
 def main():
     # Set up logging back-end 
@@ -99,14 +124,13 @@ def main():
 
     # Create argument parser
     parser = argparse.ArgumentParser(description="")
-    parser.add_argument("-p", "--port", type=str, required=True)
     parser.add_argument("-b", "--baudrate", type=int, default=115200)
 
     # Parse arguments
     args = parser.parse_args()
 
     # Execute program
-    program(port = args.port, baudrate=args.baudrate)
+    program(baudrate = args.baudrate)
     
 if __name__ == "__main__":
     main()
