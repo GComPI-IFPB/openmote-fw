@@ -59,6 +59,8 @@ class MoteSerialImplementation(MoteSerial.MoteSerial):
         
         # Repeat until finish condition
         while (not finished):
+            success = False
+
             # Try to receive a Serial message
             message, length = self.serial.receive(timeout = self.serial_timeout)
 
@@ -82,10 +84,14 @@ class MoteSerialImplementation(MoteSerial.MoteSerial):
                     result['pressure'] = result['pressure'] / 10.0
                     result['light'] = result['light'] / 10.0
 
+                    success = True
+
                     logger.info(result)
                 except:
                     logger.error("program: Error unpacking.")
 
+            # If the message was parsed successfully
+            if (success is True):
                 try:
                     # Create MQTT message
                     mqtt_message = json.dumps(result)
@@ -120,10 +126,10 @@ def program(serial_baudrate = None):
     serial_ports = MoteSerial.serial_ports()
 
     for serial_port in serial_ports:
-        m = MoteSerialImplementation(serial_port = serial_port, serial_baudrate = serial_baudrate, 
+        m = MoteSerialImplementation(serial_port = serial_port, serial_baudrate = serial_baudrate,
                                      serial_timeout = serial_timeout, mqtt_client = mqtt_client)
         motes.append(m)
-        
+
     for mote in motes:
         mote.start()
 
@@ -136,29 +142,17 @@ def program(serial_baudrate = None):
 
     # Stop MQTT client
     mqtt_client.stop()
+    mqtt_client.join()
 
 def main():
-    # Set up logging back-end 
+    # Set up logging back-end
     logging.basicConfig(level=logging.INFO)
 
     # Set up SIGINT signal
     signal.signal(signal.SIGINT, signal_handler)
 
-    # Create argument parser
-    parser = argparse.ArgumentParser(description="")
-    parser.add_argument("-b", "--baudrate", type=int, default=0)
-
-    # Parse arguments
-    args = parser.parse_args()
-
-    # Overrite 
-    if (args.baudrate == 0 or not serial_baudrate):
-        args.baudrate = 115200
-    else:
-        args.baudrate = serial_baudrate
-
     # Execute program
-    program(serial_baudrate = args.baudrate)
-    
+    program(serial_baudrate = serial_baudrate)
+
 if __name__ == "__main__":
     main()
