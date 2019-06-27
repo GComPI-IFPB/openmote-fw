@@ -38,8 +38,9 @@ mqtt_address = config.mqtt_config['mqtt_address']
 mqtt_port    = config.mqtt_config['mqtt_port']
 mqtt_topic   = config.mqtt_config['mqtt_topic']
 
+serial_devices  = config.serial_config['serial_devices']
 serial_baudrate = config.serial_config['serial_baudrate']
-serial_timeout = config.serial_config['serial_timeout']
+serial_timeout  = config.serial_config['serial_timeout']
 
 finished = False
 
@@ -56,7 +57,7 @@ class MoteSerialImplementation(MoteSerial.MoteSerial):
         # Recover message structure from config
         message_structure = config.message_config['message_structure']
         message_fields = config.message_config['message_fields']
-        
+
         # Repeat until finish condition
         while (not finished):
             # Try to receive a Serial message
@@ -67,11 +68,11 @@ class MoteSerialImplementation(MoteSerial.MoteSerial):
                 try:
                     # Convert message to bytearray
                     message = bytearray(bytes(message))
-                    
+
                     # Unpack the message according to its structure
                     message_items = struct.unpack(message_structure, message)
-                    
-                    # Convert to dictionary
+
+                   # Convert to dictionary
                     result = dict(zip(message_fields, message_items))
 
                     # Process data in dictionary
@@ -118,12 +119,16 @@ def program(serial_baudrate = None):
     mqtt_client.start()
 
     serial_ports = MoteSerial.serial_ports()
+    serial_length = len(serial_ports)
+
+    if (serial_length != serial_devices):
+        logger.error("Erroneous number of serial devices present. Operating with {} devices instead of {} devices!".format(serial_length, serial_devices))
 
     for serial_port in serial_ports:
-        m = MoteSerialImplementation(serial_port = serial_port, serial_baudrate = serial_baudrate, 
+        m = MoteSerialImplementation(serial_port = serial_port, serial_baudrate = serial_baudrate,
                                      serial_timeout = serial_timeout, mqtt_client = mqtt_client)
         motes.append(m)
-        
+
     for mote in motes:
         mote.start()
 
@@ -138,27 +143,14 @@ def program(serial_baudrate = None):
     mqtt_client.stop()
 
 def main():
-    # Set up logging back-end 
+    # Set up logging back-end
     logging.basicConfig(level=logging.INFO)
 
     # Set up SIGINT signal
     signal.signal(signal.SIGINT, signal_handler)
 
-    # Create argument parser
-    parser = argparse.ArgumentParser(description="")
-    parser.add_argument("-b", "--baudrate", type=int, default=0)
-
-    # Parse arguments
-    args = parser.parse_args()
-
-    # Overrite 
-    if (args.baudrate == 0 or not serial_baudrate):
-        args.baudrate = 115200
-    else:
-        args.baudrate = serial_baudrate
-
     # Execute program
-    program(serial_baudrate = args.baudrate)
-    
+    program(serial_baudrate = serial_baudrate)
+
 if __name__ == "__main__":
     main()
