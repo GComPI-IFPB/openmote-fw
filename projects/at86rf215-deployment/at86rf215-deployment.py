@@ -60,6 +60,8 @@ class MoteSerialImplementation(MoteSerial.MoteSerial):
 
         # Repeat until finish condition
         while (not finished):
+            success = False
+
             # Try to receive a Serial message
             message, length = self.serial.receive(timeout = self.serial_timeout)
 
@@ -83,10 +85,14 @@ class MoteSerialImplementation(MoteSerial.MoteSerial):
                     result['pressure'] = result['pressure'] / 10.0
                     result['light'] = result['light'] / 10.0
 
+                    success = True
+
                     logger.info(result)
                 except:
                     logger.error("program: Error unpacking.")
 
+            # If the message was parsed successfully
+            if (success is True):
                 try:
                     # Create MQTT message
                     mqtt_message = json.dumps(result)
@@ -141,6 +147,7 @@ def program(serial_baudrate = None):
 
     # Stop MQTT client
     mqtt_client.stop()
+    mqtt_client.join()
 
 def main():
     # Set up logging back-end
