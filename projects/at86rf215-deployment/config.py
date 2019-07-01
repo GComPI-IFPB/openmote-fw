@@ -12,6 +12,10 @@ mqtt_config = {
 }
 
 message_config = {
-    "message_fields"    : ["node_id", "retry", "mode", "packet_count", "temperature", "humidity", "pressure", "light", "rssi"],
-    "message_structure" : ">8sbbIhhhhb"
+    "message_fields"    : ["pan_id", "node_id", "retry", "mode", "pkt_count", "temp", "rhum", "pres", "lght", "cca", "rssi"],
+    "message_structure" : ">2s8sbbIhhhhbb"
+}
+
+network_config = {
+    "pan_id": "cafe"
 }

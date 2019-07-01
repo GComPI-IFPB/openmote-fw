@@ -33,6 +33,8 @@ import time
 import MoteSerial
 import MqttClient
 
+pan_id       = config.network_config['pan_id']
+
 mqtt_id      = config.mqtt_config['mqtt_id']
 mqtt_address = config.mqtt_config['mqtt_address']
 mqtt_port    = config.mqtt_config['mqtt_port']
@@ -74,21 +76,27 @@ class MoteSerialImplementation(MoteSerial.MoteSerial):
                     # Unpack the message according to its structure
                     message_items = struct.unpack(message_structure, message)
 
-                   # Convert to dictionary
+                    # Convert to dictionary
                     result = dict(zip(message_fields, message_items))
 
-                    # Process data in dictionary
-                    result['gateway_id'] = mqtt_id
-                    result['node_id'] = result['node_id'].hex()
-                    result['temperature'] = result['temperature'] / 10.0
-                    result['humidity'] = result['humidity'] / 10.0
-                    result['pressure'] = result['pressure'] / 10.0
-                    result['light'] = result['light'] / 10.0
+                    # Check that packet comes from a known network
+                    if (result['pan_id'].hex() == pan_id):
 
-                    success = True
+                        # Process data in dictionary
+                        result['gw_id'] = mqtt_id
+                        result['pan_id'] = result['pan_id'].hex()
+                        result['node_id'] = result['node_id'].hex()
+                        result['temp'] = result['temp'] / 10.0
+                        result['rhum'] = result['rhum'] / 10.0
+                        result['pres'] = result['pres'] / 10.0
+                        result['lght'] = result['lght'] / 10.0
 
-                    logger.info(result)
-                except:
+                        success = True
+
+                        logger.info(result)
+                    else:
+                        logger.error("program: Error unpacking.")
+                except Exception as e:
                     logger.error("program: Error unpacking.")
 
             # If the message was parsed successfully
@@ -151,7 +159,7 @@ def program(serial_baudrate = None):
 
 def main():
     # Set up logging back-end
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.ERROR)
 
     # Set up SIGINT signal
     signal.signal(signal.SIGINT, signal_handler)
