@@ -65,41 +65,46 @@ At86rf215::At86rf215(Spi& spi, GpioOut& pwr, GpioOut& rst, GpioOut& cs, GpioIn& 
   rf09_irqm(0), rf24_irqm(0), bbc0_irqm(0), bbc1_irqm(0)
 
 {
+  /* Ensure radio is off */
+  off();
+  
+  /* Set IRQ callback */
   irq_.setCallback(&callback_);
-  cs_.low();
-  rst_.low();
-  pwr_.low();
-  board.delayMilliseconds(AT86RF215_DELAY_MS);
 }
 
 void At86rf215::on(void)
 {
-  pwr_.high();
-  board.delayMilliseconds(AT86RF215_DELAY_MS);
+  /* While on, all pins are high and wait */
   cs_.high();
   rst_.high();
+  pwr_.high();
+  
+  /* Delay until board is on */
   board.delayMilliseconds(AT86RF215_DELAY_MS);
 }
 
 void At86rf215::off(void)
 {
-  cs_.high();
-  board.delayMilliseconds(AT86RF215_DELAY_MS);
+  /* While off, all pins are low */
+  cs_.low();
   rst_.low();
   pwr_.low();
-  board.delayMilliseconds(AT86RF215_DELAY_MS);
 }
 
 void At86rf215::hardReset(void)
 {
-  rst_.high();
-  board.delayMilliseconds(AT86RF215_DELAY_MS);
+  /* For reset, first low and wait */
   rst_.low();
+  board.delayMilliseconds(AT86RF215_DELAY_MS);
+  
+  /* To eanble, first high and wait */
+  rst_.high();
   board.delayMilliseconds(AT86RF215_DELAY_MS);
 }
 
 void At86rf215::softReset(RadioCore rc)
 {
+  /* Execute soft reset and wait for reset state */
   goToState(rc, RadioCommand::CMD_RESET, RadioState::STATE_RESET);
 }
 
@@ -110,10 +115,12 @@ bool At86rf215::check(void)
   uint8_t pn = 0;
   uint8_t ver = 0;
 
+  /* Read part number register */
   singleAccessRead(RF_PN, &pn);
 
   if (pn == PN_215)
   {
+    /* Read version number register */
     singleAccessRead(RF_VN, &ver);
 
     if (ver == VN_1_1 || ver == VN_1_3)
