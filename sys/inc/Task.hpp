@@ -25,7 +25,7 @@ public:
   static void init(void* params);
 private:
   TaskHandle_t handle_;
-	const char* const name_;
+  const char* const name_;
   UBaseType_t priority_;
   TaskFunction_t function_;
   void *parameters_;
