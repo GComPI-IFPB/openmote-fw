@@ -21,54 +21,96 @@
 #include "Task.hpp"
 
 #include "Serial.hpp"
+#include "RadioBuffer.hpp"
 
 #include "At86rf215.hpp"
 #include "At86rf215_conf.h"
 
+#include "Queue.hpp"
+
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
-#define RADIO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 1 )
+#define RADIO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 2 )
+#define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
 
 #define UART_BAUDRATE						            ( 1267200 )
 #define SPI_BAUDRATE                        ( 16000000 )
 
-#define RADIO_BUFFER_LENGTH                 ( 1024 )
 #define SERIAL_BUFFER_LENGTH                ( 1024 )
 
-#define RADIO_CORE                          ( At86rf215::CORE_RF09 )
-#define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OQPSK_RATE1] )
-#define RADIO_FREQUENCY                     ( &frequency_settings_09[FREQUENCY_09_OQPSK] )
+#define QUEUE_LENGTH                        ( 8 )
+#define QUEUE_READ_DELAY                    ( 100 )
+#define QUEUE_WRITE_DELAY                   ( 100 )
+
+#define RADIO_CORE_0                        ( At86rf215::CORE_RF09 )
+#define RADIO_SETTINGS_0                    ( &radio_settings[CONFIG_FSK_OPTION1] )
+#define RADIO_FREQUENCY_0                   ( &frequency_settings_09[FREQUENCY_09_FSK1] )
+#define RADIO_CORE_1                        ( At86rf215::CORE_RF09 )
+#define RADIO_SETTINGS_1                    ( &radio_settings[CONFIG_OQPSK_RATE1] )
+#define RADIO_FREQUENCY_1                   ( &frequency_settings_09[FREQUENCY_09_OQPSK] )
+#define RADIO_CORE_2                        ( At86rf215::CORE_RF09 )
+#define RADIO_SETTINGS_2                    ( &radio_settings[CONFIG_OFDM2_MCS0] )
+#define RADIO_FREQUENCY_2                   ( &frequency_settings_09[FREQUENCY_09_OFDM2] )
+#define RADIO_CORE_3                        ( At86rf215::CORE_RF24 )
+#define RADIO_SETTINGS_3                    ( &radio_settings[CONFIG_OQPSK_RATE5] )
+#define RADIO_FREQUENCY_3                   ( &frequency_settings_24[FREQUENCY_24_OQPSK] )
+#define RADIO_CONFIG_ITEMS                  ( 4 )
+
+#define RADIO_CONFIG_ITEM                   ( 3 )
+#define RADIO_CORE                          ( radio_config[RADIO_CONFIG_ITEM].radio_core )
+#define RADIO_SETTINGS                      ( radio_config[RADIO_CONFIG_ITEM].radio_settings )
+#define RADIO_FREQUENCY                     ( radio_config[RADIO_CONFIG_ITEM].frequency_settings )
 #define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_MIN )
 
 /*================================ typedef ==================================*/
+
+typedef struct
+{
+  At86rf215::RadioCore radio_core;
+  const radio_settings_t * radio_settings;
+  const frequency_settings_t * frequency_settings;
+} radio_config_t;  
+
+typedef struct
+{
+  RadioBuffer* rb;
+  int8_t rssi;
+} serial_message_t;
 
 /*=============================== prototypes ================================*/
 
 static void prvGreenLedTask(void *pvParameters);
 static void prvRadioTask(void *pvParameters);
+static void prvSerialTask(void *pvParameters);
 
 static void radio_rx_init(void);
 static void radio_rx_done(void);
+
+static Queue<serial_message_t> queue(QUEUE_LENGTH);
 
 static uint16_t prepare_serial(uint8_t* buffer_ptr, uint8_t* packet_ptr, uint16_t packet_length, int8_t rssi);
 
 /*=============================== variables =================================*/
 
+static RadioBufferManager rbm;
 static Serial serial(uart0);
 
 static Task heartbeatTask{(const char *) "Green", 128, GREEN_LED_TASK_PRIORITY, prvGreenLedTask, nullptr};
 static Task radioTask{(const char *) "Radio", 128, RADIO_TASK_PRIORITY, prvRadioTask, nullptr};
+static Task serialTask{(const char *) "Serial", 128, SERIAL_TASK_PRIORITY, prvSerialTask, nullptr};
 
 static PlainCallback radio_rx_init_cb(&radio_rx_init);
 static PlainCallback radio_rx_done_cb(&radio_rx_done);
 
-static SemaphoreBinary semaphore(false);
+static SemaphoreBinary radio_semaphore(false);
 
 static uint8_t serial_buffer[SERIAL_BUFFER_LENGTH];
 
-static uint8_t radio_buffer[RADIO_BUFFER_LENGTH];
-static uint16_t radio_buffer_len = sizeof(radio_buffer);
+static radio_config_t radio_config[RADIO_CONFIG_ITEMS] = {{RADIO_CORE_0, RADIO_SETTINGS_0, RADIO_FREQUENCY_0},
+                                                          {RADIO_CORE_1, RADIO_SETTINGS_1, RADIO_FREQUENCY_1},
+                                                          {RADIO_CORE_2, RADIO_SETTINGS_2, RADIO_FREQUENCY_2},
+                                                          {RADIO_CORE_3, RADIO_SETTINGS_3, RADIO_FREQUENCY_3}};
 
 /*================================= public ==================================*/
 
@@ -85,12 +127,53 @@ void main(void)
   
   /* Initialize Serial interface */
   serial.init();
+  
+  /* Initialize RadioBufferManager */
+  rbm.init();
 
   /* Start the scheduler */
   Scheduler::run();
 }
 
 /*================================ private ==================================*/
+
+static void prvSerialTask(void *pvParameters)
+{
+  serial_message_t serial_message;
+  bool received;
+  
+  while(true)
+  {
+    /* Try to receive a message from the radio task */
+    received = queue.receive(&serial_message, QUEUE_READ_DELAY);
+    
+    if (received)
+    {
+      uint8_t* buffer;
+      uint16_t length;
+      int8_t rssi;
+      
+      buffer = serial_message.rb->buffer;
+      length = serial_message.rb->length;
+      rssi = serial_message.rssi;
+
+      /* Turn on yellow LED */
+      led_yellow.on();
+
+      /* Prepare serial buffer */
+      length = prepare_serial(serial_buffer, buffer, length, rssi);
+
+      /* Send packet via Serial */
+      serial.write(serial_buffer, length, true);
+      
+      /* Release RadioBuffer */
+      rbm.reset(serial_message.rb);
+
+      /* Turn off yellow LED */
+      led_yellow.off();
+    }
+  }
+}
 
 static void prvRadioTask(void *pvParameters)
 {
@@ -116,47 +199,53 @@ static void prvRadioTask(void *pvParameters)
   at86rf215.configure(RADIO_CORE, RADIO_SETTINGS, RADIO_FREQUENCY);
   at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
   
+  /* Try to receive a packet */
+  at86rf215.receive(RADIO_CORE);
+  
   /* Forever */
-  while (true)
+  do
   {
     At86rf215::RadioResult result;
+    RadioBuffer* radio_buffer;
     int8_t rssi, lqi;
-    bool crc;
-    bool received;
+    bool status, received, crc;
     
-    /* Initialize packet pointer and length */
-    uint8_t* packet_ptr = radio_buffer;
-    uint16_t packet_len = radio_buffer_len;
-    
-    /* Try to receive a packet */
-    at86rf215.receive(RADIO_CORE);
+    /* Get a RadioBuffer to work with */
+    do {
+      status = rbm.get(&radio_buffer);
+      if (!status)
+      {
+        Scheduler::delay_ms(10);
+      }
+    } while(!status);
     
     /* Wait until packet has been received */
-    received = semaphore.take();
+    received = radio_semaphore.take();
     
     /* If we have received a packet */
     if (received == true)
-    {
-      /* Load packet to radio */
-      result = at86rf215.getPacket(RADIO_CORE, packet_ptr, &packet_len, &rssi, &lqi, &crc);
+    { 
+      /* Set radio_buffer length to size */
+      radio_buffer->length = radio_buffer->size;
       
-      /* Check packet has been received successfully */
-      if (result == At86rf215::RadioResult::Success && crc == true)
-      {
-        uint16_t length;
+      /* Recover packet from radio */
+      result = at86rf215.getPacket(RADIO_CORE, radio_buffer->buffer, &radio_buffer->length, &rssi, &lqi, &crc);
+    }
+    
+    /* Start the reception of a new packet */
+    at86rf215.receive(RADIO_CORE);
+    
+    /* If we have received a packet */
+    if (received == true && result == At86rf215::RadioResult::Success && crc == true)
+    {
+      serial_message_t serial_message;
         
-        /* Turn on yellow LED */
-        led_yellow.on();
-        
-        /* Prepare serial buffer */
-        length = prepare_serial(serial_buffer, packet_ptr, packet_len, lqi);
-        
-        /* Send packet via Serial */
-        serial.write(serial_buffer, length, true);
-        
-        /* Turn off yellow LED */
-        led_yellow.off();
-      }
+      /* Prepare serial message */
+      serial_message.rb = radio_buffer;
+      serial_message.rssi = lqi;
+      
+      /* Send message to queue */
+      queue.send(&serial_message, QUEUE_WRITE_DELAY);
     }
     else
     {
@@ -165,14 +254,14 @@ static void prvRadioTask(void *pvParameters)
       Scheduler::delay_ms(1);
       led_red.off();
     }
-  }
+  } while(true);
   
   /* Turn AT86RF215 radio off */
   at86rf215.off();
 }
 
 static void prvGreenLedTask(void *pvParameters)
-{
+{  
   /* Forever */
   while (true)
   {
@@ -198,7 +287,7 @@ static void radio_rx_done(void)
   led_orange.off();
 
   /* Notify we have transmitted a packet */
-  semaphore.giveFromInterrupt();
+  radio_semaphore.giveFromInterrupt();
 }
 
 static uint16_t prepare_serial(uint8_t* buffer_ptr, uint8_t* packet_ptr, uint16_t packet_length, int8_t rssi)
