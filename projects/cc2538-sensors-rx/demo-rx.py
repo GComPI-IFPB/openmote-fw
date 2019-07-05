@@ -47,7 +47,7 @@ def program():
     serial = Serial.Serial(uart_name, uart_speed)
     serial.start()
 
-    # Creat MQTT client
+    # Create MQTT client
     mqtt = MqttClient.MqttClient(mqtt_address, mqtt_port)
     mqtt.start()
 
