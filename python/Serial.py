@@ -83,6 +83,7 @@ class Serial(threading.Thread):
         # Execute while thread is alive
         while (not self.stop_event.isSet()):
             rx_bytes = []
+            rx_length = 0
 
             try:
                 # Read the number of bytes available
@@ -175,8 +176,10 @@ class Serial(threading.Thread):
                 # Always save the last received byte
                 self.last_rx_byte = self.rx_byte
 
-            # Sleep for a while
-            time.sleep(self.timeout)
+            # If no bytes were received, sleep
+            if (rx_length == 0):
+                # Sleep for a while
+                time.sleep(self.timeout)
 
         # Close the serial port
         self.serial_port.close()
