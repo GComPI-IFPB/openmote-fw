@@ -95,8 +95,11 @@ class MqttMultiplexer(threading.Thread):
         while (not self.is_finished.isSet()):
             keys_expired = []
 
+            # Number of elements
+            length = len(self.elements.keys())
+
             # If there are items to be processed
-            if (len(self.elements.keys()) > 0):
+            if (length > 0):
                 # Calculate current time
                 current_time = time.time() * 1000
 
