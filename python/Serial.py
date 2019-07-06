@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class Serial(threading.Thread):
     
-    def __init__(self, name = None, baudrate = None, timeout = 0.001):
+    def __init__(self, name = None, baudrate = None, timeout = 0.1):
         assert name     != None, logger.error("Serial port not defined.")
         assert baudrate != None, logger.error("Serial baudrate not defined.")
         
@@ -58,16 +58,16 @@ class Serial(threading.Thread):
         self.rx_bad_frames   = 0
         
         try:
-            logger.info('init: Opening the serial port on %s at %s bps.', self.name, self.baudrate)
+            logger.info("init: Opening the serial port on {} at {} bps.".format(self.name, self.baudrate))
             # Open the serial port
             self.serial_port = serial.Serial(port = self.name, 
                                              baudrate = self.baudrate,
                                              timeout = self.timeout)
         except:
-            logger.error('init: Error while opening the serial port on %s.', self.name)
+            logger.error("init: Error while opening the serial port on {}.".format(self.name))
             raise Exception
         else:
-            logger.info('init: Serial object created.')
+            logger.info("init: Serial object created.")
     
     # Runs the thread
     def run(self):
@@ -82,19 +82,21 @@ class Serial(threading.Thread):
         
         # Execute while thread is alive
         while (not self.stop_event.isSet()):
+            rx_bytes = []
+
             try:
                 # Read the number of bytes available
                 rx_length = self.serial_port.in_waiting
 
-                # If bytes are available read them, otherwise nothing to do
+                # If bytes are available read them
                 if (rx_length > 0):
+                    logger.debug("run: Read {} bytes from serial port on {}.".format(self.serial_port))
+                    
                     # Try to receive a byte from the serial port (blocking)
                     rx_bytes = self.serial_port.read(size = rx_length)
-                else:
-                    rx_bytes = []
 
             except:
-                logger.error('run: Error while receiving from the serial port on %s.', self.serial_port)
+                logger.error("run: Error while receiving from the serial port on {}.".format(self.serial_port))
                 # Terminate the thread
                 self.stop()
                 # Break the loop
@@ -109,7 +111,7 @@ class Serial(threading.Thread):
                 if ((not self.is_receiving) and 
                     (self.last_rx_byte == self.hdlc.HDLC_FLAG) and
                     (self.rx_byte != self.hdlc.HDLC_FLAG)):
-                    logger.debug('Start of HDLC frame.')
+                    logger.debug("run: Start of HDLC frame.")
                     
                     self.is_receiving = True
                     self.receive_buffer = []
@@ -119,14 +121,14 @@ class Serial(threading.Thread):
                 # Middle of HDLC frame
                 elif ((self.is_receiving) and
                       (self.rx_byte != self.hdlc.HDLC_FLAG)):
-                    logger.debug('Middle of HDLC frame.')
+                    logger.debug("run: Middle of HDLC frame.")
                     
                     self.receive_buffer.append(self.rx_byte)
                     
                 # End of HDLC frame 
                 elif ((self.is_receiving) and
                       (self.rx_byte == self.hdlc.HDLC_FLAG)):
-                    logger.debug('End of HDLC frame.')
+                    logger.debug("run: End of HDLC frame.")
 
                     # Receive the last byte
                     self.receive_buffer.append(self.rx_byte)
@@ -140,7 +142,7 @@ class Serial(threading.Thread):
                     self.rx_total_frames += 1
                     
                     try:
-                        logger.debug('run: Received an HDLC frame from the Serial port, now de-HDLCifying it.')
+                        logger.debug("run: Received an HDLC frame from the Serial port, now de-HDLCifying it.")
                         
                         # Receive me
                         self.receive_message = self.hdlc.dehdlcify(self.receive_buffer)
@@ -148,7 +150,7 @@ class Serial(threading.Thread):
                         # Compute statistics
                         self.rx_good_frames += 1
                     except:
-                        logger.error('run: Error while de-HDLCifying the frame received from the Serial port.')
+                        logger.error("run: Error while de-HDLCifying the frame received from the Serial port.")
                         
                         # Clean buffers
                         self.receive_buffer  = []
@@ -173,18 +175,21 @@ class Serial(threading.Thread):
                 # Always save the last received byte
                 self.last_rx_byte = self.rx_byte
 
+            # Sleep for a while
+            time.sleep(self.timeout)
+
         # Close the serial port
         self.serial_port.close()
     
     # Stops the thread
     def stop(self):
-        logger.info('stop: Stopping the Serial port.')
+        logger.info("stop: Stopping the {} serial port.".format(self.name))
 
         # Terminates the thread
         self.stop_event.set()
     
     # Receive a message
-    def receive(self, timeout = 0.001):
+    def receive(self, timeout = 0.1):
         status  = True
         message = []
         length  = -1
@@ -222,11 +227,12 @@ class Serial(threading.Thread):
         self.tx_total_frames += 1
         
         try:
-            logger.debug("run: HDLCifying the transmit buffer.")
+            logger.debug("transmit: HDLCifying the transmit buffer.")
         
             # HDLCify the message
             self.transmit_buffer = self.hdlc.hdlcify(message)
         except:
+            logger.error("transmit: Error HDLCifying the transmit buffer.")
             # Compute statistics
             self.tx_bad_frames += 1
             raise
@@ -237,6 +243,7 @@ class Serial(threading.Thread):
             # Send the message through the serial port (blocking)
             self.serial_port.write(self.transmit_buffer)
         except:
+            logger.error("transmit: Error transmitting the transmit buffer.")
             # Compute statistics
             self.tx_bad_frames += 1
             raise
