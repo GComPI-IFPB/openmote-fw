@@ -9,5 +9,5 @@ mqtt_config = {
 packet_config = {
     "timeout_ms": 2000,
     "all_keys": {"pan_id", "node_id", "retry", "mode", "pkt_count", "temp", "rhum", "pres", "lght", "cca", "rssi", "gw_id"},
-    "keep_keys": ["temp", "node_id", "rhum", "pres", "lght", "rssi"]
+    "keep_keys": ["node_id", "pkt_count", "temp", "rhum", "pres", "lght", "rssi"]
 }

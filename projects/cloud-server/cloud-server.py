@@ -129,7 +129,7 @@ class MqttMultiplexer(threading.Thread):
             time.sleep(0.01)
 
         # Stop the MQTT thread
-        self.mqtt_client.loop_stop()
+        self.mqtt_client.stop()
 
         logger.debug("run: Stopped the MqttMultiplexer.")
 
