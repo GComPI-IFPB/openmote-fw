@@ -90,7 +90,7 @@ class Serial(threading.Thread):
 
                 # If bytes are available read them
                 if (rx_length > 0):
-                    logger.debug("run: Read {} bytes from serial port on {}.".format(self.serial_port))
+                    logger.debug("run: Read {} bytes from serial port on {}.".format(rx_length, self.serial_port))
                     
                     # Try to receive a byte from the serial port (blocking)
                     rx_bytes = self.serial_port.read(size = rx_length)
