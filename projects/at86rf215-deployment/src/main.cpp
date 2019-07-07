@@ -31,33 +31,30 @@
 /*================================ define ===================================*/
 
 #define GREEN_LED_TASK_PRIORITY             ( tskIDLE_PRIORITY + 0 )
-#define RADIO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 2 )
 #define SERIAL_TASK_PRIORITY                ( tskIDLE_PRIORITY + 1 )
+#define RADIO_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 2 )
 
 #define UART_BAUDRATE						            ( 1267200 )
 #define SPI_BAUDRATE                        ( 16000000 )
 
-#define SERIAL_BUFFER_LENGTH                ( 1024 )
+#define SERIAL_BUFFER_LENGTH                ( 512 )
 
 #define QUEUE_LENGTH                        ( 8 )
-#define QUEUE_READ_DELAY                    ( 100 )
-#define QUEUE_WRITE_DELAY                   ( 100 )
+#define QUEUE_READ_DELAY                    ( 10 )
+#define QUEUE_WRITE_DELAY                   ( 10 )
 
 #define RADIO_CORE_0                        ( At86rf215::CORE_RF09 )
 #define RADIO_SETTINGS_0                    ( &radio_settings[CONFIG_FSK_OPTION1] )
 #define RADIO_FREQUENCY_0                   ( &frequency_settings_09[FREQUENCY_09_FSK1] )
 #define RADIO_CORE_1                        ( At86rf215::CORE_RF09 )
-#define RADIO_SETTINGS_1                    ( &radio_settings[CONFIG_OQPSK_RATE1] )
+#define RADIO_SETTINGS_1                    ( &radio_settings[CONFIG_OQPSK_RATE4] )
 #define RADIO_FREQUENCY_1                   ( &frequency_settings_09[FREQUENCY_09_OQPSK] )
 #define RADIO_CORE_2                        ( At86rf215::CORE_RF09 )
 #define RADIO_SETTINGS_2                    ( &radio_settings[CONFIG_OFDM2_MCS0] )
 #define RADIO_FREQUENCY_2                   ( &frequency_settings_09[FREQUENCY_09_OFDM2] )
-#define RADIO_CORE_3                        ( At86rf215::CORE_RF24 )
-#define RADIO_SETTINGS_3                    ( &radio_settings[CONFIG_OQPSK_RATE5] )
-#define RADIO_FREQUENCY_3                   ( &frequency_settings_24[FREQUENCY_24_OQPSK] )
-#define RADIO_CONFIG_ITEMS                  ( 4 )
+#define RADIO_CONFIG_ITEMS                  ( 3 )
 
-#define RADIO_CONFIG_ITEM                   ( 3 )
+#define RADIO_CONFIG_ITEM                   ( 0 )
 #define RADIO_CORE                          ( radio_config[RADIO_CONFIG_ITEM].radio_core )
 #define RADIO_SETTINGS                      ( radio_config[RADIO_CONFIG_ITEM].radio_settings )
 #define RADIO_FREQUENCY                     ( radio_config[RADIO_CONFIG_ITEM].frequency_settings )
@@ -87,14 +84,14 @@ static void prvSerialTask(void *pvParameters);
 static void radio_rx_init(void);
 static void radio_rx_done(void);
 
-static Queue<serial_message_t> queue(QUEUE_LENGTH);
-
 static uint16_t prepare_serial(uint8_t* buffer_ptr, uint8_t* packet_ptr, uint16_t packet_length, int8_t rssi);
 
 /*=============================== variables =================================*/
 
 static RadioBufferManager rbm;
 static Serial serial(uart0);
+
+static Queue<serial_message_t> queue(QUEUE_LENGTH);
 
 static Task heartbeatTask{(const char *) "Green", 128, GREEN_LED_TASK_PRIORITY, prvGreenLedTask, nullptr};
 static Task radioTask{(const char *) "Radio", 128, RADIO_TASK_PRIORITY, prvRadioTask, nullptr};
@@ -109,8 +106,7 @@ static uint8_t serial_buffer[SERIAL_BUFFER_LENGTH];
 
 static radio_config_t radio_config[RADIO_CONFIG_ITEMS] = {{RADIO_CORE_0, RADIO_SETTINGS_0, RADIO_FREQUENCY_0},
                                                           {RADIO_CORE_1, RADIO_SETTINGS_1, RADIO_FREQUENCY_1},
-                                                          {RADIO_CORE_2, RADIO_SETTINGS_2, RADIO_FREQUENCY_2},
-                                                          {RADIO_CORE_3, RADIO_SETTINGS_3, RADIO_FREQUENCY_3}};
+                                                          {RADIO_CORE_2, RADIO_SETTINGS_2, RADIO_FREQUENCY_2}};
 
 /*================================= public ==================================*/
 
@@ -167,7 +163,7 @@ static void prvSerialTask(void *pvParameters)
       serial.write(serial_buffer, length, true);
       
       /* Release RadioBuffer */
-      rbm.reset(serial_message.rb);
+      rbm.release(serial_message.rb);
 
       /* Turn off yellow LED */
       led_yellow.off();
@@ -179,16 +175,24 @@ static void prvRadioTask(void *pvParameters)
 {
 	bool status; 
   
-  /* Turn AT86RF215 radio on */
-  at86rf215.on();
-  
-  /* Check AT86RF215 radio */
-  status = at86rf215.check();
-  if (!status)
+  do
   {
-    /* Blink red LED */ 
-    board.error();
-  }
+    /* Turn AT86RF215 radio on */
+    at86rf215.on();
+  
+    /* Check AT86RF215 radio */
+    status = at86rf215.check();
+    
+    /* If AT86RF215 radio not ready */
+    if (!status)
+    {
+      /* Turn AT86RF215 radio off */
+      at86rf215.off();
+      
+      /* Delay for 10 ms */
+      Scheduler::delay_ms(10);
+    }
+  } while(!status);
   
   /* Set radio callbacks and enable interrupts */
   at86rf215.setRxCallbacks(RADIO_CORE, &radio_rx_init_cb, &radio_rx_done_cb);
@@ -207,15 +211,17 @@ static void prvRadioTask(void *pvParameters)
   {
     At86rf215::RadioResult result;
     RadioBuffer* radio_buffer;
-    int8_t rssi, lqi;
     bool status, received, crc;
+    int8_t rssi, lqi;
     
     /* Get a RadioBuffer to work with */
     do {
+      /* Try to get a RadioBuffer */
       status = rbm.get(&radio_buffer);
       if (!status)
       {
-        Scheduler::delay_ms(10);
+        /* Reset board */
+        board.reset();
       }
     } while(!status);
     
@@ -232,10 +238,15 @@ static void prvRadioTask(void *pvParameters)
       result = at86rf215.getPacket(RADIO_CORE, radio_buffer->buffer, &radio_buffer->length, &rssi, &lqi, &crc);
     }
     
+    /* Wake up and configure radio */
+    at86rf215.wakeup(RADIO_CORE);
+    at86rf215.configure(RADIO_CORE, RADIO_SETTINGS, RADIO_FREQUENCY);
+    at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
+    
     /* Start the reception of a new packet */
     at86rf215.receive(RADIO_CORE);
     
-    /* If we have received a packet */
+    /* If we have received a packet, the radio is good and the CRC matches */
     if (received == true && result == At86rf215::RadioResult::Success && crc == true)
     {
       serial_message_t serial_message;
@@ -249,10 +260,8 @@ static void prvRadioTask(void *pvParameters)
     }
     else
     {
-      /* Blink red LED */
-      led_red.on();
-      Scheduler::delay_ms(1);
-      led_red.off();
+      /* Otherwise, release RadioBuffer */
+      rbm.release(radio_buffer);
     }
   } while(true);
   

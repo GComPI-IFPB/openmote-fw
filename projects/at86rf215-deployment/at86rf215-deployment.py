@@ -33,32 +33,27 @@ import time
 import MoteSerial
 import MqttClient
 
-pan_id       = config.network_config['pan_id']
-
-mqtt_id      = config.mqtt_config['mqtt_id']
-mqtt_address = config.mqtt_config['mqtt_address']
-mqtt_port    = config.mqtt_config['mqtt_port']
-mqtt_topic   = config.mqtt_config['mqtt_topic']
-
-serial_devices  = config.serial_config['serial_devices']
-serial_baudrate = config.serial_config['serial_baudrate']
-serial_timeout  = config.serial_config['serial_timeout']
-
 finished = False
 
 logger = logging.getLogger(__name__)
 
 class MoteSerialImplementation(MoteSerial.MoteSerial):
+
+    # Recover network configuration
+    pan_id = config.network_config["pan_id"]
+
+    # Reocver message configuration
+    message_id        = config.message_config["message_id"]
+    message_topic     = config.message_config["message_topic"]
+    message_fields    = config.message_config["message_fields"]
+    message_structure = config.message_config["message_structure"]
+    
     def __init__(self, serial_port=None, serial_baudrate=None, serial_timeout=None, mqtt_client=None):
         super().__init__(serial_port=serial_port, serial_baudrate=serial_baudrate, serial_timeout = serial_timeout)
         self.mqtt_client = mqtt_client
 
     def run(self):
         logger.info("Starting MoteSerialImplementation at port={} with baudrate={}.".format(self.serial_port, self.serial_baudrate))
-
-        # Recover message structure from config
-        message_structure = config.message_config['message_structure']
-        message_fields = config.message_config['message_fields']
 
         # Repeat until finish condition
         while (not finished):
@@ -74,22 +69,22 @@ class MoteSerialImplementation(MoteSerial.MoteSerial):
                     message = bytearray(bytes(message))
 
                     # Unpack the message according to its structure
-                    message_items = struct.unpack(message_structure, message)
+                    message_items = struct.unpack(self.message_structure, message)
 
                     # Convert to dictionary
-                    result = dict(zip(message_fields, message_items))
+                    result = dict(zip(self.message_fields, message_items))
 
                     # Check that packet comes from a known network
-                    if (result['pan_id'].hex() == pan_id):
+                    if (result['pan_id'].hex() == self.pan_id):
 
                         # Process data in dictionary
-                        result['gw_id'] = mqtt_id
-                        result['pan_id'] = result['pan_id'].hex()
+                        result['gw_id']   = self.message_id
+                        result['pan_id']  = result['pan_id'].hex()
                         result['node_id'] = result['node_id'].hex()
-                        result['temp'] = result['temp'] / 10.0
-                        result['rhum'] = result['rhum'] / 10.0
-                        result['pres'] = result['pres'] / 10.0
-                        result['lght'] = result['lght'] / 10.0
+                        result['temp']    = result['temp'] / 10.0
+                        result['rhum']    = result['rhum'] / 10.0
+                        result['pres']    = result['pres'] / 10.0
+                        result['lght']    = result['lght'] / 10.0
 
                         success = True
 
@@ -106,7 +101,7 @@ class MoteSerialImplementation(MoteSerial.MoteSerial):
                     mqtt_message = json.dumps(result)
 
                     # Send MQTT message
-                    self.mqtt_client.send_message(mqtt_topic, mqtt_message)
+                    self.mqtt_client.send_message(self.message_topic, mqtt_message)
 
                     logger.info(mqtt_message)
                 except:
@@ -123,49 +118,59 @@ def signal_handler(sig, frame):
     global finished
     finished = True
 
-def program(serial_baudrate = None):
+def main():
     global finished
 
-    motes = []
+    # List to hold serial_motes objects
+    serial_motes = []
 
-    # Create MQTT client
-    mqtt_client = MqttClient.MqttClient(mqtt_address, mqtt_port)
-    mqtt_client.start()
-
-    serial_ports = MoteSerial.serial_ports()
-    serial_length = len(serial_ports)
-
-    if (serial_length != serial_devices):
-        logger.error("Erroneous number of serial devices present. Operating with {} devices instead of {} devices!".format(serial_length, serial_devices))
-
-    for serial_port in serial_ports:
-        m = MoteSerialImplementation(serial_port = serial_port, serial_baudrate = serial_baudrate,
-                                     serial_timeout = serial_timeout, mqtt_client = mqtt_client)
-        motes.append(m)
-
-    for mote in motes:
-        mote.start()
-
-    while(not finished):
-        time.sleep(0.1)
-
-    for mote in motes:
-        mote.stop()
-        mote.join()
-
-    # Stop MQTT client
-    mqtt_client.stop()
-    mqtt_client.join()
-
-def main():
     # Set up logging back-end
     logging.basicConfig(level=logging.ERROR)
 
     # Set up SIGINT signal
     signal.signal(signal.SIGINT, signal_handler)
 
-    # Execute program
-    program(serial_baudrate = serial_baudrate)
+    # Recover serial configuration
+    serial_devices  = config.serial_config['serial_devices']
+    serial_baudrate = config.serial_config['serial_baudrate']
+    serial_timeout  = config.serial_config['serial_timeout']
+
+    # Recover MQTT configuration
+    mqtt_address = config.mqtt_config['mqtt_address']
+    mqtt_port    = config.mqtt_config['mqtt_port']
+
+    # Create MQTT client
+    mqtt_client = MqttClient.MqttClient(address = mqtt_address, port = mqtt_port)
+    mqtt_client.start()
+
+    # Recover serial_ports available
+    serial_ports = MoteSerial.serial_ports()
+    serial_length = len(serial_ports)
+
+    logger.error("Operating with {} devices instead of {} devices!".format(serial_length, serial_devices))
+
+    # Create MoteSerialImplementation objects
+    for serial_port in serial_ports:
+        mote = MoteSerialImplementation(serial_port = serial_port, serial_baudrate = serial_baudrate,
+                                        serial_timeout = serial_timeout, mqtt_client = mqtt_client)
+        serial_motes.append(serial_mote)
+
+    # Start MoteSerialImplementation objects
+    for serial_mote in serial_motes:
+        serial_mote.start()
+
+    # Wait until 
+    while (not finished):
+        time.sleep(0.1)
+
+    # Stop MoteSerialImplementation objects
+    for serial_mote in serial_motes:
+        serial_mote.stop()
+        serial_mote.join()
+
+    # Stop MQTT client
+    mqtt_client.stop()
+    mqtt_client.join()
 
 if __name__ == "__main__":
     main()
