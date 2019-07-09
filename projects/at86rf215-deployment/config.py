@@ -15,7 +15,7 @@ network_config = {
 
 message_config = {
     "message_id"        : "edison",
-    "message_topic"     : "test"
-    "message_fields"    : ["pan_id", "node_id", "retry", "mode", "pkt_count", "temp", "rhum", "pres", "lght", "cca", "rssi"],
-    "message_structure" : ">2s8sbbIhhhhbb"
+    "message_topic"     : "test",
+    "message_fields"    : ["length", "pan_id", "node_id", "mode", "retry", "pkt_count", "temp", "rhum", "pres", "lght", "cca_retries", "cca_rssi", "rssi"],
+    "message_structure" : ">b2s4sbbIhhhhbbb"
 }
