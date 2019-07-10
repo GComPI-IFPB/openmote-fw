@@ -47,7 +47,7 @@ class MoteSerialImplementation(MoteSerial.MoteSerial):
     message_topic     = config.message_config["message_topic"]
     message_fields    = config.message_config["message_fields"]
     message_structure = config.message_config["message_structure"]
-    
+
     def __init__(self, serial_port=None, serial_baudrate=None, serial_timeout=None, mqtt_client=None):
         super().__init__(serial_port=serial_port, serial_baudrate=serial_baudrate, serial_timeout = serial_timeout)
         self.mqtt_client = mqtt_client
@@ -75,24 +75,23 @@ class MoteSerialImplementation(MoteSerial.MoteSerial):
                     result = dict(zip(self.message_fields, message_items))
 
                     # Check that packet comes from a known network
-                    if (result['pan_id'].hex() == self.pan_id):
+                    if (result["pan_id"].hex() == self.pan_id):
 
                         # Process data in dictionary
-                        result['gw_id']   = self.message_id
-                        result['pan_id']  = result['pan_id'].hex()
-                        result['node_id'] = result['node_id'].hex()
-                        result['temp']    = result['temp'] / 10.0
-                        result['rhum']    = result['rhum'] / 10.0
-                        result['pres']    = result['pres'] / 10.0
-                        result['lght']    = result['lght'] / 10.0
+                        result["gw_id"]   = self.message_id
+                        result["pan_id"]  = result["pan_id"].hex()
+                        result["node_id"] = result["node_id"].hex()
+                        result["temp"]    = result["temp"] / 10.0
+                        result["rhum"]    = result["rhum"] / 10.0
+                        result["pres"]    = result["pres"] / 10.0
+                        result["lght"]    = result["lght"] / 10.0
 
+                        # Mark packet conversion as successful
                         success = True
-
-                        logger.info(result)
                     else:
-                        logger.error("program: Error unpacking.")
+                        logger.error("program: Received pan_id={} does not match local pan_id={}".format(result["pan_id"], self.pan_id))
                 except Exception as e:
-                    logger.error("program: Error unpacking.")
+                    logger.error("program: Error unpacking at port={}.".format(self.serial_port))
 
             # If the message was parsed successfully
             if (success is True):
@@ -147,19 +146,19 @@ def main():
     serial_ports = MoteSerial.serial_ports()
     serial_length = len(serial_ports)
 
-    logger.error("Operating with {} devices instead of {} devices!".format(serial_length, serial_devices))
+    logger.info("main: Operating with {} of {} devices!".format(serial_length, serial_devices))
 
     # Create MoteSerialImplementation objects
     for serial_port in serial_ports:
-        mote = MoteSerialImplementation(serial_port = serial_port, serial_baudrate = serial_baudrate,
-                                        serial_timeout = serial_timeout, mqtt_client = mqtt_client)
+        serial_mote = MoteSerialImplementation(serial_port = serial_port, serial_baudrate = serial_baudrate,
+                                               serial_timeout = serial_timeout, mqtt_client = mqtt_client)
         serial_motes.append(serial_mote)
 
     # Start MoteSerialImplementation objects
     for serial_mote in serial_motes:
         serial_mote.start()
 
-    # Wait until 
+    # Wait until finished
     while (not finished):
         time.sleep(0.1)
 
