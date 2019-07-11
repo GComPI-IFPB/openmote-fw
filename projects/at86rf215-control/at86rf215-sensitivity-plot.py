@@ -33,7 +33,7 @@ def parse_file(filename = None):
     # Recover X axis titles
     x_axis = csv_lines.pop(0)
     x_axis_title = x_axis[0]
-    x_axis = [str(offset-int(b)) if b != "0" else "No" for b in x_axis[1:]]
+    x_axis = [str(offset-int(b)) for b in x_axis[1:]]
 
     # Recover data
     for line in csv_lines:    
@@ -79,7 +79,7 @@ def main():
     figures_dir = "figures"
     figures_extension = ".png"
 
-    experiments = [1, 2]
+    experiments = [1]
     experiment_files = ["sensitivity_20bytes"]
     
     packet_lengths = ["20", "120"]
