@@ -151,7 +151,7 @@
 
 #define UART0_PERIPHERAL        ( SYS_CTRL_PERIPH_UART0 )
 #define UART0_BASE_ADDR         ( UART0_BASE )
-#define UART0_CLOCK             ( UART_CLOCK_SYSTEM )
+#define UART0_CLOCK             ( UART_CLOCK_PIOSC )
 #define UART0_INT               ( INT_UART0 )
 #define UART0_BAUDRATE          ( 115200 )
 #define UART0_MODE              ( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE )
@@ -165,7 +165,7 @@
 
 #define UART1_PERIPHERAL        ( SYS_CTRL_PERIPH_UART1 )
 #define UART1_BASE_ADDR         ( UART1_BASE )
-#define UART1_CLOCK             ( UART_CLOCK_SYSTEM )
+#define UART1_CLOCK             ( UART_CLOCK_PIOSC )
 #define UART1_INT               ( INT_UART1 )
 #define UART1_BAUDRATE          ( 115200 )
 #define UART1_MODE              ( UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE )
@@ -179,7 +179,7 @@
 
 #define SPI0_PERIPHERAL         ( SYS_CTRL_PERIPH_SSI0 )
 #define SPI0_BASE_ADDR          ( SSI0_BASE )
-#define SPI0_CLOCK              ( SSI_CLOCK_SYSTEM )
+#define SPI0_CLOCK              ( SSI_CLOCK_PIOSC )
 #define SPI0_INT                ( INT_SSI0 )
 #define SPI0_MODE               ( SSI_MODE_MASTER )
 #define SPI0_PROTOCOL           ( SSI_FRF_MOTO_MODE_0 )
@@ -198,7 +198,7 @@
 
 #define SPI1_PERIPHERAL         ( SYS_CTRL_PERIPH_SSI1 )
 #define SPI1_BASE_ADDR          ( SSI1_BASE )
-#define SPI1_CLOCK              ( SSI_CLOCK_SYSTEM )
+#define SPI1_CLOCK              ( SSI_CLOCK_PIOSC )
 #define SPI1_INT                ( INT_SSI1 )
 #define SPI1_MODE               ( SSI_MODE_MASTER )
 #define SPI1_PROTOCOL           ( SSI_FRF_MOTO_MODE_3 )
@@ -354,10 +354,10 @@ GpioInPow button_user {button_user_cfg};
 // GpioOut debug1 {debug1_cfg};
 // GpioOut debug2 {debug2_cfg};
 // GpioOut debug3 {debug3_cfg};
-GpioOut debug4 {debug4_cfg};
-GpioOut debug5 {debug5_cfg};
+// GpioOut debug4 {debug4_cfg};
+// GpioOut debug5 {debug5_cfg};
 
-Timer timer0a{timer0a_cfg};
+// Timer timer0a{timer0a_cfg};
 // Timer timer0b(timer0b_cfg);
 // Timer timer1a(timer1a_cfg);
 // Timer timer1b(timer1b_cfg);
@@ -384,10 +384,10 @@ Uart uart0 {uart0_rx, uart0_tx, uart0_cfg};
 
 /* SPI */
 Spi spi0 {spi0_miso, spi0_mosi, spi0_clk, spi0_cfg};
-Spi spi1 {spi1_miso, spi1_mosi, spi1_clk, spi1_cfg};
+// Spi spi1 {spi1_miso, spi1_mosi, spi1_clk, spi1_cfg};
 
-/* Random Number Generator */
-RandomNumberGenerator rng;
+/* Pseudo-Random Number Generator */
+DeterministicNumberGenerator prng;
 
 /* IEEE 802.15.4 radio */
 Radio radio;
@@ -430,8 +430,8 @@ void BoardImplementation::init(void)
   led_red.off();
 
   /* Ensure 2.4 GHz antenna for CC2538 is used */
-  antenna_at86rf215.high();
-  antenna_cc2538.low();
+  antenna_at86rf215.low();
+  antenna_cc2538.high();
 }
 
 /*================================ private ==================================*/

@@ -81,8 +81,8 @@ extern Uart uart1;
 extern Spi spi0;
 extern Spi spi1;
 
-/* Random Number Generator */
-extern RandomNumberGenerator rng;
+/* Number Generator */
+extern NumberGenerator prng;
 
 /* IEEE 802.15.4 radio */
 extern Radio radio;
