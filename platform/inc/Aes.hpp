@@ -19,20 +19,21 @@ class Aes {
 friend class InterruptHandler;
 
 public:
-    Aes();
-    void enable(void);
-    void reset(void);
-    bool sleep(void);
-    bool wakeup(void);
-    bool loadKey(uint8_t key[16]);
-    bool encrypt(uint8_t* input, uint8_t* output, uint32_t lenght);
-    bool decrypt(uint8_t* input, uint8_t* output, uint32_t length);
+  Aes();
+  void enable(void);
+  void reset(void);
+  bool sleep(void);
+  bool wakeup(void);
+  bool loadKey(uint8_t* key, uint16_t length);
+  bool encrypt(uint8_t* input, uint8_t* output, uint16_t* length);
+  bool decrypt(uint8_t* input, uint8_t* output, uint16_t* length);
 protected:
-    void interruptHandler(void);
+  void interruptHandler(void);
 private:
-    bool processBuffer(uint8_t* input, uint8_t* output, uint8_t length, bool encrypt);
-    bool processBlock(uint8_t* input, uint8_t* output, uint8_t key, bool encrypt);
+  bool processBuffer(uint8_t* input, uint8_t* output, uint16_t* length, bool encrypt);
+  bool processBlock(uint8_t* input, uint8_t* output, uint8_t key, bool encrypt);
 private:
+  bool enabled_;
 	uint8_t key_[16];
 };
 
