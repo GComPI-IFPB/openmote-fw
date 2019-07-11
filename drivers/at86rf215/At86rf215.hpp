@@ -151,6 +151,8 @@ private:
   uint8_t bbc0_irqm, bbc1_irqm;
 
   uint8_t crc_length;
+  
+  bool useDma_;
 };
 
 #endif /* AT86RF215_HPP_ */

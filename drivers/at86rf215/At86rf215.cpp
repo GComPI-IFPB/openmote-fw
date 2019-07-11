@@ -36,6 +36,7 @@
 #define AT86RF215_RF_CFG_DEFAULT        ( 0x08 )
 #define AT86RF215_RF_CLK0_DEFAULT       ( 0x00 ) 
 
+
 #define AT86RF215_RFn_PAC_PACUR_MASK    ( 0x06 << 4)
 #define AT86RF215_RFn_PAC_PACUR_3dB     ( 0x00 )
 #define AT86RF215_RFn_PAC_PACUR_2dB     ( 0x01 )
@@ -95,7 +96,7 @@ At86rf215::At86rf215(Spi& spi, GpioOut& pwr, GpioOut& rst, GpioOut& cs, GpioIn& 
   callback_(this, &At86rf215::interruptHandler),
   rx09Init_(nullptr), rx09Done_(nullptr), tx09Init_(nullptr), tx09Done_(nullptr),
   rx24Init_(nullptr), rx24Done_(nullptr), tx24Init_(nullptr), tx24Done_(nullptr),
-  rf09_irqm(0), rf24_irqm(0), bbc0_irqm(0), bbc1_irqm(0)
+  rf09_irqm(0), rf24_irqm(0), bbc0_irqm(0), bbc1_irqm(0), useDma_(true)
 {
   /* Ensure radio is off */
   off();
@@ -528,25 +529,25 @@ At86rf215::RadioResult At86rf215::setTransmitPower(RadioCore rc, TransmitPower p
   int8_t value;
   
   /* Select PAC register address */
-  //address = getRFRegisterAddress(rc, RFn_PAC);
+  address = getRFRegisterAddress(rc, RFn_PAC);
   
   /* Read PAC register */
-  //singleAccessRead(address, (uint8_t *)&value);
-  
+  singleAccessRead(address, (uint8_t *)&value);
+    
   /* Clear the PAC.PACUR bits */
-  //value &= (~AT86RF215_RFn_PAC_PACUR_MASK);
+  value &= (~AT86RF215_RFn_PAC_PACUR_MASK);
   
   /* Clear the PAC.TXPWR bits */
-  // value &= (~AT86RF215_RFn_PAC_TXPWR_MASK);
+  value &= (~AT86RF215_RFn_PAC_TXPWR_MASK);
   
   /* Set the PAC.PACUR bits */
-  // value |= (AT86RF215_RFn_PAC_PACUR_3dB << AT86RF215_RFn_PAC_PACUR_SHIFT);
+  value |= (AT86RF215_RFn_PAC_PACUR_3dB << AT86RF215_RFn_PAC_PACUR_SHIFT);
   
   /* Set the TXPWR bits */
-  //value |= (power & AT86RF215_RFn_PAC_TXPWR_MASK);
+  value |= (power & AT86RF215_RFn_PAC_TXPWR_MASK);
   
   /* Write PAC register */
-  //singleAccessWrite(address, value);
+  singleAccessWrite(address, value);
   
   return RadioResult::Success;
 }
@@ -802,7 +803,7 @@ void At86rf215::singleAccessRead(uint16_t address, uint8_t* value)
   cs_.low();
 
   /* Write the SPI transaction */
-  spi_.rwByte(spi_tx_transaction, 3, spi_rx_transaction, 3);
+  spi_.rwByte(spi_tx_transaction, 3, spi_rx_transaction, 3, useDma_);
 
   /* Deactivate CS */
   cs_.high();
@@ -830,7 +831,7 @@ void At86rf215::singleAccessWrite(uint16_t address, uint8_t value)
   cs_.low();
 
   /* Write the SPI transaction */
-  spi_.rwByte(spi_tx_transaction, 3, spi_rx_transaction, 3);
+  spi_.rwByte(spi_tx_transaction, 3, spi_rx_transaction, 3, useDma_);
 
   /* Deactivate CS */
   cs_.high();
@@ -854,10 +855,10 @@ void At86rf215::blockAccessRead(uint16_t address, uint8_t* values, uint16_t leng
   cs_.low();
   
   /* Send device address */
-  spi_.rwByte(spi_tx_transaction, 2, spi_rx_transaction, 2);
+  spi_.rwByte(spi_tx_transaction, 2, spi_rx_transaction, 2, useDma_);
   
   /* Receive device bytes */
-  spi_.rwByte(NULL, 0, values, length);
+  spi_.rwByte(NULL, 0, values, length, useDma_);
 
   /* Deactivate CS */
   cs_.high();
@@ -881,10 +882,10 @@ void At86rf215::blockAccessWrite(uint16_t address, uint8_t* values, uint16_t len
   cs_.low();
   
   /* Send device address */
-  spi_.rwByte(spi_tx_transaction, 2, spi_rx_transaction, 2);
+  spi_.rwByte(spi_tx_transaction, 2, spi_rx_transaction, 2, useDma_);
   
   /* Send payload */
-  spi_.rwByte(values, length, NULL, 0);
+  spi_.rwByte(values, length, NULL, 0, useDma_);
   
   /* Deactivate CS */
   cs_.high();
