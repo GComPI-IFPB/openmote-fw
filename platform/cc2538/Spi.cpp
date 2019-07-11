@@ -196,6 +196,36 @@ bool Spi::rwByte(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* rece
   }
 }
 
+/*=============================== protected =================================*/
+
+SpiConfig& Spi::getConfig(void)
+{
+    return config_;
+}
+
+void Spi::interruptHandler(void)
+{
+  uint32_t status;
+  
+  /* Read interrupt source */
+  status = SSIIntStatus(config_.base, true);
+
+  /* Clear SPI interrupts */
+  SSIIntClear(config_.interrupt, status);
+
+  /* Process TX interrupt */
+  if (status & SSI_TXFF) {
+    interruptHandlerTx();
+  }
+
+  /* Process RX interrupt */
+  if (status & SSI_RXFF) {
+    interruptHandlerRx();
+  }
+}
+
+/*================================ private ==================================*/
+
 bool Spi::rwByteNoDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* receiveBuffer, uint32_t receiveLength)
 {
   uint32_t length = 0;
@@ -314,36 +344,6 @@ bool Spi::rwByteDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* r
   
   return true;
 }
-
-/*=============================== protected =================================*/
-
-SpiConfig& Spi::getConfig(void)
-{
-    return config_;
-}
-
-void Spi::interruptHandler(void)
-{
-  uint32_t status;
-  
-  /* Read interrupt source */
-  status = SSIIntStatus(config_.base, true);
-
-  /* Clear SPI interrupts */
-  SSIIntClear(config_.interrupt, status);
-
-  /* Process TX interrupt */
-  if (status & SSI_TXFF) {
-    interruptHandlerTx();
-  }
-
-  /* Process RX interrupt */
-  if (status & SSI_RXFF) {
-    interruptHandlerRx();
-  }
-}
-
-/*================================ private ==================================*/
 
 void Spi::interruptHandlerRx(void)
 {

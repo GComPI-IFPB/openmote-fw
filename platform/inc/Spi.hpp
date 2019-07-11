@@ -36,7 +36,7 @@ public:
     void disableInterrupts(void);
     uint8_t rwByte(uint8_t byte);
     bool rwByte(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* receiveBuffer, uint32_t receiveLength, bool dma = false);
-protected:
+private:
     bool rwByteNoDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* receiveBuffer, uint32_t receiveLength);
     bool rwByteDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* receiveBuffer, uint32_t receiveLength);
 protected:
