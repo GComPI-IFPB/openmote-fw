@@ -21,11 +21,18 @@ sys.path.append(pwd)
 import argparse
 import signal
 import struct
+import logging
 import time
 import random
 import string
+import json
 
 import Serial
+import MqttClient
+
+mqtt_address = "34.244.230.156"
+mqtt_port    = 1883
+mqtt_topic   = "test"
 
 finished = False
 
@@ -42,6 +49,10 @@ def program(port = None, baudrate = None):
     serial = Serial.Serial(name = port, baudrate = baudrate, timeout = timeout)
     serial.start()
 
+    # Create MQTT client
+    mqtt = MqttClient.MqttClient(mqtt_address, mqtt_port)
+    mqtt.start()
+
     print("Starting program at port {} with bauds {}.".format(port, baudrate))
 
     # Repeat until finish condition
@@ -51,19 +62,34 @@ def program(port = None, baudrate = None):
 
         # If we received a message
         if (length > 0):
-            message = bytearray(bytes(message))
-            eui48, counter, t, h, p, l, rssi = struct.unpack('>6sIhhhhb', message)
-            t = t/10.0
-            h = h/10.0
-            p = p/10.0
-            l = l/10.0
-            print("Counter={}, Temperature={}, Humidity={}, Pressure={}, RSSI={}".format(counter, t, h, p, rssi))
-            
+            try:
+                message = bytearray(bytes(message))
+                eui48, counter, t, h, p, l, rssi = struct.unpack('>6sIhhhhb', message)
+                t = t/10.0
+                h = h/10.0
+                p = p/10.0
+                l = l/10.0
+                print("Counter={}, Temperature={}, Humidity={}, Pressure={}, RSSI={}".format(counter, t, h, p, rssi))
+            except:
+                logger.error("program: Error unpacking.")
 
-    # Stop the serial port
-    serial.stop()
+            try:
+                # Create MQTT message
+                mqtt_message = json.dumps({"address": eui48, "counter": counter, "temp": t, "humidity": h, "pressure": p, "rssi": rssi})
+
+                # Send MQTT message
+                mqtt.send_message(mqtt_topic, mqtt_message)
+            except:
+                logger.error("program: Error sending MQTT packet.")
+            
+    if (finished):
+        # Stop the serial port
+        serial.stop()
 
 def main():
+    # Set-up logging back-end
+    logging.basicConfig(level=logging.DEBUG)
+
     # Set up SIGINT signal
     signal.signal(signal.SIGINT, signal_handler)
 

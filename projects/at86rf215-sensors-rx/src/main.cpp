@@ -38,7 +38,8 @@
 
 #define RADIO_CORE                          ( At86rf215::CORE_RF09 )
 #define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM2_MCS0] )
-#define RADIO_FREQUENCY                     ( &frequency_settings_09[FREQUENCY_OFDM2] )
+#define RADIO_FREQUENCY                     ( &frequency_settings_09[FREQUENCY_09_OFDM2] )
+#define RADIO_CHANNEL                       ( 0 )
 #define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_MIN )
 
 /*================================ typedef ==================================*/
@@ -113,7 +114,7 @@ static void prvRadioTask(void *pvParameters)
   
   /* Wake up and configure radio */
   at86rf215.wakeup(RADIO_CORE);
-  at86rf215.configure(RADIO_CORE, RADIO_SETTINGS, RADIO_FREQUENCY);
+  at86rf215.configure(RADIO_CORE, RADIO_SETTINGS, RADIO_FREQUENCY, RADIO_CHANNEL);
   at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
   
   /* Forever */
