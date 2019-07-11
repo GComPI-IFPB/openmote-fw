@@ -51,8 +51,8 @@
 
 #define RADIO_CORE                          ( At86rf215::CORE_RF09 )
 #define RADIO_SETTINGS                      ( &radio_settings[CONFIG_OFDM2_MCS0] )
-#define RADIO_FREQUENCY                     ( &frequency_settings[FREQUENCY_OFDM2] )
-#define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_MIN )
+#define RADIO_FREQUENCY                     ( &frequency_settings_09[FREQUENCY_OFDM2] )
+#define RADIO_TX_POWER                      ( At86rf215::TransmitPower::TX_POWER_MAX )
 
 /*================================ typedef ==================================*/
 
