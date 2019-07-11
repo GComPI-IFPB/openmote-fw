@@ -82,12 +82,15 @@ public:
 
   bool check(void);
   
-  void configure(RadioCore rc, const radio_settings_t* radio_settings, const frequency_settings_t* frequency_settings);
+  void configure(RadioCore rc, const radio_settings_t* radio_settings, const frequency_settings_t* frequency_settings, uint16_t channel);
   
   void sleep(RadioCore rc);
   void wakeup(RadioCore rc);
   void transmit(RadioCore rc);
   void receive(RadioCore rc);
+  
+  bool cca(RadioCore rc, int8_t threshold, int8_t* rssi, bool* rssi_valid);
+  bool csma(RadioCore rc, int8_t cca_threshold, uint8_t* retries, int8_t* rssi);
 
   void setRxCallbacks(RadioCore rc, Callback* rxInit, Callback* rxDone);
   void setTxCallbacks(RadioCore rc, Callback* txInit, Callback* txDone);
@@ -116,10 +119,14 @@ private:
   void blockAccessRead(uint16_t address, uint8_t* values, uint16_t length);
   void blockAccessWrite(uint16_t address, uint8_t* values, uint16_t length);
 private:
+  uint16_t getCORERegisterAddress(RadioCore rc);
   uint16_t getRFRegisterAddress(RadioCore rc, uint16_t address);
   uint16_t getBBCRegisterAddress(RadioCore rc, uint16_t address);
   uint16_t getFBRegisterAddress(RadioCore rc, uint16_t address);
   uint16_t getCRCLength(RadioCore rc);
+private:  
+  void enableBitFromRegister(uint16_t address, uint32_t mask);
+  void disableBitFromRegister(uint16_t address, uint32_t mask);
 private:
   Spi& spi_;
   

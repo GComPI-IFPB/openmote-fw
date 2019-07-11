@@ -11,6 +11,8 @@
 
 /*================================ include ==================================*/
 
+#include <stdlib.h>
+
 #include "At86rf215.hpp"
 #include "At86rf215_regs.h"
 
@@ -34,7 +36,14 @@
 #define AT86RF215_RF_CFG_DEFAULT        ( 0x08 )
 #define AT86RF215_RF_CLK0_DEFAULT       ( 0x00 ) 
 
-#define AT86RF215_RFn_PAC_PACUR_MASK    ( 0x60 )
+#define AT86RF215_RFn_PAC_PACUR_MASK    ( 0x06 << 4)
+#define AT86RF215_RFn_PAC_PACUR_3dB     ( 0x00 )
+#define AT86RF215_RFn_PAC_PACUR_2dB     ( 0x01 )
+#define AT86RF215_RFn_PAC_PACUR_1dB     ( 0x02 )
+#define AT86RF215_RFn_PAC_PACUR_0dB     ( 0x03 )
+#define AT86RF215_RFn_PAC_PACUR_SHIFT   ( 6 )
+
+#define AT86RF215_RFn_PAC_TXPWR_MASK    ( 0x1F )
 
 #define AT86RF215_BBCn_PC_CTX_MASK      ( 0x80 )
 #define AT86RF215_BBCn_PC_FCST_MASK     ( 0x08 )
@@ -44,8 +53,32 @@
 #define AT86RF215_BBCn_IRQS_RXFE_MASK   ( 0x02 )
 #define AT86RF215_BBCn_IRQS_TXFE_MASK   ( 0x10 )
 
+#define AT86RF215_RFn_IRQS_EDC_MASK     ( 0x02 )
+
+#define AT86RF215_BBCn_PC_BBEN_MASK     ( 0x01 << 2 )
+
+#define AT86RF215_RFn_EDC_EDM_AUTO      ( 0x00 << 0 )
+#define AT86RF215_RFn_EDC_EDM_SINGLE    ( 0x01 << 0 )
+#define AT86RF215_RFn_EDC_EDM_CONT      ( 0x02 << 0 )
+#define AT86RF215_RFn_EDC_EDM_OFF       ( 0x03 << 0 )
+
+#define AT86RF215_RFn_EDD_DF_(x)        ( ( x & 0x3F ) << 2 )
+#define AT86RF215_RFn_EDD_DTB_2_US      ( 0x00 << 0 )
+#define AT86RF215_RFn_EDD_DTB_8_US      ( 0x01 << 0 )
+#define AT86RF215_RFn_EDD_DTB_32_US     ( 0x02 << 0 )
+#define AT86RF215_RFn_EDD_DTB_128_US    ( 0x03 << 0 )
+
 #define AT86RF215_BBCn_PC_FCST_16_BIT   ( 2 )
 #define AT86RF215_BBCn_PC_FCST_32_BIT   ( 4 )
+
+#define AT86RF215_EDV_INVALID           ( 127 )
+
+#define AT86RF215_CCA_RETRIES           ( 2 )
+#define AT86RF215_CCA_DELAY_US          ( 200 )
+
+#define AT86RF215_CSMA_RETRIES          ( 3 )
+#define AT86RF215_CSMA_DELAY_US         ( 100 )
+#define AT86RF215_CSMA_MODULUS          ( 100 )
 
 /*================================ typedef ==================================*/
 
@@ -63,7 +96,6 @@ At86rf215::At86rf215(Spi& spi, GpioOut& pwr, GpioOut& rst, GpioOut& cs, GpioIn& 
   rx09Init_(nullptr), rx09Done_(nullptr), tx09Init_(nullptr), tx09Done_(nullptr),
   rx24Init_(nullptr), rx24Done_(nullptr), tx24Init_(nullptr), tx24Done_(nullptr),
   rf09_irqm(0), rf24_irqm(0), bbc0_irqm(0), bbc1_irqm(0)
-
 {
   /* Ensure radio is off */
   off();
@@ -132,7 +164,7 @@ bool At86rf215::check(void)
   return status;
 }
 
-void At86rf215::configure(RadioCore rc, const radio_settings_t* radio_settings, const frequency_settings_t* frequency_settings)
+void At86rf215::configure(RadioCore rc, const radio_settings_t* radio_settings, const frequency_settings_t* frequency_settings, uint16_t channel)
 {
   uint16_t rf_base, bbc_base;
   uint32_t frequency;
@@ -148,6 +180,7 @@ void At86rf215::configure(RadioCore rc, const radio_settings_t* radio_settings, 
   };
   uint8_t* irq_mask[] = {&rf09_irqm, &bbc0_irqm, &rf24_irqm, &bbc1_irqm};
   
+  /* Calculate frequency offset depending on radio core */
   if (rc == RadioCore::CORE_RF09)
   {
     frequency = frequency_settings->frequency0;
@@ -157,13 +190,19 @@ void At86rf215::configure(RadioCore rc, const radio_settings_t* radio_settings, 
     frequency = frequency_settings->frequency0 - 1500000;
   }  
   
+  /* Ensure channel does not go above the limit */
+  if (channel > frequency_settings->channel_max)
+  {
+    channel = frequency_settings->channel_max;
+  }
+  
   register_t channel_settings[] = 
   {
     {RFn_CCF0L, (uint8_t) ((frequency / 25) % 256)},
     {RFn_CCF0H, (uint8_t) ((frequency / 25) / 256)},
     {RFn_CS,    (uint8_t) (frequency_settings->channel_spacing / 25)},
-    {RFn_CNL,   (uint8_t) (frequency_settings->channel_min % 256)},
-    {RFn_CNM,   (uint8_t) (frequency_settings->channel_min / 256)},
+    {RFn_CNL,   (uint8_t) (channel % 256)},
+    {RFn_CNM,   (uint8_t) (channel / 256)},
   };
 
   /* Get RFn and BBCn base address based on radio core */
@@ -254,6 +293,147 @@ void At86rf215::transmit(RadioCore rc)
 void At86rf215::receive(RadioCore rc)
 {
   goToState(rc, RadioCommand::CMD_RX, RadioState::STATE_RX);
+}
+
+bool At86rf215::cca(RadioCore rc, int8_t cca_threshold, int8_t* rssi, bool* rssi_valid)
+{
+  uint16_t bbcn_pc_address;
+  uint16_t rfn_edv_address, rfn_edc_address;
+  uint16_t irqs_address;
+  bool cca_status = false;
+  int8_t edv;
+  
+  /* Set CORE, BBCn and RFn addresses */
+  irqs_address    = At86rf215::getCORERegisterAddress(rc);
+  bbcn_pc_address = At86rf215::getBBCRegisterAddress(rc, BBCn_PC);
+  rfn_edc_address = At86rf215::getRFRegisterAddress(rc, RFn_EDC);  
+  rfn_edv_address = At86rf215::getRFRegisterAddress(rc, RFn_EDV); 
+  
+  /* Disable BBCn_PC.BBEN bit */
+  disableBitFromRegister(bbcn_pc_address, AT86RF215_BBCn_PC_BBEN_MASK);
+  
+  /* Go to receive mode */
+  receive(rc);
+      
+  /* Write EDC address */
+  singleAccessWrite(rfn_edc_address, AT86RF215_RFn_EDC_EDM_SINGLE);
+  
+  /* Wait until EDC bit is set */
+  bool status;
+  do
+  {
+    uint8_t rf_irqs;
+    
+    /* Read RF and BBC interrupt status */
+    singleAccessRead(irqs_address, &rf_irqs);
+    
+    /* Check if EDC bit is set */
+    status = ((rf_irqs & AT86RF215_RFn_IRQS_EDC_MASK) == AT86RF215_RFn_IRQS_EDC_MASK);
+  } while(!status);
+  
+  /* Go back to idle mode */
+  wakeup(rc);
+    
+  /* Read EDV address */
+  singleAccessRead(rfn_edv_address, (uint8_t *) &edv);
+  
+  /* Read EDV address again in case it fails */
+  if (edv == AT86RF215_EDV_INVALID)
+  {
+    /* Read EDV address */
+    singleAccessRead(rfn_edv_address, (uint8_t *) &edv);
+  }
+  
+  /* Process measurement only if valid */
+  if (edv != AT86RF215_EDV_INVALID)
+  {
+    /* Copy CCA result */
+    *rssi = edv;
+    *rssi_valid = true;
+    
+    /* If read energy is below threshold */
+    if (edv < cca_threshold)
+    {
+      /* CCA was successful */
+      cca_status = true;
+    }
+  }
+  else
+  {
+    *rssi_valid = false;
+  }
+  
+  /* Re-enable BBCn_PC.BBEN bit */
+  enableBitFromRegister(bbcn_pc_address, AT86RF215_BBCn_PC_BBEN_MASK);
+  
+  return cca_status;
+}
+
+bool At86rf215::csma(RadioCore rc, int8_t cca_threshold, uint8_t* retries, int8_t* rssi)
+{ 
+  int8_t rssi_values[AT86RF215_CSMA_RETRIES] = {0};
+  uint8_t rssi_position = 0;
+  int8_t rssi_mean;
+  
+  /* Set number of CSMA retries and CSMA status */
+  uint8_t csma_retries = AT86RF215_CSMA_RETRIES;
+  bool cca_status = false;
+  
+  /* Repeat until CCA succeeds and we have retries left */
+  do {
+    int8_t rssi;
+    bool rssi_valid;
+    
+    /* Perform CCA and store RSSI value */
+    cca_status = cca(rc, cca_threshold, &rssi, &rssi_valid);
+    
+    /* Check if RSSI is valid */
+    if (rssi_valid)
+    {
+      /* Update RSSI measurement */
+      rssi_values[rssi_position] = rssi;
+      
+      /* Increment RSSI position */
+      rssi_position++;
+    }
+    
+    /* Decrement CSMA retries */
+    csma_retries--;
+    
+    /* If CCA not successful and more CSMA retries*/
+    if (!cca_status && csma_retries > 0)
+    {
+      uint32_t delay_us;
+      uint16_t slots;
+      
+      /* Calculate slots to multiply */
+      slots = prng.get() % AT86RF215_CSMA_MODULUS;
+      
+      /* Calculate delay based on slots */
+      delay_us = slots * AT86RF215_CSMA_DELAY_US;
+      
+      /* Delay microseconds */
+      board.delayMicroseconds(delay_us);
+    }
+  } while(!cca_status && csma_retries > 0);
+
+  /* If CCA is successful and we more CSMA retries */
+  if (cca_status && csma_retries > 0)
+  {
+    /* Calculate RSSI mean */
+    int32_t accumul = 0;
+    for (uint8_t i = 0; i < rssi_position; i++)
+    {
+      accumul += rssi_values[i];
+    }
+    rssi_mean = accumul / rssi_position;
+    
+    /* Update CSMA retries and RSSI */
+    *retries = rssi_position;
+    *rssi = rssi_mean;
+  }
+  
+  return cca_status;
 }
 
 void At86rf215::setRxCallbacks(RadioCore rc, Callback* rxInit, Callback* rxDone)
@@ -353,8 +533,17 @@ At86rf215::RadioResult At86rf215::setTransmitPower(RadioCore rc, TransmitPower p
   /* Read PAC register */
   singleAccessRead(address, (uint8_t *)&value);
   
-  /* Mask current control bits and set transmit power bits */
-  value = (value & AT86RF215_RFn_PAC_PACUR_MASK) | power;
+  /* Clear the PAC.PACUR bits */
+  value &= (~AT86RF215_RFn_PAC_PACUR_MASK);
+  
+  /* Clear the PAC.TXPWR bits */
+  value &= (~AT86RF215_RFn_PAC_TXPWR_MASK);
+  
+  /* Set the PAC.PACUR bits */
+  value |= (AT86RF215_RFn_PAC_PACUR_3dB << AT86RF215_RFn_PAC_PACUR_SHIFT);
+  
+  /* Set the TXPWR bits */
+  value |= (power & AT86RF215_RFn_PAC_TXPWR_MASK);
   
   /* Write PAC register */
   singleAccessWrite(address, value);
@@ -368,12 +557,12 @@ At86rf215::RadioResult At86rf215::loadPacket(RadioCore rc, uint8_t* data, uint16
   uint16_t bbc_fbtxs;
   uint8_t scratch[2];
   
-  /* Account for CRC length */
-  length += crc_length;
-  
   /* Get BBC and FB register address */
   bbc_txfll = getBBCRegisterAddress(rc, BBCn_TXFLL);
   bbc_fbtxs = getFBRegisterAddress(rc, BBCn_FBTXS);
+    
+  /* Account for CRC length */
+  length += crc_length;
   
   /* Set packet length */
   scratch[0] = (uint8_t)((length >> 0) & 0xFF); /* low byte */
@@ -613,7 +802,7 @@ void At86rf215::singleAccessRead(uint16_t address, uint8_t* value)
   cs_.low();
 
   /* Write the SPI transaction */
-  spi_.rwByteDma(spi_tx_transaction, 3, spi_rx_transaction, 3);
+  spi_.rwByte(spi_tx_transaction, 3, spi_rx_transaction, 3);
 
   /* Deactivate CS */
   cs_.high();
@@ -641,7 +830,7 @@ void At86rf215::singleAccessWrite(uint16_t address, uint8_t value)
   cs_.low();
 
   /* Write the SPI transaction */
-  spi_.rwByteDma(spi_tx_transaction, 3, spi_rx_transaction, 3);
+  spi_.rwByte(spi_tx_transaction, 3, spi_rx_transaction, 3);
 
   /* Deactivate CS */
   cs_.high();
@@ -665,10 +854,10 @@ void At86rf215::blockAccessRead(uint16_t address, uint8_t* values, uint16_t leng
   cs_.low();
   
   /* Send device address */
-  spi_.rwByteDma(spi_tx_transaction, 2, spi_rx_transaction, 2);
+  spi_.rwByte(spi_tx_transaction, 2, spi_rx_transaction, 2);
   
   /* Receive device bytes */
-  spi_.rwByteDma(NULL, 0, values, length);
+  spi_.rwByte(NULL, 0, values, length);
 
   /* Deactivate CS */
   cs_.high();
@@ -692,13 +881,34 @@ void At86rf215::blockAccessWrite(uint16_t address, uint8_t* values, uint16_t len
   cs_.low();
   
   /* Send device address */
-  spi_.rwByteDma(spi_tx_transaction, 2, spi_rx_transaction, 2);
+  spi_.rwByte(spi_tx_transaction, 2, spi_rx_transaction, 2);
   
   /* Send payload */
-  spi_.rwByteDma(values, length, NULL, 0);
+  spi_.rwByte(values, length, NULL, 0);
   
   /* Deactivate CS */
   cs_.high();
+}
+
+inline uint16_t At86rf215::getCORERegisterAddress(RadioCore rc)
+{
+  uint16_t address;
+  
+  /* Select CORE address */
+  switch(rc)
+  {
+    case RadioCore::CORE_RF09:
+      address = RF09_IRQS;
+      break;
+    case RadioCore::CORE_RF24:
+      address = RF24_IRQS;
+      break;
+    default:
+      address = 0;
+      break;
+  }
+  
+  return address;
 }
 
 inline uint16_t At86rf215::getRFRegisterAddress(RadioCore rc, uint16_t address)
@@ -713,7 +923,7 @@ inline uint16_t At86rf215::getRFRegisterAddress(RadioCore rc, uint16_t address)
       address = RF24_BASE + address;
       break;
     default:
-      return 0;
+      address = 0;
       break;
   }
   
@@ -778,4 +988,20 @@ inline uint16_t At86rf215::getCRCLength(RadioCore rc)
   {
     return AT86RF215_BBCn_PC_FCST_32_BIT;
   }
+}
+
+inline void At86rf215::enableBitFromRegister(uint16_t address, uint32_t mask)
+{
+  uint8_t scratch;
+  singleAccessRead(address, &scratch);
+  scratch |= mask;
+  singleAccessWrite(address, scratch);
+}
+
+inline void At86rf215::disableBitFromRegister(uint16_t address, uint32_t mask)
+{
+  uint8_t scratch;
+  singleAccessRead(address, &scratch);
+  scratch &= ~mask;
+  singleAccessWrite(address, scratch);
 }
