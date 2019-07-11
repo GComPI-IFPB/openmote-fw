@@ -41,7 +41,7 @@
 #define AT86RF215_RFn_PAC_PACUR_2dB     ( 0x01 )
 #define AT86RF215_RFn_PAC_PACUR_1dB     ( 0x02 )
 #define AT86RF215_RFn_PAC_PACUR_0dB     ( 0x03 )
-#define AT86RF215_RFn_PAC_PACUR_SHIFT   ( 6 )
+#define AT86RF215_RFn_PAC_PACUR_SHIFT   ( 5 )
 
 #define AT86RF215_RFn_PAC_TXPWR_MASK    ( 0x1F )
 
@@ -528,25 +528,25 @@ At86rf215::RadioResult At86rf215::setTransmitPower(RadioCore rc, TransmitPower p
   int8_t value;
   
   /* Select PAC register address */
-  address = getRFRegisterAddress(rc, RFn_PAC);
+  //address = getRFRegisterAddress(rc, RFn_PAC);
   
   /* Read PAC register */
-  singleAccessRead(address, (uint8_t *)&value);
+  //singleAccessRead(address, (uint8_t *)&value);
   
   /* Clear the PAC.PACUR bits */
-  value &= (~AT86RF215_RFn_PAC_PACUR_MASK);
+  //value &= (~AT86RF215_RFn_PAC_PACUR_MASK);
   
   /* Clear the PAC.TXPWR bits */
-  value &= (~AT86RF215_RFn_PAC_TXPWR_MASK);
+  // value &= (~AT86RF215_RFn_PAC_TXPWR_MASK);
   
   /* Set the PAC.PACUR bits */
-  value |= (AT86RF215_RFn_PAC_PACUR_3dB << AT86RF215_RFn_PAC_PACUR_SHIFT);
+  // value |= (AT86RF215_RFn_PAC_PACUR_3dB << AT86RF215_RFn_PAC_PACUR_SHIFT);
   
   /* Set the TXPWR bits */
-  value |= (power & AT86RF215_RFn_PAC_TXPWR_MASK);
+  //value |= (power & AT86RF215_RFn_PAC_TXPWR_MASK);
   
   /* Write PAC register */
-  singleAccessWrite(address, value);
+  //singleAccessWrite(address, value);
   
   return RadioResult::Success;
 }
