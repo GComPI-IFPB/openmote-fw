@@ -35,9 +35,9 @@
 #define SSI1_RX_CHANNEL_SEL         ( UDMA_CH24_SSI1RX | UDMA_PRI_SELECT )
 
 #define SSI_RX_CONTROL_INCREMENT_0  ( UDMA_SIZE_8 | UDMA_SRC_INC_NONE | UDMA_DST_INC_NONE | UDMA_ARB_1 )
-#define SSI_RX_CONTROL_INCREMENT_8  ( UDMA_SIZE_8 | UDMA_SRC_INC_NONE | UDMA_DST_INC_8 | UDMA_ARB_1 )
+#define SSI_RX_CONTROL_INCREMENT_8  ( UDMA_SIZE_8 | UDMA_SRC_INC_NONE | UDMA_DST_INC_8    | UDMA_ARB_1 )
 #define SSI_TX_CONTROL_INCREMENT_0  ( UDMA_SIZE_8 | UDMA_SRC_INC_NONE | UDMA_DST_INC_NONE | UDMA_ARB_1 )
-#define SSI_TX_CONTROL_INCREMENT_8  ( UDMA_SIZE_8 | UDMA_SRC_INC_8 | UDMA_DST_INC_NONE | UDMA_ARB_1 )
+#define SSI_TX_CONTROL_INCREMENT_8  ( UDMA_SIZE_8 | UDMA_SRC_INC_8    | UDMA_DST_INC_NONE | UDMA_ARB_1 )
 
 /*================================ typedef ==================================*/
 
@@ -184,7 +184,19 @@ uint8_t Spi::rwByte(uint8_t byte)
   return (uint8_t)(ret & 0xFF);
 }
 
-bool Spi::rwByte(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* receiveBuffer, uint32_t receiveLength)
+bool Spi::rwByte(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* receiveBuffer, uint32_t receiveLength, bool dma)
+{
+  if(dma)
+  {
+    rwByteDma(transmitBuffer, transmitLength, receiveBuffer, receiveLength);
+  }
+  else
+  {
+    rwByteNoDma(transmitBuffer, transmitLength, receiveBuffer, receiveLength);
+  }
+}
+
+bool Spi::rwByteNoDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* receiveBuffer, uint32_t receiveLength)
 {
   /* Check transmit and receive buffer size */
   if ((transmitLength == 0) || (receiveLength == 0) || (transmitLength != receiveLength))
@@ -222,6 +234,8 @@ bool Spi::rwByteDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* r
 {
   uint32_t tx_channel, rx_channel;
   uint32_t tx_channel_sel, rx_channel_sel;
+  uint8_t scratch_tx = 0xFF;
+  uint8_t scratch_rx = 0xFF;
   
   /* Check transmit and receive buffer are different */
   if (transmitBuffer == receiveBuffer)
@@ -259,10 +273,9 @@ bool Spi::rwByteDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* r
   }
   else
   {
-    uint8_t scratch = 0xFF;
     SSIDMAEnable(config_.base, SSI_DMA_TX);
     uDMAChannelControlSet(tx_channel_sel, SSI_TX_CONTROL_INCREMENT_0);
-    uDMAChannelTransferSet(tx_channel_sel, UDMA_MODE_BASIC, &scratch, SSI_DATA_REGISTER, receiveLength);
+    uDMAChannelTransferSet(tx_channel_sel, UDMA_MODE_BASIC, &scratch_tx, SSI_DATA_REGISTER, receiveLength);
   }
   
   /* Setup receive DMA */
@@ -274,10 +287,9 @@ bool Spi::rwByteDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* r
   }
   else
   {
-    uint8_t scratch = 0xFF;
     SSIDMAEnable(config_.base, SSI_DMA_RX);
     uDMAChannelControlSet(rx_channel_sel, SSI_RX_CONTROL_INCREMENT_0);
-    uDMAChannelTransferSet(rx_channel_sel, UDMA_MODE_BASIC, SSI_DATA_REGISTER, &scratch, transmitLength);
+    uDMAChannelTransferSet(rx_channel_sel, UDMA_MODE_BASIC, SSI_DATA_REGISTER, &scratch_rx, transmitLength);
   }
   
   /* Enable both transmit and receive DMA channels */
