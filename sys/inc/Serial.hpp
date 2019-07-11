@@ -21,6 +21,9 @@
 #include "Hdlc.hpp"
 #include "Mutex.hpp"
 
+#define SERIAL_BUFFER_TX_LENGTH       ( 256 )
+#define SERIAL_BUFFER_RX_LENGTH       ( 256 )
+
 class Serial;
 
 typedef GenericCallback<Serial> SerialCallback;
@@ -40,10 +43,10 @@ private:
 private:
   Uart& uart_;
 
-  uint8_t rx_buffer_[2048];
+  uint8_t rx_buffer_[SERIAL_BUFFER_RX_LENGTH];
   Buffer rxBuffer_;
 
-  uint8_t tx_buffer_[2048];
+  uint8_t tx_buffer_[SERIAL_BUFFER_TX_LENGTH];
   Buffer txBuffer_;
   
   Mutex txMutex_;
