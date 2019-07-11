@@ -198,20 +198,30 @@ bool Spi::rwByte(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* rece
 
 bool Spi::rwByteNoDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* receiveBuffer, uint32_t receiveLength)
 {
-  /* Check transmit and receive buffer size */
-  if ((transmitLength == 0) || (receiveLength == 0) || (transmitLength != receiveLength))
+  uint32_t length = 0;
+  
+  /* Check transmit length */
+  if (transmitLength == 0)
   {
-    return false;
+    length = receiveLength;
   }
-
+  else if (receiveLength == 0)
+  {
+    length = transmitLength;
+  }
+  else
+  {
+    length = transmitLength > receiveLength ? transmitLength : receiveLength;
+  }
+  
   /* Iterate over all positions in transmitBuffer */
-  for (uint32_t i =  0; i < transmitLength; i++)
+  for (uint32_t i =  0; i < length; i++)
   {
     uint32_t data;
     uint8_t byte;
     
     /* Get next byte */
-    byte = transmitBuffer[i];
+    byte = (transmitLength > 0 ? transmitBuffer[i] : 0xFF);
     
     /* Transmit next byte */
     SSIDataPut(config_.base, byte);
@@ -222,9 +232,9 @@ bool Spi::rwByteNoDma(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t*
 
     /* Read a byte */
     SSIDataGet(config_.base, &data);
-
+    
     /* Store the result */
-    receiveBuffer[i] = (uint8_t)(data & 0xFF);
+    receiveBuffer[i] = (receiveLength > 0 ? (uint8_t)(data & 0xFF) : 0x00);
   }
 
   return true;
