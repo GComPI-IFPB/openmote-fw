@@ -26,8 +26,11 @@ friend class InterruptHandler;
 public:
   Dma();
   void init(void);
-  uint32_t memcpy(uint8_t* dst, uint8_t* src, uint32_t length);
-  uint32_t memset(uint8_t* dst, uint8_t val, uint32_t length);
+  uint32_t memcpy(uint8_t* dst, uint8_t* src, uint32_t length, bool dma = true);
+  uint32_t memset(uint8_t* dst, uint8_t val, uint32_t length, bool dma = true);
+private:
+  uint32_t memcpyDma(uint8_t* dst, uint8_t* src, uint32_t length);
+  uint32_t memsetDma(uint8_t* dst, uint8_t val, uint32_t length);
 protected:
   void interruptHandler(void);
   void errorHandler(void);

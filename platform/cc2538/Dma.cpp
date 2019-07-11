@@ -11,6 +11,8 @@
 
 /*================================ include ==================================*/
 
+#include <string.h>
+
 #include "InterruptHandler.hpp"
 #include "Dma.hpp"
 
@@ -74,7 +76,48 @@ void Dma::init(void)
   }
 }
 
-uint32_t Dma::memset(uint8_t* dst, uint8_t val, uint32_t length)
+uint32_t Dma::memcpy(uint8_t* dst, uint8_t* src, uint32_t length, bool dma)
+{
+  if (dma)
+  {
+    memcpyDma(dst, src, length);
+  }
+  else
+  {
+    memcpy(dst, src, length);
+  }
+  
+  return length;
+}
+
+uint32_t Dma::memset(uint8_t* dst, uint8_t val, uint32_t length, bool dma)
+{
+  if (dma)
+  {
+    memsetDma(dst, val, length);
+  }
+  else
+  {
+    memsetDma(dst, val, length);
+  }
+  
+  return length;
+}
+
+/*=============================== protected =================================*/
+
+void Dma::interruptHandler(void)
+{  
+  semaphore_.giveFromInterrupt();
+}
+
+void Dma::errorHandler(void)
+{
+}
+
+/*================================ private ==================================*/
+
+uint32_t Dma::memsetDma(uint8_t* dst, uint8_t val, uint32_t length)
 {
   uint32_t size;
   uint32_t total = 0;
@@ -125,7 +168,7 @@ uint32_t Dma::memset(uint8_t* dst, uint8_t val, uint32_t length)
   return total;
 }
 
-uint32_t Dma::memcpy(uint8_t* dst, uint8_t* src, uint32_t length)
+uint32_t Dma::memcpyDma(uint8_t* dst, uint8_t* src, uint32_t length)
 {
   uint32_t size;
   uint32_t total = 0;
@@ -176,16 +219,3 @@ uint32_t Dma::memcpy(uint8_t* dst, uint8_t* src, uint32_t length)
   
   return total;
 }
-
-/*=============================== protected =================================*/
-
-void Dma::interruptHandler(void)
-{  
-  semaphore_.giveFromInterrupt();
-}
-
-void Dma::errorHandler(void)
-{
-}
-
-/*================================ private ==================================*/
