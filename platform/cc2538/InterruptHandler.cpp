@@ -421,6 +421,7 @@ void InterruptHandler::clearInterruptHandler(RadioTimer& radioimer_)
 void InterruptHandler::setInterruptHandler(Aes& aes_)
 {
   Aes_interruptVector_ = &aes_;
+  IntPrioritySet(INT_AES, 0xF0);
 }
 
 void InterruptHandler::clearInterruptHandler(Aes& aes_)
