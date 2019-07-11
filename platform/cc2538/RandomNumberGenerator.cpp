@@ -11,6 +11,9 @@
 
 /*================================ include ==================================*/
 
+#include <stdlib.h>
+
+#include "Board.hpp"
 #include "RandomNumberGenerator.hpp"
 
 #include "platform_includes.h"
@@ -25,9 +28,25 @@
 
 /*=============================== variables =================================*/
 
+extern BoardImplementation board;
+
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/
+
+NumberGenerator::NumberGenerator()
+{
+}
+
+void NumberGenerator::init(void)
+{
+  return this->init();
+}
+
+uint16_t NumberGenerator::get(void)
+{
+  return this->get();
+}
 
 RandomNumberGenerator::RandomNumberGenerator()
 {
@@ -47,31 +66,32 @@ void RandomNumberGenerator::init(void)
   /* Wait for the clock ungating to take effect */
   while(HWREG(SYS_CTRL_RCGCRFC) != 1);
 
-  /* Infinite RX - FRMCTRL0[3:2] = 10
-  * This will mess with radio operation - see note above */
+  /* Infinite RX - FRMCTRL0[3:2] = 10 (this will mess with radio operation) */
   HWREG(RFCORE_XREG_FRMCTRL0) = 0x00000008;
 
   /* Turn RF on */
   CC2538_RF_CSP_ISRXON();
 
   /*
-  * Wait until "the chip has been in RX long enough for the transients to
-  * have died out. A convenient way to do this is to wait for the RSSI-valid
-  * signal to go high."
-  */
+   * Wait until "the chip has been in RX long enough for the transients to
+   * have died out. A convenient way to do this is to wait for the RSSI-valid
+   * signal to go high."
+   */
   while(!(HWREG(RFCORE_XREG_RSSISTAT) & RFCORE_XREG_RSSISTAT_RSSI_VALID));
 
   /*
-  * Form the seed by concatenating bits from IF_ADC in the RF receive path.
-  * Keep sampling until we have read at least 16 bits AND the seed is valid
-  *
-  * Invalid seeds are 0x0000 and 0x8003 and should not be used.
-  */
-  while(s == 0x0000 || s == 0x8003) {
-    for(i = 0; i < 16; i++) {
+   * Form the seed by concatenating bits from IF_ADC in the RF receive path.
+   * Keep sampling until we have read at least 16 bits AND the seed is valid
+   *
+   * Invalid seeds are 0x0000 and 0x8003 and should not be used.
+   */
+  while(s == 0x0000 || s == 0x8003)
+  {
+    for(i = 0; i < 16; i++)
+    {
       s |= (HWREG(RFCORE_XREG_RFRND) & RFCORE_XREG_RFRND_IRND);
       s <<= 1;
-      }
+    }
   }
 
   /* High byte first */
@@ -93,6 +113,36 @@ uint16_t RandomNumberGenerator::get(void)
 
   return random;
 }
+
+DeterministicNumberGenerator::DeterministicNumberGenerator()
+{
+}
+
+void DeterministicNumberGenerator::init(void)
+{
+  uint32_t scratch = 0;
+  uint8_t eui64[8];
+  
+  board.getEUI64(eui64);
+  
+  scratch |= eui64[4] << 24;
+  scratch |= eui64[5] << 16;
+  scratch |= eui64[6] <<  8;
+  scratch |= eui64[7] <<  0;
+  
+  srand(scratch);
+}
+
+uint16_t DeterministicNumberGenerator::get(void)
+{
+  uint32_t random;
+  
+  random = rand();
+  
+  return random;
+}
+
+
 
 /*=============================== protected =================================*/
 

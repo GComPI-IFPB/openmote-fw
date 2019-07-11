@@ -14,12 +14,28 @@
 
 #include <stdint.h>
 
-class RandomNumberGenerator
+class NumberGenerator
 {
 public:
-    RandomNumberGenerator();
-    void init(void);
-    uint16_t get(void);
+  NumberGenerator();
+  virtual void init(void);
+  virtual uint16_t get(void);
+};
+
+class RandomNumberGenerator : public NumberGenerator
+{
+public:
+  RandomNumberGenerator();
+  void init(void);
+  uint16_t get(void);
+};
+
+class DeterministicNumberGenerator : public NumberGenerator
+{
+public:
+  DeterministicNumberGenerator();
+  void init(void);
+  uint16_t get(void);
 };
 
 #endif /* RANDOM_NUMBER_GENERATOR_HPP_ */
