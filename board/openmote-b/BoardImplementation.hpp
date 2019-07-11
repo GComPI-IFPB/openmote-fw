@@ -99,6 +99,10 @@ extern Dma dma;
 /* AT86RF215 radio transceiver */
 extern At86rf215 at86rf215;
 
+/* Antenna switch */
+extern GpioOut antenna_at86rf215;
+extern GpioOut antenna_cc2538;
+
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/

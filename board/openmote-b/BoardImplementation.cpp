@@ -305,9 +305,6 @@ static const GpioConfig uart1_rx_cfg {UART1_RX_PORT, UART1_RX_PIN, UART1_RX_IOC,
 static const GpioConfig uart1_tx_cfg {UART1_TX_PORT, UART1_TX_PIN, UART1_TX_IOC, 0, 0};
 static UartConfig uart1_cfg          {UART1_PERIPHERAL, UART1_BASE_ADDR, UART1_CLOCK, UART1_INT, UART1_BAUDRATE, UART1_MODE};
 
-static GpioOut antenna_at86rf215 {antenna_at86rf215_cfg};
-static GpioOut antenna_cc2538    {antenna_cc2538_cfg};
-
 static Gpio i2c_scl {i2c_scl_cfg};
 static Gpio i2c_sda {i2c_sda_cfg};
 
@@ -404,6 +401,10 @@ Dma dma;
 /* AT86RF215 radio transceiver */
 At86rf215 at86rf215(spi0, at86rf215_pwr, at86rf215_rst, at86rf215_csn, at86rf215_irq);
 
+/* Antenna switch */
+GpioOut antenna_at86rf215 {antenna_at86rf215_cfg};
+GpioOut antenna_cc2538    {antenna_cc2538_cfg};
+
 /*=============================== prototypes ================================*/
 
 /*================================= public ==================================*/
@@ -419,19 +420,12 @@ void BoardImplementation::init(void)
 {
   /* Initialize basic board parameters */
   Board::init(boardParams_); 
-  
-  /* Initialize DMA controller */
-  dma.init();
 
   /* Make sure LEDs are off */
   led_green.off();
   led_yellow.off();
   led_orange.off();
   led_red.off();
-
-  /* Ensure 2.4 GHz antenna for CC2538 is used */
-  antenna_at86rf215.low();
-  antenna_cc2538.high();
 }
 
 /*================================ private ==================================*/
