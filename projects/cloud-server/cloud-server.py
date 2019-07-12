@@ -198,12 +198,30 @@ class MqttMultiplexer(threading.Thread):
             for key in self.keep_keys:
                 output[key] = payload[key]
 
+            # Compensate sensors offset
+            output = self.__compensate_offset(message=output)
+
             # Convert payload to JSON string
             payload = json.dumps(output)
         else:
             payload = None
 
         return payload
+
+    def __compensate_offset(self, message=None):
+            node_id = message['node_id']
+
+            temp_offset = config.calibration_values[node_id]['temp']
+            rhum_offset = config.calibration_values[node_id]['rhum']
+            pres_offset = config.calibration_values[node_id]['pres']
+            lght_offset = config.calibration_values[node_id]['lght']
+
+            message['temp'] = message['temp'] - temp_offset
+            message['rhum'] = message['rhum'] - rhum_offset
+            message['pres'] = message['pres'] - pres_offset
+            message['lght'] = message['lght'] - lght_offset
+
+            return message
 
 def main():
     global finished
