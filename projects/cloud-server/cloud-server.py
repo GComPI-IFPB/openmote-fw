@@ -58,6 +58,9 @@ class MqttMultiplexer(threading.Thread):
         self.mqtt_publish_topic = config.mqtt_config['mqtt_publish_topic']
         self.mqtt_client  = None
 
+        # Calibration configuration
+        self.use_calibration = config.calibration_config['use_calibration']
+
         # Object properties
         self.packet_timeout_ms = config.packet_config['timeout_ms']
 
@@ -199,7 +202,8 @@ class MqttMultiplexer(threading.Thread):
                 output[key] = payload[key]
 
             # Compensate sensors offset
-            output = self.__compensate_offset(message=output)
+            if (self.use_calibration):
+                output = self.__compensate_offset(message=output)
 
             # Convert payload to JSON string
             payload = json.dumps(output)
