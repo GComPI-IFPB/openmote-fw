@@ -22,7 +22,7 @@
 
 #define SSI_PRIO                    ( 0xF0 )
 
-#define SSI_DATA_REGISTER           (void *)(config_.base + SSI_O_DR)
+#define SSI_DATA_REGISTER           ( (void *)(config_.base + SSI_O_DR) )
 
 #define SSI0_TX_CHANNEL             ( UDMA_CH11_SSI0TX ) 
 #define SSI0_RX_CHANNEL             ( UDMA_CH10_SSI0RX )
@@ -186,13 +186,13 @@ uint8_t Spi::rwByte(uint8_t byte)
 
 bool Spi::rwByte(uint8_t* transmitBuffer, uint32_t transmitLength, uint8_t* receiveBuffer, uint32_t receiveLength, bool dma)
 {
-  if(dma)
+  if (dma)
   {
-    rwByteDma(transmitBuffer, transmitLength, receiveBuffer, receiveLength);
+    return rwByteDma(transmitBuffer, transmitLength, receiveBuffer, receiveLength);
   }
   else
   {
-    rwByteNoDma(transmitBuffer, transmitLength, receiveBuffer, receiveLength);
+    return rwByteNoDma(transmitBuffer, transmitLength, receiveBuffer, receiveLength);
   }
 }
 
