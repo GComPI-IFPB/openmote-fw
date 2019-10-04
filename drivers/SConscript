@@ -7,7 +7,7 @@ localEnv = env.Clone()
 target  = 'libdrivers'
 source  = []
 
-src_dir    = ['at86rf215', 'bme280', 'opt3001', 'si7006']
+src_dir    = ['at86rf215', 'bme280', 'opt3001']
 output_dir = os.path.join('#', 'bin', env['board'])
 
 for src in src_dir:
