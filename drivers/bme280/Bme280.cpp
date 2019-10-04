@@ -11,8 +11,9 @@
 
 /*================================ include ==================================*/
 
-#include "Scheduler.hpp"
-#include "Task.hpp"
+#include "BoardImplementation.hpp"
+
+#include "platform_types.hpp"
 
 #include "Bme280.hpp"
 
@@ -23,6 +24,8 @@
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
+
+extern BoardImplementation board;
 
 /*=============================== prototypes ================================*/
 
@@ -90,7 +93,7 @@ bool Bme280::read(Bme280Data* data)
     struct bme280_data comp_data;
     int8_t result;
 
-	/* Set BME280 in normal operation mode */
+    /* Set BME280 in normal operation mode */
     result = bme280_set_sensor_mode(BME280_FORCED_MODE, &dev);
     if (result != 0) {
         return false;
@@ -184,7 +187,8 @@ error:
   return -1;
 }
 
-void Bme280::delay_ms(uint16_t ms)
+void Bme280::delay_ms(uint16_t milliseconds)
 {
-  Scheduler::delay_ms(ms);
+  /* Go to sleep, but avoid deep sleep */
+  board.sleepMilliseconds(milliseconds, true);
 }

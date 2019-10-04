@@ -35,7 +35,7 @@ public:
 public:
     int8_t i2c_read(uint8_t dev_id, uint8_t reg_addr, uint8_t* buffer, uint16_t length);
     int8_t i2c_write(uint8_t dev_id, uint8_t reg_addr, uint8_t* buffer, uint16_t length);
-    void delay_ms(uint16_t ms);
+    void delay_ms(uint16_t milliseconds);
 private:
     I2c i2c_;
     uint8_t address_;
