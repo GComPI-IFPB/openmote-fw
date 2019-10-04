@@ -129,7 +129,7 @@ const register_t oqpsk_rate1_rf[] =
   {RFn_RXBWC,       0x00},
   {RFn_RXDFE,       0x2A},
   {RFn_AGCC,        0x21},
-  {RFn_EDD,         0x2B},
+  {RFn_EDD,         0x7A},
   {RFn_TXCUTC,      0xC7},
   {RFn_TXDFE,       0x7A},
 };
@@ -153,7 +153,7 @@ const register_t oqpsk_rate2_rf[] =
   {RFn_RXBWC,       0x00},
   {RFn_RXDFE,       0x2A},
   {RFn_AGCC,        0x21},
-  {RFn_EDD,         0x2B},
+  {RFn_EDD,         0x7A},
   {RFn_TXCUTC,      0xC7},
   {RFn_TXDFE,       0x7A},
 };
@@ -177,7 +177,7 @@ const register_t oqpsk_rate3_rf[] =
   {RFn_RXBWC,       0x00},
   {RFn_RXDFE,       0x2A},
   {RFn_AGCC,        0x21},
-  {RFn_EDD,         0x2B},
+  {RFn_EDD,         0x7A},
   {RFn_TXCUTC,      0xC7},
   {RFn_TXDFE,       0x7A},
 };
@@ -201,7 +201,7 @@ const register_t oqpsk_rate4_rf[] =
   {RFn_RXBWC,       0x00},
   {RFn_RXDFE,       0x2A},
   {RFn_AGCC,        0x21},
-  {RFn_EDD,         0x2B},
+  {RFn_EDD,         0x7A},
   {RFn_TXCUTC,      0xC7},
   {RFn_TXDFE,       0x7A},
 };

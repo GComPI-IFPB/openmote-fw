@@ -152,7 +152,7 @@ private:
 
   uint8_t crc_length;
   
-  bool useDma_;
+  bool dma_;
 };
 
 #endif /* AT86RF215_HPP_ */

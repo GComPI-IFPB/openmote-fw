@@ -36,13 +36,12 @@
 #define AT86RF215_RF_CFG_DEFAULT        ( 0x08 )
 #define AT86RF215_RF_CLK0_DEFAULT       ( 0x00 ) 
 
-
-#define AT86RF215_RFn_PAC_PACUR_MASK    ( 0x06 << 4)
+#define AT86RF215_RFn_PAC_PACUR_SHIFT   ( 4 )
+#define AT86RF215_RFn_PAC_PACUR_MASK    ( 0x06 << AT86RF215_RFn_PAC_PACUR_SHIFT)
 #define AT86RF215_RFn_PAC_PACUR_3dB     ( 0x00 )
 #define AT86RF215_RFn_PAC_PACUR_2dB     ( 0x01 )
 #define AT86RF215_RFn_PAC_PACUR_1dB     ( 0x02 )
 #define AT86RF215_RFn_PAC_PACUR_0dB     ( 0x03 )
-#define AT86RF215_RFn_PAC_PACUR_SHIFT   ( 5 )
 
 #define AT86RF215_RFn_PAC_TXPWR_MASK    ( 0x1F )
 
@@ -72,6 +71,7 @@
 #define AT86RF215_BBCn_PC_FCST_16_BIT   ( 2 )
 #define AT86RF215_BBCn_PC_FCST_32_BIT   ( 4 )
 
+#define AT86RF215_EDV_READ_RETRIES      ( 4 )
 #define AT86RF215_EDV_INVALID           ( 127 )
 
 #define AT86RF215_CCA_RETRIES           ( 2 )
@@ -86,6 +86,7 @@
 /*=============================== variables =================================*/
 
 extern BoardImplementation board;
+extern NumberGenerator prng;
 
 /*=============================== prototypes ================================*/
 
@@ -96,7 +97,7 @@ At86rf215::At86rf215(Spi& spi, GpioOut& pwr, GpioOut& rst, GpioOut& cs, GpioIn& 
   callback_(this, &At86rf215::interruptHandler),
   rx09Init_(nullptr), rx09Done_(nullptr), tx09Init_(nullptr), tx09Done_(nullptr),
   rx24Init_(nullptr), rx24Done_(nullptr), tx24Init_(nullptr), tx24Done_(nullptr),
-  rf09_irqm(0), rf24_irqm(0), bbc0_irqm(0), bbc1_irqm(0), useDma_(true)
+  rf09_irqm(0), rf24_irqm(0), bbc0_irqm(0), bbc1_irqm(0), dma_(false)
 {
   /* Ensure radio is off */
   off();
@@ -339,11 +340,16 @@ bool At86rf215::cca(RadioCore rc, int8_t cca_threshold, int8_t* rssi, bool* rssi
   singleAccessRead(rfn_edv_address, (uint8_t *) &edv);
   
   /* Read EDV address again in case it fails */
-  if (edv == AT86RF215_EDV_INVALID)
+  uint8_t read_retries = AT86RF215_EDV_READ_RETRIES;
+  do
   {
     /* Read EDV address */
     singleAccessRead(rfn_edv_address, (uint8_t *) &edv);
-  }
+    
+    /* Decrement number of read retries */
+    read_retries--;
+    
+  } while ((edv == AT86RF215_EDV_INVALID) && (read_retries > 0));
   
   /* Process measurement only if valid */
   if (edv != AT86RF215_EDV_INVALID)
@@ -533,7 +539,7 @@ At86rf215::RadioResult At86rf215::setTransmitPower(RadioCore rc, TransmitPower p
   
   /* Read PAC register */
   singleAccessRead(address, (uint8_t *)&value);
-    
+  
   /* Clear the PAC.PACUR bits */
   value &= (~AT86RF215_RFn_PAC_PACUR_MASK);
   
@@ -803,7 +809,7 @@ void At86rf215::singleAccessRead(uint16_t address, uint8_t* value)
   cs_.low();
 
   /* Write the SPI transaction */
-  spi_.rwByte(spi_tx_transaction, 3, spi_rx_transaction, 3, useDma_);
+  spi_.rwByte(spi_tx_transaction, 3, spi_rx_transaction, 3, dma_);
 
   /* Deactivate CS */
   cs_.high();
@@ -831,7 +837,7 @@ void At86rf215::singleAccessWrite(uint16_t address, uint8_t value)
   cs_.low();
 
   /* Write the SPI transaction */
-  spi_.rwByte(spi_tx_transaction, 3, spi_rx_transaction, 3, useDma_);
+  spi_.rwByte(spi_tx_transaction, 3, spi_rx_transaction, 3, dma_);
 
   /* Deactivate CS */
   cs_.high();
@@ -855,10 +861,10 @@ void At86rf215::blockAccessRead(uint16_t address, uint8_t* values, uint16_t leng
   cs_.low();
   
   /* Send device address */
-  spi_.rwByte(spi_tx_transaction, 2, spi_rx_transaction, 2, useDma_);
+  spi_.rwByte(spi_tx_transaction, 2, spi_rx_transaction, 2, dma_);
   
   /* Receive device bytes */
-  spi_.rwByte(NULL, 0, values, length, useDma_);
+  spi_.rwByte(NULL, 0, values, length, dma_);
 
   /* Deactivate CS */
   cs_.high();
@@ -882,10 +888,10 @@ void At86rf215::blockAccessWrite(uint16_t address, uint8_t* values, uint16_t len
   cs_.low();
   
   /* Send device address */
-  spi_.rwByte(spi_tx_transaction, 2, spi_rx_transaction, 2, useDma_);
+  spi_.rwByte(spi_tx_transaction, 2, spi_rx_transaction, 2, dma_);
   
   /* Send payload */
-  spi_.rwByte(values, length, NULL, 0, useDma_);
+  spi_.rwByte(values, length, NULL, 0, dma_);
   
   /* Deactivate CS */
   cs_.high();
