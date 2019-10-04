@@ -24,7 +24,6 @@
 
 struct Opt3001Data
 {
-    uint16_t raw;
     float lux;
 };
 
@@ -36,9 +35,10 @@ public:
     bool init(void);
     bool enable(void);
     bool disable(void);
-    bool read(uint16_t* raw);
-    void convert(uint16_t raw, float* lux);
+    bool read(Opt3001Data* data, int16_t timeout_ms = 1000);
     bool test(void);
+private:
+  void convert(uint16_t raw, float* lux);
 private:
     I2c i2c_;
     uint8_t address_;

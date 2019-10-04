@@ -13,10 +13,11 @@
 
 #include <math.h>
 
-#include "Task.hpp"
+#include "platform_types.hpp"
 
 #include "Opt3001.hpp"
 
+#include "BoardImplementation.hpp"
 #include "I2c.hpp"
 
 /*================================ define ===================================*/
@@ -41,17 +42,21 @@
 #define CONFIG_TEST_MSB                 ( 0xCC )
 #define CONFIG_TEST_LSB                 ( 0x10 )
 #define CONFIG_ENABLE_MSB               ( 0xC4 )
-#define CONFIG_ENABLE_LSB               ( 0x10 )
+#define CONFIG_ENABLE_LSB               ( 0x00 )
 #define CONFIG_DISABLE_MSB              ( 0xC0 )
-#define CONFIG_DISABLE_LSB              ( 0x10 )
+#define CONFIG_DISABLE_LSB              ( 0x00 )
 
 /* Bit values */
 #define DATA_RDY_BIT_MSB                ( 0x00 )
 #define DATA_RDY_BIT_LSB                ( 0x80 )
 
+#define BOARD_SLEEP_MS                  ( 10 )
+
 /*================================ typedef ==================================*/
 
 /*=============================== variables =================================*/
+
+extern BoardImplementation board;
 
 /*=============================== prototypes ================================*/
 
@@ -66,7 +71,7 @@ bool Opt3001::init(void)
 {
     bool success;
 
-    success = disable();
+    success = enable();
 
     return success;
 }
@@ -131,10 +136,12 @@ error:
     return false;
 }
 
-bool Opt3001::read(uint16_t* raw)
+bool Opt3001::read(Opt3001Data* data, int16_t timeout_ms)
 {
     uint8_t scratch[2];
-    bool success;
+    bool success, timeout;
+    uint32_t end_ticks;
+    uint16_t raw;
 
     /* Obtain the mutex of the I2C driver */
     i2c_.lock();
@@ -145,21 +152,39 @@ bool Opt3001::read(uint16_t* raw)
     {
         goto error;
     }
-
-    /* Read the register */
-    success = i2c_.readByte(address_, scratch, sizeof(scratch));
-    if (!success)
-    {
-        goto error;
-    }
+    
+    /* Calculate read timeout */
+    end_ticks = board.getCurrentTicks() + (timeout_ms * 1000 / Board::BOARD_TICKS_PER_US);
 
     /* Check if data is ready */
-    success = ((scratch[1] & DATA_RDY_BIT_LSB) == DATA_RDY_BIT_LSB);
-    if (!success)
+    do {
+      /* Read the register */
+      success = i2c_.readByte(address_, scratch, sizeof(scratch));
+      if (!success)
+      {
+          goto error;
+      }
+      
+      /* Check for success */
+      success = ((scratch[1] & DATA_RDY_BIT_LSB) == DATA_RDY_BIT_LSB);
+      
+      /* If not success, sleep until retry */
+      if (!success)
+      {
+        /* Go to sleep, but avoid deep sleep */
+        board.sleepMilliseconds(BOARD_SLEEP_MS, true);
+      }
+      
+      /* Check for timeout */
+      timeout = board.isExpiredTicks(end_ticks);
+    } while(!timeout && !success);
+    
+    /* If we timed-out without success */
+    if (timeout || !success)
     {
-        goto error;
+      goto error;
     }
-
+    
     /* Set the read register */
     success = i2c_.writeByte(address_, REG_RESULT);
     if (!success)
@@ -174,8 +199,11 @@ bool Opt3001::read(uint16_t* raw)
         goto error;
     }
 
-    /* Copy result */
-    *raw  = ((scratch[0] << 8) | (scratch[1] << 0));
+    /* Store result */
+    raw  = ((scratch[0] << 8) | (scratch[1] << 0));
+    
+    /* Convert result */
+    convert(raw, &data->lux);
 
     /* Release the mutex of the I2C driver */
     i2c_.unlock();
@@ -186,17 +214,6 @@ error:
     /* Release the mutex of the I2C driver */
     i2c_.unlock();
     return false;
-}
-
-void Opt3001::convert(uint16_t raw, float* lux)
-{
-    uint16_t e;
-    uint16_t m;
-
-    m = raw & 0x0FFF;
-    e = (raw & 0xF000) >> 12;
-
-    *lux = m * (0.01 * exp2(e));
 }
 
 bool Opt3001::test(void)
@@ -264,3 +281,13 @@ error:
 
 /*================================ private ==================================*/
 
+void Opt3001::convert(uint16_t raw, float* lux)
+{
+    uint16_t e;
+    uint16_t m;
+
+    m = raw & 0x0FFF;
+    e = (raw & 0xF000) >> 12;
+
+    *lux = m * (0.01 * exp2(e));
+}
