@@ -23,34 +23,34 @@
 /*================================ define ===================================*/
 
 /* Register addresses */
-#define REG_RESULT                      ( 0x00 )
-#define REG_CONFIGURATION               ( 0x01 )
-#define REG_LOW_LIMIT                   ( 0x02 )
-#define REG_HIGH_LIMIT                  ( 0x03 )
+#define REG_RESULT (0x00)
+#define REG_CONFIGURATION (0x01)
+#define REG_LOW_LIMIT (0x02)
+#define REG_HIGH_LIMIT (0x03)
 
 /* Manufacturer/device values */
-#define REG_MANUFACTURER_ID             ( 0x7E )
-#define REG_DEVICE_ID                   ( 0x7F )
+#define REG_MANUFACTURER_ID (0x7E)
+#define REG_DEVICE_ID (0x7F)
 
 /* Register values */
-#define MANUFACTURER_ID_MSB             ( 0x54 )
-#define MANUFACTURER_ID_LSB             ( 0x49 )
-#define DEVICE_ID_MSB                   ( 0x30 )
-#define DEVICE_ID_LSB                   ( 0x01 )
-#define CONFIG_RESET_MSB                ( 0xC8 )
-#define CONFIG_RESET_LSB                ( 0x10 )
-#define CONFIG_TEST_MSB                 ( 0xCC )
-#define CONFIG_TEST_LSB                 ( 0x10 )
-#define CONFIG_ENABLE_MSB               ( 0xC4 )
-#define CONFIG_ENABLE_LSB               ( 0x00 )
-#define CONFIG_DISABLE_MSB              ( 0xC0 )
-#define CONFIG_DISABLE_LSB              ( 0x00 )
+#define MANUFACTURER_ID_MSB (0x54)
+#define MANUFACTURER_ID_LSB (0x49)
+#define DEVICE_ID_MSB (0x30)
+#define DEVICE_ID_LSB (0x01)
+#define CONFIG_RESET_MSB (0xC8)
+#define CONFIG_RESET_LSB (0x10)
+#define CONFIG_TEST_MSB (0xCC)
+#define CONFIG_TEST_LSB (0x10)
+#define CONFIG_ENABLE_MSB (0xC4)
+#define CONFIG_ENABLE_LSB (0x00)
+#define CONFIG_DISABLE_MSB (0xC0)
+#define CONFIG_DISABLE_LSB (0x00)
 
 /* Bit values */
-#define DATA_RDY_BIT_MSB                ( 0x00 )
-#define DATA_RDY_BIT_LSB                ( 0x80 )
+#define DATA_RDY_BIT_MSB (0x00)
+#define DATA_RDY_BIT_LSB (0x80)
 
-#define BOARD_SLEEP_MS                  ( 10 )
+#define BOARD_SLEEP_MS (10)
 
 /*================================ typedef ==================================*/
 
@@ -62,8 +62,7 @@ extern BoardImplementation board;
 
 /*================================= public ==================================*/
 
-Opt3001::Opt3001(I2c& i2c, uint8_t address):
-    i2c_(i2c), address_(address)
+Opt3001::Opt3001(I2c &i2c, uint8_t address) : i2c_(i2c), address_(address)
 {
 }
 
@@ -136,7 +135,7 @@ error:
     return false;
 }
 
-bool Opt3001::read(Opt3001Data* data, int16_t timeout_ms)
+bool Opt3001::read(Opt3001Data *data, int16_t timeout_ms)
 {
     uint8_t scratch[2];
     bool success, timeout;
@@ -152,39 +151,40 @@ bool Opt3001::read(Opt3001Data* data, int16_t timeout_ms)
     {
         goto error;
     }
-    
+
     /* Calculate read timeout */
     end_ticks = board.getCurrentTicks() + (timeout_ms * 1000 / Board::BOARD_TICKS_PER_US);
 
     /* Check if data is ready */
-    do {
-      /* Read the register */
-      success = i2c_.readByte(address_, scratch, sizeof(scratch));
-      if (!success)
-      {
-          goto error;
-      }
-      
-      /* Check for success */
-      success = ((scratch[1] & DATA_RDY_BIT_LSB) == DATA_RDY_BIT_LSB);
-      
-      /* If not success, sleep until retry */
-      if (!success)
-      {
-        /* Go to sleep, but avoid deep sleep */
-        board.sleepMilliseconds(BOARD_SLEEP_MS, true);
-      }
-      
-      /* Check for timeout */
-      timeout = board.isExpiredTicks(end_ticks);
-    } while(!timeout && !success);
-    
+    do
+    {
+        /* Read the register */
+        success = i2c_.readByte(address_, scratch, sizeof(scratch));
+        if (!success)
+        {
+            goto error;
+        }
+
+        /* Check for success */
+        success = ((scratch[1] & DATA_RDY_BIT_LSB) == DATA_RDY_BIT_LSB);
+
+        /* If not success, sleep until retry */
+        if (!success)
+        {
+            /* Go to sleep, but avoid deep sleep */
+            board.delayMilliseconds(BOARD_SLEEP_MS);
+        }
+
+        /* Check for timeout */
+        timeout = board.isExpiredTicks(end_ticks);
+    } while (!timeout && !success);
+
     /* If we timed-out without success */
     if (timeout || !success)
     {
-      goto error;
+        goto error;
     }
-    
+
     /* Set the read register */
     success = i2c_.writeByte(address_, REG_RESULT);
     if (!success)
@@ -200,8 +200,8 @@ bool Opt3001::read(Opt3001Data* data, int16_t timeout_ms)
     }
 
     /* Store result */
-    raw  = ((scratch[0] << 8) | (scratch[1] << 0));
-    
+    raw = ((scratch[0] << 8) | (scratch[1] << 0));
+
     /* Convert result */
     convert(raw, &data->lux);
 
@@ -281,7 +281,7 @@ error:
 
 /*================================ private ==================================*/
 
-void Opt3001::convert(uint16_t raw, float* lux)
+void Opt3001::convert(uint16_t raw, float *lux)
 {
     uint16_t e;
     uint16_t m;
