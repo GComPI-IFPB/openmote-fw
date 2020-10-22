@@ -129,8 +129,8 @@ static void prvTransmitTask(void *pvParameters)
   uint8_t tx_mode = 0;
   uint8_t cycle = 0;
   int8_t cca_threshold = 0;
-  uint8_t *csma_retries = 0;
-  int8_t *csma_rssi = 0;
+  uint8_t csma_retries = 0;
+  int8_t csma_rssi = 0;
   bool csma_check = false;
 
   /* Get EUI48 address */
@@ -200,16 +200,16 @@ static void prvTransmitTask(void *pvParameters)
         at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
 
         // Check if channel is busy
-        csma_check = at86rf215.csma(RADIO_CORE, cca_threshold, csma_retries, csma_rssi);
+        csma_check = at86rf215.csma(RADIO_CORE, cca_threshold, &csma_retries, &csma_rssi);
 
         /* Prepare radio packet */
-        tx_buffer_len = prepare_packet(radio_buffer, eui48_address, packet_counter, tx_mode, cycle, *csma_retries, *csma_rssi);
+        tx_buffer_len = prepare_packet(radio_buffer, eui48_address, packet_counter, tx_mode, cycle, csma_retries, csma_rssi);
 
         /* Load packet to radio */
         at86rf215.loadPacket(RADIO_CORE, radio_buffer, tx_buffer_len);
 
         /* Transmit packet if the channel is free */
-        if (!csma_check)
+        // if (csma_check)
         {
           at86rf215.transmit(RADIO_CORE);
         }
@@ -228,7 +228,7 @@ static void prvTransmitTask(void *pvParameters)
     packet_counter++;
 
     // Delay
-    Scheduler::delay_ms(58250);
+    Scheduler::delay_ms(5825);
   }
 }
 
