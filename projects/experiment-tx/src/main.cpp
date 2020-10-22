@@ -81,7 +81,7 @@ extern "C" void board_wakeup(TickType_t xModifiableIdleTime);
 static void prvHeartbeatTask(void *pvParameters);
 static void prvTransmitTask(void *pvParameters);
 
-static uint16_t prepare_packet(uint8_t *packet_ptr, uint8_t *eui48_address, uint64_t packet_counter, uint8_t tx_mode, uint8_t tx_counter);
+static uint16_t prepare_packet(uint8_t *packet_ptr, uint8_t *eui48_address, uint64_t packet_counter, uint8_t tx_mode, uint8_t tx_counter, uint8_t csma_retries, int8_t csma_rssi);
 
 static void radio_tx_init(void);
 static void radio_tx_done(void);
@@ -128,6 +128,10 @@ static void prvTransmitTask(void *pvParameters)
   uint64_t packet_counter = 0;
   uint8_t tx_mode = 0;
   uint8_t cycle = 0;
+  int8_t cca_threshold = 0;
+  uint8_t *csma_retries = 0;
+  int8_t *csma_rssi = 0;
+  bool csma_check = false;
 
   /* Get EUI48 address */
   board.getEUI48(eui48_address);
@@ -172,16 +176,19 @@ static void prvTransmitTask(void *pvParameters)
         case 1:
           // Configure FSK Radio
           at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
+          cca_threshold = -94;
 
           break;
         case 2:
           // Rádio OQPSK
           at86rf215.configure(RADIO_CORE, OQPSK_SETTINGS, OQPSK_FREQUENCY, RADIO_CHANNEL);
+          cca_threshold = -93;
 
           break;
         case 3:
           // Configure OFDM Radio
           at86rf215.configure(RADIO_CORE, OFDM_SETTINGS, OFDM_FREQUENCY, RADIO_CHANNEL);
+          cca_threshold = -91;
 
           break;
         default:
@@ -192,15 +199,20 @@ static void prvTransmitTask(void *pvParameters)
         /* Set Tx Power to the maximum */
         at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
 
+        // Check if channel is busy
+        csma_check = at86rf215.csma(RADIO_CORE, cca_threshold, csma_retries, csma_rssi);
+
         /* Prepare radio packet */
-        tx_buffer_len = prepare_packet(radio_buffer, eui48_address, packet_counter, tx_mode, cycle);
+        tx_buffer_len = prepare_packet(radio_buffer, eui48_address, packet_counter, tx_mode, cycle, *csma_retries, *csma_rssi);
 
         /* Load packet to radio */
         at86rf215.loadPacket(RADIO_CORE, radio_buffer, tx_buffer_len);
 
-        /* Transmit packet */
-
-        at86rf215.transmit(RADIO_CORE);
+        /* Transmit packet if the channel is free */
+        if (!csma_check)
+        {
+          at86rf215.transmit(RADIO_CORE);
+        }
 
         /* Wait until packet has been transmitted */
         sent = semaphore.take();
@@ -281,7 +293,7 @@ void board_wakeup(TickType_t xModifiableIdleTime)
   }
 }
 
-static uint16_t prepare_packet(uint8_t *packet_ptr, uint8_t *eui48_address, uint64_t packet_counter, uint8_t tx_mode, uint8_t tx_counter)
+static uint16_t prepare_packet(uint8_t *packet_ptr, uint8_t *eui48_address, uint64_t packet_counter, uint8_t tx_mode, uint8_t tx_counter, uint8_t csma_retries, int8_t csma_rssi)
 {
   uint16_t packet_length = 0;
 
@@ -301,12 +313,15 @@ static uint16_t prepare_packet(uint8_t *packet_ptr, uint8_t *eui48_address, uint
   packet_ptr[packet_length++] = (uint8_t)((packet_counter & 0x000000000000FF00) >> 8);
   packet_ptr[packet_length++] = (uint8_t)((packet_counter & 0x00000000000000FF) >> 0);
 
+  // Tx info
   packet_ptr[packet_length++] = tx_mode;
   packet_ptr[packet_length++] = tx_counter;
 
+  // CSMA info
+  packet_ptr[packet_length++] = csma_retries;
+  packet_ptr[packet_length++] = csma_retries;
+
   // Fill 32 bytes
-  packet_ptr[packet_length++] = 0; // 17;
-  packet_ptr[packet_length++] = 0; // 18;
   packet_ptr[packet_length++] = 0; // 19;
   packet_ptr[packet_length++] = 0; // 20;
   packet_ptr[packet_length++] = 0; // 21;

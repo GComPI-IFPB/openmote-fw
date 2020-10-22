@@ -15,7 +15,8 @@ while True:
     message = serialPort.read(1024)
 
     if len(message) >= 37:
-        eui48, counter, txMode, txCounter = unpack(">6sQbb", message[1:17])
+        eui48, counter, txMode, txCounter, csma_retries, csma_rssi = unpack(
+            ">6sQbbBb", message[1:19])
         rssi, _ = unpack(">bb", message[33:35])
 
         data = [
@@ -30,6 +31,8 @@ while True:
                     "txMode": txMode,
                     "txCounter": txCounter,
                     "rssi": rssi,
+                    "csma_retries": csma_retries,
+                    "csma_rssi": csma_rssi
                 }
             }
         ]
@@ -38,5 +41,5 @@ while True:
 
         done = client.write_points(data, protocol="json")
 
-        data = f'{str(datetime.now())}, {str(eui48)}, {str(counter)}, {str(txMode)}, {str(txCounter)}, {str(rssi)}, {str(len(message))}\n'
+        data = f'{str(datetime.now())} | {str(eui48)} | {str(counter)} | {str(txMode)} | {str(txCounter)} | {str(rssi)} | {str(len(message))}\n'
         file.write(data)
