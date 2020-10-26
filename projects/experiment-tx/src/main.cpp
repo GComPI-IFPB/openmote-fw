@@ -200,7 +200,7 @@ static void prvTransmitTask(void *pvParameters)
         at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
 
         // Check if channel is busy
-        csma_check = at86rf215.csma(RADIO_CORE, 0, &csma_retries, &csma_rssi);
+        csma_check = at86rf215.csma(RADIO_CORE, cca_threshold, &csma_retries, &csma_rssi);
 
         /* Prepare radio packet */
         tx_buffer_len = prepare_packet(radio_buffer, eui48_address, packet_counter, tx_mode, cycle, csma_retries, csma_rssi);
