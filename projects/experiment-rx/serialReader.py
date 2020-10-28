@@ -3,13 +3,14 @@ from datetime import datetime
 from struct import unpack
 import serial
 import sys
-import os
 
 serialPort = serial.Serial(port=sys.argv[1], baudrate=115200, timeout=0.1)
 
-file = open(f'data{serialPort}.csv', "a")
+clientTest = InfluxDBClient(
+    host='127.0.0.1', port=8086, database='openmoteTest')
+clientFail = InfluxDBClient(host='127.0.0.1', port=8086, database='fail')
 
-client = InfluxDBClient(host='127.0.0.1', port=8086, database='testeOpenmote')
+c = 0
 
 while True:
     message = serialPort.read(1024)
@@ -39,7 +40,23 @@ while True:
 
         print(data)
 
-        done = client.write_points(data, protocol="json")
+        done = clientTest.write_points(data, protocol="json")
 
-        data = f'{str(datetime.now())} | {str(eui48)} | {str(counter)} | {str(txMode)} | {str(txCounter)} | {str(rssi)} | {str(len(message))}\n'
-        file.write(data)
+    elif len(message) > 0:
+        data = [
+            {
+                "measurement": "failData",
+                "tags": {
+                    "location": "A"
+                },
+                "fields": {
+                    "data": str(message),
+                    "counter": c,
+                    "packetSize": len(message)
+                }
+            }
+        ]
+        c += 1
+        print(data)
+
+        done = clientFail.write_points(data, protocol="json")
