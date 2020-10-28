@@ -32,7 +32,7 @@ def storeData(serialMessage: bytes):
             "measurement": "transmissionData",
             "tags": {
                 "openmoteID": str(eui48),
-                "location": sys.argv[1]
+                "location": sys.argv[2]
             },
             "fields": {
                 "counter": counter,
