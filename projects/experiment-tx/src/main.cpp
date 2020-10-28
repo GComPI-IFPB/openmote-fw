@@ -228,7 +228,7 @@ static void prvTransmitTask(void *pvParameters)
     packet_counter++;
 
     // Delay
-    Scheduler::delay_ms(5825);
+    Scheduler::delay_ms(58250);
   }
 }
 
@@ -300,7 +300,7 @@ static uint16_t prepare_packet(uint8_t *packet_ptr, uint8_t *eui48_address, uint
   /* Copy MAC address */
   for (packet_length = 0; packet_length < EUI48_ADDDRESS_LENGTH; packet_length++)
   {
-    packet_ptr[packet_length] = 'c';
+    packet_ptr[packet_length] = eui48_address[packet_length];
   }
 
   /* Copy packet counter */
