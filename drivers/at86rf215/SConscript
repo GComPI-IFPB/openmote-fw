@@ -6,12 +6,13 @@ localEnv = env.Clone()
 
 source = [
     'At86rf215.cpp',
+    'At86rf215_conf.cpp'
 ]
 
 localEnv.Append(
-    CPPPATH =  []
+    CPPPATH=[]
 )
 
-common  = localEnv.Object(source=source)
+common = localEnv.Object(source=source)
 
 Return('common')
