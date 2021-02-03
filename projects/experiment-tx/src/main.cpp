@@ -173,19 +173,19 @@ static void prvTransmitTask(void *pvParameters)
         // Run through 3 pre configured radio settings
         switch (tx_mode)
         {
-        case 1:
+        case 0:
           // Configure FSK Radio
           at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
           cca_threshold = -94;
 
           break;
-        case 2:
+        case 1:
           // Rádio OQPSK
           at86rf215.configure(RADIO_CORE, OQPSK_SETTINGS, OQPSK_FREQUENCY, RADIO_CHANNEL);
           cca_threshold = -93;
 
           break;
-        case 3:
+        case 2:
           // Configure OFDM Radio
           at86rf215.configure(RADIO_CORE, OFDM_SETTINGS, OFDM_FREQUENCY, RADIO_CHANNEL);
           cca_threshold = -91;
