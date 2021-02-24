@@ -53,7 +53,7 @@
 // #define RADIO_SETTINGS (&radio_settings[CONFIG_OFDM2_MCS0])
 // #define RADIO_FREQUENCY (&frequency_settings_09[FREQUENCY_09_OFDM2])
 
-#define OFDM_SETTINGS (&radio_settings[CONFIG_OFDM3_MCS0])           /* BPSK,   rate 1/2, 4x repetition,   50 kbps */
+#define OFDM_SETTINGS (&radio_settings[CONFIG_OFDM2_MCS0])           /* BPSK,   rate 1/2, 4x repetition,   50 kbps */
 #define OFDM_FREQUENCY (&frequency_settings_09[FREQUENCY_09_OFDM2])  /* OFDM Mode 2,  800 kHz */
 #define FSK_SETTINGS (&radio_settings[CONFIG_FSK_OPTION1])           /* X 2-FSK,  50 kbps */
 #define FSK_FREQUENCY (&frequency_settings_09[FREQUENCY_09_FSK1])    /* FSK Mode 1,   200 kHz */
