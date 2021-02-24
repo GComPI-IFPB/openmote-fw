@@ -31,6 +31,13 @@ If you want to write the .hex file in the openmote-b run the following command:
 ```sh
 scons board=openmote-b project=experiment-tx compiler=gcc verbose=0 bootload=/dev/ttyUSB1
 ```
+On bootload device you can pass a list, a range or a wildcard character.
+```
+list  -> /dev/ttyUSB0,ttyUSB1,/dev/ttyUSB2
+range -> /dev/ttyUSB[0-2] = /dev/ttyUSB0,ttyUSB1,/dev/ttyUSB2
+all   -> /dev/ttyUSBX = /dev/ttyUSB0,ttyUSB1,/dev/ttyUSB2
+```
+
 To erase the build files run the command with `-c` flag 
 ```sh
 scons board=openmote-b project=experiment-tx compiler=gcc verbose=0 -c
