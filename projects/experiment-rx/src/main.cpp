@@ -43,12 +43,12 @@
 // #define RADIO_FREQUENCY (&frequency_settings_09[FREQUENCY_09_OFDM2]) /* OFDM Mode 2,  800 kHz */
 
 /* FSK Radio settings */
-// #define RADIO_SETTINGS (&radio_settings[CONFIG_FSK_OPTION1])        /* X 2-FSK,  50 kbps */
-// #define RADIO_FREQUENCY (&frequency_settings_09[FREQUENCY_09_FSK1]) /* FSK Mode 1,   200 kHz */
+#define RADIO_SETTINGS (&radio_settings[CONFIG_FSK_OPTION1])        /* X 2-FSK,  50 kbps */
+#define RADIO_FREQUENCY (&frequency_settings_09[FREQUENCY_09_FSK1]) /* FSK Mode 1,   200 kHz */
 
 /* OQPSK Radio settings */
-#define RADIO_SETTINGS (&radio_settings[CONFIG_OQPSK_RATE4])         /* X OQPSK-DSSS,  100 kchips/s,  50.00 kbps */
-#define RADIO_FREQUENCY (&frequency_settings_09[FREQUENCY_09_OQPSK]) /* OQPSK,        600 kHz */
+// #define RADIO_SETTINGS (&radio_settings[CONFIG_OQPSK_RATE4])         /* X OQPSK-DSSS,  100 kchips/s,  50.00 kbps */
+// #define RADIO_FREQUENCY (&frequency_settings_09[FREQUENCY_09_OQPSK]) /* OQPSK,        600 kHz */
 
 #define RADIO_CHANNEL (0)
 #define RADIO_TX_POWER (At86rf215::TransmitPower::TX_POWER_MIN)
@@ -63,7 +63,7 @@ static void prvRadioTask(void *pvParameters);
 static void radio_rx_init(void);
 static void radio_rx_done(void);
 
-static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *packet_ptr, uint16_t packet_length, int8_t rssi, int8_t lqi);
+static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *packet_ptr, uint16_t packet_length, int8_t lqi);
 
 /*=============================== variables =================================*/
 
@@ -84,8 +84,7 @@ static uint16_t radio_buffer_len = sizeof(radio_buffer);
 
 /*================================= public ==================================*/
 
-int main(void)
-{
+int main(void) {
   /* Initialize the board */
   board.init();
 
@@ -108,8 +107,7 @@ int main(void)
 
 /*================================ private ==================================*/
 
-static void prvRadioTask(void *pvParameters)
-{
+static void prvRadioTask(void *pvParameters) {
   bool status;
 
   /* Turn AT86RF215 radio on */
@@ -117,8 +115,7 @@ static void prvRadioTask(void *pvParameters)
 
   /* Check AT86RF215 radio */
   status = at86rf215.check();
-  if (!status)
-  {
+  if (!status) {
     /* Blink red LED */
     board.error();
   }
@@ -134,8 +131,7 @@ static void prvRadioTask(void *pvParameters)
   at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
 
   /* Forever */
-  while (true)
-  {
+  while (true) {
     At86rf215::RadioResult result;
     int8_t rssi, lqi;
     bool crc;
@@ -164,21 +160,19 @@ static void prvRadioTask(void *pvParameters)
     received = semaphore.take();
 
     /* If we have received a packet */
-    if (received == true)
-    {
+    if (received == true) {
       /* Load packet to radio */
       result = at86rf215.getPacket(RADIO_CORE, packet_ptr, &packet_len, &rssi, &lqi, &crc);
 
       /* Check packet has been received successfully */
-      if (result == At86rf215::RadioResult::Success && crc == true)
-      {
+      if (result == At86rf215::RadioResult::Success && crc == true) {
         uint16_t length;
 
         /* Turn on yellow LED */
         led_yellow.on();
 
         /* Prepare serial buffer */
-        length = prepare_serial(serial_buffer, packet_ptr, packet_len, rssi, lqi);
+        length = prepare_serial(serial_buffer, packet_ptr, packet_len, lqi);
 
         /* Send packet via Serial */
         serial.write(serial_buffer, length, true);
@@ -186,9 +180,7 @@ static void prvRadioTask(void *pvParameters)
         /* Turn off yellow LED */
         led_yellow.off();
       }
-    }
-    else
-    {
+    } else {
       /* Blink red LED */
       led_red.on();
       Scheduler::delay_ms(1);
@@ -200,11 +192,9 @@ static void prvRadioTask(void *pvParameters)
   at86rf215.off();
 }
 
-static void prvGreenLedTask(void *pvParameters)
-{
+static void prvGreenLedTask(void *pvParameters) {
   /* Forever */
-  while (true)
-  {
+  while (true) {
     /* Turn on green LED for 100 ms */
     led_green.on();
     Scheduler::delay_ms(100);
@@ -215,14 +205,12 @@ static void prvGreenLedTask(void *pvParameters)
   }
 }
 
-static void radio_rx_init(void)
-{
+static void radio_rx_init(void) {
   /* Turn on orange LED */
   led_orange.on();
 }
 
-static void radio_rx_done(void)
-{
+static void radio_rx_done(void) {
   /* Turn off orange LED */
   led_orange.off();
 
@@ -230,8 +218,7 @@ static void radio_rx_done(void)
   semaphore.giveFromInterrupt();
 }
 
-static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *packet_ptr, uint16_t packet_length, int8_t rssi, int8_t lqi)
-{
+static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *packet_ptr, uint16_t packet_length, int8_t lqi) {
   uint16_t length;
 
   /* Copy radio packet payload */
@@ -242,6 +229,9 @@ static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *packet_ptr, uint16_
 
   /* Copy RSSI value */
   buffer_ptr[length++] = lqi;
+
+  // Signaling byte
+  buffer_ptr[length++] = 105;
 
   return length;
 }
