@@ -81,7 +81,7 @@ extern "C" void board_wakeup(TickType_t xModifiableIdleTime);
 static void prvHeartbeatTask(void *pvParameters);
 static void prvTransmitTask(void *pvParameters);
 
-static uint16_t prepare_packet(uint8_t *packet_ptr, uint8_t *eui48_address, uint64_t packet_counter, uint8_t tx_mode, uint8_t tx_counter, uint8_t csma_retries, int8_t csma_rssi);
+static uint16_t prepare_packet(uint8_t *packet_ptr, uint32_t packet_counter, uint8_t tx_mode, uint8_t tx_counter, uint8_t csma_retries, int8_t csma_rssi);
 
 static void radio_tx_init(void);
 static void radio_tx_done(void);
@@ -109,8 +109,7 @@ static bool board_slept;
 
 /*================================= public ==================================*/
 
-int main(void)
-{
+int main(void) {
   /* Initialize the board */
   board.init();
 
@@ -123,9 +122,8 @@ int main(void)
 
 /*================================ private ==================================*/
 
-static void prvTransmitTask(void *pvParameters)
-{
-  uint64_t packet_counter = 0;
+static void prvTransmitTask(void *pvParameters) {
+  uint32_t packet_counter = 0;
   uint8_t tx_mode = 0;
   uint8_t cycle = 0;
   int8_t cca_threshold = 0;
@@ -141,8 +139,7 @@ static void prvTransmitTask(void *pvParameters)
   at86rf215.enableInterrupts();
 
   /* Forever */
-  while (true)
-  {
+  while (true) {
     uint16_t tx_buffer_len;
 
     // Sensors delay
@@ -150,20 +147,16 @@ static void prvTransmitTask(void *pvParameters)
 
     bool sent;
 
-    for (cycle = 0; cycle < 3; cycle++)
-    {
+    for (cycle = 0; cycle < 3; cycle++) {
 
-      if (cycle == 1)
-      {
+      if (cycle == 1) {
         Scheduler::delay_ms(100);
       }
-      if (cycle == 2)
-      {
+      if (cycle == 2) {
         Scheduler::delay_ms(200);
       }
 
-      for (tx_mode = 0; tx_mode < 3; tx_mode++)
-      {
+      for (tx_mode = 0; tx_mode < 3; tx_mode++) {
         /* Turn AT86RF215 radio off */
         at86rf215.on();
 
@@ -171,8 +164,7 @@ static void prvTransmitTask(void *pvParameters)
         at86rf215.wakeup(RADIO_CORE);
 
         // Run through 3 pre configured radio settings
-        switch (tx_mode)
-        {
+        switch (tx_mode) {
         case 0:
           // Configure FSK Radio
           at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
@@ -203,14 +195,13 @@ static void prvTransmitTask(void *pvParameters)
         csma_check = at86rf215.csma(RADIO_CORE, cca_threshold, &csma_retries, &csma_rssi);
 
         /* Prepare radio packet */
-        tx_buffer_len = prepare_packet(radio_buffer, eui48_address, packet_counter, tx_mode, cycle, csma_retries, csma_rssi);
+        tx_buffer_len = prepare_packet(radio_buffer, packet_counter, tx_mode, cycle, csma_retries, csma_rssi);
 
         /* Load packet to radio */
         at86rf215.loadPacket(RADIO_CORE, radio_buffer, tx_buffer_len);
 
         /* Transmit packet if the channel is free */
-        if (csma_check)
-        {
+        if (csma_check) {
           at86rf215.transmit(RADIO_CORE);
         }
 
@@ -228,15 +219,13 @@ static void prvTransmitTask(void *pvParameters)
     packet_counter++;
 
     // Delay
-    Scheduler::delay_ms(58250);
+    Scheduler::delay_ms(5825);
   }
 }
 
-static void prvHeartbeatTask(void *pvParameters)
-{
+static void prvHeartbeatTask(void *pvParameters) {
   /* Forever */
-  while (true)
-  {
+  while (true) {
     /* Turn on green LED for 10 ms */
     led_green.on();
     Scheduler::delay_ms(10);
@@ -247,14 +236,12 @@ static void prvHeartbeatTask(void *pvParameters)
   }
 }
 
-static void radio_tx_init(void)
-{
+static void radio_tx_init(void) {
   /* Turn on orange LED */
   led_orange.on();
 }
 
-static void radio_tx_done(void)
-{
+static void radio_tx_done(void) {
   /* Turn off orange LED */
   led_orange.off();
 
@@ -262,19 +249,15 @@ static void radio_tx_done(void)
   semaphore.giveFromInterrupt();
 }
 
-void board_sleep(TickType_t xModifiableIdleTime)
-{
+void board_sleep(TickType_t xModifiableIdleTime) {
   /* Check if board can go to sleep */
-  if (i2c.canSleep())
-  {
+  if (i2c.canSleep()) {
     /* If so, put SPI & I2C to sleep */
     i2c.sleep();
 
     /* Remember that the board went to sleep */
     board_slept = true;
-  }
-  else
-  {
+  } else {
     /* If not, remember that the board did NOT went to sleep */
     board_slept = false;
 
@@ -283,35 +266,30 @@ void board_sleep(TickType_t xModifiableIdleTime)
   }
 }
 
-void board_wakeup(TickType_t xModifiableIdleTime)
-{
+void board_wakeup(TickType_t xModifiableIdleTime) {
   /* Check if the board went to sleep */
-  if (board_slept)
-  {
+  if (board_slept) {
     /* If so, wakeup SPI & I2C */
     i2c.wakeup();
   }
 }
 
-static uint16_t prepare_packet(uint8_t *packet_ptr, uint8_t *eui48_address, uint64_t packet_counter, uint8_t tx_mode, uint8_t tx_counter, uint8_t csma_retries, int8_t csma_rssi)
-{
+static uint16_t prepare_packet(uint8_t *packet_ptr, uint32_t packet_counter, uint8_t tx_mode, uint8_t tx_counter, uint8_t csma_retries, int8_t csma_rssi) {
   uint16_t packet_length = 0;
 
+  // Signaling byte
+  packet_ptr[0] = 73;
+
   /* Copy MAC address */
-  for (packet_length = 0; packet_length < EUI48_ADDDRESS_LENGTH; packet_length++)
-  {
-    packet_ptr[packet_length] = eui48_address[packet_length];
+  for (packet_length = 1; packet_length < EUI48_ADDDRESS_LENGTH + 1; packet_length++) {
+    packet_ptr[packet_length] = 'a';
   }
 
   /* Copy packet counter */
-  packet_ptr[packet_length++] = (uint8_t)((packet_counter & 0xFF00000000000000) >> 56);
-  packet_ptr[packet_length++] = (uint8_t)((packet_counter & 0x00FF000000000000) >> 48);
-  packet_ptr[packet_length++] = (uint8_t)((packet_counter & 0x0000FF0000000000) >> 40);
-  packet_ptr[packet_length++] = (uint8_t)((packet_counter & 0x000000FF00000000) >> 32);
-  packet_ptr[packet_length++] = (uint8_t)((packet_counter & 0x00000000FF000000) >> 24);
-  packet_ptr[packet_length++] = (uint8_t)((packet_counter & 0x0000000000FF0000) >> 16);
-  packet_ptr[packet_length++] = (uint8_t)((packet_counter & 0x000000000000FF00) >> 8);
-  packet_ptr[packet_length++] = (uint8_t)((packet_counter & 0x00000000000000FF) >> 0);
+  packet_ptr[packet_length++] = (uint8_t)((packet_counter & 0xFF000000) >> 24);
+  packet_ptr[packet_length++] = (uint8_t)((packet_counter & 0x00FF0000) >> 16);
+  packet_ptr[packet_length++] = (uint8_t)((packet_counter & 0x0000FF00) >> 8);
+  packet_ptr[packet_length++] = (uint8_t)((packet_counter & 0x000000FF) >> 0);
 
   // Tx info
   packet_ptr[packet_length++] = tx_mode;
@@ -322,6 +300,9 @@ static uint16_t prepare_packet(uint8_t *packet_ptr, uint8_t *eui48_address, uint
   packet_ptr[packet_length++] = csma_rssi;
 
   // Fill 32 bytes
+  packet_ptr[packet_length++] = 0; // 16;
+  packet_ptr[packet_length++] = 0; // 17;
+  packet_ptr[packet_length++] = 0; // 18;
   packet_ptr[packet_length++] = 0; // 19;
   packet_ptr[packet_length++] = 0; // 20;
   packet_ptr[packet_length++] = 0; // 21;
