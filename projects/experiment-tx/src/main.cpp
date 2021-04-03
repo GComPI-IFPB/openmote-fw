@@ -65,14 +65,6 @@
 
 /*================================ typedef ==================================*/
 
-typedef struct
-{
-  uint16_t temperature;
-  uint16_t humidity;
-  uint16_t pressure;
-  uint16_t light;
-} SensorData;
-
 /*=============================== prototypes ================================*/
 
 extern "C" void board_sleep(TickType_t xModifiableIdleTime);
@@ -90,12 +82,6 @@ static void radio_tx_done(void);
 
 static Task heartbeatTask{(const char *)"Heartbeat", 128, (unsigned char)HEARTBEAT_TASK_PRIORITY, prvHeartbeatTask, nullptr};
 static Task radioTask{(const char *)"Transmit", 128, (unsigned char)TRANSMIT_TASK_PRIORITY, prvTransmitTask, nullptr};
-
-static GpioConfig sensors_pwr_cfg = {SENSORS_CTRL_PORT, SENSORS_CTRL_PIN, 0, 0, 0};
-static GpioOut sensors_pwr_ctrl{sensors_pwr_cfg};
-
-static Bme280 bme280{i2c, BME280_I2C_ADDRESS};
-static Opt3001 opt3001{i2c, OPT3001_I2C_ADDRESS};
 
 static PlainCallback radio_tx_init_cb{&radio_tx_init};
 static PlainCallback radio_tx_done_cb{&radio_tx_done};
@@ -130,9 +116,6 @@ static void prvTransmitTask(void *pvParameters) {
   uint8_t csma_retries = 0;
   int8_t csma_rssi = 0;
   bool csma_check = false;
-
-  /* Get EUI48 address */
-  board.getEUI48(eui48_address);
 
   /* Set radio callbacks and enable interrupts */
   at86rf215.setTxCallbacks(RADIO_CORE, &radio_tx_init_cb, &radio_tx_done_cb);
@@ -219,7 +202,7 @@ static void prvTransmitTask(void *pvParameters) {
     packet_counter++;
 
     // Delay
-    Scheduler::delay_ms(5825);
+    Scheduler::delay_ms(58250);
   }
 }
 
