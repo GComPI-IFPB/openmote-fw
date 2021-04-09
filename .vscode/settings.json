@@ -1,0 +1,8 @@
+{
+    "cSpell.words": [
+        "rssi"
+    ],
+    "files.associations": {
+        "string_view": "cpp"
+    }
+}
