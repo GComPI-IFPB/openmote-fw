@@ -70,7 +70,7 @@ static void radio_rx_done(void);
 static void radio_tx_init(void);
 static void radio_tx_done(void);
 
-static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *packet_ptr, uint16_t packet_length, int8_t lqi);
+static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *rx_packet_ptr, uint16_t packet_length, int8_t lqi);
 
 /*=============================== variables =================================*/
 
@@ -144,31 +144,21 @@ static void prvRadioTask(void *pvParameters) {
 
   /* Wake up and configure radio */
   at86rf215.wakeup(RADIO_CORE);
-  at86rf215.configure(RADIO_CORE, OFDM_SETTINGS, OFDM_FREQUENCY, RADIO_CHANNEL);
+  at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
   at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
 
   /* Forever */
   while (true) {
     At86rf215::RadioResult result;
     int8_t rssi, lqi;
+    uint8_t id;
     bool crc;
     bool received;
     bool taken;
 
     /* Initialize packet pointer and length */
-    uint8_t *packet_ptr = radio_buffer;
+    uint8_t *rx_packet_ptr = radio_buffer;
     uint16_t packet_len = radio_buffer_len;
-
-    /* while (true)
-    {
-      // Turn on yellow LED for 100 ms
-      led_yellow.on();
-      Scheduler::delay_ms(100);
-
-      // Turn off yellow LED for 900 ms
-      led_yellow.off();
-      Scheduler::delay_ms(900);
-    }*/
 
     /* Try to receive a packet */
     at86rf215.receive(RADIO_CORE);
@@ -179,17 +169,17 @@ static void prvRadioTask(void *pvParameters) {
     /* If we have received a packet */
     if (received == true) {
       /* Load packet to radio */
-      result = at86rf215.getPacket(RADIO_CORE, packet_ptr, &packet_len, &rssi, &lqi, &crc);
+      result = at86rf215.getPacket(RADIO_CORE, rx_packet_ptr, &packet_len, &rssi, &lqi, &crc);
 
       /* Check packet has been received successfully */
       if (result == At86rf215::RadioResult::Success && crc == true) {
         uint16_t length;
 
         /* Turn on yellow LED */
-        led_yellow.on();
+        // led_yellow.on();
 
         /* Prepare serial buffer */
-        length = prepare_serial(serial_buffer, packet_ptr, packet_len, lqi);
+        length = prepare_serial(serial_buffer, rx_packet_ptr, packet_len, lqi);
 
         /* Send packet via Serial */
         serial.write(serial_buffer, length, true);
@@ -199,12 +189,13 @@ static void prvRadioTask(void *pvParameters) {
 
         radioMode = RadioMode_Transmit;
         
-        ack_ptr[0] = 't';
-        ack_ptr[1] = 'e';
-        ack_ptr[2] = 's';
-        ack_ptr[3] = 't';
-        ack_ptr[4] = 'e';
-
+        ack_len = 0;
+        id = ((uint8_t *)(&packet_ptr[5]));
+        ack_ptr[ack_len++] = 11;
+        ack_ptr[ack_len++] = 22;
+        ack_ptr[ack_len++] = id;
+        ack_ptr[ack_len++] = 11;
+        ack_ptr[ack_len++] = 22;
 
         length = dma.memcpy(radio_ack_buffer, ack_ptr, ack_len);
 
@@ -218,8 +209,13 @@ static void prvRadioTask(void *pvParameters) {
         at86rf215.transmit(RADIO_CORE);
         
         /* Wait until packet has been transmitted */
-        taken = tx_semaphore.take(2000);
+        taken = tx_semaphore.take();
 
+        at86rf215.off();
+        at86rf215.on();
+        at86rf215.wakeup(RADIO_CORE);
+        at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
+        at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
         
         /* Turn off orange LED */
         led_orange.off();
@@ -227,7 +223,7 @@ static void prvRadioTask(void *pvParameters) {
         // -------------------- Send ACK Packet --------------------
 
         /* Turn off yellow LED */
-        led_yellow.off();
+        // led_yellow.off();
       }
     } else {
       /* Blink red LED */
@@ -282,11 +278,11 @@ static void radio_tx_done(void)
   tx_semaphore.giveFromInterrupt();
 }
 
-static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *packet_ptr, uint16_t packet_length, int8_t lqi) {
+static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *rx_packet_ptr, uint16_t packet_length, int8_t lqi) {
   uint16_t length;
 
   /* Copy radio packet payload */
-  dma.memcpy(buffer_ptr, packet_ptr, packet_length);
+  dma.memcpy(buffer_ptr, rx_packet_ptr, packet_length);
 
   /* Update buffer length */
   length = packet_length;
