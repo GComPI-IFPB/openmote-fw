@@ -24,6 +24,8 @@
 #include "Semaphore.hpp"
 #include "Task.hpp"
 
+#include "Serial.hpp"
+
 #include "At86rf215.hpp"
 #include "At86rf215_conf.h"
 
@@ -42,6 +44,8 @@
 
 #define TX_BUFFER_LENGTH (127)
 #define EUI48_ADDDRESS_LENGTH (6)
+
+#define SERIAL_BUFFER_LENGTH      (1024)
 
 #define SENSORS_CTRL_PORT (GPIO_A_BASE)
 #define SENSORS_CTRL_PIN (GPIO_PIN_7)
@@ -75,21 +79,36 @@ static void prvTransmitTask(void *pvParameters);
 
 static uint16_t prepare_packet(uint8_t *packet_ptr, uint32_t packet_counter, uint8_t tx_mode, uint8_t tx_counter, uint8_t csma_retries, int8_t csma_rssi);
 
+static void radio_rx_init(void);
+static void radio_rx_done(void);
 static void radio_tx_init(void);
 static void radio_tx_done(void);
 
+static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *rx_packet_ptr, uint16_t packet_length, int8_t lqi);
+
+
 /*=============================== variables =================================*/
+
+static Serial serial(uart0);
 
 static Task heartbeatTask{(const char *)"Heartbeat", 128, (unsigned char)HEARTBEAT_TASK_PRIORITY, prvHeartbeatTask, nullptr};
 static Task radioTask{(const char *)"Transmit", 128, (unsigned char)TRANSMIT_TASK_PRIORITY, prvTransmitTask, nullptr};
 
+static PlainCallback radio_rx_init_cb(&radio_rx_init);
+static PlainCallback radio_rx_done_cb(&radio_rx_done);
 static PlainCallback radio_tx_init_cb{&radio_tx_init};
 static PlainCallback radio_tx_done_cb{&radio_tx_done};
 
-static SemaphoreBinary semaphore{false};
+static SemaphoreBinary tx_semaphore{false};
+static SemaphoreBinary rx_semaphore(false);
+
+static uint8_t serial_buffer[SERIAL_BUFFER_LENGTH];
 
 static uint8_t radio_buffer[TX_BUFFER_LENGTH];
 static uint8_t eui48_address[EUI48_ADDDRESS_LENGTH];
+
+static uint8_t radio_ack_buffer[TX_BUFFER_LENGTH];
+static uint16_t radio_ack_buffer_len = sizeof(radio_ack_buffer);
 
 static bool board_slept;
 
@@ -98,6 +117,9 @@ static bool board_slept;
 int main(void) {
   /* Initialize the board */
   board.init();
+
+  /* Initialize Serial interface */
+  serial.init();
 
   /* Enable the SPI interface */
   spi0.enable(SPI_BAUDRATE);
@@ -117,8 +139,18 @@ static void prvTransmitTask(void *pvParameters) {
   int8_t csma_rssi = 0;
   bool csma_check = false;
 
+  uint8_t* ack_ptr = radio_ack_buffer;
+  uint16_t ack_len = sizeof(radio_ack_buffer);
+  At86rf215::RadioResult result;
+  int8_t rssi, lqi;
+  bool crc;
+  bool received;
+  bool taken;
+
+
   /* Set radio callbacks and enable interrupts */
   at86rf215.setTxCallbacks(RADIO_CORE, &radio_tx_init_cb, &radio_tx_done_cb);
+  at86rf215.setRxCallbacks(RADIO_CORE, &radio_rx_init_cb, &radio_rx_done_cb);
   at86rf215.enableInterrupts();
 
   /* Forever */
@@ -184,16 +216,30 @@ static void prvTransmitTask(void *pvParameters) {
         at86rf215.loadPacket(RADIO_CORE, radio_buffer, tx_buffer_len);
 
         /* Transmit packet if the channel is free */
-        if (csma_check) {
+        if (true) {
           at86rf215.transmit(RADIO_CORE);
         }
 
         /* Wait until packet has been transmitted */
-        sent = semaphore.take();
+        sent = tx_semaphore.take();
+
+        
+
+        at86rf215.receive(RADIO_CORE);
+        received = rx_semaphore.take(25);
+        if (received == true) {
+          result = at86rf215.getPacket(RADIO_CORE, ack_ptr, &ack_len, &rssi, &lqi, &crc);
+          if (result == At86rf215::RadioResult::Success && crc == true) {
+            uint16_t length;
+            length = prepare_serial(serial_buffer, ack_ptr, ack_len, lqi);
+            serial.write(serial_buffer, length, true);
+            
+          }
+        }
 
         /* Turn AT86RF215 radio off */
         at86rf215.off();
-
+        
         Scheduler::delay_ms(50);
       }
     }
@@ -202,7 +248,7 @@ static void prvTransmitTask(void *pvParameters) {
     packet_counter++;
 
     // Delay
-    Scheduler::delay_ms(58250);
+    Scheduler::delay_ms(5825);
   }
 }
 
@@ -219,6 +265,19 @@ static void prvHeartbeatTask(void *pvParameters) {
   }
 }
 
+static void radio_rx_init(void) {
+  /* Turn on orange LED */
+  led_orange.on();
+}
+
+static void radio_rx_done(void) {
+  /* Turn off orange LED */
+  led_orange.off();
+
+  /* Notify we have received a packet */
+  rx_semaphore.giveFromInterrupt();
+}
+
 static void radio_tx_init(void) {
   /* Turn on orange LED */
   led_orange.on();
@@ -229,7 +288,7 @@ static void radio_tx_done(void) {
   led_orange.off();
 
   /* Notify we have transmitted a packet */
-  semaphore.giveFromInterrupt();
+  tx_semaphore.giveFromInterrupt();
 }
 
 void board_sleep(TickType_t xModifiableIdleTime) {
@@ -302,4 +361,23 @@ static uint16_t prepare_packet(uint8_t *packet_ptr, uint32_t packet_counter, uin
   packet_ptr[packet_length++] = 0; // 32;
 
   return packet_length;
+}
+
+
+static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *rx_packet_ptr, uint16_t packet_length, int8_t lqi) {
+  uint16_t length;
+
+  /* Copy radio packet payload */
+  dma.memcpy(buffer_ptr, rx_packet_ptr, packet_length);
+
+  /* Update buffer length */
+  length = packet_length;
+
+  /* Copy RSSI value */
+  buffer_ptr[length++] = lqi;
+
+  // Signaling byte
+  buffer_ptr[length++] = 105;
+
+  return length;
 }
