@@ -190,7 +190,7 @@ static void prvRadioTask(void *pvParameters) {
         radioMode = RadioMode_Transmit;
         
         ack_len = 0;
-        id = ((uint8_t *)(&packet_ptr[5]));
+        id = *((uint8_t *)(&rx_packet_ptr[5]));
         ack_ptr[ack_len++] = 11;
         ack_ptr[ack_len++] = 22;
         ack_ptr[ack_len++] = id;

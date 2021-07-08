@@ -59,8 +59,10 @@
 
 #define OFDM_SETTINGS (&radio_settings[CONFIG_OFDM2_MCS0])           /* BPSK,   rate 1/2, 4x repetition,   50 kbps */
 #define OFDM_FREQUENCY (&frequency_settings_09[FREQUENCY_09_OFDM2])  /* OFDM Mode 2,  800 kHz */
+
 #define FSK_SETTINGS (&radio_settings[CONFIG_FSK_OPTION1])           /* X 2-FSK,  50 kbps */
 #define FSK_FREQUENCY (&frequency_settings_09[FREQUENCY_09_FSK1])    /* FSK Mode 1,   200 kHz */
+
 #define OQPSK_SETTINGS (&radio_settings[CONFIG_OQPSK_RATE4])         /* X OQPSK-DSSS,  100 kchips/s,  50.00 kbps */
 #define OQPSK_FREQUENCY (&frequency_settings_09[FREQUENCY_09_OQPSK]) /* OQPSK,        600 kHz */
 
@@ -223,7 +225,41 @@ static void prvTransmitTask(void *pvParameters) {
         /* Wait until packet has been transmitted */
         sent = tx_semaphore.take();
 
-        
+        at86rf215.off();
+        /* Turn AT86RF215 radio off */
+        at86rf215.on();
+
+        /* Wake up and configure radio */
+        at86rf215.wakeup(RADIO_CORE);
+
+        // Run through 3 pre configured radio settings
+        switch (tx_mode) {
+          case 0:
+            // Configure FSK Radio
+            at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
+            cca_threshold = -94;
+
+            break;
+          case 1:
+            // Rádio OQPSK
+            at86rf215.configure(RADIO_CORE, OQPSK_SETTINGS, OQPSK_FREQUENCY, RADIO_CHANNEL);
+            cca_threshold = -93;
+
+            break;
+          case 2:
+            // Configure OFDM Radio
+            at86rf215.configure(RADIO_CORE, OFDM_SETTINGS, OFDM_FREQUENCY, RADIO_CHANNEL);
+            cca_threshold = -91;
+
+            break;
+          default:
+            at86rf215.configure(RADIO_CORE, OFDM_SETTINGS, OFDM_FREQUENCY, RADIO_CHANNEL);
+            break;
+        }
+
+        /* Set Tx Power to the maximum */
+        at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
+
 
         at86rf215.receive(RADIO_CORE);
         received = rx_semaphore.take(25);
