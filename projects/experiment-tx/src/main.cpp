@@ -236,9 +236,9 @@ static void prvTransmitTask(void *pvParameters) {
 	        sent = tx_semaphore.take();
 			
 			//TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE DE DADOS TRANSMITIDO
-						
+			
 			/* Turn AT86RF215 radio off */
-	        at86rf215.off();
+			at86rf215.off();
 			
 	        /* Turn AT86RF215 radio on */
 	        at86rf215.on();
@@ -284,11 +284,9 @@ static void prvTransmitTask(void *pvParameters) {
 	        Scheduler::delay_ms(25);
 		}
 		else {
-	        /* Turn AT86RF215 radio off */
-			
+			/* Turn AT86RF215 radio off */
 			//TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE DE DADOS NÃO TRANSMITIDO
-			
-	        at86rf215.off(); 
+			at86rf215.off();
 			Scheduler::delay_ms(50);
 		}    
       }

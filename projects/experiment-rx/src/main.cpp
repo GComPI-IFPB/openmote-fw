@@ -206,8 +206,7 @@ static void prvRadioTask(void *pvParameters) {
         ack_ptr[ack_len++] = 22;
 
         length = dma.memcpy(radio_ack_buffer, ack_ptr, ack_len);
-
-   
+		
         // Check if channel is busy
         csma_check = at86rf215.csma(RADIO_CORE, cca_threshold, &csma_retries, &csma_rssi);
 
@@ -215,18 +214,19 @@ static void prvRadioTask(void *pvParameters) {
         if (csma_check) {		
         	/* Load packet to radio */
         	at86rf215.loadPacket(RADIO_CORE, radio_ack_buffer, length);
-        
+			
         	/* Transmit packet */
         	at86rf215.transmit(RADIO_CORE);
-        
+			
         	/* Wait until packet has been transmitted */
         	taken = tx_semaphore.take();
+			
 			//TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE ACK TRANSMITIDO
 		}
 		else {
 			//TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE ACK NÃO TRANSMITIDO
 		}
-        
+		
 		at86rf215.off();
         at86rf215.on();
         at86rf215.wakeup(RADIO_CORE);
