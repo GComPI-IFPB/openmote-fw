@@ -121,17 +121,21 @@ int main(void) {
   /* Initialize the board */
   board.init();
 
+  /* Enable the SPI interface */
+  spi0.enable(SPI_BAUDRATE);
+
   /* Enable the UART interface */
   uart0.enable(UART_BAUDRATE);
 
   /* Initialize Serial interface */
   serial.init();
 
-  /* Enable the SPI interface */
-  spi0.enable(SPI_BAUDRATE);
+  /* Initialize the DMA */
+  dma.init();
 
   /* Start the scheduler */
   Scheduler::run();
+  return 0;
 }
 
 /*================================ private ==================================*/
@@ -271,21 +275,12 @@ static void prvTransmitTask(void *pvParameters) {
         
         received = rx_semaphore.take(25);
         if (received == true) {
-          ack_len = 0;
-          ack_ptr[ack_len++] = 1;
-          ack_ptr[ack_len++] = 1;
-          ack_ptr[ack_len++] = 1;
-          uint16_t length;
-          length = dma.memcpy(serial_buffer, ack_ptr, ack_len);
-
-          serial.write(serial_buffer, length, true);
-
-          // result = at86rf215.getPacket(RADIO_CORE, ack_ptr, &ack_len, &rssi, &lqi, &crc);
-          // if (result == At86rf215::RadioResult::Success && crc == true) {
-          //   uint16_t length;
-          //   length = prepare_serial(serial_buffer, ack_ptr, ack_len, lqi);
-          //   serial.write(serial_buffer, length, true);
-          // }
+          result = at86rf215.getPacket(RADIO_CORE, ack_ptr, &ack_len, &rssi, &lqi, &crc);
+          if (result == At86rf215::RadioResult::Success && crc == true) {
+            uint16_t length;
+            length = prepare_serial(serial_buffer, ack_ptr, ack_len, lqi);
+            serial.write(serial_buffer, length, true);
+          }
         }
 
         /* Turn AT86RF215 radio off */
