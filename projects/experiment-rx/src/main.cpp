@@ -127,6 +127,11 @@ static void prvRadioTask(void *pvParameters) {
   uint8_t* ack_ptr = radio_ack_buffer;
   uint16_t ack_len = sizeof(radio_ack_buffer);
 
+  int8_t cca_threshold = 0;
+  uint8_t csma_retries = 0;
+  int8_t csma_rssi = 0;
+  bool csma_check = false;
+  
   /* Turn AT86RF215 radio on */
   at86rf215.on();
 
@@ -186,7 +191,10 @@ static void prvRadioTask(void *pvParameters) {
 
         // -------------------- Send ACK Packet --------------------
         // at86rf215.configure(RADIO_CORE, OFDM_SETTINGS, OFDM_FREQUENCY, RADIO_CHANNEL);
-
+		
+		/* Wait 1ms to transmit the ACK */
+		Scheduler::delay_ms(1);
+		
         radioMode = RadioMode_Transmit;
         
         ack_len = 0;
@@ -199,31 +207,33 @@ static void prvRadioTask(void *pvParameters) {
 
         length = dma.memcpy(radio_ack_buffer, ack_ptr, ack_len);
 
-        /* Turn on orange LED */
-        led_orange.on();
-        
-        /* Load packet to radio */
-        at86rf215.loadPacket(RADIO_CORE, radio_ack_buffer, length);
-        
-        /* Transmit packet */
-        at86rf215.transmit(RADIO_CORE);
-        
-        /* Wait until packet has been transmitted */
-        taken = tx_semaphore.take();
+   
+        // Check if channel is busy
+        csma_check = at86rf215.csma(RADIO_CORE, cca_threshold, &csma_retries, &csma_rssi);
 
-        at86rf215.off();
+        /* Transmit packet if the channel is free */
+        if (csma_check) {		
+        	/* Load packet to radio */
+        	at86rf215.loadPacket(RADIO_CORE, radio_ack_buffer, length);
+        
+        	/* Transmit packet */
+        	at86rf215.transmit(RADIO_CORE);
+        
+        	/* Wait until packet has been transmitted */
+        	taken = tx_semaphore.take();
+			//TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE ACK TRANSMITIDO
+		}
+		else {
+			//TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE ACK NÃO TRANSMITIDO
+		}
+        
+		at86rf215.off();
         at86rf215.on();
         at86rf215.wakeup(RADIO_CORE);
         at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
-        at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
-        
-        /* Turn off orange LED */
-        led_orange.off();
-        
+        at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);    
         // -------------------- Send ACK Packet --------------------
-
-        /* Turn off yellow LED */
-        // led_yellow.off();
+		
       }
     } else {
       /* Blink red LED */
