@@ -41,6 +41,7 @@
 #define TRANSMIT_TASK_STACK_SIZE (1024)
 
 #define SPI_BAUDRATE (8000000)
+#define UART_BAUDRATE             (115200)
 
 #define TX_BUFFER_LENGTH (127)
 #define EUI48_ADDDRESS_LENGTH (6)
@@ -119,6 +120,9 @@ static bool board_slept;
 int main(void) {
   /* Initialize the board */
   board.init();
+
+  /* Enable the UART interface */
+  uart0.enable(UART_BAUDRATE);
 
   /* Initialize Serial interface */
   serial.init();
@@ -260,23 +264,32 @@ static void prvTransmitTask(void *pvParameters) {
         /* Set Tx Power to the maximum */
         at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
 
-
+  
         at86rf215.receive(RADIO_CORE);
+        Scheduler::delay_ms(50);
+
+        
         received = rx_semaphore.take(25);
         if (received == true) {
-          result = at86rf215.getPacket(RADIO_CORE, ack_ptr, &ack_len, &rssi, &lqi, &crc);
-          if (result == At86rf215::RadioResult::Success && crc == true) {
-            uint16_t length;
-            length = prepare_serial(serial_buffer, ack_ptr, ack_len, lqi);
-            serial.write(serial_buffer, length, true);
-            
-          }
+          ack_len = 0;
+          ack_ptr[ack_len++] = 1;
+          ack_ptr[ack_len++] = 1;
+          ack_ptr[ack_len++] = 1;
+          uint16_t length;
+          length = dma.memcpy(serial_buffer, ack_ptr, ack_len);
+
+          serial.write(serial_buffer, length, true);
+
+          // result = at86rf215.getPacket(RADIO_CORE, ack_ptr, &ack_len, &rssi, &lqi, &crc);
+          // if (result == At86rf215::RadioResult::Success && crc == true) {
+          //   uint16_t length;
+          //   length = prepare_serial(serial_buffer, ack_ptr, ack_len, lqi);
+          //   serial.write(serial_buffer, length, true);
+          // }
         }
 
         /* Turn AT86RF215 radio off */
-        at86rf215.off();
-        
-        Scheduler::delay_ms(50);
+        at86rf215.off();  
       }
     }
 
@@ -303,12 +316,12 @@ static void prvHeartbeatTask(void *pvParameters) {
 
 static void radio_rx_init(void) {
   /* Turn on orange LED */
-  led_orange.on();
+  led_red.on();
 }
 
 static void radio_rx_done(void) {
   /* Turn off orange LED */
-  led_orange.off();
+  led_red.off();
 
   /* Notify we have received a packet */
   rx_semaphore.giveFromInterrupt();
@@ -316,12 +329,12 @@ static void radio_rx_done(void) {
 
 static void radio_tx_init(void) {
   /* Turn on orange LED */
-  led_orange.on();
+  led_yellow.on();
 }
 
 static void radio_tx_done(void) {
   /* Turn off orange LED */
-  led_orange.off();
+  led_yellow.off();
 
   /* Notify we have transmitted a packet */
   tx_semaphore.giveFromInterrupt();
