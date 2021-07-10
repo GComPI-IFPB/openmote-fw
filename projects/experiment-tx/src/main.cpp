@@ -327,7 +327,7 @@ static void radio_rx_done(void) {
   }
 
   /* Notify we have received a packet */
-  rx_semaphore.giveFromInterrupt();
+  //rx_semaphore.giveFromInterrupt();
 }
 
 static void radio_tx_init(void) {
