@@ -27,37 +27,37 @@
 
 /*================================ define ===================================*/
 
-#define GREEN_LED_TASK_PRIORITY   (tskIDLE_PRIORITY + 0)
-#define RADIO_TASK_PRIORITY       (tskIDLE_PRIORITY + 1)
+#define GREEN_LED_TASK_PRIORITY (tskIDLE_PRIORITY + 0)
+#define RADIO_TASK_PRIORITY (tskIDLE_PRIORITY + 1)
 
-#define UART_BAUDRATE             (115200)
-#define SPI_BAUDRATE              (8000000)
+#define UART_BAUDRATE (115200)
+#define SPI_BAUDRATE (8000000)
 
-#define RADIO_BUFFER_LENGTH       (1024)
-#define SERIAL_BUFFER_LENGTH      (1024)
+#define RADIO_BUFFER_LENGTH (1024)
+#define SERIAL_BUFFER_LENGTH (1024)
 
-#define RADIO_CORE                (At86rf215::CORE_RF09)
+#define RADIO_CORE (At86rf215::CORE_RF09)
 
 /*  OFDM Radio settings */
-#define OFDM_SETTINGS            (&radio_settings[CONFIG_OFDM2_MCS0])          /* BPSK,   rate 1/2, 4x repetition,   50 kbps */
-#define OFDM_FREQUENCY           (&frequency_settings_09[FREQUENCY_09_OFDM2]) /* OFDM Mode 2,  800 kHz */
+#define OFDM_SETTINGS (&radio_settings[CONFIG_OFDM2_MCS0])          /* BPSK,   rate 1/2, 4x repetition,   50 kbps */
+#define OFDM_FREQUENCY (&frequency_settings_09[FREQUENCY_09_OFDM2]) /* OFDM Mode 2,  800 kHz */
 
 /* FSK Radio settings */
-#define FSK_SETTINGS            (&radio_settings[CONFIG_FSK_OPTION1])        /* X 2-FSK,  50 kbps */
-#define FSK_FREQUENCY           (&frequency_settings_09[FREQUENCY_09_FSK1]) /* FSK Mode 1,   200 kHz */
+#define FSK_SETTINGS (&radio_settings[CONFIG_FSK_OPTION1])        /* X 2-FSK,  50 kbps */
+#define FSK_FREQUENCY (&frequency_settings_09[FREQUENCY_09_FSK1]) /* FSK Mode 1,   200 kHz */
 
 /* OQPSK Radio settings */
-#define OQPSK_SETTINGS            (&radio_settings[CONFIG_OQPSK_RATE4])         /* X OQPSK-DSSS,  100 kchips/s,  50.00 kbps */
-#define OQPSK_FREQUENCY           (&frequency_settings_09[FREQUENCY_09_OQPSK]) /* OQPSK,        600 kHz */
+#define OQPSK_SETTINGS (&radio_settings[CONFIG_OQPSK_RATE4])         /* X OQPSK-DSSS,  100 kchips/s,  50.00 kbps */
+#define OQPSK_FREQUENCY (&frequency_settings_09[FREQUENCY_09_OQPSK]) /* OQPSK,        600 kHz */
 
-#define RADIO_CHANNEL             (0)
-#define RADIO_TX_POWER            (At86rf215::TransmitPower::TX_POWER_MAX)
+#define RADIO_CHANNEL (0)
+#define RADIO_TX_POWER (At86rf215::TransmitPower::TX_POWER_MAX)
 
 /*================================ typedef ==================================*/
 
 enum RadioMode {
   RadioMode_Transmit = 0x30,
-  RadioMode_Receive  = 0x31
+  RadioMode_Receive = 0x31
 };
 
 /*=============================== prototypes ================================*/
@@ -124,14 +124,14 @@ int main(void) {
 
 static void prvRadioTask(void *pvParameters) {
   bool status;
-  uint8_t* ack_ptr = radio_ack_buffer;
+  uint8_t *ack_ptr = radio_ack_buffer;
   uint16_t ack_len = sizeof(radio_ack_buffer);
 
   int8_t cca_threshold = 0;
   uint8_t csma_retries = 0;
   int8_t csma_rssi = 0;
   bool csma_check = false;
-  
+
   /* Turn AT86RF215 radio on */
   at86rf215.on();
 
@@ -191,12 +191,18 @@ static void prvRadioTask(void *pvParameters) {
 
         // -------------------- Send ACK Packet --------------------
         // at86rf215.configure(RADIO_CORE, OFDM_SETTINGS, OFDM_FREQUENCY, RADIO_CHANNEL);
-		
-		/* Wait 1ms to transmit the ACK */
-		Scheduler::delay_ms(1);
-		
+
+        at86rf215.off();
+        at86rf215.on();
+        at86rf215.wakeup(RADIO_CORE);
+        at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
+        at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
+
+        /* Wait 1ms to transmit the ACK */
+        Scheduler::delay_ms(1);
+
         radioMode = RadioMode_Transmit;
-        
+
         ack_len = 0;
         id = *((uint8_t *)(&rx_packet_ptr[5]));
         ack_ptr[ack_len++] = 11;
@@ -206,34 +212,27 @@ static void prvRadioTask(void *pvParameters) {
         ack_ptr[ack_len++] = 22;
 
         length = dma.memcpy(radio_ack_buffer, ack_ptr, ack_len);
-		
+
         // Check if channel is busy
         csma_check = at86rf215.csma(RADIO_CORE, cca_threshold, &csma_retries, &csma_rssi);
 
         /* Transmit packet if the channel is free */
-        if (csma_check) {		
-        	/* Load packet to radio */
-        	at86rf215.loadPacket(RADIO_CORE, radio_ack_buffer, length);
-			
-        	/* Transmit packet */
-        	at86rf215.transmit(RADIO_CORE);
-			
-        	/* Wait until packet has been transmitted */
-        	taken = tx_semaphore.take();
-			
-			//TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE ACK TRANSMITIDO
-		}
-		else {
-			//TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE ACK NÃO TRANSMITIDO
-		}
-		
-		at86rf215.off();
-        at86rf215.on();
-        at86rf215.wakeup(RADIO_CORE);
-        at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
-        at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);    
+        if (true) {
+          /* Load packet to radio */
+          at86rf215.loadPacket(RADIO_CORE, radio_ack_buffer, length);
+
+          /* Transmit packet */
+          at86rf215.transmit(RADIO_CORE);
+
+          /* Wait until packet has been transmitted */
+          taken = tx_semaphore.take();
+
+          //TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE ACK TRANSMITIDO
+        } else {
+          //TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE ACK NÃO TRANSMITIDO
+        }
+
         // -------------------- Send ACK Packet --------------------
-		
       }
     } else {
       /* Blink red LED */
@@ -273,14 +272,12 @@ static void radio_rx_done(void) {
   rx_semaphore.giveFromInterrupt();
 }
 
-static void radio_tx_init(void)
-{
+static void radio_tx_init(void) {
   /* Turn on yellow LED */
   led_yellow.on();
 }
 
-static void radio_tx_done(void)
-{
+static void radio_tx_done(void) {
   /* Turn off yellow LED */
   led_yellow.off();
 

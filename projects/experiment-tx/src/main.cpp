@@ -1,5 +1,4 @@
-e
-	já/**
+/**
  * @file       main.cpp
  * @author     Pere Tuset-Peiro (peretuset@openmote.com)
  * @version    v0.1
@@ -42,12 +41,12 @@ e
 #define TRANSMIT_TASK_STACK_SIZE (1024)
 
 #define SPI_BAUDRATE (8000000)
-#define UART_BAUDRATE             (115200)
+#define UART_BAUDRATE (115200)
 
 #define TX_BUFFER_LENGTH (127)
 #define EUI48_ADDDRESS_LENGTH (6)
 
-#define SERIAL_BUFFER_LENGTH      (1024)
+#define SERIAL_BUFFER_LENGTH (1024)
 
 #define SENSORS_CTRL_PORT (GPIO_A_BASE)
 #define SENSORS_CTRL_PIN (GPIO_PIN_7)
@@ -59,11 +58,11 @@ e
 // #define RADIO_SETTINGS (&radio_settings[CONFIG_OFDM2_MCS0])
 // #define RADIO_FREQUENCY (&frequency_settings_09[FREQUENCY_09_OFDM2])
 
-#define OFDM_SETTINGS (&radio_settings[CONFIG_OFDM2_MCS0])           /* BPSK,   rate 1/2, 4x repetition,   50 kbps */
-#define OFDM_FREQUENCY (&frequency_settings_09[FREQUENCY_09_OFDM2])  /* OFDM Mode 2,  800 kHz */
+#define OFDM_SETTINGS (&radio_settings[CONFIG_OFDM2_MCS0])          /* BPSK,   rate 1/2, 4x repetition,   50 kbps */
+#define OFDM_FREQUENCY (&frequency_settings_09[FREQUENCY_09_OFDM2]) /* OFDM Mode 2,  800 kHz */
 
-#define FSK_SETTINGS (&radio_settings[CONFIG_FSK_OPTION1])           /* X 2-FSK,  50 kbps */
-#define FSK_FREQUENCY (&frequency_settings_09[FREQUENCY_09_FSK1])    /* FSK Mode 1,   200 kHz */
+#define FSK_SETTINGS (&radio_settings[CONFIG_FSK_OPTION1])        /* X 2-FSK,  50 kbps */
+#define FSK_FREQUENCY (&frequency_settings_09[FREQUENCY_09_FSK1]) /* FSK Mode 1,   200 kHz */
 
 #define OQPSK_SETTINGS (&radio_settings[CONFIG_OQPSK_RATE4])         /* X OQPSK-DSSS,  100 kchips/s,  50.00 kbps */
 #define OQPSK_FREQUENCY (&frequency_settings_09[FREQUENCY_09_OQPSK]) /* OQPSK,        600 kHz */
@@ -90,7 +89,6 @@ static void radio_tx_done(void);
 
 static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *rx_packet_ptr, uint16_t packet_length, int8_t lqi);
 
-
 /*=============================== variables =================================*/
 
 static Serial serial(uart0);
@@ -116,7 +114,7 @@ static uint16_t radio_ack_buffer_len = sizeof(radio_ack_buffer);
 
 static bool board_slept;
 
-uint8_t* ack_ptr;
+uint8_t *ack_ptr;
 uint16_t ack_len;
 At86rf215::RadioResult result;
 int8_t rssi, lqi;
@@ -223,72 +221,71 @@ static void prvTransmitTask(void *pvParameters) {
         csma_check = at86rf215.csma(RADIO_CORE, cca_threshold, &csma_retries, &csma_rssi);
 
         /* Transmit packet if the channel is free */
-        if (csma_check) {
-	      	/* Prepare radio packet */
-	      	tx_buffer_len = prepare_packet(radio_buffer, packet_counter, tx_mode, cycle, csma_retries, csma_rssi);
-		  
-	     	/* Load packet to radio */
-	     	at86rf215.loadPacket(RADIO_CORE, radio_buffer, tx_buffer_len);
-		  
-          	at86rf215.transmit(RADIO_CORE);
-     
-	        /* Wait until packet has been transmitted */
-	        sent = tx_semaphore.take();
-			
-			//TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE DE DADOS TRANSMITIDO
-			
-			/* Turn AT86RF215 radio off */
-			at86rf215.off();
-			
-	        /* Turn AT86RF215 radio on */
-	        at86rf215.on();
+        if (true) {
+          /* Prepare radio packet */
+          tx_buffer_len = prepare_packet(radio_buffer, packet_counter, tx_mode, cycle, csma_retries, csma_rssi);
 
-	        /* Wake up and configure radio */
-	        at86rf215.wakeup(RADIO_CORE);
+          /* Load packet to radio */
+          at86rf215.loadPacket(RADIO_CORE, radio_buffer, tx_buffer_len);
 
-	        // Run through 3 pre configured radio settings
-	        switch (tx_mode) {
-	          case 0:
-	            // Configure FSK Radio
-	            at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
-	            cca_threshold = -94;
+          at86rf215.transmit(RADIO_CORE);
 
-	            break;
-	          case 1:
-	            // Rádio OQPSK
-	            at86rf215.configure(RADIO_CORE, OQPSK_SETTINGS, OQPSK_FREQUENCY, RADIO_CHANNEL);
-	            cca_threshold = -93;
+          /* Wait until packet has been transmitted */
+          sent = tx_semaphore.take();
 
-	            break;
-	          case 2:
-	            // Configure OFDM Radio
-	            at86rf215.configure(RADIO_CORE, OFDM_SETTINGS, OFDM_FREQUENCY, RADIO_CHANNEL);
-	            cca_threshold = -91;
+          //TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE DE DADOS TRANSMITIDO
 
-	            break;
-	          default:
-	            at86rf215.configure(RADIO_CORE, OFDM_SETTINGS, OFDM_FREQUENCY, RADIO_CHANNEL);
-	            break;
-	        }
-			
-	        /* Set Tx Power to the maximum */
-	        at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
-  
-	        at86rf215.receive(RADIO_CORE);
-						
-			/* Wait for the ACK */
-	        Scheduler::delay_ms(25);
-			
-	        /* Turn AT86RF215 radio off */
-	        at86rf215.off(); 
-	        Scheduler::delay_ms(25);
-		}
-		else {
-			/* Turn AT86RF215 radio off */
-			//TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE DE DADOS NÃO TRANSMITIDO
-			at86rf215.off();
-			Scheduler::delay_ms(50);
-		}    
+          /* Turn AT86RF215 radio off */
+          at86rf215.off();
+
+          /* Turn AT86RF215 radio on */
+          at86rf215.on();
+
+          /* Wake up and configure radio */
+          at86rf215.wakeup(RADIO_CORE);
+
+          // Run through 3 pre configured radio settings
+          switch (tx_mode) {
+          case 0:
+            // Configure FSK Radio
+            at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
+            cca_threshold = -94;
+
+            break;
+          case 1:
+            // Rádio OQPSK
+            at86rf215.configure(RADIO_CORE, OQPSK_SETTINGS, OQPSK_FREQUENCY, RADIO_CHANNEL);
+            cca_threshold = -93;
+
+            break;
+          case 2:
+            // Configure OFDM Radio
+            at86rf215.configure(RADIO_CORE, OFDM_SETTINGS, OFDM_FREQUENCY, RADIO_CHANNEL);
+            cca_threshold = -91;
+
+            break;
+          default:
+            at86rf215.configure(RADIO_CORE, OFDM_SETTINGS, OFDM_FREQUENCY, RADIO_CHANNEL);
+            break;
+          }
+
+          /* Set Tx Power to the maximum */
+          at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
+
+          at86rf215.receive(RADIO_CORE);
+
+          /* Wait for the ACK */
+          Scheduler::delay_ms(25);
+
+          /* Turn AT86RF215 radio off */
+          at86rf215.off();
+          Scheduler::delay_ms(25);
+        } else {
+          /* Turn AT86RF215 radio off */
+          //TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE DE DADOS NÃO TRANSMITIDO
+          at86rf215.off();
+          Scheduler::delay_ms(50);
+        }
       }
     }
 
@@ -328,7 +325,7 @@ static void radio_rx_done(void) {
     length = prepare_serial(serial_buffer, ack_ptr, ack_len, lqi);
     serial.write(serial_buffer, length, true);
   }
-  
+
   /* Notify we have received a packet */
   rx_semaphore.giveFromInterrupt();
 }
@@ -417,7 +414,6 @@ static uint16_t prepare_packet(uint8_t *packet_ptr, uint32_t packet_counter, uin
 
   return packet_length;
 }
-
 
 static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *rx_packet_ptr, uint16_t packet_length, int8_t lqi) {
   uint16_t length;
