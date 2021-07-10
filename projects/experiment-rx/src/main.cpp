@@ -151,8 +151,11 @@ static void prvRadioTask(void *pvParameters) {
   at86rf215.wakeup(RADIO_CORE);
   at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
   at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
-
-  /* Forever */
+  cca_threshold = -94; //Threshold for FSK
+  //cca_threshold = -93; //Threshold for OQPSK
+  //cca_threshold = -91; //Threshold for OFDM
+  
+   /* Forever */
   while (true) {
     At86rf215::RadioResult result;
     int8_t rssi, lqi;
