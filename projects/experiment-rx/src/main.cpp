@@ -220,7 +220,7 @@ static void prvRadioTask(void *pvParameters) {
         csma_check = at86rf215.csma(RADIO_CORE, cca_threshold, &csma_retries, &csma_rssi);
 
         /* Transmit packet if the channel is free */
-        if (true) {
+        if (csma_check) {
           /* Load packet to radio */
           at86rf215.loadPacket(RADIO_CORE, radio_ack_buffer, length);
 
