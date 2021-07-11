@@ -405,6 +405,10 @@ static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *rx_packet_ptr, uint
   /* Update buffer length */
   length = packet_length;
 
+  for(int i = 0; i < 17; i++) {
+  	buffer_ptr[length++] = 1;
+  }
+
   /* Copy RSSI value */
   buffer_ptr[length++] = lqi;
 

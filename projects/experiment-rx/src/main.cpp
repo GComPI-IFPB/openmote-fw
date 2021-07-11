@@ -53,6 +53,8 @@
 #define RADIO_CHANNEL (0)
 #define RADIO_TX_POWER (At86rf215::TransmitPower::TX_POWER_MAX)
 
+#define EUI48_ADDDRESS_LENGTH (6)
+
 /*================================ typedef ==================================*/
 
 enum RadioMode {
@@ -71,6 +73,7 @@ static void radio_tx_init(void);
 static void radio_tx_done(void);
 
 static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *rx_packet_ptr, uint16_t packet_length, int8_t lqi);
+static uint16_t prepare_ack_packet(uint8_t *packet_ptr, uint8_t node_id, uint8_t *packet_counter, uint8_t tx_mode, uint8_t tx_counter, uint8_t csma_retries, int8_t csma_rssi);
 
 /*=============================== variables =================================*/
 
@@ -207,20 +210,21 @@ static void prvRadioTask(void *pvParameters) {
         radioMode = RadioMode_Transmit;
 
         ack_len = 0;
-        id = *((uint8_t *)(&rx_packet_ptr[5]));
-        ack_ptr[ack_len++] = 11;
-        ack_ptr[ack_len++] = 22;
-        ack_ptr[ack_len++] = id;
-        ack_ptr[ack_len++] = 11;
-        ack_ptr[ack_len++] = 22;
-
-        length = dma.memcpy(radio_ack_buffer, ack_ptr, ack_len);
+        id = *((uint8_t *)(&rx_packet_ptr[1]));
+        uint8_t *packet_counter = &rx_packet_ptr[7];
+        uint8_t tx_mode = *((uint8_t *)(&rx_packet_ptr[11]));
+        uint8_t cycle = *((uint8_t *)(&rx_packet_ptr[12]));
 
         // Check if channel is busy
         csma_check = at86rf215.csma(RADIO_CORE, cca_threshold, &csma_retries, &csma_rssi);
 
         /* Transmit packet if the channel is free */
         if (csma_check) {
+          /* Prepare radio packet */
+          ack_len = prepare_ack_packet(ack_ptr, id, packet_counter, tx_mode, cycle, csma_retries, csma_rssi);
+
+          length = dma.memcpy(radio_ack_buffer, ack_ptr, ack_len);
+
           /* Load packet to radio */
           at86rf215.loadPacket(RADIO_CORE, radio_ack_buffer, length);
 
@@ -304,4 +308,32 @@ static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *rx_packet_ptr, uint
   buffer_ptr[length++] = 105;
 
   return length;
+}
+
+static uint16_t prepare_ack_packet(uint8_t *packet_ptr, uint8_t node_id, uint8_t *packet_counter, uint8_t tx_mode, uint8_t tx_counter, uint8_t csma_retries, int8_t csma_rssi) {
+  uint16_t packet_length = 0;
+
+  // Signaling byte
+  packet_ptr[0] = 73;
+
+  /* Copy MAC address */
+  for (packet_length = 1; packet_length < EUI48_ADDDRESS_LENGTH + 1; packet_length++) {
+    packet_ptr[packet_length] = node_id;
+  }
+
+  /* Copy packet counter */
+  packet_ptr[packet_length++] = packet_counter[0];//(uint8_t)((packet_counter & 0xFF000000) >> 24);
+  packet_ptr[packet_length++] = packet_counter[1];//(uint8_t)((packet_counter & 0x00FF0000) >> 16);
+  packet_ptr[packet_length++] = packet_counter[2];//(uint8_t)((packet_counter & 0x0000FF00) >> 8);
+  packet_ptr[packet_length++] = packet_counter[3];//(uint8_t)((packet_counter & 0x000000FF) >> 0);
+
+  // Tx info
+  packet_ptr[packet_length++] = tx_mode;
+  packet_ptr[packet_length++] = tx_counter;
+
+  // CSMA info
+  packet_ptr[packet_length++] = csma_retries;
+  packet_ptr[packet_length++] = csma_rssi;
+
+  return packet_length;
 }
