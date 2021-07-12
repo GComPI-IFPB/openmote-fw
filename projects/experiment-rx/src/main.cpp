@@ -183,7 +183,7 @@ static void prvRadioTask(void *pvParameters) {
       result = at86rf215.getPacket(RADIO_CORE, rx_packet_ptr, &packet_len, &rssi, &lqi, &crc);
 
       /* Check packet has been received successfully */
-      if (result == At86rf215::RadioResult::Success && crc == true) {
+      if (result == At86rf215::RadioResult::Success && crc == true && rx_packet_ptr[15] == 0) {
         uint16_t length;
 
         /* Turn on yellow LED */
@@ -243,9 +243,9 @@ static void prvRadioTask(void *pvParameters) {
       }
     } else {
       /* Blink red LED */
-      led_red.on();
-      Scheduler::delay_ms(1);
-      led_red.off();
+     // led_red.on();
+     // Scheduler::delay_ms(1);
+      //led_red.off();
     }
   }
 
@@ -334,6 +334,7 @@ static uint16_t prepare_ack_packet(uint8_t *packet_ptr, uint8_t node_id, uint8_t
   // CSMA info
   packet_ptr[packet_length++] = csma_retries;
   packet_ptr[packet_length++] = csma_rssi;
+  packet_ptr[packet_length++] = 1;
 
   return packet_length;
 }
