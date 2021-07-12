@@ -55,6 +55,9 @@
 
 #define EUI48_ADDDRESS_LENGTH (6)
 
+#define PHY_CONFIG 0   //O -> fsk; 1->oqpsk; 2->ofdm
+
+
 /*================================ typedef ==================================*/
 
 enum RadioMode {
@@ -74,7 +77,7 @@ static void radio_tx_done(void);
 
 static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *rx_packet_ptr, uint16_t packet_length, int8_t lqi);
 static uint16_t prepare_ack_packet(uint8_t *packet_ptr, uint8_t node_id, uint8_t *packet_counter, uint8_t tx_mode, uint8_t tx_counter, uint8_t csma_retries, int8_t csma_rssi);
-
+static void configure_radio(uint8_t tx_mode);
 /*=============================== variables =================================*/
 
 static Serial serial(uart0);
@@ -99,6 +102,8 @@ static uint8_t radio_ack_buffer[RADIO_BUFFER_LENGTH];
 static uint16_t radio_ack_buffer_len = sizeof(radio_buffer);
 
 static RadioMode radioMode;
+
+int8_t cca_threshold = 0;
 
 /*================================= public ==================================*/
 
@@ -130,7 +135,6 @@ static void prvRadioTask(void *pvParameters) {
   uint8_t *ack_ptr = radio_ack_buffer;
   uint16_t ack_len = sizeof(radio_ack_buffer);
 
-  int8_t cca_threshold = 0;
   uint8_t csma_retries = 0;
   int8_t csma_rssi = 0;
   bool csma_check = false;
@@ -151,12 +155,7 @@ static void prvRadioTask(void *pvParameters) {
   at86rf215.enableInterrupts();
 
   /* Wake up and configure radio */
-  at86rf215.wakeup(RADIO_CORE);
-  at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
-  at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
-  cca_threshold = -94; //Threshold for FSK
-  //cca_threshold = -93; //Threshold for OQPSK
-  //cca_threshold = -91; //Threshold for OFDM
+  configure_radio(PHY_CONFIG);
   
    /* Forever */
   while (true) {
@@ -200,9 +199,7 @@ static void prvRadioTask(void *pvParameters) {
 
         at86rf215.off();
         at86rf215.on();
-        at86rf215.wakeup(RADIO_CORE);
-        at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
-        at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
+        configure_radio(PHY_CONFIG);
 
         /* Wait 1ms to transmit the ACK */
         Scheduler::delay_ms(1);
@@ -337,4 +334,25 @@ static uint16_t prepare_ack_packet(uint8_t *packet_ptr, uint8_t node_id, uint8_t
   packet_ptr[packet_length++] = 1;
 
   return packet_length;
+}
+
+static void configure_radio(uint8_t tx_mode) {
+  at86rf215.wakeup(RADIO_CORE);
+  if(tx_mode == 0) {
+    at86rf215.configure(RADIO_CORE, FSK_SETTINGS, FSK_FREQUENCY, RADIO_CHANNEL);
+    at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
+    cca_threshold = -94; //Threshold for FSK
+  }
+  else if(tx_mode == 1) {
+    at86rf215.wakeup(RADIO_CORE);
+    at86rf215.configure(RADIO_CORE, OQPSK_SETTINGS, OQPSK_FREQUENCY, RADIO_CHANNEL);
+    at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
+    cca_threshold = -93; //Threshold for OQPSK
+  }
+  else {
+    at86rf215.wakeup(RADIO_CORE);
+    at86rf215.configure(RADIO_CORE, OFDM_SETTINGS, OFDM_FREQUENCY, RADIO_CHANNEL);
+    at86rf215.setTransmitPower(RADIO_CORE, RADIO_TX_POWER);
+    cca_threshold = -91; //Threshold for OFDM
+  }
 }
