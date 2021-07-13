@@ -55,7 +55,7 @@
 
 #define EUI48_ADDDRESS_LENGTH (6)
 
-#define PHY_CONFIG 0   //O -> fsk; 1->oqpsk; 2->ofdm
+#define PHY_CONFIG 1   //O -> fsk; 1->oqpsk; 2->ofdm
 
 
 /*================================ typedef ==================================*/

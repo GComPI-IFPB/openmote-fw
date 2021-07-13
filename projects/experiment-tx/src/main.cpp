@@ -152,7 +152,7 @@ static void prvLogTask(void *pvParameters) {
 	while(true) {
 		rx_semaphore.take();
 		uint16_t length = prepare_serial(serial_buffer, ack_ptr, ack_len, lqi);
-     	serial.write(serial_buffer, length, true);
+     		serial.write(serial_buffer, length, true);
 	}
 }
 
@@ -249,12 +249,12 @@ static void prvTransmitTask(void *pvParameters) {
           at86rf215.receive(RADIO_CORE);
 
           /* Wait for the ACK */
-          Scheduler::delay_ms(25);
+          Scheduler::delay_ms(50);
 
           /* Turn AT86RF215 radio off */
           at86rf215.off();
           led_red.off();
-          Scheduler::delay_ms(25);
+         // Scheduler::delay_ms(25);
         } else {
           /* Turn AT86RF215 radio off */
           //TODO: MANDAR PELA SERIAL OS DADOS DO PACOTE DE DADOS NÃO TRANSMITIDO
@@ -305,7 +305,7 @@ static void radio_rx_done(void) {
   //  serial.write(serial_buffer, length, true);
   }
   else {
-  	led_red.off();
+  //	led_red.off();
   }
 
 
@@ -405,7 +405,7 @@ static uint16_t prepare_serial(uint8_t *buffer_ptr, uint8_t *rx_packet_ptr, uint
   /* Update buffer length */
   length = packet_length;
 
-  for(int i = 0; i < 17; i++) {
+  for(int i = 0; i < 16; i++) {
   	buffer_ptr[length++] = 1;
   }
 
